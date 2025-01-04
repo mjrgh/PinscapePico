@@ -1,0 +1,63 @@
+html {
+    color: #000000;
+    background-color: #FFFFFF;
+    padding: 1em 1em 4em 1em;
+}
+body {
+    max-width: 60em;
+}
+html, table {
+    font: 10pt/16pt Segoe UI;
+}
+
+h1 {
+    font-size: 133%;
+    color: #0000E0;
+    border-bottom: 1px solid #b0b0ff;
+    padding: 1em 0px 1em 0px;
+    margin-bottom: 2em;
+}
+h2 {
+    font-size: 125%;
+    color: #0000E0;
+    margin: 2em 0px 1ex 0px;
+}
+
+h3 {
+    font-size: 110%;
+    color: #0000E0;
+}
+
+    
+li {
+    margin-top: 1em;
+}
+
+h2.mode {
+    padding: 2ex 1ex;
+    margin: 2em -1ex 1em -1ex;
+    background: #f0f0f0;
+    text-align: center;
+    border-top: 1px solid #a0a0a0;
+}
+
+h2.mode {
+    padding: 2ex 1ex;
+    margin: 2em -1ex 1em -1ex;
+    background: #f0f0f0;
+    text-align: center;
+    border-top: 1px solid #a0a0a0;
+}
+
+table.data {
+    font: inherit;
+    display: block;
+    margin: 1em auto;
+    border-collapse: collapse;
+}
+
+table.data td, table.data th {
+    padding: .5ex 2em;
+    border: 1px solid #f0f0f0;
+}
+

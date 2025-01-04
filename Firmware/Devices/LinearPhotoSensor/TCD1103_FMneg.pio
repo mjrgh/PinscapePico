@@ -1,0 +1,15 @@
+; Pinscape Pico - TCD1103 PIO program - FM (master clock), negative logic
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This is the inverted logic counterpart of TCD1103_FMpos.pio - see that
+; file for details on setup and operation.  Use this version when the chip's
+; FM input is wired through an inverter as recommended in the data sheet.
+
+.program TCD1103_FMneg
+
+.side_set 1     ; FM (TCD1103 master clock)
+
+.wrap_target
+     nop   side 1     ; drive FM low (in negative logic)
+     nop   side 0     ; drive FM high (in negative logic)
+.wrap

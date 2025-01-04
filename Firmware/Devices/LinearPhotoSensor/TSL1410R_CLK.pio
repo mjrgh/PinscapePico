@@ -1,0 +1,67 @@
+; Pinscape Pico - TSL1410R PIO program - CLK (serial data clock)
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This PIO program generates the CLK (serial data clock) signal for the
+; TSL1410R.  CLK is a square-wave signal that shifts pixel data out from 
+; the sensor's internal shift register onto its analog output.
+;
+; This generates a square wave synchronized to the system clock, so that
+; CLK edges can be synchronized with the ADC cycle.  The sensor has a
+; "settling time" for each pixel's analog output of 120ns, so we get the
+; cleanest results if each ADC cycle starts 120ns = 15 CPU clock ticks
+; after the rising edge of CLK.  To help with that, we set up a cycle
+; here that has an explicit 15 CPU clock ticks of CLK=HIGH before the
+; end of the PIO cycle.  If we start the ADC and the PIO consecutively,
+; they'll stay in lock step with the 15-cycle offset on the ADC start.
+; Note that the Pico doesn't have a way to explicitly synchronize two
+; separate peripherals - the ADC and PIO SM - but we can get them nearly
+; synchronized by starting one immediately after the other in a code
+; section with interrupts disabled.  Each unit is started by writing
+; to a memory-mapped register, so each start operation only takes one
+; CPU clock cycle; assuming nothing else intervenes between the two
+; opcodes, the two starts will be within 8ns of synchronized.  We
+; can't guarantee that nothing will intervene, but masking interrupts
+; eliminates most of the possibilities, and it seems to yield consistent
+; results in practice.
+;
+;
+; Pins:
+;   SIDE SET - CLK (TSL1410R pixel clock)
+;
+; Clocking:
+;   Set the PIO clock divider to 1 (1:1 with CPU clock)
+;
+; ISR input:
+;   Pre-load ISR with (N-16)/2-2, where N the ADC cycle as measured in
+;   CPU clock ticks, including between-sample padding.  For example, if
+;   the ADC is being driven by CPU clock divided by 2 (62.5 MHz), and
+;   the ADC cycle is set to the minimum 96 ADC clocks, one ADC cycle =
+;   192 system clock ticks, so set ISR to (192-16)/2-2.
+
+
+.program TSL1410R_CLK
+
+.side_set 1     ; CLK (TSL1410R serial data clock)
+
+.wrap_target
+    ; CLK HIGH for <input>+2 cycles
+    mov x, isr         side 1
+highLoop:
+    jmp x-- highLoop   side 1
+
+    ; CLK LOW for <input>+2 cycles
+    mov x, isr         side 0
+lowLoop:
+    jmp x-- lowLoop    side 0
+
+    ; CLK HIGH for 15 cycles (120ns) at the end of the loop.
+    ; This places the rising edge 120ns before the next ADC
+    ; cycle begins, assuming that the ADC cycle is aligned at
+    ; the start of the PIO cycle.
+    nop                side 0
+    set x, 13          side 1    ; 1 cycle
+high2:
+    jmp x-- high2      side 1    ; + x+1 cycles
+    
+
+.wrap

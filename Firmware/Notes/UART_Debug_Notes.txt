@@ -1,0 +1,36 @@
+To debug USB connection issues at startup, the best approach is to
+attach the Pico to a host COM port via a UART adapter.  UART to USB
+adapters are available from Amazon and other sources.  You'll need a
+terminal program like PuTTY to connect to the virtual COM port.
+
+
+SOFTWARE SETUP
+
+In tusb_config.h, uncomment the following two lines to enable full
+logging in the Tinyusb library:
+
+//#define CFG_TUSB_DEBUG 2
+//#define CFG_TUSB_DEBUG_PRINTF tusbLogPrintf
+
+
+HARDWARE SETUP
+
+Plug the UART-to-USB adapter into the PC.  The UART should have three
+or four wires, usually color coded as:
+
+TX = Green
+RX = White
+GND = Black
+5V = Red (not present on all adapters, DO NOT CONNECT TO PICO if present)
+
+Check your device's documentation to ensure it uses the standard color scheme.
+
+Connect TX, RX, GND to the Pico as follows:
+
+RX (White) -> pin 1 = GP0 
+TX (Green) -> pin 2 = GP1
+GND (Black) -> pin 3
+
+Pin 1 is the pin at "northwest" (top left) if you hold the Pico with
+the USB connector face up and facing north.
+

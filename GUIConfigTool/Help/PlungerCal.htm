@@ -1,0 +1,580 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Plunger Calibration</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Plunger Calibration
+</div>
+
+<h1>Pinscape Pico Plunger Calibration</h1>
+
+<h2>Live Sensor View</h2>
+<p>
+   This section gives you a visualization of the raw data being
+   reported by the sensor, before the Pinscape firmware processes
+   the sensor reading into a plunger position.  The relationship
+   between the live sensor data and the plunger position is
+   somewhat indirect for most of the sensors, so it's sometimes
+   helpful (especially when troubleshooting a new installation)
+   to see a live view of the raw sensor data.  This can help
+   verify that the sensor is installed correctly and
+   is producing meaningful readings.   The visualization is
+   tailored to the specific type of sensor you're using:
+</p>
+<ul>
+   <li>Potentiometer: this sensor doesn't have any additional
+   visualization, because the raw ADC (analog-to-digital converter)
+   voltage reading corresponds directly to the wiper position, which is
+   shown via the green bar (see below).
+
+   <li>TSL1410R, TCD1103: the box shows the live image being
+   received on the sensor.  These are "linear" sensors, meaning
+   that the image is only one pixel wide, but the on-screen display
+   stretches it vertically into a series of bars to make it easier
+   to interpret.  The number of bars corresponds to the number of
+   pixels on the sensor, which depends on the sensor type you're
+   using.  These sensors are grayscale only, not color, but
+   the visualization uses false colors to exaggerate the
+   brightness range, again for easier visual interpretation.
+   Lower intensities are shown in shades of red, and as the
+   intensity increases, the color scale shifts through orange
+   to yellow to white.
+   
+   <li>AEDR-8300: the box depicts the bar scale that the sensor scans
+   across.  This is really only a schematic view, since the sensor
+   doesn't take a full picture of the bar the way an imaging sensor
+   would.  A quadrature sensor only sees the two small areas marked
+   "A" and "B" on the image.  The rest of the visualization
+   is inferred from the sensor's basic requirement that the
+   scale it's scanning has alternating bars spaced at
+   regular intervals as depicted.
+
+   <li>VCNL4010: the box shows a bar graph of the infrared light
+   intensity the sensor is receiving.  This sensor doesn't measure
+   the plunger position directly; what it actually measures is the
+   brightness of IR light reflected from a moving target, which in
+   this case is the end of the plunger.  We know from basic optics
+   that a light source is brighter when it's closer, so there's an
+   inverse relationship between brightness and distance.  The software
+   uses that to infer the plunger position from the measured brightness
+   level.  The on-screen bar graph shows the unprocessed
+   brightness level being reported from the sensor.  The sensor
+   reports the level as a "proximity count" value, from 0 to
+   65535, that's proportional to the IR light intensity.
+
+   <li>VL6180X: this sensor doesn't have any additional visualization,
+   since the sensor directly measures distance to the target (the
+   plunger) in millimeters.  This is displayed via the green bar
+   (see below).
+
+</ul>
+<p>
+   The green bar at the bottom of the box shows the raw sensor
+   reading, as interpreted into a linear plunger position, using a unit
+   system that's specific to each sensor.   Visually, the bar
+   is a schematic representation of the plunger.  Think of it as
+   a crude cartoon of the plunger rod, with the front of the pinball
+   machine at the right side of the window.  The end of the bar
+   (which corresponds to the tip of the plunger) should move
+   to the right when you pull back the plunger.  If the bar
+   moves in the other direction, the sensor is installed
+   "backwards", but there's no need to physically flip it
+   around - you can instead tell the software
+   to reverse the readings, by checking the Reverse Orientation
+   box in the adjustment sections towards the bottom of the
+   dialog window.
+</p>
+<p>
+   I chose the rightward orientation for the on-screen display, with
+   the bar moving right as you retract the plunger, because it
+   matches the direction of motion you'll see in the Windows USB
+   Game Controller setup dialog [Windows+R <b>joy.cpl</b>].  The
+   Windows dialog is another useful tool when setting up a
+   Pinscape Pico; it lets you see exactly what Windows thinks the
+   joystick/gamepad inputs are doing.
+   I thought it would be easier to keep things straight if
+   both displays use the same orientation.
+</p>
+<p>
+   The arrows at the bottom of the sensor view show the calibration
+   points as measured on the last calibration run.  The numeric
+   labels are in the sensor's native units.
+</p>
+<p>
+   If the jitter filter is enabled (by setting the filter window
+   to a non-zero size), the live sensor view also shows a box
+   at the end of the green bar depicting the current endpoints
+   of the jitter window.  You can use this to optimize the
+   jitter filter window size, which you can adjust in the settings
+   area towards the bottom of the dialog window.
+</p>
+
+<h2>Joystick Z Axis View</h2>
+<p>
+   This box shows the numbers that the device reports over its
+   gamepad/joystick/XInput interfaces, for input to simulator
+   programs such as Visual Pinball.  By convention, most of
+   the simulators accept mechanical plunger input via a joystick
+   axis - the default is usually the joystick's Z Axis, which is
+   why we use this name, although Pinscape Pico actually lets you
+   map it to whatever axes you want when setting up the virtual
+   game controller interfaces.
+</p>
+<p>
+   The simulator conventions also dictate the unit system on the
+   Z Axis.  Zero represents the plunger's resting position, and
+   +32767 represents the maximum retraction position.  These reference
+   points are determined during the calibration process.  All other
+   points along the Z axis are simply figured in linear proportion
+   to the two reference points.
+</p>
+<p>
+   Note that this box isn't literally reading from the gamepad
+   HID interface, so readings will always appear here, even if you
+   haven't configured a gamepad or XInput device at all. This box
+   just shows you the Z axis numbers that the plunger system 
+   is computing inside the Pico device, which it can feed into
+   whatever joystick/gamepad/XInput axes you configure.  If you
+   want to check what the actual Windows gamepad input system is
+   seeing, use the Windows USB Game Controller setup control
+   panel (press <b>Windows+R</b> and type <b>joy.cpl</b> into
+   the Run Program box).
+</p>
+<p>
+   The Z Axis box shows two bars, representing the two separate
+   Z Axis sources that you can map in the gamepad and XInput
+   interfaces:
+</p>
+<ul>
+   <li><b>Z</b> is the "processed" Z Axis, designed for use with
+   Visual Pinball's traditional joystick input system.  The Z value
+   represents the plunger's instantaneous position most of the time,
+   but it uses special processing during "firing events", as
+   described below in the <a href="#FiringTime">Maximum Firing Time</a>
+   section.  The processing is designed to make Visual Pinball's
+   plunger physics more accurate, by slowing down the rate of
+   updates during a firing event to a pace that the USB connection
+   can convey and that VP can digest.  You can see the effect of
+   this processing during firing events: the Z bar will lag the
+   Z0 bar briefly, because of the reduced event pacing.
+
+   <li><b>Z0</b> is the unfiltered, instantaneous plunger position.
+   (The zero is meant to suggest "original" or "base".)  This
+   is the plunger position <i>before</i> the special "firing event"
+   processing that goes into the Z axis.  During firing events,
+   when the plunger is moving forward at high speed, you'll see
+   the Z0 axis respond faster than the Z axis, because the special
+   processing freezes the Z axis briefly at the start of a firing
+   event to give the simulator a more accurate (but slightly delayed)
+   view of the high-speed motion.
+</ul>
+<p>
+   The reason that the window shows both Z and Z0 is that both
+   are available for mapping to gamepad/XInput axes, so it's useful
+   to see what each one is doing.  This can help you decide how you
+   want to map the joystick axes to your simulator program inputs.
+   My recommendations are:
+</p>
+<ul>
+   <li>For newer programs that support the Pinscape Plunger Speed
+   Axis input, use Z0 for the position axis.  Simulators that accept
+   the speed input don't have to attempt the hopeless task of
+   inferring the speed from the position reports alone, since they
+   get the true speed directly from the device.  They therefore
+   don't need any special processing in the position reports to
+   help them calculate the speed, so they can handle the instantaneous
+   position reports of the Z0 input.  This lets them animate the
+   on-screen plunger in perfect sync with the mechanical plunger
+   without sacrificing any accuracy in the ball launch force
+   calculations
+
+   <li>For older programs that only accept the plunger position input
+   (not a separate Speed axis), use the processed Z axis input.  This
+   presents the simulator with processed readings that help the game
+   calculate accurate ball launch forces, at the cost of a little
+   time lag in the on-screen animation during firing events.
+
+   <li>If you follow the advice above for older programs, but you
+   end up finding the time lag during launch events too objectionable,
+   you can change the input to the Z0 axis if you really want to.
+   That'll eliminate the processing, which will eliminate the time
+   lag, but at the cost of making the ball launch force a lot less
+   consistent.  It's a matter of which drawback you find easier to
+   live with.
+</ul>
+<p>
+   Like the green bar in the Live Sensor View, the Z Axis bars
+   are schematic drawings of the plunger rod, with the imaginary
+   front of the pinball machine at the right side of the box.
+   Retracting the plunger should make the bars move to the right.
+</p>
+
+<h2>Speedometer</h2>
+<p>
+   This section shows the current speed reading, and the peak
+   forward speed over the past few seconds.  The Pinscape firmware
+   figures the instantaneous speed based on the distance moved
+   between sequential position readings.  The firmware is able
+   to measure the speed fairly accurately since it can sample
+   the sensor at frequent intervals, and with fine precision
+   (microseconds) in measuring the time between readings.
+   Pinscape can report the speed to a simulator through a
+   gamepad or XInput axis, and the simulator can use this information
+   to determine the amount of impulse imparted to the ball
+   when the plunger strikes it.
+</p>
+<p>
+   This section also shows the current "firing state", which
+   lets you see the firing event detection system in action.
+   Pinscape continuously monitors the plunger position, and
+   when it detects rapid forward motion from a retracted
+   position, it triggers the <b>Moving</b> state.  If the plunger
+   keeps moving forward fast enough to reach the rest position
+   within the <a href="#FiringTime">maximum firing time</a>
+   setting, the state changes to <b>Fired</b>, which lasts
+   for a brief time (about 50ms), then changes to <b>Settling</b>,
+   which lasts until the plunger slows down enough to resume
+   normal tracking.  When firing events are detected, you'll
+   see the indicators in this section light up in sequence
+   to track the event.
+</p>
+<p>
+   The <b>ZB Launch</b> indicator lights up when a firing
+   event reaches the <b>Fired</b> state.  This indicates
+   that the ZB Launch Ball feature has been triggered.  When
+   ZB Launch Ball mode is in effect, this will simulate a
+   button press on the Launch Ball button.  The ZB Launch
+   feature is configured separately in the JSON settings,
+   but the indicator here shows the state whether or not
+   the feature is configured, so you can check that it's
+   triggering when it should (and not when it shouldn't).
+</p>
+
+<h2>Calibration</h2>
+<p>
+   This section shows the current calibration status, and
+   lets you start a new calibration run.  To run a calibration:
+</p>
+<ul>
+   <li>Make sure the plunger is at rest in its normal resting
+   position
+
+   <li>Click the Calibrate button
+
+   <li>Wait a moment, to let the firmware get a read on the
+   initial resting position
+
+   <li>Pull the plunger all the way back, and hold it there a moment,
+   to let the firmware observe the maximum retraction position
+
+   <li>Release the plunger
+
+   <li>Let it come fully to rest
+
+   <li>Repeat a few times
+</ul>
+
+<p>
+   The calibration process runs for about 15 seconds and
+   then automatically ends and returns to normal operation.
+   The on-screen display will indicate when the calibration
+   is running and when it ends.  The new calibration settings go
+   into effect immediately when the timed calibration period ends,
+   but they're not saved to the Pico's flash memory until you
+   click the Save button.  This lets you try out the results
+   to make sure you like them before you commit them to permanent
+   storage.  You can restore the previous settings via the Revert
+   button.  Rebooting the Pico will also restore the previous
+   saved settings.
+</p>
+
+<h2>Reverse Orientation</h2>
+<p>
+   This box lets you flip the orientation of the plunger sensor.
+   If the bars in the sensor diagrams are moving in the wrong
+   direction when you operate the mechanical plunger, check or
+   un-check this box to reverse directions.  This has the same
+   effect as physically flipping the sensor around by 180&deg;,
+   without the need to get out your toolbox.
+</p>
+<p>
+   Like all of the settings, the Reverse Orientation checkbox
+   isn't saved to flash memory on the Pico until you click the
+   Save button.  Rebooting the Pico or clicking the Revert button
+   will restore the old settings.
+</p>
+
+<h2>Jitter filter window</h2>
+<p>
+   This box lets you adjust the size of the jitter filter "window".
+   You can see the immediate effect of this setting in the Live
+   Sensor View area - at the end of the green bar, you should see
+   a little box depicting the endpoints of the jitter window
+   superimposed over the current live sensor reading.
+</p>
+<p>
+   The jitter filter is essentially a hysteresis filter.  Whenever
+   the raw sensor reading moves out of the little box, it pushes
+   the box in that direction.  When the live reading jitters
+   around but stays within the box, the box stays in place, which
+   stabilizes the reading as long as the random fluctuations remains
+   within the box.
+</p>
+<p>
+   The jitter - the random changes in readings when the mechanical
+   plunger is sitting perfectly still - comes from analog noise
+   in the sensor.  Better sensors have less noise, but even the
+   best sensors tends to have <i>some</i> noise, so most need some
+   kind of filtering to produce a more stable signal.  Hysteresis
+   filtering works well for this particular application, because
+   it doesn't add any latency when the plunger is moving.
+</p>
+<p>
+   The trade-off with any kind of filtering is that it reduces the
+   precision of the readings.  We trade precision for stability.
+   With hysteresis filtering, the reading can be no more precise
+   than the window size.  So your goal with the jitter window
+   setting is to choose the smallest window that stabilizes the
+   readings to your satisfaction.  The optimal setting is very
+   specific to your setup, because it depends on the amount and
+   type of noise your sensor picks up; that's why we have to make
+   this an adjustable setting, rather than hiding a preset, one-size-fits-all
+   filter inside the software.
+</p>
+
+<a name="FiringTime"></a>
+<h2>Maximum firing time</h2>
+<p>
+   This box lets you set an upper limit on the time allowed for a
+   firing event.
+</p>
+<p>
+   A "firing event" occurs when you pull back and release the plunger.
+   We call it a firing event because this is what you do to launch
+   the ball on a physical pinball table (one that has a plunger,
+   anyway).  The firmware detects firing events by monitoring the
+   plunger position and watching for rapid forward motion from a
+   retracted position.  The firmware considers it a firing event
+   when the forward motion is fast enough that the spring could be
+   propelling the plunger, <b>and</b> the forward motion is continuous
+   from a retracted position to somewhere beyond the normal
+   resting position.
+</p>
+<p>
+   "Fast enough" is defined by the maximum firing
+   time setting that you can adjust here.  If the plunger travels
+   all the way from a retracted position to a point beyond the
+   resting position within the maximum firing time, the firmware
+   considers it a firing event.
+</p>
+<p>
+   Firing events have two important effects on the pinball simulation
+   on the PC:
+</p>
+<ul>
+   <li>The first is that firing events trigger the ZB Launch
+   Ball button, if you're using that feature.  ZB Launch Ball is
+   an optional feature that lets you use the plunger to trigger
+   a simulated button press, so that you can use the mechanical
+   plunger in lieu of a physical Launch Ball button on your virtual
+   cabinet with tables that use a button launcher instead of a
+   plunger.  One way to trigger the ZB Launch simulated button press
+   is by pulling back and releasing the plunger to signal a firing
+   event.
+
+   <li>The second effect is that the firmware uses firing events
+   to generate an idealized "model" view of the plunger to report
+   to the PC during rapid plunger motion.  The USB connection
+   is too slow for the simulator software on the PC to be able to
+   figure out how fast the plunger is moving.  The firmware,
+   in contrast, <i>can</i> measure the speed accurately because
+   it has direct, high-bandwidth access to the sensor.  The
+   firmware uses its special ability to calculate the speed
+   accurately to feed the simulator a series of position reports
+   that the simulator will be able to reconstruct into accurate
+   plunger motion in the simulation.  It only does this when
+   firing events are detected; the rest of the time, it just
+   lets the simulator see the actual instantaneous plunger
+   position, since the USB connection is fast enough for the
+   simulator track normal low-speed motion.
+</ul>
+<p>
+   The maximum firing time setting lets you optimize the
+   speed limit so that actual release motions are reliably
+   detected, but slower movement doesn't trigger the special
+   processing.  The special processing is only desirable during
+   true release events, because it briefly blocks the simulator
+   from seeing the true position of the plunger, in order to
+   achieve the more accurate release motion reconstruction.
+   For lower-speed motion, though, it's more pleasing to see
+   the simulator replicate the mechanical motion on-screen
+   without any filtering.
+</p>
+<p>
+   To optimize the setting, you should experiment with different
+   time settings, checking the effect on the "Firing state"
+   and "ZB Launch" indicator lights in the speedometer section
+   of the display.  You should see the Moving-Fired-Settling
+   lights turn on in sequence, and the ZB Launch light flash,
+   each time you perform a true pull-and-release gesture.
+   But you <i>shouldn't</i> see any of those lights turn on
+   during slower manual movement, forward or backward.
+</p>
+<p>
+   Note that the calibration process keeps track of the
+   firing times it observes.  The average observed time from
+   the last calibration run is displayed in the Calibration
+   section of the window.  This is a good starting point for
+   the maximum time setting.  You'll probably want to pick
+   a time that's a bit longer than the measured average, to
+   allow for a natural range of variation (the plunger is a
+   mechanical system, after all), but not vastly longer.
+   Making the time too long will make it too easy to trigger
+   false firing events when you're moving the plunger
+   forward manually without releasing it.  On the other
+   hand, making it too short will make the firmware miss
+   real firing events where the plunger isn't moving quite
+   fast enough to beat the time limit.
+</p>
+
+<h2>Manual scaling factor</h2>
+<p>
+   This lets you manually adjust the joystick axis range, in
+   case you want to tweak the range that the automatic
+   calibration process came up with.  This is a percentage
+   value applied to the joystick (Z Axis) reading, so the
+   default value of 100 simply uses the calibration results
+   without any changes.  You can adjust this up or down as
+   needed to make the on-screen animation better match the
+   physical plunger range.
+</p>
+<p>
+   This is especially useful with the VCNL4010, because that
+   sensor has poor resolving power at the far end of its
+   range, when the plunger is pulled back most of the way.
+   This limits the automatic calibration process's ability
+   to figure the range precisely at the far end.
+</p>
+<p>
+   To use this box, you should start by running the calibration
+   process as normal.  Set the scaling box to the default value
+   of 100, which uses the natural scaling from the calibration.
+   Pull back the plunger all the way and see how close the on-screen
+   Joystick Z Axis bar is to the right end of the box.  If it's
+   too far off for your taste, adjust the scaling factor up or
+   down until you're happy with it.
+</p>
+<p>
+   The full retraction end of the range is the thing to pay
+   attention to.  It's really not important for the other end
+   of the range, with the plunger pushed in all the way, to
+   line up with its end of the Z Axis box, because there
+   aren't any reference points in the pinball simulators that
+   this end has to align with.  It's basically a free variable.
+   The one thing you should check is that it triggers the
+   ZB Launch light at a satisfactory point - but that only
+   matters if you're planning to use the ZB Launch feature.
+</p>
+   
+
+<a name="IntegrationTime"></a>
+<h2>Integration time</h2>
+<p>
+   This box is only used for the TCD1103 and TSL1410R imaging
+   sensors.  It lets you control the "integration time", which
+   is the amount of time that the sensor is allowed to gather
+   light on each image snapshot that it takes.  It's the same
+   idea as the exposure time or shutter time on a conventional
+   camera.  Longer exposure times allow the sensor to gather
+   more light, making the final image appear brighter.
+</p>
+<p>
+   By default, the integration time is set to 0, which tells
+   the software to integrate over the sensor's data transfer time.
+   The transfer time is the amount of time it takes for the
+   Pinscape software to read one full image snapshot from the
+   sensor over the cable connection to the sensor.  This time is
+   a fixed feature of the data transfer protocol, so it's not
+   configurable; it's around 2400us for the TCD1103 and 2000us
+   for the TSL1410R.  These transfer times allow the software
+   to capture at least 400 frames per second, which is fast
+   enough for accurate plunger position and speed tracking
+   during fast motion.
+</p>
+<p>
+   You can use the Integration Time box to adjust the exposure
+   time to get a clearer image, if necessary.  The goal is to make
+   sure that there's enough contrast between the light and dark
+   portions of the image that the Pinscape software can detect
+   the location of the plunger in the image.  In the image viewer area,
+   the brightest areas should ideally appear as bright yellow,
+   and the dark areas should be black or faint red.  Bright
+   white pixels indicate full saturation, which means that the
+   physical sensor pixels are at or near their overexposure limit.
+   It's okay to have some fully white areas, but it's better
+   for most of the bright regions to be bright yellow, because
+   that's in the region where the sensor can still distinguish
+   different brightness levels.
+</p>
+<p>
+   If the image is underexposed, you can either increase the
+   integration time, or use a brighter light source.  If you're starting
+   with the integration time set to zero, which uses the sensor's
+   frame data transfer time as the integration time, it's better
+   to make the light source brighter rather than increase the
+   integration time, because longer integration times will
+   decrease the number of images per second that the Pinscape
+   software can capture, which reduces the accuracy of the
+   firmware's plunger speed sensing.
+</p>
+<p>
+   If the image is overexposed with the default integration
+   time setting of 0, and you're using the TCD1103, you can try
+   decreasing the time.  0 selects the frame transfer time (about
+   2500 us with the TCD1103), so start with perhaps 2400,
+   and gradually decrease the number until the pixels are properly
+   exposed.  Unfortunately, this approach isn't possible with the
+   TSL1410R, because that sensor has a minimum integration time
+   equal to the frame transfer time.  If you need to reduce the
+   exposure with the TSL1410R, you'll have to reduce the brightness
+   of the light source.
+</p>
+<p>
+   Limits:
+</p>
+<ul>
+   <li>TCD1103: 20 to 4000 microseconds
+   
+   <li>TSL1410R: 20 to 4000 microseconds, but values below the
+   minimum frame transfer time of about 2000 microseconds
+   will have no effect, because this sensor is limited at the
+   hardware level to a minimum integration time equal to the
+   frame transfer time
+
+</ul>
+
+<h2>Save/Restore Settings</h2>
+<p>
+   The Save button saves the current settings into the Pico's flash
+   memory, ensuring that the same settings are restored in future
+   sessions.  Changes that you make in the dialog window are only
+   stored in memory on the Pico until you click Save, so if you
+   don't save them, they'll be lost on the next reboot or power
+   cycle.  This is intentional, to let you safely experiment with
+   new settings to make sure you like them before committing them
+   to permanent storage.
+</p>
+<p>
+   The Restore button reverts the Pico's settings to the last
+   settings saved to its flash memory, as though you
+   rebooted the Pico.  If you don't like the new settings
+   you're trying out, you can recover the old settings
+   by clicking Restore.
+</p>
+
+</body>
+</html>

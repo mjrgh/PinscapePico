@@ -1,0 +1,45 @@
+; Pinscape Pico - 74HC595 PIO state machine program - Digital output mode
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This 
+;
+; Protocol:
+;
+; Pre-load ISR with number of ports - 1 (per the PIO do-while(X--) loop convention)
+;
+; On each loop, send the following:
+;
+;    <byte = last chip's bits, least significant bit = last port (QH)>
+;    <byte = second-to-last chip>
+;     ...
+;    <byte = first chip's bits>
+;
+; PIO Clock:
+;   Clock should be set no higher than 8 MHz
+;   -> clock divider for 125 MHz system clock = 16
+;
+; OUT pins:
+;   pin 0 = DS (serial data)
+;
+; SIDE SET pins:
+;   pin 0 = SHCP (serial clock)
+;   pin 1 = STCP (transfer clock)
+;
+; Other PIO configuration:
+;   AUTOPULL ON
+;   PULL(OUT) Shift Direction = RIGHT (LSB first)
+;   PULL(OUT) Shift Threshold = 8 bits
+
+.program C74HC595DIG
+.side_set 2        ; SHCP (shift clock), STCP (latch)
+
+.wrap_target
+    ; top of main loop 
+    ; read the loop counter
+    mov x, isr        side 2  ; Get the loop counter = number of ports minus 1; take SHCP low, take STCP high to latch outputs.
+
+chipLoop:
+    ; write Qn data bits for each chip
+    out pins, 1       side 0  ; write the next data bit
+    jmp x--,chipLoop  side 1  ; take shift data clock (SHCP) high
+.wrap

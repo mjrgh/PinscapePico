@@ -1,0 +1,336 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Config Tool</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a>
+</div>
+
+<h1>Pinscape Pico Config Tool</h1>
+<p>
+   The Pinscape Pico Config Tool helps set up a Raspberry Pi Pico with the
+   Pinscape Pico firmware.  It provides interactive tools for installing the
+   firmware, managing your configuration settings, and testing and
+   troubleshooting your hardware setup.  The Pinscape Pico firmware is
+   designed to turn a Pico into a full-featured I/O controller for a
+   virtual pinball cabinet, allowing pinball simulators running on your
+   PC to access arcade-style buttons, accelerometers, plunger sensors,
+   and feedback devices in the cabinet.
+</p>
+
+<h2>New device setup</h2>
+<p>
+   If you're setting up a new Pico, you can find step-by-step instructions in
+   <a href="NewDeviceSetup.htm">New Device Setup</a>.
+</p>
+
+<h2>Main window layout</h2>
+<p>
+   The left panel shows a list of available devices.  The rest of
+   the window shows a set of tools for the selected device.  Click
+   on one of the device buttons in the left panel to select the
+   device you want to work with, then select a tool via the tabs
+   across the top of the window.
+</p>
+<p>
+   The device list includes the following items:
+</p>
+<ul>
+   <li>Pinscape Pico units currently connected.  These are Picos with
+   the Pinscape firmware installed.  Select one of these units to
+   access configuration and troubleshooting tools.
+
+   <li>Pico devices in "Boot Loader" mode.  Devices in Boot Loader
+   mode present a virtual thumb drive that allows installing new
+   firmware onto the Pico.  Boot Loader mode is built into the Pico -
+   it's not something you need Pinscape for, but the Config Tool provides
+   some simple tools for working with a Boot Loader device so that you
+   don't have to switch to the Windows desktop.
+   <p>
+      You can force any Pico into Boot Loader mode by holding down the
+      BOOTSEL button on top of the Pico while you plug in its USB cable.
+      Boot Loader mode is built into ROM inside the Pico's CPU, so it's
+      impossible to accidentally delete it; it's always ready to go, no
+      matter what firmware you've installed on the Pico in the past.
+   </p>
+   <p>
+      Boot Loader mode is the first step to installing Pinscape (or any
+      other firmware) onto a new Pico.  After Pinscape is installed, you
+      shouldn't ever need to repeat the BOOTSEL button/cable plugging
+      maneuver, because the Pinscape firmware can get back to Boot Loader
+      mode under software control through the Config Tool.  But you can
+      still use the BOOTSEL button as a last resort if the Pinscape
+      software becomes unresponsive.
+   </p>
+
+   <li>A "Set Up New Device" button.  Unlike the other buttons, this
+   one doesn't represent a physical Pico device; it just brings up a
+   help screen with instructions on how to set up a new Pico.
+</ul>
+
+<h2>Configuration and testing tools</h2>
+<p>
+   After you select a device, the available tools will appear as tabs
+   across the top of the window.  Select a tab to access its tool window.
+   The tools for an existing Pinscape Pico device (a Pico with the
+   Pinscape firmware installed) are:
+</p>
+<ul>
+   <li><a href="DeviceOverview.htm">Overview</a>: shows information on the
+   Pinscape Pico unit, and provides options for updating the firmware
+
+   <li><a href="ConfigEditor.htm">Configuration</a>: opens the device's
+   JSON configuration file for viewing and editing.  This lets you
+   view and change the settings on the device.
+   <p>
+      For information on the what goes in the configuration file,
+      refer to the following:
+   </p>
+   <ul>
+      
+      <li><a href="ConfigFileFormat.htm">Config File Format</a>: details
+      on the JSON file format
+      
+      <li><a href="JSONConfigRef.htm">JSON Configuration Reference</a>:
+      a full list of the available configuration settings
+      
+   </ul>
+
+   </p>
+   <li><a href="ConfigEditor.htm">Safe-mode Config</a>: open the device's
+   "Safe Mode" configuration file in the text editor.  The Safe Mode
+   config is an extra config file that's activated if the device resets
+   unexpectedly.  This is intended to be a stripped-down configuration
+   that allows the device to run stably when something in the main
+   configuration is triggering a crash.
+
+   <li><a href="ButtonTester.htm">Button Tester</a>: this tool lets
+   you view and test the button input connections, to troubleshoot
+   any buttons that aren't working correctly.
+
+   <li><a href="NudgeWin.htm">Nudge Viewer</a>: this tool lets you
+   view the accelerometer input, to check if that device is working
+   properly.
+
+   <li><a href="LogicalOutputTester.htm">Output Port Tester</a>: this
+   tool lets you exercise the DOF output ports, to help troubleshoot
+   any devices that aren't working.
+
+   <li><a href="PhysicalOutputTester.htm">Output Hardware Tester</a>:
+   this is a lower-level output tester tool that accesses the
+   physical output ports directly, bypassing the DOF port assignments
+   and going directly to the GPIO ports and external peripheral
+   chips.
+
+   <li><a href="PlungerCal.htm">Plunger Setup</a>: this tool lets
+   you see the low-level sensor input from the plunger device, to
+   help troubleshoot any problems, and lets you adjust the plunger
+   settings while viewing their effects on the sensor readings.
+   It also lets you run the calibration process.
+
+   <li><a href="IRRemote.htm">IR Remote &amp; TV ON</a>: provides tools for
+   testing the IR transmitter and receiver.  It lets you send command
+   codes through the transmitter, and displays incoming command codes
+   as they're decoded by the receiver.
+</ul>
+
+<h2>Updating firmware on an existing Pinscape Pico unit</h2>
+<p>
+   Once Pinscape is installed on a Pico, you can update the
+   firmware <i>without</i> going through that whole BOOTSEL
+   procedure again.
+</p>
+<ul>
+   <li>Launch the Config Tool
+   <li>In the list of devices on the left, find and select the
+   Pinscape unit that you want to update
+   <li>Go to the Overview tab
+   <li>Click the Update Firmware button to select a firmware file, or
+   drag a firmware file (.UF2) from the Windows desktop onto the button
+</ul>
+<p>
+   The Config Tool will now automatically reboot the Pico into Boot
+   Loader mode and copy the new firmware file onto the Pico.  When
+   the copy finishes, the Pico will reset again and launch the new
+   Pinscape software.  There's no need to unplug any cables or
+   press the BOOTSEL button during this process.
+</p>
+
+<a name="SettingsFileLocation"></a>
+<h2>Config Tool settings file location</h2>
+<p>
+   The Config Tool uses a small text file, in JSON format, to store
+   settings from one session to the next.  It uses this to remember
+   the window location, for example.  By default, the program looks
+   for this file in its own folder, where the program's .EXE file
+   is stored.  In some cases, you might want to be able to specify
+   a different location; for example, if you're running the program
+   from a network drive or a read-only drive, or you're sharing the
+   program .EXE among multiple users who want to keep their own
+   separate settings files.
+</p>
+<p>
+   To override the default settings file location, specify
+   a command-line option when launching the program:
+</p>
+<p style="margin-left: 2em;">
+   <tt>GUIConfigTool --settings c:\users\mjr\ConfigToolSettings.json</tt>
+</p>
+<p>
+   Naturally, you should replace the <tt>c:\users\...</tt> path
+   in the example above with the actual folder path you want to use.
+</p>
+<p>
+   You can supply command-line options to the program by
+   launching it from the Windows "Run" dialog (press Windows+R,
+   type the command line into the box), or from a DOS command-line
+   window, also known as a CMD or command shell window (Windows+R,
+   type CMD, press return). If you want to use the same options on
+   every launch, it's convenient to create a Windows Shortcut file
+   that includes the command line options.  Refer to any Windows help
+   site for instructions on how to do that.
+</p>
+<p>
+   If you want to tell the program to ignore the saved settings entirely
+   when it starts up, and use defaults instead, the command line options is:
+</p>
+<p style="margin-left: 2em;">
+   <tt>GUIConfigTool --default-settings</tt>
+</p>
+<p>
+   The program will still save settings when it exits, but this prevents
+   it from loading the old settings when it starts.  This might be helpful
+   if the old settings are creating a problem, such as hiding the window
+   somewhere in the off-screen wilderness.  You can alternatively just
+   delete the old settings file, or hand-edit it to fix whatever's wrong.
+   The file uses a human-readable JSON format.  Be aware that hand-editing
+   the file isn't recommended in general, though, because the program
+   overwrites the file with the new settings every time it runs, so any
+   hand-edits you make will be overwritten after the next session.
+</p>
+
+
+<h2>Command-line Config Tool</h2>
+<p>
+   Pinscape Pico also comes with a command-line configuration tool, which
+   provides access to the core configuration functions with a more
+   minimalistic UI.  The command-line version is particularly useful if
+   you want to invoke configuration commands from automation tools
+   such as Windows batch files, AutoHotKey scripts, or Visual Basic,
+   since all of those tools make it easy to invoke a command-line
+   program.
+</p>
+<p>
+   To run the command-line tool, open a DOS box (from the Windows
+   desktop, press Start+R, type CMD, and press return), "CD" to the
+   folder containing the Pinscape Pico files, and type <tt>ConfigTool</tt>.
+</p>
+<pre>   c:\users\mjr&gt; <b>cd /d C:\PinscapePico</b>
+   C:\PinscapePico&gt; <b>configtool</b>
+</pre>
+<p>
+   If you run the program with no arguments, it will show a list of
+   the available options.
+</p>
+
+<h2>C++ API and USB protocol documentation</h2>
+<p>
+   Pinscape Pico comes with a C++ API for Windows that makes it
+   relatively easy for C++ programmers to control the device through
+   the USB interfaces.  All of the Config Tool's access to the device
+   goes through that API, so you can use it to write custom software
+   that does anything the Config Tool can do.  You can find the files
+   in the <tt>PinscapePicoAPI</tt> folder (under the main Pinscape Pico
+   install folder).  The documentation for the API is contained in
+   the header (.h) files you'll find in that folder.
+</p>
+<p>
+   The API is currently only for C++ programs, but virtually every
+   other programming language processor on Windows has some way to
+   invoke C/C++ interfaces, so you might still be able to find a way
+   to import it even if you're using some other language.
+</p>
+<p>
+   Alternatively, you can bypass the C++ API by programming directly
+   to the USB protocols.  The C++ API is essentially just a convenience
+   that repackages the USB communications in a format that's easier
+   to work with in C++.  The protocols are fully documented; see the
+   <tt>USBProtocol</tt> folder (under the main Pinscape Pico install
+   folder).  The protocols are documented in comments in the C++ header
+   (.h) files you'll find there.  Even though the comments are mixed in
+   with C++ declarations, you should still find the comments readable
+   even if you're not conversant with C++ coding, since the comments
+   are meant to describe the protocol at the byte level, which is
+   independent of programming language.  The C++ declarations are just
+   there because they embody the concrete C++ expression of the
+   protocol elements.
+</p>
+
+<h2>Pico Documentation</h2>
+<p>
+   The Pico is one of the best documented microcontroller's I've encountered.
+   Here are some links to the official documentation from Rasbperry Pi, the
+   company that created the Pico.
+<p>
+   <a href="https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf">Raspberry Pi Pico Datasheet</a>
+</p>
+<p>
+   <a href="PicoPinout.htm">Pico pin-out diagram</a>
+</p>
+
+
+<h2>About Pinscape Pico</h2>
+<p>
+   Pinscape Pico is firmware for the Raspberry Pi Pico microcontroller
+   board that turns the Pico into a full-featured I/O controller for virtual
+   pinball machines.  The project is a sequel to the original Pinscape for
+   KL25Z.  It has most of the same features as the original, plus many new
+   enhancements that were made possible by the greater power of the Pico
+   platform.  Like the original Pinscape, this is an open-source project,
+   with published source code for all components and a permissive license
+   (BSD 3-clause) that allows personal and commercial use, as well as full
+   leave to add (and publish) your own fixes, features, and enhancements.
+</p>
+<p>
+   The firmware program is written in C++, and is based on the official
+   Raspberry Pi Pico SDK.  It takes extensive advantage of the Pico's
+   hardware capabilities to optimize performance.  It has support for
+   numerous external hardware peripherals relevant to virtual pinball I/O,
+   including devices for button inputs, PWM and digital output switching,
+   plunger sensors, IR remote control signaling, and accelerometers.
+   It can emulate multiple USB input devices (simultaneously), including
+   keyboards, gamepads, and XBox controllers.  No device drivers are
+   needed; everything needed is built into Windows.
+</p>
+<p>
+   The project includes a set of Windows GUI and command-line tools to
+   aid in configuring and troubleshooting the Pico setup, as well as
+   extensive programmatic interfaces that allow you to create your own
+   tools.  The USB interfaces for configuration and control functions are
+   fully documented, and the project includes a high-level C++ API for
+   accessing the USB interfaces, to make it easy to write custom
+   Windows-side software that accesses special device features.
+   ("Easy" as far as that word can ever be applied to writing Windows
+   programs, anyway; the API at least takes care of the Pinscape details
+   for you, but, of course, it's still Windows programming.)
+</p>
+
+<h2>Copyright &amp; License</h2>
+<p>
+   The Pinscape Pico project (including the firmware for Pico as well
+   as the Windows tools and API libraries) is copyrighted 2024 Michael
+   J Roberts, and released under a open-source license (BSD 3-Clause).
+</p>
+<p>
+   See <a href="../License.txt">License.txt</a> for the full text of
+   the Pinscape Pico license, as well as copyright notices and
+   licenses for the third-party open-source components and libraries
+   that the project incorporates.
+</p>
+
+</body>
+</html>

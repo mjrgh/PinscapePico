@@ -1,0 +1,89 @@
+Pinscape Pico Notes
+===================
+
+
+XInput
+------
+
+XInput refers to our XBox Controller emulation, which allows the Pico
+to emulate this type of controller for button and accelerometer
+inputs.  This is an alternative to the HID gamepad interface, which we
+can also provide.  Both interfaces (XInput and gamepad) can even be
+used simultaneously if desired.  XInput is functionally very similar
+to the HID gamepad interface, but it has a different API on the
+Windows side, so some applications might work better with XInput and
+some might work better with HID gamepads.  In addition, some people
+who also have other physical controllers in their systems have
+encountered application conflicts when Pinscape is acting as a
+controller of the same type.  By providing both interface options, we
+hope to give users enough flexibility that they can eliminate any
+conflicts they encounter with applications or other controllers.  In
+most cases, the regular gamepad interface should be all that's needed.
+
+INSTALLING: In order to use XInput, you MUST go through a manual
+device driver setup process on Windows.  Windows doesn't recognize the
+Pinscape Pico device as an XBox controller even if XInput is enabled
+on the Pinscape unit, because Pinscape uses its own USB identifiers
+(VID/PID) rather than using Microsoft's proprietary identifiers.  The
+Windows XBox driver appears to only work automatically when it
+recognizes the Microsoft identifiers.  However, you can still tell
+Windows to treat the device as an XBox controller - you just have to
+do so explicitly.
+
+1. Make sure the Pinscape unit is plugged into a USB port
+
+2. Make sure that the Pinscape unit is configured to enable its XInput
+interface
+
+3. In Windows, go to Device Manager
+
+4. Select menu View -> Devices by Type
+
+5. In the tree, open Universal Serial Bus devices
+
+6. Find PinscapePicoControl in the list and click on it
+
+7. Select menu View -> Devices by Connection
+
+8. The PinscapePicoDevice you selected a couple of steps ago should
+still be selected, and it should be part of a sub-tree under the
+heading "USB Composite Device".  You should also find an unknown
+device under this subtree, with a little yellow warning icon next to
+it.  That's the XBox controller emulation.  Double-click on it to
+bring up its properties.
+
+9. In the properties dialog, click the Driver tab
+
+10. Click Update Driver
+
+11. Click "Browse my computer for drivers"
+
+12. Tick the "Include subfolders" box
+
+13. Click "Let me pick from a list of available drivers"
+
+14. Select "Xbox 360 Controller for Windows"
+
+15. Click Next, and confirm any additional dialogs that come up (you
+shouldn't have to fill in any more information; it should just be a
+matter of confirming each step at this point)
+
+WINDOWS 10/11 START MENU INTERFERENCE: On Windows 10 and 11, Windows
+interprets XInput joystick motion on the left joystick as control
+inputs to the Start menu and some other other system-level menus and
+dialogs.  This can be a huge problem if you have the left joystick
+mapped to accelerometer inputs, since the accelerometer picks up small
+ambient vibrations that make the joystick move at least a little bit
+almost all the time.  One solution is to assign the accelerometer to
+the RIGHT joystick, which Windows seems to ignore.  That's workable as
+long as the applications you're using will accept nudge input on the
+right joystick.  Another possible fix, which apparently works on some
+versions of Windows but not others, is to run RegEdit, and navigate to
+this key:
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Input\Settings\ControllerProcessor
+
+Add a subkey called ControllerToVKMapping (if it's not already there),
+then add a DWORD value, named "Enabled", with value set to 0.  This
+fix doesn't work with the Windows 11 version I'm currently using, but
+it reportedly does work for some versions.

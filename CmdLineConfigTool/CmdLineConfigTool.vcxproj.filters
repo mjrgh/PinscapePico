@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="CmdLineConfigTool.cpp" />
+    <ClCompile Include="..\Firmware\JSON.cpp">
+      <Filter>Firmware</Filter>
+    </ClCompile>
+    <ClCompile Include="VersionNumber.cpp" />
+    <ClCompile Include="..\GUIConfigTool\Dialog.cpp" />
+    <ClCompile Include="..\GUIConfigTool\Application.cpp" />
+    <ClCompile Include="..\GUIConfigTool\JSONExt.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Firmware\JSON.h">
+      <Filter>Firmware</Filter>
+    </ClInclude>
+    <ClInclude Include="VersionNumber.h" />
+    <ClInclude Include="..\GUIConfigTool\Dialog.h" />
+    <ClInclude Include="..\GUIConfigTool\Application.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Firmware">
+      <UniqueIdentifier>{f6d98042-f960-4602-9fc6-98cb49ed770d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

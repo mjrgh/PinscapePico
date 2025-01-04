@@ -1,0 +1,1384 @@
+// Pinscape Pico - sample configuration for the Pinscape Pico Expansion Board
+// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+//
+// This is an example of the typical hardware configuration for the
+// Pinscape Pico Expansion Board.  This reflects the fixed wiring on
+// the Expansion Board between Pico GPIO and the peripherals built
+// into the board.
+
+{
+    // Unit identification
+    id:
+    {
+        // Every configuration should have a unit number, to identify the
+        // device to DOF.  Assign unit #1 to the first Pinscape Pico in your
+        // system, 2 to the second, and so on.  (Don't count KL25Z Pinscape
+        // units here.  DOF treats the KL25Z and Pico versions as separate
+        // devices, so the Picos get their own numbering starting at 1.)
+        // The numbering should always start at 1 and go up sequentially
+        // from there, because it'll make things easier to set up with DOF.
+        unitNum: 1,
+
+        // The unit name is just for display purposes, to help you tell
+        // your Pinscape Pico units apart if you have more than one.  The
+        // name will be displayed when the Config Tool or other tools list
+        // the available devices on-screen.  The name can be whatever you
+        // want, but it's best to keep it fairly short, since it's used to
+        // label small UI elements, such as buttons.
+        unitName: "Pinscape Pico 1",
+
+        // Emulated LedWiz ID.  This is for use by an LedWiz API emulator
+        // on the PC host, which provides a virtual LedWiz interface for
+        // legacy LedWiz-aware applications that can't access the Pinscape
+        // Pico through either DOF or the Pinscape native interfaces.  An
+        // LedWiz emulator on the PC can make the Pico appear as an LedWiz
+        // to such older applications, allowing those apps to program
+        // feedback effects through the Pinscape output ports.  This sets
+        // the LedWiz ID, 1 to 16, for the virtual LedWiz.  An LedWiz unit
+        // only has 32 ports, so if the Pico is configured with more than
+        // 32 logical outputs, the LedWiz emulator will create multiple
+        // virtual LedWiz units, one for each group of 32 Pico ports.
+        // The additional units will be numbered sequentially starting
+        // with the ID assigned here.
+        //
+        // Note that the Pico doesn't directly emulate the LedWiz USB
+        // protocol.  Instead, the emulation is done on the host side.
+        // On Windows, this is implemented through an open-source
+        // replacement for the LEDWIZ.DLL that comes with the genuine
+        // LedWiz.  The replacement DLL is available here:
+        //
+        //   http://mjrnet.org/pinscape/dll-updates.html#LedWiz.dll
+        //
+        // If you also have a real LedWiz device in your system, or any
+        // other device that emulates an LedWiz, you can change this
+        // setting as needed to avoid conflicts with the other devices.
+        // Each LedWiz in your system (real or emulated) must be given
+        // a unique unit number.  Most real LedWiz units are hard-coded
+        // to use unit #1, so you can avoid conflicts with those by
+        // changing the Pinscape Pico to use unit #2.  If you don't
+        // have any conflicting devices, though, it's better to leave
+        // this at the default setting of unit #1, because some of the
+        // older LedWiz-aware software doesn't know how to access any
+        // units except #1.
+        // 
+        // To disable LedWiz emulation entirely for this Pico, set
+        // ledWizUnitNum to 0.
+        //
+        ledWizUnitNum: 1,
+    },
+
+    // USB settings, setting the USB device identifiers that Windows
+    // uses to identify the device.  The only reason to change these
+    // from the defaults is that you have another unrelated device in
+    // your system that's using the same numbers.  That should never
+    // happen, because the default VID/PID were carefully chosen and
+    // registered to avoid conflicts with other devices that follow the
+    // USB registration rules.  But some devices don't follow the rules,
+    // so conflicts are possible.
+    //
+    // usb: {
+    //   vid: 0xFAFA,
+    //   pid: 0xEAEB,
+    // },
+
+    // Serial ports.  Pinscape Pico lets you communicate with the device
+    // via a terminal window, using either an old-school physical serial
+    // port on your PC (the kind with the old 9-pin D-Sub connector), or
+    // a virtual COM port via the USB connection.  (The USB virtual COM
+    // port amicably shares the USB connection with the other Pinscape
+    // devices, like the gamepad and keyboard, so enabling it doesn't
+    // take away any other features.)
+    //
+    // The serial port lets you open a terminal window on the PC to
+    // connect to the Pico to view its message log.  The log can be
+    // really helpful for troubleshooting.  You can also view the log
+    // through the Config Tool, but I find it easier to keep a terminal
+    // window open in the background so that I can look back over recent
+    // messages if anything unexpected happens.  The terminal can also
+    // access a primitive command console, which gives you low-level
+    // access to some of the firmware's hairier internal details.  The
+    // command console is mostly for developers working on the firmware
+    // itself, but it might come in handy for regular setup
+    // troubleshooting once in a while as well.
+    //
+    // If you don't already have a terminal program that you prefer,
+    // PuTTY is a great choice.  It's free and open-source, and it works
+    // with both physical serial ports and USB virtual ports.  Like most
+    // open source (present company excepted!), it's not the most
+    // user-friendly thing I've seen, but it does a good job once you
+    // have it set up.
+    //
+    // The USB and UART ports each have their pluses and minuses.  The
+    // UART port's big drawback is that it requires extra wiring, whereas
+    // the USB port piggybacks on the existing USB connection.  The USB
+    // port's big weakness is that Windows closes the connection every
+    // time you reboot the Pico, so you have to close and re-open the
+    // terminal window every time you update the Pico configuration or
+    // reboot it for any other reason.  The UART connection, being a
+    // physical serial port, stays active across Pico reboots, so you
+    // don't have to keep re-launching the terminal window.
+    //
+    serialPorts: {
+        // UART serial port.  With an RS232 to 3.3V GPIO adapter, you
+        // can connect a physical serial (COM) port on your PC to the
+        // UART0 COM port on the Expansion Board.
+        //
+        // We'll enable this by default, since the Expansion Board has
+        // dedicated wiring for it.  It won't do any harm to leave this
+        // enabled even if you never connect a cable to the port, other
+        // than unnessearily reserving a small amount of Pico memory for
+        // the port.
+        //
+        // Set the PC COM port to 8 data bits, 1 stop bit, no parity.
+        //
+        uart: {
+            tx: 16,           // TX on GPIO 16
+            rx: 17,           // RX on GPIO 17
+            baud: 115200,     // baud rate on the port
+            console: {
+                enable: true,    // enable the interactive command line on this port
+                bufSize: 8192,   // buffer size for console output
+            },
+        },
+
+        // USB virtual COM port, also known as a CDC port.  If you
+        // include this section, the device will set up a virtual
+        // serial port across the USB connection that will appear on
+        // Windows as a COMx port.  You can connect to this port with
+        // any terminal program; set the terminal to 8 data bits, 1
+        // stop bit, no parity, 115200 baud.
+        //
+        // The COMx port number is assigned automatically by Windows
+        // on the first connection.  Unfortunately, Windows doesn't
+        // let the device choose its own COM port, so we can't assign
+        // it here.  You just have to wait and see what Windows gives
+        // us after you connect.  Once the connection is set up, you
+        // can find the assigned port number on the Config Tool's Device
+        // Overview page.
+        //
+        // Windows has built-in CDC support in Windows 10 and later,
+        // but earlier Windows versions require that you install a
+        // CDC device driver.  Microsoft doesn't provide an official
+        // driver, so you'll have to find one from a third party.  I
+        // don't have any particular recommendations about where to
+        // find one; try a Web search for something along the lines
+        // of "USB CDC for driver Windows 7".
+        // 
+        usb: {
+            logging: true,      // enable logging on this port
+            console: {
+                enable: true,    // enable the interactive command line on this port
+                bufSize: 8192,   // buffer size for console output
+            },
+        },
+    },
+
+    // Logging.  The firmware generates messages flagging errors and
+    // reporting various bits of status while it runs.  These can be
+    // extremely useful for troubleshooting, because they give you a
+    // view of the inner workings of the software that you can't get any
+    // other way.
+    //
+    // You can view the log via one of the serial port options (a
+    // physical COM port connection or a USB virtual COM port), by
+    // connecting a terminal program
+    logging: {
+
+        // Message filter.  This string selects which message types are
+        // included in the log.  List all desired types, separated by
+        // spaces; for example, "error warning" selects only error and
+        // warning messages, disabling all others.  Available types:
+        //
+        //   debug      - debug messages; code path and internal state information useful when working on the firmware
+        //   debugex    - extra debug messages; even more debugging detail, used for messages that tend to be repetitive,
+        //                to allow filtering them out while still keeping the less voluminous debug messages
+        //   error      - error messages
+        //   warning    - warning messages (things that aren't errors but might cause unintended behavior)
+        //   info       - general information and status messages
+        //   vendor     - informational messages related to the USB vendor interface
+        //   xinput     - informational messages related to the XInput (XBox controller emulation) interface
+        //   config     - informational messages related to configuration and initialization
+        //   tinyusb    - debugging messages from the Tinyusb library; enabled only when the firmware is compiled with
+        //                Tinyusb debug messages enabled
+        //   
+        // "*" (asterisk) selects all message types
+        // "~ x y" selects all EXCEPT x and y
+        //
+        // For a regular deployed system, you probably want the following:
+        // errors, warnings, info, config.
+        filter: "error warning info config",
+
+        // Internal buffer size.  The device stores messages in an
+        // internal buffer, so that it can pass them to attached
+        // terminals at a pace that the serial connections can handle.
+        // Messages are often generated at a faster rate than they can
+        // be sent across the wire, and the Pinscape firmware makes a
+        // point of never waiting for sloooow things like that, because
+        // its most critical mission is to respond quickly to input
+        // events from accelerometers, buttons, and plungers.  If the
+        // buffer is too small, some messages might be discarded when a
+        // flurry of activity occurs.  So the bigger the better, keeping
+        // in mind that the Pico only has about 256K of RAM overall, and
+        // lots of other features also want a piece of that.  Something
+        // around 8K works pretty well, providing a cushion for the log
+        // without crowding out any other features.
+        bufSize: 16384,
+
+        // Include timestamps, type codes, and color coding in log
+        // messages?  The timestamps and type codes (which announce the
+        // classification of each message: error, warning, info, etc)
+        // are nice to have but take up room in that limited buffer
+        // space we just allocated, so if you want to keep the buffer
+        // smaller, you might turn them off.  The color coding also
+        // takes up a bit of space, but it's really helpful because it
+        // makes the error messages really stand out from the crowd.
+        // The color coding uses ANSI escape sequences, which most
+        // terminal programs understand, but which will look like
+        // gibberish on terminals that DON'T recognize them.  If you
+        // have problems with weird sequences like "[0;31m" appearing
+        // all over the screen, try turning off the color coding.
+        timestamps: true,
+        typeCodes: true,
+        colors: true,
+    },
+
+    // Expansion board configuration
+    expansionBoard: {
+
+        // The reference expansion board provides the Pico with software
+        // control over the power supply to the on-board peripherals
+        // through GPIO 7.  This allows the software to execute a hard
+        // power cycle on all of the on-board chips during a Pico software
+        // reset, which helps ensure that all chips are restored to their
+        // fresh power-on condition, clearing any errors or faults that
+        // might have gotten them into a frozen or erratic state before
+        // the reset.
+        peripheralPowerEnable: {
+            gp: 7,                 // GPIO port controlling the peripheral power supply
+            activeHigh: true,      // peripheral power is on when port is HIGH
+            powerOffTime: 250,     // power blackout interval on each Pico reset
+            waitTime: 250,         // wait time after blackout to give devices time to initialize
+        },
+    },
+
+    // HID keyboard interface.  Enabling this allows you to assign
+    // button inputs to send keyboard keystrokes to the PC.  This is one
+    // of the foundational features of a pinball controller that
+    // practically every virtual pin cab should include.  If you're not
+    // using this Pinscape unit for button inputs, or if you don't wish
+    // to map anything to keyboard input (for example, if you want all
+    // buttons to generate gamepad input instead), it's okay to disable
+    // this.
+    //
+    // Note that enabling this won't usually have any obvious visible
+    // effect on the Windows side, since Windows does an excellent job
+    // of making multiple keyboards all appear to work together as one
+    // unified keyboard.  You will see a new keyboard appear in Device
+    // Manager, but you probably won't notice any other effects.
+    keyboard: {
+        enable: true,
+    },
+
+    // HID gamepad interface.  Enabling this makes Pinscape emulate a
+    // gamepad, so it will show up on Windows under the list of game
+    // controllers when you run JOY.CPL.  This is another foundational
+    // virtual pin cab feature, because almost all of the pinball
+    // simulators accept "analog" control inputs, for plungers and
+    // accelerometers, via joystick axis controls.
+    //
+    // Pinscape Pico actually offers two kinds of gamepad-like device
+    // emulations: HID gamepads, and XBox controllers.  The two devices
+    // have almost identical capabilities, so most people only need one
+    // or the other.  Both are equal in capabilities, but depending on
+    // what OTHER software you're running on your system, you might have
+    // better COMPATIBILITY results with one or the other.  With the
+    // KL25Z Pinscape, some people ran into problems where some
+    // commercial game or other that they were running would crash or
+    // otherwise complain if a joystick was present.  So if you're
+    // running a game like that, you might find that the XBox controller
+    // emulation is a better fit for your system.  On the other hand,
+    // the gamepad is a lot more universal, so you might have better
+    // results with the gamepad.  It all depends on what combination of
+    // games you want to play on your system.
+    gamepad: {
+        enable: true,       // enable the gamepad emulation
+        x: "nudge.x",       // connect the accelerometer X axis to the joystick X axis
+        y: "nudge.y",       // ditto for the Y axis
+        z: "plunger.z",     // connect the plunger position reading to the joystick Z axis
+
+        //
+        // If you're using the ADS1115 to encode the JOYSTICK X/Y inputs
+        // instead of the plunger input, you can connect the physical 
+        // joystick axes to the USB gamepad RX and RY axes like so:
+        //
+        // rx: "ads1115[0]",   // ADS1115 channel 0 - "AIN1/AIN3"
+        // ry: "ads1115[1]",  // ADS1115 channel 1 - "AIN2/AIN3"
+        //
+
+        // Note that gamepad buttons aren't assigned here.  Instead,
+        // gamepad button presses can be assigned as "actions" from the
+        // 'buttons' section, which describes how your physical buttons
+        // are wired into the Pico.  For each physical wired button, you
+        // can assign what action occurs when you press the button.  One
+        // of the available actions is to generate a button press on the
+        // HID gamepad.
+    },
+
+    // XBox controller interface.  If enabled, this makes the Pico
+    // emulate an XBox controller.  This is almost exactly like a
+    // gamepad, but as explained in the gamepad section above, one or
+    // the other might work better in your system depending on what game
+    // software you're running.  Some games seem to have problems with
+    // joysticks being present at all, and other games can't recognize
+    // input from XBox controllers.
+    //
+    // One reason NOT to enable XBox input is that the left joystick and
+    // some of the buttons will trigger activity on the Windows desktop
+    // if you're running Windows 11.  Microsoft seemed to think it would
+    // be cute to use your XBox controller to select programs to run,
+    // and they thought it would be SO cute that they didn't provide
+    // any way to turn it off.  For a virtual pinball controller that
+    // maps the perpetually twitching accelerometer input to the joystick
+    // axes, it'll look like there's a cat walking around your keyboard
+    // randomly popping up the Start menu and launching programs.  So if
+    // you're going to map the accelerometer, map it to the RIGHT axis,
+    // which the Windows 11 desktop thankfully ignores.
+    //
+    // Note that it's perfectly okay to enable BOTH the regular gamepad
+    // and the XBox gamepad.  Windows will just think you have two
+    // gamepads.  However, I'm not sure every game will be as happy with
+    // it as Windows is, since a lot of games just sort of merge all of
+    // the joystick inputs together.  Even Visual Pinball does this, so
+    // it can create problems if you have the accelerometer or plunger
+    // inputs routed to more than one of the devices.
+    //
+    //
+    // xInput: {
+    //     enable: true,
+    //     xRight: "nudge.x",      // connect accelerometer X axis to the XBox right X axis
+    //     yRight: "nudge.y",      // connect accelerometer Y to the XBox right Y axis
+    //
+    //
+    //     // If you're using the ADS1115 to encode the JOYSTICK X/Y inputs
+    //     // instead of the plunger input, you can connect the physical 
+    //     // joystick axes to the USB gamepad RX and RY axes like so:
+    //     //
+    //     // xLeft: "ads1115[0]",   // ADS1115 channel 0 - "AIN1/AIN3"
+    //     // yLeft: "ads1115[1]",   // ADS1115 channel 1 - "AIN2/AIN3"
+    //     //
+    //
+    //     // As with the basic gamepad, button presses aren't configured
+    //     // here.  Instead, the 'buttons' section, which describes how
+    //     // your physical buttons are wired into the Pico, lets you
+    //     // specify the action to execute when you press a physical
+    //     // button.  One of the available actions is to generate a button
+    //     // press on an XInput button.
+    // },
+
+
+    // RGB Status LED.  The expansion board has an on-board RGB LED
+    // wired to GPIOs 1, 2, and 3.
+    //
+    rgbStatusLight: {
+        red: 1,             // GPIO port of RED color channel connection
+        green: 2,           // GPIO port of GREEN color channel connection
+        blue: 3,            // GPIO port of BLUE color channel connection
+        active: "low",      // the pins are wired to the LED cathodes
+    },
+
+
+    // Open Pinball Device HID.  This is a new alternative to the gamepad
+    // interface that sends nudge, plunger, and button press information
+    // to the PC via a dedicated, pinball-specific virtual device.  This 
+    // only works with compatible simulators, so if you're using pinball
+    // games that only accept the traditional joystick input, you can
+    // enable BOTH the joystick and pinball device interfaces.  The goal
+    // of the Open Pinball Device is to eventually replace the joystick
+    // interface in all of the popular pinball simulators, so that you
+    // don't have to make Pinscape Pico pretend to be a joystick.  Some
+    // non-pinball games can behave erratically if an accelerometer is
+    // constantly jiggling a joystick input, so we hope to eventually
+    // eliminate these conflicts by making it unnecessary for pinball
+    // controllers to impersonate joysticks.
+    openPinballDevice: {
+        enable: true,
+    },
+
+    // -------------------------------------------------------------------
+    //
+    // Button inputs.  The expansion board has 32 button input ports, 
+    // wired through two PCA9555 chips.  The definitions below set up the
+    // hardware sources for those 32 input ports.  The buttons are arranged
+    // in the order of the pins on the button headers on the board.  (Note
+    // that this doesn't exactly follow the order of the port labeling on
+    // the PCA9555 chips.)
+    //
+    // For the boilerplate below, we've given each button a keyboard key
+    // assignment, using the basic set of keys that Visual Pinball uses
+    // by default.  You don't have to keep these, though - you can freely
+    // rearrange them and/or change the assignments to actions other than
+    // key presses, such as gamepad or XBox buttons.  I wasn't able to
+    // come up with 32 standard VP buttons, so I assigned the last few
+    // to gamepad buttons.  Gamepad buttons don't have any standard 
+    // meanings in VP, but you can assign them functions in the VP setup
+    // dialogs, or perhaps you could find uses for them in other games.
+    //
+    // The first four buttons are special in that they're wired through
+    // GPIO ports, which makes them ideal for assigning to the flipper
+    // buttons.  The key thing about GPIO-wired switches is that the
+    // Pico can read GPIO ports faster than PCA9555 ports.  The time
+    // difference is tiny, only about a millisecond, but the flipper
+    // buttons are so critical to pinball play that even a small speed
+    // difference might have an effect on the flipper feel.  The
+    // flippers are the only buttons in a pinball simulation where this
+    // small speed difference even remotely matters.  The expansion
+    // board provides four direct GPIO switch inputs to accommodate the
+    // double-stacked leaf switches used on some real pinball games that
+    // have double flippers.  If you're using ordinary single-contact
+    // leaf switches for your flipper buttons, you can use the extra
+    // two GPIO ports for any other button inputs you wish - other than
+    // the ultra-fast scan time, they behave just like the other button
+    // inputs.
+    //
+    // Basic action formats:
+    //
+    //    action: { type: "key", key: "enter" },   // keyboard Enter key
+    //    action: { type: "gamepad", button: 2 },  // gamepad button #2
+    //    action: { type: "xInput", button: "a" }, // "A" button on XBox controller
+    //
+    buttons: [
+        // Button #0
+        { 
+            source: { type: "gpio", gp: 27 },
+            action: { type: "key", key: "left shift" },  // Left Shift = left flipper button
+        },
+
+        // Button #1
+        { 
+            source: { type: "gpio", gp: 26 },
+            action: { type: "key", key: "right shift" }, // Right Shift = right flipper button
+        },
+
+
+        // Button #2
+        { 
+            source: { type: "gpio", gp: 22 },
+            action: { type: "key", key: "left windows" }, // Left Windows key = left 2nd flipper switch (for double-leaf switches)
+        },
+
+        // Button #3
+        { 
+            source: { type: "gpio", gp: 21 },
+            action: { type: "key", key: "right alt" }, // Right Alt key = right 2nd flipper switch (for double-leaf switches)
+        },
+
+
+        // Button #4
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO1_3" },
+            action: { type: "key", key: "left ctrl" }, // Left Ctrl = left MagnaSave button
+        },
+
+
+        // Button #5
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO1_2" },
+            action: { type: "key", key: "right ctrl" }, // Right Ctrl = right MagnaSave button
+        },
+
+        // Button #6
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO1_1" },
+            action: { type: "key", key: "1" },     // "1" = Start button
+        },
+
+
+        // Button #7
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO1_0" },
+            action: { type: "key", key: "esc" },   // "Esc" = Exit button
+        },
+
+
+        // Button #8
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO0_7" },
+            action: { type: "key", key: "3" },     // "3" = left coin chute switch
+        },
+
+
+        // Button #9
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO0_6" },
+            action: { type: "key", key: "4" },     // "4" = middle coin chute switch
+        },
+
+
+        // Button #10
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO0_5" },
+            action: { type: "key", key: "5" },     // "5" = right coin chute switch
+        },
+
+
+        // Button #11
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO0_4" },
+            action: { type: "key", key: "6" },     // "6" = fourth coin chute/dollar bill acceptor switch
+        },
+
+
+        // Button #12
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO0_3" },
+            action: { type: "key", key: "enter" }, // Enter = Launch Ball
+        },
+
+
+        // Button #13
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO0_2" },
+            action: { type: "key", key: "0" },     // "0" = operator control panel enter/select
+        },
+
+
+        // Button #14
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO0_1" },
+            action: { type: "key", key: "9" },     // "9" = operator control panel next/up
+        },
+
+
+        // Button #15
+        { 
+            source: { type: "pca9555", chip: 0, port: "IO0_0" },
+            action: { type: "key", key: "8" },     // "8" = operator control panel previous/down
+        },
+
+        // Button #16
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO1_0" },
+            action: { type: "key", key: "7" },     // "7" = operator control panel cancel/exit
+        },
+
+        // Button #17
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO1_1" },
+            action: { type: "key", key: "end" },   // End = coin door open/closed switch
+        },
+
+        // Button #18
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO1_2" },
+            action: { type: "key", key: "2" },     // "2" = Extra Ball/Buy-In Button
+        },
+
+        // Button #19
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO1_3" },
+            action: { type: "key", key: "T" },     // "T" = tilt bot
+        },
+
+        // Button #20
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO1_4" },
+            action: { type: "key", key: "home" },  // Home = slam tilt switch
+        },
+
+        // Button #21
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO1_5" },
+            action: { type: "key", key: "+" },     // VP Volume Up
+        },
+
+        // Button #22
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO1_6" },
+            action: { type: "key", key: "-" },     // VP Volume Down
+        },
+
+        // Button #23
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO1_7" },
+            action: { type: "gamepad", button: 1 }, // gamepad button 1 (no pre-assigned meaning)
+        },
+
+        // Button #24
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO0_7" },
+            action: { type: "gamepad", button: 2 }, // gamepad button 2 (no pre-assigned meaning)
+        },
+
+        // Button #25
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO0_6" },
+            action: { type: "gamepad", button: 3 }, // gamepad button 3 (no pre-assigned meaning)
+        },
+
+        // Button #26
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO0_5" },
+            action: { type: "gamepad", button: 4 }, // gamepad button 4 (no pre-assigned meaning)
+        },
+
+        // Button #27
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO0_4" },
+            action: { type: "gamepad", button: 5 }, // gamepad button 5 (no pre-assigned meaning)
+        },
+
+        // Button #28
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO0_3" },
+            action: { type: "gamepad", button: 6 }, // gamepad button 6 (no pre-assigned meaning)
+        },
+
+        // Button #29
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO0_2" },
+            action: { type: "gamepad", button: 7 }, // gamepad button 7 (no pre-assigned meaning)
+        },
+
+        // Button #30
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO0_1" },
+            action: { type: "gamepad", button: 8 }, // gamepad button 8 (no pre-assigned meaning)
+        },
+
+        // Button #31
+        { 
+            source: { type: "pca9555", chip: 1, port: "IO0_0" },
+            action: { type: "gamepad", button: 9 }, // gamepad button 9 (no pre-assigned meaning)
+        },
+    ],
+
+    // -------------------------------------------------------------------
+    //
+    // Output Ports.  The expansion boards have a large number of output
+    // ports designed to control different types of devices:
+    //
+    // - 28 MOSFET ports for general-purpose use.  These ports can handle
+    //   up to 7A each, so they're suitable for high-power devices such as
+    //   solenoids and motors.  It's fine to use them with lower-power
+    //   devices as well.  Four of these ports, designated the "motor"
+    //   ports, have individually adjustable PWM frequencies, which might
+    //   be useful if any devices are generating acoustic noise when used
+    //   with the other ports.  Apart from the four "motor" ports, the
+    //   ports run at a fixed PWM frequency around 100 kHz.
+    //
+    // - 16 double Darlington ports, designated as "flasher" ports.  These
+    //   ports can handle 1A each, which is enough to drive the large 3W
+    //   LEDs typically used for virtual pin cab flasher lamps, or even
+    //   two such LEDs in parallel.  These can be used for lower-power
+    //   devices as well if they're not needed for flashers.
+    //
+    // - 8 Darlington ports, designated as "lamp" ports.  These can handle
+    //   500 mA each, which is enough to drive the small incandescent 6.3V
+    //   bulbs used in the Suzo-Happ lighted pushbuttons, or the equivalent
+    //   LED bulbs.
+    //
+    // - 16 TLC59116F ports, designated as "small LED" ports.  These can
+    //   drive up to 120 mA each, which is suitable for small to medium
+    //   LEDs, including the type used in lighted pushbuttons (but not
+    //   the equivalent incandescent bulbs, which draw about 250mA).
+    //
+    // All of the outputs have PWM control for varying the brightness or
+    // intensity of the effect on the port.
+    //
+    outputs: [
+        // Output #1 - high-power MOSFET output #1
+        {
+            device: { type: "tlc59116", chip: 0, port: 15 },
+        },
+
+        // Output #2 - high-power MOSFET output #2
+        {
+            device: { type: "tlc59116", chip: 0, port: 14 },
+        },
+        
+        // Output #3 - high-power MOSFET output #3
+        {
+            device: { type: "tlc59116", chip: 0, port: 13 },
+        },
+        
+        // Output #4 - high-power MOSFET output #4
+        {
+            device: { type: "tlc59116", chip: 0, port: 12 },
+        },
+        
+        // Output #5 - high-power MOSFET output #5
+        {
+            device: { type: "tlc59116", chip: 0, port: 11 },
+        },
+        
+        // Output #6 - high-power MOSFET output #6
+        {
+            device: { type: "tlc59116", chip: 0, port: 10 },
+        },
+        
+        // Output #7 - high-power MOSFET output #7
+        {
+            device: { type: "tlc59116", chip: 0, port: 9 },
+        },
+        
+        // Output #8 - high-power MOSFET output #8
+        {
+            device: { type: "tlc59116", chip: 0, port: 8 },
+        },
+        
+        // Output #9 - high-power MOSFET output #9
+        {
+            device: { type: "tlc59116", chip: 0, port: 7 },
+        },
+        
+        // Output #10 - high-power MOSFET output #10
+        {
+            device: { type: "tlc59116", chip: 0, port: 6 },
+        },
+        
+        // Output #11 - high-power MOSFET output #11
+        {
+            device: { type: "tlc59116", chip: 0, port: 5 },
+        },
+        
+        // Output #12 - high-power MOSFET output #12
+        {
+            device: { type: "tlc59116", chip: 0, port: 4 },
+        },
+        
+        // Output #13 - high-power MOSFET output #13
+        {
+            device: { type: "tlc59116", chip: 0, port: 3 },
+        },
+        
+        // Output #14 - high-power MOSFET output #14
+        {
+            device: { type: "tlc59116", chip: 0, port: 2 },
+        },
+        
+        // Output #15 - high-power MOSFET output #15
+        {
+            device: { type: "tlc59116", chip: 0, port: 1 },
+        },
+        
+        // Output #16 - high-power MOSFET output #16
+        {
+            device: { type: "tlc59116", chip: 0, port: 0 },
+        },
+        
+        // Output #17 - high-power MOSFET output #17
+        {
+            device: { type: "tlc59116", chip: 1, port: 15 },
+        },
+        
+        // Output #18 - high-power MOSFET output #18
+        {
+            device: { type: "tlc59116", chip: 1, port: 14 },
+        },
+
+        // Output #19 - high-power MOSFET output #19
+        {
+            device: { type: "tlc59116", chip: 1, port: 13 },
+        },
+
+        // Output #20 - high-power MOSFET output #20
+        {
+            device: { type: "tlc59116", chip: 1, port: 12 },
+        },
+
+        // Output #21 - high-power MOSFET output #21
+        {
+            device: { type: "tlc59116", chip: 1, port: 11 },
+        },
+
+        // Output #22 - high-power MOSFET output #22
+        {
+            device: { type: "tlc59116", chip: 1, port: 10 },
+        },
+
+        // Output #23 - high-power MOSFET output #23
+        {
+            device: { type: "tlc59116", chip: 1, port: 9 },
+        },
+
+        // Output #24 - high-power MOSFET output #24
+        {
+            device: { type: "tlc59116", chip: 1, port: 8 },
+        },
+
+        // Output #25 - motor output #1
+        {
+            device: { type: "gpio", gp: 8, pwm: true, freq: 24000 },
+        },
+
+        // Output #26 - motor output #2
+        {
+            device: { type: "gpio", gp: 9, pwm: true, freq: 24000 },
+        },
+
+        // Output #27 - motor output #3
+        {
+            device: { type: "gpio", gp: 14, pwm: true, freq: 24000 },
+        },
+
+        // Output #28 - motor output #4
+        {
+            device: { type: "gpio", gp: 15, pwm: true, freq: 24000 },
+        },
+
+        // Output #29 - Flasher #1
+        {
+            device: { type: "tlc59116", chip: 1, port: 7 },
+        },
+
+        // Output #30 -  Flasher #2
+        {
+            device: { type: "tlc59116", chip: 1, port: 6 },
+        },
+
+        // Output #31 -  Flasher #3
+        {
+            device: { type: "tlc59116", chip: 1, port: 5 },
+        },
+
+        // Output #32 -  Flasher #4
+        {
+            device: { type: "tlc59116", chip: 1, port: 4 },
+        },
+
+        // Output #33 -  Flasher #5
+        {
+            device: { type: "tlc59116", chip: 1, port: 3 },
+        },
+
+        // Output #34 -  Flasher #6
+        {
+            device: { type: "tlc59116", chip: 1, port: 2 },
+        },
+
+        // Output #35 -  Flasher #7
+        {
+            device: { type: "tlc59116", chip: 1, port: 1 },
+        },
+
+        // Output #36 -  Flasher #8
+        {
+            device: { type: "tlc59116", chip: 1, port: 0 },
+        },
+
+        // Output #37 -  Flasher #9
+        {
+            device: { type: "tlc59116", chip: 2, port: 15 },
+        },
+
+        // Output #38 -  Flasher #10
+        {
+            device: { type: "tlc59116", chip: 2, port: 14 },
+        },
+
+        // Output #39 -  Flasher #11
+        {
+            device: { type: "tlc59116", chip: 2, port: 13 },
+        },
+
+        // Output #40 -  Flasher #12
+        {
+            device: { type: "tlc59116", chip: 2, port: 12 },
+        },
+
+        // Output #41 -  Flasher #13
+        {
+            device: { type: "tlc59116", chip: 2, port: 11 },
+        },
+
+        // Output #42 -  Flasher #14
+        {
+            device: { type: "tlc59116", chip: 2, port: 10 },
+        },
+
+        // Output #43 -  Flasher #15
+        {
+            device: { type: "tlc59116", chip: 2, port: 9 },
+        },
+
+        // Output #44 -  Flasher #16
+        {
+            device: { type: "tlc59116", chip: 2, port: 8 },
+        },
+
+        // Output #45 - Lamp #1
+        {
+            device: { type: "tlc59116", chip: 2, port: 7 },
+        },
+
+        // Output #46 - Lamp #2
+        {
+            device: { type: "tlc59116", chip: 2, port: 6 },
+        },
+
+        // Output #47 - Lamp #3
+        {
+            device: { type: "tlc59116", chip: 2, port: 5 },
+        },
+
+        // Output #48 - Lamp #4
+        {
+            device: { type: "tlc59116", chip: 2, port: 4 },
+        },
+
+        // Output #49 - Lamp #5
+        {
+            device: { type: "tlc59116", chip: 2, port: 3 },
+        },
+
+        // Output #50 - Lamp #6
+        {
+            device: { type: "tlc59116", chip: 2, port: 2 },
+        },
+
+        // Output #51 - Lamp #7
+        {
+            device: { type: "tlc59116", chip: 2, port: 1 },
+        },
+
+        // Output #52 - Lamp #8
+        {
+            device: { type: "tlc59116", chip: 2, port: 0 },
+        },
+
+        // Output #53 - LED #1
+        {
+            device: { type: "tlc59116", chip: 3, port: 15 },
+        },
+
+        // Output #54 - LED #2
+        {
+            device: { type: "tlc59116", chip: 3, port: 14 },
+        },
+
+        // Output #55 - LED #3
+        {
+            device: { type: "tlc59116", chip: 3, port: 13 },
+        },
+
+        // Output #56 - LED #4
+        {
+            device: { type: "tlc59116", chip: 3, port: 12 },
+        },
+
+        // Output #57 - LED #5
+        {
+            device: { type: "tlc59116", chip: 3, port: 11 },
+        },
+
+        // Output #58 - LED #6
+        {
+            device: { type: "tlc59116", chip: 3, port: 10 },
+        },
+
+        // Output #59 - LED #7
+        {
+            device: { type: "tlc59116", chip: 3, port: 9 },
+        },
+
+        // Output #60 - LED #8
+        {
+            device: { type: "tlc59116", chip: 3, port: 8 },
+        },
+
+        // Output #61 - LED #9
+        {
+            device: { type: "tlc59116", chip: 3, port: 7 },
+        },
+
+        // Output #62 - LED #10
+        {
+            device: { type: "tlc59116", chip: 3, port: 6 },
+        },
+
+        // Output #63 - LED #11
+        {
+            device: { type: "tlc59116", chip: 3, port: 5 },
+        },
+
+        // Output #64 - LED #12
+        {
+            device: { type: "tlc59116", chip: 3, port: 4 },
+        },
+
+        // Output #65 - LED #13
+        {
+            device: { type: "tlc59116", chip: 3, port: 3 },
+        },
+
+        // Output #66 - LED #14
+        {
+            device: { type: "tlc59116", chip: 3, port: 2 },
+        },
+
+        // Output #67 - LED #15
+        {
+            device: { type: "tlc59116", chip: 3, port: 1 },
+        },
+
+        // Output #68 - LED #16
+        {
+            device: { type: "tlc59116", chip: 3, port: 0 },
+        },
+    ],
+
+
+    // -------------------------------------------------------------------
+    //
+    // Nudging.  The Expansion Board has an MC3416 accelerometer on board.
+    //
+
+    nudge: {
+        x: "+X",            // map the chip's X axis to Pinscape's X axis
+        y: "+Y",            // map the chip's Y axis to Pinscape's Y axis
+        z: "+Z",            // map the chip's Z axis to Pinscape's Z axis
+    },
+
+    mc3416: {
+        i2c: 0,             // bus = I2C0
+        addr: 0x4c,         // I2C address
+        interrupt: 18,      // GPIO port connected to interrupt pin
+        gRange: 2,          // set the device's dynamic range to +/- 2g 
+    },
+
+
+    // -------------------------------------------------------------------
+    //
+    // ADS1115 ADC.  This chip is included on the expansion board, with
+    // wiring to the plunger input port, for use with potentiometer-
+    // based plungers.  This chip has better signal quality than the
+    // Pico's on-board ADC, so it's the one to use with a potentiometer
+    // plunger sensor.  The plunger port on the expansion board is wired
+    // to input pin AIN0 on the ADS1115.
+    //
+    // On the expansion board, the plunger port analog input is wired to
+    // ADS1115 input pin AIN0.  Pin AIN3 is wired to a voltage divider
+    // that gives it a fixed 1.65V reference voltage (1/2 of the Pico's
+    // 3.3V supply voltage).  For a potentiometer plunger input that
+    // varies between 0V and 3.3V, we can get the best resolution by
+    // measuring the difference between the pot input and the 1.65V
+    // reference, by setting the input channel to "AIN0/AIN3".  The
+    // difference will range from -1.65V to +1.65V, so we can use the
+    // +/- 2.048V range setting for the chip's internal amplifier.
+    // This gives us finer resolution in the digitized result than
+    // measuring the 0V-3.3V signal relative to GND, since we'd have to
+    // use the wider +/- 4.096V range setting in that case, leaving the
+    // entire negative side of the range unused.  The double-ended
+    // differential configuration uses 80% of the available range, vs
+    // only 40% for the single-ended configuration.
+    //
+    // The AIN2 and AIN3 inputs are wired to the "joystick" header,
+    // which can be used to connect a two-axis joystick based on
+    // potentiometer sensors.  To use those, change the 'channel'
+    // property to ["AIN1/AIN3", "AIN2/AIN3"] to sample AIN2 and AIN3
+    // instead of the plunger port.  You can also use all three analog
+    // inputs at the same time, although that's not recommended,
+    // because it slows down the sampling rate on the plunger input by
+    // a factor of 3.  The ADS1115 can only take one sample at a time,
+    // so it has to sample each input in a round-robin rotation when
+    // multiple inputs are enabled.  If you really want to use a
+    // joystick in addition to a plunger, you might prefer to use the
+    // Pico ADC as the plunger input instead of the ADS1115.  That's
+    // not as good an ADC as the ADS1115, but it's a faster option
+    // when multiple analog inputs are needed.
+    //
+    ads1115: {
+        i2c: 0,                 // I2C bus 0
+        addr: 0x48,             // I2C address, set on the chip via pin inputs, 0x48 to 0x4B
+        ready: 12,              // READY pin GPIO
+        channel: "AIN0/AIN3",   // plunger input = differential signal AIN0-AIN3
+        voltageRange: 2.048,    // voltage range +/- 2.048V from the +1.65V AIN3 reference
+
+        // to use the X/Y joystick inputs instead of the plunger input: change 'channel' to
+        // channel: ["AIN1/AIN3", "AIN2/AIN3"],
+    },
+
+
+    // -------------------------------------------------------------------
+    //
+    // Plungers.  Pinscape Pico has support for all of the plunger
+    // sensors that the original KL25Z Pinscape supported:
+    //
+    //  - Potentiometer, via the Pico's on-board ADC or an external ADC (ADS1115)
+    //  - AEDR-8300 optical quadrature sensor
+    //  - TSL1410R imaging sensor
+    //  - TCD1103 imaging sensor
+    //  - VCNL4010 proximity sensor
+    //  - VL6180X distance sensor
+    //
+    // There are two parts to setting up the plunger configuration:
+    //
+    // - First, set up the "plunger:" property to specify what type of
+    //   sensor you're using, and some other option settings
+    //
+    // - Second, set up a hardware definition for the chosen sensor
+    //
+    // Let's start with the general "plunger:" settings.
+    //
+    // plunger: {
+    //     //source: "ads1115[0]",  // source sensor type; can be omitted if only one plunger sensor is configured
+    //     autoZero: true,          // enable auto-zeroing; only applies to quadrature sensors, ignored otherwise
+    //     autoZeroTime: 5000,      // time in milliseconds for auto-zeroing; plunger must be stationary this long to auto-zero
+    //     powerLaw: 2,             // power-law exponent in brightness-to-distance calculation, only for VCNL4010
+    // },
+    //
+    // The "source" doesn't usually need to be specified, because the
+    // firmware will automatically choose from the configured sensor
+    // types, based on the hardware settings for the sensors.  In most
+    // cases, you'll only have one plunger-capable sensor attached, so
+    // there won't be any ambiguity about which one to use.  If for some
+    // reason you have multiple plunger-capable sensors configured, you
+    // can add "source" to specify which one to use: pico_adc, ads1115,
+    // aedr8300, tsl1410r, tsl1412s, tcd1103, vcnl4010, vl6180x.
+
+
+    //
+    // Now let's cover the various plunger sensor hardware options.
+    // You can simply un-comment one of the items below to enable that
+    // sensor type.  Connect the sensor to the expansion board's plunger
+    // port using the standard Pinscape 8-pin connector layout.  The
+    // Pinscape Build Guide has a diagram of the pin connections for
+    // each supported plunger type.
+    //
+
+
+    // VCNL4010 IR proximity sensor.  This is an I2C device, so you also
+    // have to configure the I2C bus it's attached to under the separate
+    // "i2c0" "i2c1" property key - see the Hardware section for
+    // examples.  The chip also has an INTERRUPT pin, which you can
+    // optionally connect to its own GPIO.  The only other parameter is
+    // the IR emitter current setting, which should usually be turned up
+    // to the maximum brightness of 200 mA.
+    //
+    // vcnl4010: {
+    //     i2c: 1,             // plungers use I2C1
+    //     iredCurrent: 200,   // IRED current, in mA, 10 to 200
+    //     interrupt: 13,      // plunger interrupt port 2; use -1 if not wired to sensor
+    // },
+
+    // VL6180X IR distance sensor.  This is an I2C device, so you also
+    // have to configure the I2C bus it's attached to under the separate
+    // "i2c0" "i2c1" property key - see the Hardware section for
+    // examples.  This chip also has an INTERRUPT pin, which can
+    // optionally connect to its own GPIO port.
+    //
+    //  vl6180x: {
+    //      i2c: 0,            // plungers use I2C1
+    //      interrupt: 13,     // plunger interrupt port 2; use -1 if not wired to sensor
+    //  },
+
+    // AEDR-8300.  This chip connects to two GPIO ports on the Pico.
+    // The configuration simply specifies the GPIOs.
+    //
+    // aedr8300: {
+    //     channelA: 11,       // plunger connector pin 6 -> GP11
+    //     channelB: 13,       // plunger connect pin 5 -> GP13
+    // },
+
+    // TDC1103 linear imaging sensor.  This chip requires four GPIO port
+    // connections.  The "OS" connection is an analog signal, so it must
+    // be connected to one of the Pico's ADC-capable ports, which are
+    // GPIOs 26, 27, and 28.  The data sheet for this chip recommends
+    // connecting a logic inverter between the microcontroller and the
+    // chip for all of the logic ports (FM, ICG, SH).  If you're
+    // following that advice, set invertedLogic to true; but if the
+    // GPIOs are connected directly to the logic pins on the chip, set
+    // invertedLogic to false.
+    //
+    // tcd1103: {
+    //     fm: 11,                // plunger connector pin 6 -> GP11
+    //     icg: 10,               // plunger connector pin 1 -> GP10
+    //     sh: 13,                // plunger connector pin 5 -> GP13
+    //     os: 28,                // plunger connector pin 8 -> GP28
+    //     invertedLogic: true,   // true -> a logic inverter is connected between the Pico and the chip's logic inputs
+    // },
+
+    // TSL1410R and TSL1412S linear imaging sensors.  These chips use
+    // three GPIO connections to the Pico.  The "SO" pin is an analog
+    // signal, so it must be connected to one of the Pico's ADC-capable
+    // GPIO pins, GPIO 26, 27, or 28.
+    //
+    // The two chips are identical other than pixel array size, so they
+    // have the same properties in the configuration.  Use the chip
+    // property name that matches the type of sensor you're using,
+    // either "tsl1410r" or "tsl1412s".  That'll ensure that Pinscape
+    // reads the correct number of pixels in each image frame.
+    //
+    // tsl1410r: {
+    //     si: 10,               // plunger connector pin 1 -> GP10
+    //     clk: 11,              // plunger connector pin 6 -> GP11
+    //     so: 28,               // plunger connector pin 8 -> GP28
+    // },
+    //
+    // tsl1412s: {
+    //     si: 10,               // plunger connector pin 1 -> GP10
+    //     clk: 11,              // plunger connector pin 6 -> GP11
+    //     so: 28,               // plunger connector pin 8 -> GP28
+    // },
+
+
+    // -------------------------------------------------------------------
+    //
+    // IR Remote Control setup.  The expansion board has pre-wiring for
+    // an IR LED emitter and an IR receiver.  Both devices are located
+    // on separate boards that plug into ports on the expansion board,
+    // to allow positioning the IR emitter and receiver on the exterior
+    // of the pin cab (or with a view to the exterior), where they can
+    // be in line of sight to the TVs and remote controls they're
+    // communicating with.
+    //
+
+    // IR Receiver
+    irRx: {
+        gpio: 6,      // GPIO port for TSOP384xx OUT pin
+    },
+
+
+    // IR Transmitter
+    irTx: {
+        gpio: 0,      // GPIO port for IR LED output
+    },
+
+
+    // -------------------------------------------------------------------
+    //
+    // TV ON setup.  The expansion board implements the power-sensing
+    // circuit required for the TV ON feature, which detects when the
+    // main system power has just come on and uses this to send power-on
+    // commands to the TVs.
+    // 
+    tvon: {
+        powerDetect: {
+            sense: { type: "pca9555", chip: 0, port: "IO1_7" },
+            set: { type: "gpio", gp: 20 },
+        },
+
+        // Delay time after system-wide power-on is detected, in
+        // milliseconds.  The TV ON system waits this long before
+        // pulsing the relay and/or sending the IR commands.
+        delay: 7000,
+        
+        // IR commands to send.  This is a sequence of command
+        // strings, using the Pinscape universal remote control
+        // coding format, to send after a power-on event.  You
+        // should set these to the commands necessary to power up
+        // your TV(s).
+        //
+        // The best way to figure out the code strings for your
+        // particular TVs is to fire up the Config Tool, go to the
+        // TV ON & IR screen, and press the remote buttons whose
+        // codes you want to capture.  The IR screen shows commands
+        // received on the IR sensor as they come in, using the
+        // identical string format required here, so you can just
+        // copy and paste codes from the IR window into this list.
+        //
+        // IR: [
+        //     "03.02.7F3A21D0",   // turn on the first TV
+        //     "07.00.6321",       // turn on the second TV
+        // ],
+
+        // Relay port.  You can hard-wire your TV's ON button to
+        // a relay, and use one of the output ports to control the
+        // relay.  If you do this, you have to tell the TV ON system
+        // which port is wired to the relay, which you do here.
+        // Set 'port' to the logical output port number from the
+        // 'outputs:' array where the relay is attached.
+        // 
+        // relay: {
+        //     port: 1,         // use the first logical output port
+        //     pulseTime: 100,  // length of relay ON pulse, in milliseconds
+        // },
+    },
+
+
+    // -------------------------------------------------------------------
+    //
+    // Hardware setup.  Pinscape Pico has support for numerous external
+    // peripheral chips, including accelerometers, plunger position
+    // sensors, GPIO expanders, shift registers, and PWM controllers.
+    // Pinscape lets you attach each chip in numerous different ways,
+    // too, in order to accommodate many different combinations of
+    // chips.  That flexibility does come with a small cost, though,
+    // which is that you have to tell Pinscape how you're wiring things,
+    // because Pinscape doesn't have any hard-coded assumptions about
+    // the wiring setup.
+    //
+
+
+    // I2C0 is used for all of the on-board peripherals on the Expansion
+    // Board, through GP4 (SDA) and GP5 (SCL).  All of the peripherals
+    // in the Expansion Board design are compatible with a 400,000 Hz
+    // data clock rate.
+    //
+    // The Pico's internal pull-up resistors on the SDA/SCL GPIO ports
+    // must be disabled, because the peripheral power supply can be
+    // disabled when the Pico has power, through a separate power
+    // regulator dedicated to the peripherals.  This allows the Pico
+    // to perform a hard reset on the peripherals under software control,
+    // so that peripherals can be reset to a working state in the event
+    // of any glitches without the need to unplug the whole board.  It's
+    // potentially harmful to some devices to apply power to their I2C
+    // pins when the chip's main power supply is off, so we don't want
+    // the Pico to pull the I2C lines to 3.3V via its internal power.
+    // We can prevent that by disabling the internal pull-ups.
+    i2c0: {
+        sda: 4,              // GPIO port of I2C0 SDA (serial data) connection
+        scl: 5,              // GPIO port of I2C0 SCL (serial clock) connection
+        speed: 400000,       // bus speed, bits per second
+        pullup: false,       // disable internal pull-ups on the GPIO ports
+    },
+
+    // I2C1 is wired to the plunger port on GPIOs 10 (SDA) and 11 (SCL).
+    // However, the same pins can be assigned to other, non-I2C uses when
+    // a non-I2C plunger sensor is used, so we don't want to force the
+    // GPIOs into I2C mode unless I2C is actually needed.  We can
+    // accomplish this with with "enable-on-demand" mode, which means
+    // that the bus is only actually activated if at least one device
+    // (namely, one of the I2C plunger sensors) is configured on the bus.
+    // Otherwise, the pins will be left available for other assignments.
+    i2c1: {
+        sda: 10,
+        scl: 11,
+        speed: 400000,
+        enable: "on-demand",
+    },
+
+    // PCA9555 GPIO extender.  The expansion board features two of
+    // these chips, for 32 button inputs.
+    pca9555: [
+        {
+            i2c: 0,          // I2C 0
+            addr: 0x20,      // I2C address 0x20
+            interrupt: 19,   // shared interrupt on GP19
+        },
+        {
+            i2c: 0,          // I2C 0
+            addr: 0x21,      // I2C address 0x21
+            interrupt: 19,   // shared interrupt on GP19
+        },
+    ],
+
+    // TLC59116 PWM controller.  The expansion board features four
+    // of these chips (at I2C addresses 0x60, 0x61, 0x62, 0x63),
+    // for 64 PWM outputs.
+    //
+    tlc59116: [
+        { i2c: 0, addr: 0x60 },
+        { i2c: 0, addr: 0x61 },
+        { i2c: 0, addr: 0x62 },
+        { i2c: 0, addr: 0x63 },
+    ],
+
+    // Real-time clock chip.  This keeps track of the wall-clock time
+    // and calendar date when the Pico is powered off.  A coin cell
+    // battery can be installed on the board to keep the RTC chip
+    // running even when USB is unpowered or disconnected.
+    rv3032c7: {
+        i2c: 0,
+    },
+}

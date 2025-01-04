@@ -1,0 +1,260 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico IR Remote &amp; TV ON Tester</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; IR Remote &amp; TV ON Tester
+</div>
+
+<h1>Pinscape Pico IR Remote &amp; TV ON Tester</h1>
+
+<p>
+   This window provides tools for testing the Pinscape device's IR Remote
+   transmitter and receiver functions, and its TV ON system.
+</p>
+<p>
+   Pinscape Pico can send and receive the type of IR signals commonly used
+   by remote controls for TVs and other consumer electronics.  The Pico
+   itself doesn't come with any IR sensors or transmitters, so you'll
+   need to add extra hardware if you want to use the IR features.  In
+   particular, you need an IR LED to transmit the signals, and a specific
+   type of IR sensor to receive the signals.  The receiver and transmitter
+   functions operate independently, so you don't absolutely have to install
+   both if you only want to use one or the other.  But it's probably better
+   if you do, and it's particularly better to install both if you want to
+   use the transmitter function,  because the best way to learn codes to
+   use with the transmitter is via the receiver.
+</p>
+<p>
+   The Pinscape firmware is fluent in most of the IR protocols used by
+   the major consumer electronics brands.   There are four or five common
+   protocols that, together, account for nearly all of the major brands.
+   Pinscape speaks all of those, plus a few less common ones.  The firmware
+   has a modular design that can accommodate new protocols, too, so if
+   anything important is missing, it could be added in the future if
+   there's enough interest.
+</p>
+<p>
+   The TV ON system is designed to help solve a common annoyance for
+   pin cab builders, which is that some TVs don't turn on automatically
+   when you apply power.  Most pin cab builders want to be able to
+   power up their systems with a single ON button, rather than having
+   to hunt around for remotes to turn on all of the pieces one by one.
+   The standard approach is to plug everything into a power strip
+   that's controlled by the main PC, so that turning on the PC also
+   turns on all of the TVs and other equipment.  Some TVs cooperate
+   by coming on as soon as the main power comes on, but other TVs just
+   go into standby mode, requiring you to go through an extra button
+   press on every power-up.  The TV ON feature is designed to help
+   with those uncooperative TVs.  It monitors the state of your
+   secondary power supply (the one that runs your feedback devices),
+   and when it sees the power come on, it switches the TV on,
+   by pulsing a relay that you've wired to the TV's physical ON
+   button, or by sending one or more IR commands to the TV, or
+   both.  This tester window lets you see the status of the TV ON
+   system and its power-sensing circuit input, and lets you test
+   the TV switching relay directly.
+</p>
+
+<h2>Learning new IR codes</h2>
+<p>
+   Pinscape Pico doesn't have a formal "learning mode".  It doesn't
+   need one, because it always operates as a universal receiver.
+   It constantly watches for any signals that it recognizes through
+   any of its several protocol decoders, and reports them to the PC
+   any time it receives one.  The IR tester window lets you monitor
+   that incoming code stream to see any new codes as they arrive.
+</p>
+
+<h3>Using IR codes</h3>
+<p>
+   To copy a code from the received command list, move the mouse
+   pointer over the code you wish to copy, and click the <b>Copy</b>
+   button that appears alongside the code.
+</p>
+<p>
+   You can now paste the command code string into the JSON configuration,
+   or anywhere else you wish to use it.
+</p>
+<p>
+   You can also run a test transmission of any code received on the
+   Pinscape IR transmitter (if installed) by clicking the <b>Transmit</b>
+   button that appears next to the code when the mouse is over it.
+   That copies the code into the Transmit box at the bottom of the
+   window, and immediately sends it through the Pinscape IR LED.
+</p>
+
+<h3>IR code numeric format</h3>
+<p>
+   Codes are displayed in a Pinscape-specific "universal" coding format,
+   which is rendered as a series of hexadecimal digits.  The Pinscape software
+   uses the identical format in every context where these codes appear,
+   so you can copy codes out of the "IR Commands Received" list in this
+   window and use them anywhere else in the Pinscape system where the
+   codes are needed.  For example, you can use the codes you see in
+   this window directly in the JSON configuration to set up buttons
+   that are triggered by IR codes, or for sending IR commands via the
+   transmitter.
+</p>
+<p>
+   Note that codes for <i>other</i> Universal IR programs or products
+   probably <i>won't</i> work with Pinscape (or vice versa).  There
+   are a couple of Web IR code databases, for example, and each one
+   has its own way of representing the codes.  Every code database
+   ends up looking superficially similar, since the IR codes all boil
+   down to a series of binary bits, but everyone uses different
+   conventions for turning the bits into something humans can read.
+   So you shouldn't try to take codes from a Web database and use
+   them with Pinscape; Pinscape probably won't be able to make sense
+   of them.
+</p>
+<p>
+   That's why the best way to determine the code for a particular
+   button on a particular remotes is to use the IR Tester window's
+   reception display.  Point the remote at the receiver, press the
+   button, and watch for the code to show up in the IR Tester
+   window.
+</p>
+<p>
+   When identifying a code, it's best to press and hold the button
+   on the remote control for a few seconds - long enough to trigger
+   its "auto repeat" function.  The reason is that some of the IR
+   protocols have special coding for repeats.  The receiver can only
+   identify the special coding when the remote control actually uses
+   it to send a repeating key.  By pressing and holding a button,
+   you give the Pinscape receiver a chance to sample the full
+   sequence of bits for a repeating key, giving it enough information
+   to properly identify the nuances of the protocol.  That helps
+   ensure that the Pinscape transmitter can replicate those details
+   faithfully when sending the same command.
+</p>
+
+<h2>Sending IR codes</h2>
+<p>
+   The Transmit Tester section at the bottom of the window lets you
+   send codes through the Pinscape IR LED, if installed.  Just type a
+   code (in the Pinscape universal code format) into the edit box
+   and click the Transmit button.
+</p>
+<p>
+   The best way to find the code for a given button on a given remote
+   is to use the Pinscape IR receiver.  With the IR Tester window open,
+   point your remote at the Pinscape receiver and press the button
+   (it's best to hold it down for a few seconds to trigger auto-repeat
+   mode, so that the Pinscape receiver can observe the full code
+   sequence for repeated keys).  The code should appear in the
+   received code list at the top of the window.
+</p>
+
+<h2>IR Oscilloscope</h2>
+<p>
+   The "oscilloscope" display at the top shows a schematic view of the
+   raw pulses seen on the IR receiver.  The scope view lets you
+   see the sequence of timed pulses recently detected on the receiver.
+</p>
+<p>
+   IR remote signals are all fundamentally based on timing: the
+   duration of the pulses, and the time between pulses.  The graph
+   plotted on the scope represents the pulses (when the IR light
+   from the remote is on) as upper points in the graph, and the
+   spaces between pulses (when the IR light is off) as lower points
+   in the graph.  The horizontal axis represents time, with the
+   length of the pulses and spaces proportional to the time
+   duration of each.  Note that the IR light is either ON or OFF
+   at any given time; the IR remote protocols don't vary the
+   intensity of the light, just the duration of the pulses.
+</p>
+<p>
+   The main purpose of the scope view is to let you capture raw
+   signals from remotes that the Pinscape software <b>doesn't</b>
+   recognize.  If the Pinscape software recognizes the protocol,
+   there really isn't any need to see the raw pulse timing data,
+   as the decoded command ID is much more useful.  The decoded command
+   is reliably repeatable and can be expressed in a compact numeric
+   format, whereas the timing sequence is somewhat inexact,
+   since neither the transmitter nor receiver have perfect clocks.
+   In addition, many of the protocols represent the same command ID
+   with different pulse sequences depending on context, so you
+   can't reliably "learn" a code only by capturing the timing
+   sequence of the pulses; you really have to know the protocol
+   it's using.  The main use for the raw pulse data is for C++
+   programmers who want to add support for a new protocol to
+   the Pinscape software; for that situation, the raw pulses
+   can be useful for figuring out how the code works.
+</p>
+<p>
+   The scope view doesn't show the full numerical details, but you
+   can get that information by saving the timing data to a file.
+   Right-click on the scope view and select Save from the popup
+   menu.  You can save the pulse data as plain text, in CSV format,
+   or as an HTML data table.  You can also copy the data to the
+   Windows clipboard to paste into another program, such as a
+   text editor or spreadsheet; right-click on the scope view
+   and select Copy.
+</p>
+<p>
+   The scope view will clear itself automatically upon receiving
+   a new IR command after a few seconds of inactivity on the
+   receiver.  You can also manually clear the scope by right-clicking
+   on it and selecting Clear from the menu.
+</p>
+
+<h2>TV ON Status</h2>
+<p>
+   This section shows you the status of the TV ON system.  The
+   system works by monitoring a GPIO pin that you've designated
+   in the configuration as connecting to a "power sensing" circuit,
+   which lets the Pico test the power status of some external
+   power supply.  Typically, the power supply being monitored
+   is the secondary power supply that you use for feedback
+   devices (solenoids, LEDs, etc), because this power supply
+   is typically separate from the main PC power supply, and it's
+   usually controlled by the PC through the same switchable
+   power strip that controls power to the TVs.  This makes
+   it a good proxy for the status of the TV power inputs, which
+   is what the TV ON system really needs to know about.
+</p>
+<p>
+   At the left, the window shows a list of all of the "states"
+   that the TV ON system goes through as it monitors the
+   power status.
+</p>
+<p>
+   <b>Power Off</b> means that the secondary power supply was off
+   at the last check (via the sensing circuit).  When power is
+   off, the TV ON system will cycle through the <b>Power Off</b>,
+   <b>Pulsing Latch</b>, and <b>Testing Latch</b> states, until
+   the latch reports that the system has been powered up.
+</p>
+<p>
+   When the system detects that the power is now on, it'll enter
+   the <b>Countdown</b> state, where it waits for the delay
+   interval you programmed in the configuration.  The delay
+   interval is provided because most TVs won't respond to command
+   inputs immediately after the power is applied - they need a
+   little while to initialize.  This is usually just a few seconds,
+   but it varies a lot from one TV to the next, so Pinscape lets
+   you adjust it as needed for your individual setup.  When the
+   countdown ends, TV ON proceeds to the <b>Relay On</b> state,
+   where it pulses the TV relay, and then the IR states, where
+   it transmits the sequence of IR commands you programmed in
+   the configuration.
+</p>
+<p>
+   Finally, the TV ON system settles into the <b>Power On</b>
+   state.  While in this state, it periodically checks the power
+   sense circuit to make sure power is still on.  As long as the
+   power remains on, the TV ON system just sits quietly in the
+   <b>Power On</b> state waiting for that to change.  When it
+   detects that the secondary power supply has been shut down,
+   it returns the <b>Power Off</b> state, and the whole process
+   starts over.
+</p>
+   
+
+</body>
+</html>

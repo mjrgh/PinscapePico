@@ -1,0 +1,234 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Button Tester</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Button Tester
+</div>
+
+<h1>Pinscape Button Tester</h1>
+<p>
+   This window is designed to help set up a Pinscape Pico device's button inputs
+   by letting you see the live button input status in detail.  It shows:
+</p>
+<ul>
+   <li>The <b>logical buttons</b> and their states.  A logical button corresponds
+   to a button entry that you defined in the device's JSON configuration,
+   to map a physical input port on the device to a desired action on the
+   PC side, such as pressing a keyboard key or a gamepad button.
+
+   <li>The current keyboard, gamepad, and XBox Controller emulation status.
+   These show the live status of the respective devices <i>as they appear
+   to the Windows operating system</i>, so these let you see the input that
+   Windows is receiving from the device.  All of the devices are shown even
+   if you haven't actually mapped any buttons to some of them.
+
+   <li>The <b>physical input devices</b> and their port states.  The physical
+   input devices represent the wired button input ports to the Pico.  These
+   include the Pico's own GPIO ports, since those can be wired directly to
+   buttons, plus any external button input chips you've attached to the Pico,
+   such as 74HC165 shift registers and PCA9555 GPIO extenders.  The Pico has
+   a fairly small set of GPIO ports, so most people will need external chips
+   to add capacity for the 20 to 30 physical buttons that a typical virtual
+   pinball machine uses.
+</ul>
+
+<p>
+   The point of all of this information is to let you trace a signal
+   from its origin in a physical pushbutton, into the Pico hardware,
+   then through Pinscape software, the USB connection, and the Windows
+   device drivers.  If pushing a button isn't having the desired effect,
+   you can look at each point along the way to isolate where the problem
+   is occurring.  Start with the physical input device where
+   the button is attached, where you can check if pressing and
+   releasing the button toggles the physical port state as expected.
+   If that's working, you can check the logical button list to make
+   sure that the logical button state is updated when you press the
+   button.  And if that's working, you can check that the Windows
+   device where the button is mapped is showing the right effect.
+</p>
+
+<h2>Logical Buttons</h2>
+
+<p>
+   The panel on the left shows the logical buttons.  These are the buttons
+   defined in your JSON configuration.  These generally map physical input
+   ports, where the physical buttons are wired in, to some kind of action
+   on the PC, such as pressing a keyboard key or a gamepad button.
+</p>
+<p>
+   The list shows the following elements:
+</p>
+<ul>
+   <li>The configuration index (e.g., <b>#3</b>).  This is simply the
+   index of the button port in the JSON configuration file.
+
+   <li>The shift combination that's needed to activate the button.
+   The shift combination is shown with a little up-arrow icon followed
+   by the shift numbers used with the button.  A number shown in
+   <span class="shift-green">green</span> means you must <b>press</b> that
+   shift button to activate this key, and <span class="shift-gray"">gray</span>
+   means the key is only activated when you're <b>not</b> pressing
+   that shift.  For example, <span class="shift-green">1+2</span> means that
+   you must hold down shifts 1 and 2 while pressing this button to
+   activate it.  <span class="shift-gray">1-2</span> means this button
+   is only activated when shifts 1 and 2 are <b>not</b> pressed.
+
+   <li>The button type:
+   <ul>
+      <li>Pushbutton: a regular momentary button, on when pressed
+      
+      <li>Hold: a press-and-hold button, which only activated when you
+      hold it down for a designated interval
+
+      <li>Pulse: a "pulse" button, which briefly activates the associated
+      action when the underlying physical control is pressed or released
+
+      <li>Toggle: pressing the physical button toggles the action on
+      and off; the action stays on or off until the next press
+
+      <li>On/Off: the logical button has two physical inputs that separately
+      turn it on or off when pressed; this is most commonly used for IR remote
+      control inputs
+
+      <li>Shift: a Shift button, with the given shift number; pressing this
+      button affects which action is selected when pressing <i>other</i>
+      buttons that are sensitive to this shift number
+   </ul>
+
+   <li>The physical input port.  This shows the input device type and port
+   number where the physical button is wired.  This can be a Pico GPIO port,
+   or a port on an external chip that adds more input ports, such as a
+   74HC165 shift register or PCA9555 GPIO extender.
+   <p>
+      This can also be
+      a "virtual" input that's not wired to a physical button, but instead
+      is sensitive to some other type of control:
+   </p>
+   <ul>
+      <li>Accelerometer input: the logical button triggers when one
+      of the accelerometer axes crosses a threshold, set in the JSON configuration
+
+      <li>Plunger input: the button is triggered when the plunger crosses
+      a threshold set in the JSON configuration
+
+      <li>IR RX: the button is triggered when the IR remote control receiver
+      reads a code, as programmed in the JSON configuration
+
+      <li>ZB Launch: the button is triggered by the plunger system's ZB Launch detector
+
+      <li>Clock: the button is triggered at certain times of day, set in the JSON configuration
+
+      <li>Output Port: the button is connected to a DOF output port controlled from the PC
+   </ul>
+
+   <li>The action.  This is the action to send to the PC when the logical
+   button is pressed.
+</ul>
+
+<h2>Shift State</h2>
+<p>
+   This area shows the current shift state, which shows you which
+   Shift buttons are currently engaged.  A number in gray means
+   that that shift is not currently pressed, and green means that
+   it is pressed.
+</p>
+
+<h2>Keyboard, gamepad, XBox, OpenPinDev</h2>
+<p>
+   This area shows you the current status of the system input devices
+   on the Windows side, so that you can see which keys and buttons
+   Windows believes are currently pressed.  All of these inputs come
+   from the Windows native interfaces, so they reflect the same
+   information that <i>other applications</i> should also see when
+   they read from the various input sources.  This helps verify that
+   the buttons are actually delivering the Windows inputs that you
+   expect.
+</p>
+<p>
+   The keyboard status is system-wide, because Windows combines all
+   keyboard input into a single virtual keyboard.  Any key that's
+   pressed on any one physical keyboard device counts as pressed
+   on this virtual &uuml;ber keyboard.  If you press a key on your
+   regular keyboard, it'll show up as pressed here.  Likewise, if
+   you push a Pinscape button that's mapped to a keyboard key, you
+   should see the result show up here as well.
+</p>
+<p>
+   The gamepad area shows the buttons for the Pinscape gamepad only.
+   Unlike the keyboard, Windows doesn't merge gamepad inputs - it
+   keeps each gamepad's input separate, since otherwise you couldn't
+   play multi-player games via gamepads.  This allows the Button Tester
+   window to show you just the gamepad input coming from the selected
+   Pinscape Pico, without any interference from other devices.
+   Pressing a physical button on the Pinscape unit that's mapped to a
+   gamepad button should show up here by lighting up the mapped button.
+</p>
+<p>
+   The XBox Controller image shows buttons mapped to the XInput
+   interface on the Pico.  Like the gamepad, this is a private
+   display for the Pinscape XInput buttons only.  It won't show
+   input from any other XInput controllers you have attached.
+   Pressing a button on the Pico that's mapped to an XInput button
+   should show the button light up here.
+</p>
+<p>
+   The OpenPinDev buttons show the status of the buttons assigned
+   to the Open Pinball Device interface, if enabled.  There are two
+   sets of these buttons: the "generic" buttons, which are numbered
+   1 to 32, and the "named" buttons, which have pre-assigned meanings
+   that correspond to the standard functions found in most pinball
+   simulators.
+</p>
+
+<h2>Physical Input Ports</h2>
+<p>
+   The area at the lower right shows the physical input port status.
+   This includes all of the Pico's GPIO ports, plus the ports for
+   any input-capable I/O chips that you've configured.  I/O chips
+   are listed whether or not you've actually assigned buttons to
+   any of them in the configuration.
+</p>
+<p>
+   All of the ports for all of the I/O devices, including all of
+   the Pico's GPIO ports, are included, whether or not they're being
+   used as button inputs.
+</p>
+<p>
+   The ports are all shown with their electronic logic level.
+   Green means that the port is at "high" logic level (usually
+   3.3V), and gray means it's a "low" logical level (0V, or
+   equivalently, DC ground).  This is the physical logic level -
+   it's not affected by "active high" or "active low"
+   configuration settings on the logical ports.  Remember that
+   the usual button wiring is "active low", where the port
+   is normally pulled up to the high logic level, and pressing
+   the button pulls the port to ground.
+</p>
+<p>
+   The port levels shown in the window show what the Pico is
+   reading from the ports.  The first step in debugging a button
+   problem is usually to check that the Pico is reading the
+   correct high/low voltage level on the port the button is
+   wired.  If the display here doesn't match what you expect
+   when you press and release the button, use a voltmeter to
+   check the actual voltage on the port.  If the voltmeter
+   matches the logic level shown in the window (3.3V for
+   green, 0V for gray), the problem must be in the wiring
+   between the button and the port, or perhaps the button
+   itself is simply defective.  If the voltmeter reading
+   conflicts with the port level shown here, though, the
+   Pico is having trouble reading the port.  If you're using
+   an add-on chip (74HC165, PCA9555), the control wiring
+   between the chip and the Pico could be the problem, or
+   the JSON configuration for the chip could be wrong;
+   check the Pinscape device log for startup error messages
+   related to the chip.
+</p>
+
+</body>
+</html>

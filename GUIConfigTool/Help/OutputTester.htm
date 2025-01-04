@@ -1,0 +1,407 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Output Tester</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Output Tester
+</div>
+
+<h1>Output Port Tester</h1>
+<p>
+   This window is designed to help set up a Pinscape Pico device's output
+   controller ports, by letting you directly test the Pinscape ports without
+   having any pinball simulation software involved.  This bypasses all of the
+   layers of software that the games use, to help isolate any problems.
+   If the port doesn't work in Visual Pinball or other games, but it does
+   work here, you can tell that the problem lies in one of the game
+   software layers.  If the port doesn't work here, the problem somewhere
+   in the device setup, either in the physical wiring, the electronics,
+   or in the Pinscape firmware.
+</p>
+<p>
+   The tester also lets you separately test the "logical" output ports
+   and the "physical" device ports.  The logical ports are the numbered
+   ports that you set up in your JSON configuration file for use in DOF
+   and other game software.  Your configuration defines the mapping of
+   each logical port to a physical port, which represents the pin
+   where the feedback device (light, solenoid, motor, etc) is wired
+   into the Pico or one of its peripheral chips.  A physical port can
+   be one of the Pico GPIO ports, or a port on one of the supported
+   external chips: a PWM controller (TLC59116, TLC5940, PCA9685), a
+   shift register chip (74HC5595), or a GPIO extender (PCA9555).  The
+   tester window shows you all of the configured peripheral devices,
+   and lets you test each of their ports individually, so that you can
+   determine if each chip is working correctly.
+</p>
+
+<h2>Normal/Test Mode Selection</h2>
+<p>
+   The tab control at the top of the window lets you select between
+   the program's two major modes:
+</p>
+<ul>
+   <li><b>Logical port mode</b> is the device's normal operating mode,
+   where the logical output ports (the ones that game programs can
+   control through DOF) control the action.   In this mode, the tester
+   window shows you all of the logical ports, and lets you set each
+   port's PWM level.  It also shows the physical device ports, so
+   that you can see the status of each device, and immediately
+   see the effect of the logical ports on the device outputs.
+   In this mode, you can only control the logical port levels;
+   you can't directly set the levels on the physical device outputs,
+   because the logical ports are in control.
+
+   <li><b>Direct device test mode</b> is a special troubleshooting
+   mode that disables the logical ports entirely, so that you can
+   directly test the device ports.  When this mode is active, the
+   window shows you all of the device ports, with individual controls
+   to test each port on each device.
+   <p>
+      When device test mode is engaged, all of the logical output
+      port controls are disabled, including computed ports, gamma
+      correction, inverted logic, and Flipper Logic timers.
+   </p>
+</ul>
+<p>
+   <b style="color: red;">Warning! Flipper Logic timers are disabled
+   when in direct device test mode.</b>  Exercise caution with devices
+   that would be damaged by being left on for long intervals.  The
+   normal Flipper Logic cutoff won't take effect in this mode.  You
+   must manually turn off each port you activate.
+</p>
+
+<h2 class="mode">Logical port mode</h2>
+
+<p>
+   In logical port mode, the window shows the list of logical (DOF)
+   ports in the left panel, and the list of configured physical
+   devices in the right panel.  This mode lets you control the
+   PWM level on each logical port, and observe its effect on the
+   physical devices.  In effect, this lets you play the role that
+   a game program normally would play, sending commands to the DOF
+   ports to control feedback effects, but without any external
+   game software involved.  It also lets you see the inner workings
+   of the ports in more detail than you can see through game programs.
+</p>
+<p>
+   You can't control the physical
+   device ports directly in this mode, since they're under the control
+   of the logical ports.
+</p>
+   
+
+<h2>Logical Ports</h2>
+<p>
+   The left panel shows the logical ports, which are the software ports
+   that programs like DOF can access to create feedback effects.
+   We call these "logical" ports because they're entirely software
+   abstractions.  What they mean physically is up to you to define
+   in the JSON configuration file.
+</p>
+
+<h3>Port</h3>
+<p>
+   Each logical port is numbered.  Programs like DOF that access
+   the ports for feedback effects work in terms of the port number.
+   The port numbers correspond to the order of the ports in your JSON
+   configuration file, with the first entry labeled Port #1.
+</p>
+
+<h3>Device port</h3>
+<p>
+   This shows the physical device port that the logical port is
+   assigned to.  Ports that aren't mapped to physical outputs are
+   shown as <b>Virtual</b>.
+</p>
+
+<h3>Attributes</h3>
+<p>
+   This column shows each port's attributes, as a series of icons:
+</p>
+<style type="text/css">
+#attrTable {
+    margin: 1ex 2em;
+}
+#attrTable td {
+    padding: 1ex 0px;
+}
+#attrTable td:nth-child(1) {
+    vertical-align: top;
+    padding-right: 2em;
+}
+</style>
+
+<table id="attrTable">
+   <tr>
+      <td><div class="attrIcon" style="background-position: 0px 0px;"></div></td>
+      <td>
+         Gamma correction is enabled for the port.  The nominal output level is
+         adjusted when sent to the underlying physical device to make brightness
+         changes to an attached LED look more "linear" to the human eye, so
+         that, for example, brightness level 128 looks about half as bright to
+         the eye as brightness level 255.  The eye perceives brightness
+         logarithmically, so the electronic notion of "half power" doesn't
+         translate directly to the perceptual notion of "half brightness".
+         Gamma correction applies an adjustment to the electronic power level
+         on the port to make the apparent brightness more linear to a human viewer.
+      </td>
+   </tr>
+
+   <tr>
+      <td><div class="attrIcon" style="background-position: -48px 0px;"></div></td>
+      <td>
+         "Noisy" port.  This port is designated as being associated with a noisy
+         device, which tells the Night Mode feature to disable the port when Night
+         Mode is engaged.
+      </td>
+   </tr>
+   
+   <tr>
+      <td><div class="attrIcon" style="background-position: -96px 0px;"></div></td>
+      <td>
+         "Inverted" port (the icon is the symbol used in electronic schematics
+         to represent a logic inverter).  The logical port's PWM level is reversed when
+         sent to the underlying physical device.  When the logical port is set to the maximum
+         PWM level 255, the underlying physical port is set to 0% duty cycle, which
+         turns the port fully off.  When the logical port is at PWM level 0, the
+         underlying port is turned fully on, at 100% duty cycle.  In general, PWM
+         level X is inverted to PWM level 255-X when send to the physical device.
+         <p>
+            Note that this doesn't tell you anything about the <b>physical voltage</b>
+            on the port.  This just says that the logical PWM level is inverted when
+            sent to the port.  Some of the physical output controller chips use
+            "active high" wiring, where the port outputs 3.3V or some other
+            positive voltage when ON, whereas other chips use "active low" wiring,
+            where the port is pulled to 0V when ON.  The high or low voltage when
+            a port is ON is intrinsic feature of the particular chip, and it isn't
+            affected one way or the other by the "Inverted" status of the logical port.
+         </p>
+      </td>
+   </tr>
+   
+   <tr>
+      <td><div class="attrIcon" style="background-position: -144px 0px;"></div></td>
+      <td>
+         Flipper Logic is enabled on the port.  This means that the port has
+         time limitations for continuous ON activation, as specified in your
+         JSON configuration file.  Pinscape Pico has a flexible range of options
+         for port time limiters, with the ability to cut the power entirely to
+         the port when the time limit expires, or just reduce it to a safer
+         level, if PWM control is available for the port.
+      </td>
+   </tr>
+
+   <tr>
+      <td><div class="attrIcon" style="background-position: -192px 0px;"></div></td>
+      <td>
+         Computed port: This port has a <a href="JSONConfigRef.htm#outputs.source"><tt>source</tt></a>,
+         defined in the JSON configuration, which calculates the PWM level for the port based
+         on the scripting formula defined in the JSON file.  A computed port
+         ignores the DOF input level and instead uses the result of the <tt>source</tt>
+         formula.  The formula take its input from sources like button states, accelerometer
+         input, the plunger position, the current time, and various waveform
+         generators.  Pinscape updates the formula result every few milliseconds,
+         so the port always shows the "live" result based on the all of its inputs.
+         <p>
+            Computed ports are still shown as logical ports, and DOF and other
+            programs can still send commands to the port.  But in most cases, a
+            computed port ignores its DOF input, since the <tt>source</tt>
+            formula takes precedence.  The reason that DOF input is still allowed
+            is that the DOF input itself can be used as an input to a <tt>source</tt>
+            formula, so it might still be useful for some ports.
+      </td>
+   </tr>
+</table>
+
+<h3>Host Level</h3>
+<p>
+   The Host level box shows the current port PWM level setting as set by the
+   PC (the "host").  When you're playing a pinball game that uses feedback
+   effects through DOF, this is the level most recently commanded by DOF.
+   When you're using the Output Tester window, DOF isn't involved, but you
+   can manually adjust the desired host level with the slider control next
+   to the level box.
+</p>
+<p>
+   The Host level is basically the <b>input</b> to the logical port.  For
+   a "Direct" port, this usually just passes through directly to the underlying
+   physical device.  If you have Flipper Logic enabled, that will override
+   the host setting when the configured maximum ON time expires.  Gamma correction
+   likewise tweaks the numeric level to change it from a linear brightness
+   level to a gamma-corrected power level.  And if the
+   Inverted attribute is set on the port, the Host level will be reversed
+   on the 0-255 scale (so level X becomes level 255-X) when sending the level
+   to the underlying physical port.  Regardless of all of these adjustments,
+   though, the Host level always records the last level <i>commanded</i>
+   by the host, even if the various other settings change the actual output
+   value before it reaches the physical port.
+</p>
+
+<h3>Calc Level</h3>
+<p>
+   This is the calculated port PWM level, after applying the <tt>source</tt>
+   calculation for a computed port.  For Direct ports, this just follows
+   the Host level.  For Computed ports, this reflects the live result of
+   the <tt>source</tt> calculation.
+</p>
+<p>
+   As with the Host level, the Calc level reflects the result of the
+   <tt>source</tt> calculation only, before any of the standard adjustments
+   are applied (the Inverted attribute, gamma correction, and Flipper
+   Logic time limiters).
+</p>
+
+<h3>Out Level</h3>
+<p>
+   This is the final PWM output level that the logical port sends to its
+   assigned physical device port, after applying Flipper Logic timers
+   and the Inverted attribute.  (This doesn't take into account gamma
+   correction, though, since that's handled later on, after rescaling
+   the DOF 0-255 value to the physical device's native PWM resolution.
+   This lets the gamma correction take advantage of the greater PWM
+   step resolution that some devices use.  That can make a big
+   difference at the low end of the brightness scale, where the gamma
+   curve flattens out to subtle gradations between levels that can't
+   be represented in only 8 bits.  You can see the numerical effect of
+   gamma correction, if any, on the physical device port in the right
+   panel, which shows the result in the device's native units.)
+</p>
+<p>
+   The logical port value is always on a scale of 0 to 255, where 0
+   is fully off and 255 is fully on, at 100% duty cycle.  Intermediate
+   values represent linearly proportional duty cycles, so 127 is about
+   50% duty cycle, or half brightness/half power.  "Duty cycle" refers
+   the percentage of time that the physical output port is switched
+   on.  PWM (Pulse Width Modulation) is a technique for controlling
+   brightness or power by rapidly switching the voltage on and off,
+   hundreds or thousands of times per second (depending on the
+   specific physical device used).
+</p>
+
+<h3>Level control slider</h3>
+<p>
+   Each port row is equipped with a slider control that lets you
+   adjust the output level on the port.  This adjusts the <b>Host</b>
+   level, which is the same level that DOF sets when it sends commands
+   to Pinscape.  This lets you see the effect of all of the <tt>source</tt>
+   formula calculations and attribute adjustments when applied to any
+   given DOF level.
+</p>
+<p>
+   Note that you can adjust the slider control with the mouse or with
+   the keyboard.  Click on the slider to give it focus, which lets you
+   control it with the keyboard:
+</p>
+<ul>
+   <li>The Up/Down arrows and Right/Left arrows change the level up
+   and down one step at a time
+
+   <li>Ctrl+Up, Ctrl+Down, Ctrl+Right, and Ctrl+Left change the level
+   up and down by 10 steps at a time
+
+   <li>Shift+Up, Shift+Down, Shift+Right, and Shift+Left change the
+   level up and down by 25 steps at a time
+
+   <li>Type a number from 0 to 255 to jump directly to a level; press
+   return to end the entry
+
+   <li>Tab and Shift+Tab navigate through the slider list
+</ul>
+
+<h2>Physical devices</h2>
+<p>
+   The right panel shows the physical output devices, including the
+   Pico's GPIO ports (which can be programmed individually as output
+   controller ports) and external peripheral chips that you've
+   set up through the JSON configuration file.
+</p>
+
+<p>
+   The panel shows the ports grouped by physical chip.  Each chip's
+   ports are listed by number, with a box showing the current output
+   level on the port:
+</p>
+<ul>
+   <li><b>X</b> means that the port isn't programmed as an output
+   port.  It's either being used as an input port, or isn't being
+   used at all.  This only applies to "bidirectional" devices,
+   meaning that the hardware allows the ports to be individually
+   configured as inputs or outputs; this includes the Pico's GPIO
+   ports, and ports on GPIO extender chips like PCA9555.  For
+   chips that are purely output devices, like PWM controllers
+   and output shift registers, there aren't any "X" ports because
+   the ports simply can't have any other function.
+
+   <li><b>ON</b> or <b>OFF</b> means that the port is a digital
+   output port, rather than a PWM port.  A digital port is
+   basically a switch that can only be turned on and off.  Pico
+   GPIO ports can be programmed as either PWM or digital output
+   ports, while most of the peripheral chips are one or the other.
+   The ON/OFF notation is used for chips that can only be set up
+   as digital outputs, such as shift register chips (74HC595)
+   and GPIO extenders (PCA9555).
+
+   <li><b>A number</b> means that that port is programmed as a
+   PWM output.  This shows the current output level using the
+   native PWM step range for the individual chip:
+   <ul>
+      <li>GPIO ports: 0 to 255
+      <li>TLC59116: 0 to 255
+      <li>TLC5940: 0 to 4095
+      <li>PCA9865: 0 to 4095
+   </ul>
+</ul>
+
+<p>
+   Note that output port status is shown even for ports that
+   aren't mapped to logical output ports.  The diagram includes
+   ports that are configured as outputs for other purposes,
+   such as sending logic/control signals to peripheral chips.
+</p>
+
+<h2 class="mode">Direct device test mode</h2>
+<p>
+   This mode lets you test the physical output ports directly,
+   bypassing all of the software layers used for the logical ports.
+   This is useful for determining whether a problem with a device
+   is coming from the hardware or somewhere in the software.
+   If a port fails to work correctly in this mode, the problem
+   must lie in either the physical hardware, or in the device-level
+   Pinscape software or configuration setup.
+</p>
+<p>
+   <b style="color: red;">Warning! Flipper Logic timers are disabled
+   when direct device test mode is engaged.</b>  Exercise caution
+   with devices that could overheat if activated for long intervals,
+   since the normal protective timers can't intervene in this mode.
+   When you activate a device port in this mode, it will remain
+   activated until you manually turn it back off.
+</p>
+<p>
+   This mode shows a list of all of the physical output devices,
+   with a slider control for each port that's enabled as an output.
+</p>
+
+<h3>Disabled ports</h3>
+<p>
+   Some types of devices have bidirectional ports, meaning that the
+   ports can be individually configured as inputs or outputs.  That
+   includes the Pico's GPIO ports as well as ports on GPIO extender
+   chips, such as PCA9555.  The window shows ports for all of the
+   devices that are <i>capable</i> of being assigned as logical output
+   ports, but ports that aren't <i>actually</i> used as outputs will
+   be shown as disabled.
+</p>
+<p>
+   Pico GPIO ports are only enabled in this view when they're assigned
+   to logical output ports in the configuration.  This avoids
+   accidentally interfering with GPIO ports that are used for other
+   purposes, such as for logic signal connections to peripheral chips.
+</p>
+
+</body>
+</html>

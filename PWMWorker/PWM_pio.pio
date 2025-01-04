@@ -1,0 +1,113 @@
+; Pinscape Pico - TLC5940 PIO state machine program
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; Based on Pico sample code from Raspberry Pi, copyright (c) 2020
+; Raspberry Pi (Trading) Ltd., BSD 3-clause license, available at
+; https://github.com/raspberrypi/pico-examples/blob/master/pio/pwm/pwm.pio
+;
+; This PIO program implements a PWM output on a single GPIO without
+; using the Pico's native PWM controller hardware.  The Pico can
+; provide PWM output on any GPIO via built-in PWM hardware, but the
+; native hardware has some significant limitations that sometimes
+; make it useful to be able to implement a PWM output by other means.
+; This program does so using a PIO state machine.  Each state machine
+; can control one GPIO pin, independently of any other PWM outputs
+; (native or PIO).
+;
+; This is a slightly modified version of the RPi sample, with the same
+; number of opcodes, slightly improved loop efficiency (2 cycles per
+; loop vs 3 in the original), and most importantly, a true 100% duty
+; cycle when LEVEL == WRAP.
+;
+; True 100 duty cycle means that the port is continuously HIGH across 
+; cycles, with not even a momentary dip to LOW.  The original sample
+; version has a brief portion of every cycle where the output is LOW,
+; even when LEVEL == WRAP, so it can't achieve a true 100% duty cycle.
+; This might be important for some applications.  One case where it
+; matter is when the output is used as an Active Low control, where
+; a 99.9% duty cycle would leak some current by setting the pin LOW
+; (thus ON/Active, in the case of an Active Low usage) for a brief
+; time on every cycle.  Another is where the connected device is
+; edge-sensitive, where it would see a falling/rising edge pair on
+; every cycle.  True 100% duty cycle maintains a continuous HIGH
+; level on the pin without even a brief dip at cycle boundaries.
+;
+; Pin assignments:
+;   Sideset pin 0 = output pin
+;
+; Clocking:
+;   PIO cycle frequency = PWMFREQ*((WRAP+1)*2 + 2)
+;   where:
+;     PWMFREQ is the desired PWM whole cycle frequency
+;     WRAP is the number of steps in the cycle
+;
+
+; Register usage
+;   ISR = Total cycle length (WRAP)
+;   OSR = Duty Cycle (LEVEL), refreshed on each cycle from TX FIFO if a new value is available
+;   X   = Previous LEVEL, used as new LEVEL on each cycle when the TX FIFO is empty
+;   Y   = Current counter
+
+.program pwm
+.side_set 1 opt
+
+.wrap_target
+newCycle:
+    ; Set up for a new cycle by retrieving a new LEVEL value from
+    ; the FIFO, or repeating the last one if the FIFO is empty.
+    ; The caller only has to write to the FIFO to change the duty
+    ; cycle; once set, the same duty cycle will be repeated until
+    ; a new one is sent.
+    ;
+    ; Note that we DON'T change the output pin level.  The pin level
+    ; simply carries forward from the previous cycle.  If the duty
+    ; cycle is less than 100%, we'll set it to off as soon as we
+    ; enter the OFF phase loop.  If the duty cycle is 100%, keeping
+    ; the pin high across the "reload" steps yields a true 100%
+    ; duty cycle on the output pin with not even a momentary dip
+    ; to LOW, which might be important for some applications.
+    pull noblock            ; Pull from FIFO to OSR if available, else copy X to OSR
+    mov x, osr              ; Copy most-recently-pulled value back to scratch X
+    mov y, isr              ; ISR contains PWM period. Y used as counter.
+
+    ; Top of OFF phase loop.  We stay in the OFF loop until X==Y,
+    ; which is to say that the loop counter has reached LEVEL.
+offPhase:
+    jmp x!=y offDec
+
+    ; Top of ON phase loop.  We reach this loop as soon as X==Y
+    ; (the loop counter has reached LEVEL).  In this loop, we
+    ; count down the remainder of the cycle on the Y counter,
+    ; with the pin taken HIGH.  This loop takes two cycles per
+    ; loop, just like the OFF phase loop, to keep the timing
+    ; the same in each phase.
+    ;
+    ; There's a special case for 0% duty cycle.  When LEVEL == 0,
+    ; the OFF phase loop will jump here because we've reached the
+    ; level.  But we don't want to set the pin HIGH in this case,
+    ; since a 0% duty cycle should never take the pin HIGH at all.
+    ; Doing so would constitute a non-zero duty cycle.  This could
+    ; cause artifacts for some applications, particularly if the
+    ; controlled device is edge-sensitive.  So check for the
+    ; special case and jump straight to the next cycle when we
+    ; reach zero.
+    ;
+    ; The jump on Y==0 yields a very slight imperfection in the
+    ; cycle timing, since the final cycle where Y has reached zero
+    ; is only one clock long instead of two clocks.  This shortens
+    ; the overall loop time by one clock.
+onPhase:
+    jmp !y newCycle
+    jmp y-- onPhase side 1
+
+    ; Off Decrement.  We jump between offPhase and here (two clocks)
+    ; as long as the current loop counter Y != LEVEL.  This keeps
+    ; the output pin LOW while Y > LEVEL, but doesn't actually SET
+    ; the pin LOW until after the first Y != X test.  This gives us
+    ; a true 100% duty cycle when LEVEL == WRAP, by never setting the
+    ; pin LOW in the case that LEVEL == WRAP.  In that case, we jump
+    ; past the first SIDE 0 on the first loop iteration, leaving the
+    ; pin HIGH from the previous loop.
+offDec:
+    jmp y-- offPhase side 0
+.wrap

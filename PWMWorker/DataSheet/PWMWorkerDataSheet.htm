@@ -1,0 +1,1480 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pico PWMWorker Data Sheet</title>
+</head>
+<body>
+
+<style type="text/css">
+html {
+    color: #000000;
+    background-color: #FFFFFF;
+    padding: 1em 1em 4em 1em;
+}
+body {
+    max-width: 60em;
+}
+html, table {
+    font: 10pt/16pt Segoe UI, Helvetica Neue, Tahoma, Open Sans;
+}
+
+h1 {
+    font-size: 133%;
+    color: #0000E0;
+    border-bottom: 1px solid #b0b0ff;
+    padding: 1em 0px 1em 0px;
+    margin-bottom: 2em;
+    position: relative;
+}
+h1 > div {
+    margin: 1ex 0px 0px 0px;
+}
+h1 > div.sub1 {
+}
+h1 > div.sub2 {
+    font-size: 90%;
+}
+.right {
+    display: inline-block;
+    position: absolute;
+    right: 0px;
+}
+
+h2 {
+    border-top: 1px solid #e8e8e8;
+    padding-top: 1em;
+    font-size: 125%;
+    color: #0000E0;
+    margin: 2em 0px 1ex 0px;
+}
+h3 {
+    font-size: 110%;
+    color: #0000E0;
+}
+
+.logo {
+    background: #f0f0f0;
+    text-align: center;
+    color: #800080;
+    font-size: 120%;
+    font-weight: bold;
+    padding: 1ex 0px;
+}
+    
+li {
+    margin-top: 1em;
+}
+
+table.data {
+    font: inherit;
+    display: block;
+    margin: 1em auto;
+    border-collapse: collapse;
+}
+
+table.data td, table.data th {
+    padding: .5ex 2em;
+    border: 1px solid #f0f0f0;
+}
+
+overbar {
+    text-decoration: underline;
+    text-underline-offset: -.9em;
+}
+
+img.illustration {
+    display: block;
+    margin: 2em auto;
+    max-width: 95%;
+}
+.caption {
+    font-style: italic;
+    text-size: 90%;
+    margin: 1ex 3em 2em 3em;
+    text-align: center;
+}
+
+tt {
+    display: inline-block;
+    padding: 1px 4px;
+    margin: 0px 3px;
+    background: #f0f0f0;
+}
+</style>
+
+<div class="logo">Pinscape Labs</div>
+<h1>
+   PWMWorker <div class="right">Data Sheet</div>
+   <div class="sub2">24-channel PWM controller with I2C interface</div>
+</h1>
+<p>
+   PWMWorker is a firmware program for the Raspberry Pi Pico that turns the
+   Pico into a PWM (<a name="DefinePWMBack"></a><a href="#DefinePWM">Pulse-Width Modulation</a>)
+   controller chip, in imitation of dedicated PWM chips like
+   TLC59116 and PCA9685.  Like those chips, PWMWorker provides an I2C interface
+   that lets a host microcontroller (for example, another Pico, perhaps running the
+   <a href="https://mjrgh.github.com/PinscapePico/">Pinscape Pico</a>
+   firmware), control a set of output pins with PWM.
+</p>
+<p>
+   The mainstream chips in this class are designed primarily to
+   control arrays of LEDs (indeed, the category where you'll find most of them
+   listed on Mouser and DigiKey is "LED driver chips"), but there's really
+   nothing that limits them to LEDs, since the output ports are ultimately
+   just electronic switches.  They can be used to switch almost any sort of
+   device, especially if the output ports are used as inputs to amplifier
+   circuits that increase their current and voltage drive limits.  In virtual
+   pinball machines, they can be used to control feedback devices, including
+   lights, solenoids, and motors.  And even though the chips are nominally
+   PWM controllers, the PWM capability doesn't have to be exercised for
+   every port; a port can equally well act as a simple on/off switch for
+   a device that doesn't need (or can't use) PWM, simply by limiting the
+   duty cycle settings on that port to 0% and 100%.
+</p>
+<p>
+   PWMWorker was created as part of the
+   <a href="https://mjrgh.github.com/PinscapePico/">Pinscape Pico</a> project,
+   but it's a completely standalone device that can be used in any project
+   that calls for a PWM controller chip.  Any host microcontroller compatible
+   with a 3.3V I2C bus can be used, and you don't need any Pinscape software
+   on the host controller, since PWMWorker provides a well-defined and
+   fully documented I2C register interface.
+</p>
+<p>
+   This data sheet documents the Pico PWMWorker system from the perspective
+   of a hardware designer who wishes to use the device as part of a circuit
+   board, in place of one of the more conventional PWM controller chips.  It
+   describes how to wire the Pico into your circuit board at the hardware level,
+   and how to access the I2C interface to control the device from your main
+   I/O controller's software.  PWMWorker's I2C command set is very similar
+   (intentionally) to the interfaces exposed by most of the commercial PWM
+   controller chips (which are mostly very similar to one another), with the
+   goal of making it relatively easy to adapt a host-side software driver
+   that you've already created for one of those other chips to this new "chip".
+   This design doesn't attempt to be a drop-in replacement for any
+   specific commercial chip, but it's meant to be similar enough to those
+   chips in its conventions that it's a low-effort substitute.
+</p>
+<p>
+   The PWM outputs are implemented as Pico GPIOs, so each output port is a
+   3.3V push-pull driver capable of sourcing and sinking about 10mA per pin.
+   This makes the device suitable for driving small LEDs directly.  Ports
+   can also be used to drive larger loads by connecting them to amplifier
+   circuits that accept logic-level inputs; several examples of suitable booster
+   circuits are presented later in this document.  Ports can be configured with
+   active-high or active-low outputs, providing the flexibility to use
+   amplifier circuits that require either kind of trigger level.  The
+   ports can be enabled and disabled as a group.  All ports are initially
+   disabled at reset, and disabled ports are in high-impedance state;
+   this combination makes it possible to design external amplifier
+   circuitry with deterministically glitch-free startup (i.e., guaranteeing
+   that all ports remain OFF until the host controller's software environment
+   has been fully initialized and ports are set to the desired configurations
+   and initial output levels).
+</p>
+<p>
+   Features, benefits, and tradeoffs:
+</p>
+<ul>
+   <li>DIY-friendly form factor.  The Pico comes in a large form factor
+   that's easy to work with.  It's easy to hand-solder to a circuit board,
+   and it can even be used as a standalone part (with no carrier board),
+   connected purely through standard 0.1" pin header connectors.  The DIY-friendly
+   form factor was the whole motivation for the project, because all of the
+   commercial PWM controller chips currently in production are available
+   only in fine-pitch SMD packages that are rather difficult to hand-solder.
+   The form factor comes at a cost, though, which is that the Pico has a
+   much larger footprint than any of the mainstream chips, so this advantage
+   for DIYers will be a negative point for board designers planning on robotic
+   manufacturing, where small SMD parts aren't just acceptable, but are
+   actually quite preferable, for the much higher board density they allow.
+
+   <li>Competitive pricing.  A Pico retails in single units for about $4,
+   and provides 24 PWM output channels.  TLC59116 and PCA9685
+   sell for about $2 each in retail quantities, but only handle 16 channels,
+   so you'd need 1&half; of those chips for each Pico, raising the comparison
+   price to about $3.  The Pico, then, is more expensive, but only slightly.
+   On the other hand, when the mainstream chips can be purchased in bulk,
+   their cost drops significantly, so they'll have a greater cost advantage
+   for commercial manufacturers planning large production runs.
+
+   <li>Ready availability.  The Pico has been widely available since its
+   introduction, while some of the dedicated PWM chips have been affected
+   by the general semiconductor shortage of recent years.
+
+   <li>Push-pull output ports.  The output ports are implemented as Pico
+   GPIO ports in OUTPUT mode, which function as 3.3V push-pull drivers.
+   This configuration is convenient for some applications and less
+   convenient for others, so this could be a plus or a minus, depending
+   on your use case.  Many of the TI PWM chips are available
+   in a <i>constant current sink</i> configuration, which is extremely
+   convenient for driving arrays of like LEDs.  The push-pull configuration
+   is usable for driving small LEDs, but it's ideally suited for
+   controlling amplifier circuits with high-impedance logic-level inputs,
+   such as common MOSFET gate driver chips or optocoupler-triggered
+   amplifiers.
+
+   <li>Digital switching capability.  When set to 0% or 100% duty cycle,
+   a port is held continuously at LOW or HIGH level (respectively), with
+   no transient edges at PWM cycle boundaries.  This allows ports to be
+   used to control devices that require digital (on/off) switching signals,
+   such as devices with edge-sensitive rather than level-sensitive inputs.
+   Virtual pinball cabinets often have a mix of devices, some needing PWM
+   control and some being simple on/off devices, so the ability to use
+   PWMWorker ports for either type of device simplifies setup by eliminating
+   the need to designate certain ports as PWM and others as digital.
+   No additional configuration is required for this use case, since logical
+   levels of 0% and 100% always map to true 0% and 100% physical duty cycles
+   on the output pin.
+
+   <li>Configurable PWM frequency across a wide range.  The host can set the
+   PWM refresh frequency from 8 Hz to 65536 Hz, to optimize for different
+   attached device types.  Most of the dedicated chips either have fixed
+   frequencies or have a much more limited range.  Adjustability is
+   sometimes useful to mitigate negative interactions between the switching
+   frequency and the physical device, such as mechanical vibration coupling
+   (causing acoustic noise) in motors and solenoids.
+
+   <li>High duty-cycle step resolution.  PWMWorker automatically chooses
+   the highest available step count based on the frequency setting.  The
+   Pico clocks its internal PWM counters at 125 MHz, which means that
+   it can achieve better than 12-bit duty cycle resolution (6250 steps)
+   at 20 kHz.  The host interface is limited to 8-bit resolution, following
+   the DOF convention, but the higher internal step resolution is still
+   beneficial when gamma correction is enabled, because it allows for
+   finer gradations of brightness at the low end of the scale, for smoother
+   fades and wider dynamic range.
+
+   <li>Device-side gamma correction.  PWMWorker can apply gamma correction
+   on the device side, configurable on a per-port basis.  This allows the
+   gamma function to be calculated at higher resolution than the 8-bit
+   space used in the host interface, which provides finer gradations in
+   brightness at the low end of the scale than would be possible if the
+   host applied gamma in its 8-bit space.  Gamma correction is beneficial
+   when the output device is an LED or other lighting device, because
+   the gamma function approximates the human eye's logarithmic perception
+   of brightness as a function of power.
+
+   <li>Device-side time limiters.  Pinscape's "Flipper Logic" can be
+   configured per port on the PWMWorker side.  This feature lets the host
+   set a configurable time limit and power (duty cycle) limit per port,
+   with the device automatically cutting the power on a port to the
+   programmed limit level after the limit has been exceeded continuously
+   for the programmed time limit.  This is designed to protect high-power
+   coils from overheating in the event that the host software (either on
+   the PC or on the I/O controller) leaves a port energized at full power
+   for an extended time, such as in the event of a software fault that
+   terminates the host program prematurely while ports are still energized.
+   The Pinscape firmware provides this feature itself, but enforcing it
+   on the PWMWorker side further improves fail-safe reliability by
+   ensuring that the time limit is enforced even if the main Pinscape
+   software crashes, freezes, or otherwise fails.  Having the feature
+   on the PWMWorker side also makes it easier for other I/O controllers
+   besides Pinscape to implement Flipper Logic protection, since they
+   need only set the configuration registers appropriately during initial
+   setup, with no further port time monitoring required on the host side.
+
+   <li>Software upgradability.  PWMWorker is implemented entirely in software,
+   and the Pico makes it easy for end users to install updates,
+   so the software can be easily upgraded with bug fixes and new features
+   in the future.
+</ul>
+
+<h2>Pin Configuration</h2>
+
+<img class="illustration" src="PinMap.png">
+
+<style type="text/css">
+.pins {
+    max-width: 90%;
+}
+.pins th {
+    white-space: nowrap;
+}
+.pins td:nth-child(1) {
+    font-weight: bold;
+    text-align: center;
+}
+</style>
+<table class="data pins">
+   <tr><th>Pin Name</th><th>Description</th></tr>
+   <tr>
+      <td>OUT0</td>
+      <td>Output port #0 (GP0 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT1</td>
+      <td>Output port #1 (GP1 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT2</td>
+      <td>Output port #2 (GP2 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT3</td>
+      <td>Output port #3 (GP3 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT4</td>
+      <td>Output port #4 (GP4 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT5</td>
+      <td>Output port #5 (GP5 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT6</td>
+      <td>Output port #6 (GP6 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT7</td>
+      <td>Output port #7 (GP7 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT8</td>
+      <td>Output port #8 (GP8 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT9</td>
+      <td>Output port #9 (GP9 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT10</td>
+      <td>Output port #10 (GP10 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT11</td>
+      <td>Output port #11 (GP11 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT12</td>
+      <td>Output port #12 (GP12 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT13</td>
+      <td>Output port #13 (GP13 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT14</td>
+      <td>Output port #14 (GP14 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT15</td>
+      <td>Output port #15 (GP15 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT16</td>
+      <td>Output port #16 (GP16 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT17</td>
+      <td>Output port #17 (GP17 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT18</td>
+      <td>Output port #18 (GP18 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT19</td>
+      <td>Output port #19 (GP19 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT20</td>
+      <td>Output port #20 (GP20 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT21</td>
+      <td>Output port #21 (GP21 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT22</td>
+      <td>Output port #22 (GP22 on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>OUT23</td>
+      <td>Output port #23 (<b>GP28</b> on the standard Pico pin-out diagram)</td>
+   </tr>
+   <tr>
+      <td>SDA</td>
+      <td>I2C bus data (SDA) connection
+      </td>
+   </tr>
+   <tr>
+      <td>SCL</td>
+      <td>I2C bus clock (SCL) connection
+      </td>
+   </tr>
+   <tr>
+      <td>GND</td>
+      <td>
+         Connected internally on the Pico to its power supply and USB ground
+      </td>
+   </tr>
+   <tr>
+      <td>VBUS</td>
+      <td>
+         USB bus power (output); connects the USB port's +5V
+      </td>
+   </tr>
+   <tr>
+      <td>VSYS</td>
+      <td>
+         Pico power chain input port
+      </td>
+   </tr>
+   <tr>
+      <td>3V3 (OUT)</td>
+      <td>Output from the Pico's internal 3.3V regulator
+      </td>
+   </tr>
+   <tr>
+      <td>3V3_ENABLE</td>
+      <td>Enable control for the Pico's internal 3.3V regulator
+      </td>
+   </tr>
+   <tr>
+      <td>ADC_VREF</td>
+      <td>Voltage reference for the Pico's on-board ADC</td>
+   </tr>
+   <tr>
+      <td>RUN</td>
+      <td>
+         Pico RUN/RESET control port; pulling to GND reset the Pico
+      </td>
+   </tr>
+</table>
+
+<h3>Detailed pin descriptions</h3>
+<p>
+   <b>OUT0</b> through <b>OUT23</b> are the PWM output ports.  These are
+   standard Pico GPIO ports, although note that we use our own labels -
+   these aren't the native GPn lables.  Our OUTn port numbering <i>almost</i>
+   matches the Pico's native GPn port numbering, the one exception being GP28,
+   which we label OUT23.
+</p>
+<p>
+   (It seemed more important to number the ports consecutively
+   in the I2C software model than to strictly match the GPn numbering,
+   because (a) this makes the software model more sensible if you approach
+   it strictly at the I2C interface level, and (b) it makes the correspondence
+   between OUTn port numbers and I2C register addresses easy to express
+   arithmetically.  Host device driver software would be unnecessarily
+   complicated if it had to work in terms of a discontiguous port numbering
+   scheme.  On the other hand, we didn't make the numbering arbitrarily different
+   where it didn't have to be.  The only reason that we didn't maintain
+   a perfect correspondence is that the Pico doesn't have an exposed GP23,
+   so there was simply no way to make OUT23 match its GP number no matter
+   which GP we mapped it to.)
+</p>
+<p>
+   The I2C interface allows the host to enable
+   or disable all outputs as a group; at reset, all outputs are disabled,
+   allowing the host to configure outputs before they start driving their
+   connected loads.  When outputs are disabled, all of the OUTn pins are
+   configured in INPUT mode, which places them in high-impedance
+   (floating) state.  When ports are enabled, the GPIOs are reconfigured
+   in OUTPUT mode, which makes them push/pull drivers at 3.3V.  Each
+   port in OUTPUT mode is capable of sinking or sourcing up to about
+   10 mA, which makes them suitable for driving small LEDs directly.
+   For larger loads, an amplifier circuit with a logic-level trigger
+   input must be used.  The host can configure ports individually to
+   use active high or active low logic, which provides the flexibility
+   to use amplifiers that trigger on either high or low input levels.
+</p>
+<p>
+   <b>GND</b> ports connect to the Pico DC ground, which is also the
+   USB ground (if plugged into USB).  These ports should be connected
+   to your carrier board's DC ground.
+</p>
+<p>
+   <b>SDA</b> and <b>SCL</b> are the I2C ports.  Connect these to the
+   corresponding ports on your I2C "master" device (typically the main
+   I/O controller in your design, such as a Pinscape Pico).  The Pico
+   is a 3.3V device, so the bus must run at 3.3V logic.  As always with
+   I2C bus designs, both bus lines must be (separately) pulled up to
+   3.3V with suitably sized resistors.  The exact resistor size
+   required depends upon the overall bus capacitance and the SCL
+   clock speed (400 kHz for this device); on-line calculators are
+   available for figuring the required sizes, but most I2C devices
+   are tolerant enough about timing that you can often get away with
+   choosing something in the 2K to 4K range more or less arbitrarily.
+</p>
+<p>
+   <b>VBUS</b>, <b>VSYS</b>, and <b>3V3(OUT)</b> are hooks into the
+   Pico's power chain, which is well documented in the
+   <a href="https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf">Rasbperry Pi Pico Data Sheet</a>;
+   refer to the section titled <b>Powering Pico</b>.  The VSYS port
+   can be used to power the Pico as an embedded component, without
+   the need for a USB connection, as long as certain precautions are
+   observed.  In particular, the VSYS input must be protected against
+   reverse flow into the power supply when the USB cable is connected.
+   See the Pico data sheet for details.  If the Pico is to be plugged
+   into USB at all times, that will supply the Pico with power, so
+   no separate VSYS power input is needed.
+</p>
+<p>
+   <b>3V3_OUT</b> is the output from the Pico's internal 3.3V regulator.
+   This can be used to power other peripherals with 3.3V power.  
+   This will typically be left unconnected in a PWMWorker application.
+</p>
+<p>
+   <b>3V3_ENABLE</b> and <b>ADC_VREF</b> should be left
+   unconnected for a PWMWorker application.
+</p>
+
+<h3>USB</h3>
+<p>
+   No USB connection is required for normal PWMWorker operation.  The
+   only time a USB connection is needed is when you're installing or
+   updating the PWMWorker firmware.  The Pico communicates with its
+   host I/O controller purely through the I2C bus interface during
+   normal operation, and doesn't use the USB port.
+</p>
+<p>
+   However, there's also no harm in maintaining a continuous USB
+   connection during normal operation.  In fact, this is one way that
+   you can provide power to the Pico.
+</p>
+
+<h2>Application Circuit</h2>
+<p>
+   The diagram below shows a typical application circuit, with the PWMController
+   Pico connected to a host microcontroller.  Any type of microcontroller can
+   be used as the host, as long as it's compatible with a 3.3V I2C bus.
+   Microcontrollers with higher or lower logic voltages may also be used,
+   by placing voltage level shifters on the SDA and SCL lines between the
+   Pico and the main bus. 
+</p>
+<p>
+   The PWMWorker Pico does <b>not</b> need a USB data connection, since it
+   communicates solely via the I2C bus connection.  However, a USB connection
+   can be used as the power source if desired.
+</p>
+<img class="illustration" src="app-circuit.png">
+
+<ul>
+   <li>NC = Not Connected.  These Pico pins can be left floating.
+   
+   <li>Note 1.  Output wiring shown for output port #0 only, to simplify
+   the diagram, but in a real application, ports OUT1 through OUT23 would
+   each be wired to an independent output device.
+   <p>
+      The output wiring is
+      shown for a simple LED with high-side control, but this can be replaced
+      with any circuit that can be driven by a Pico GPIO output.  Pico outputs
+      can drive up to about 10mA at 3.3V directly, and can drive almost any
+      type of load with a suitable amplifier/booster circuit.  Several
+      example circuits that can drive higher-current devices are shown in the
+      section below.  Each output driver is independent, so you can freely
+      mix and match driver types across the various outputs.
+   </p>
+
+   <li>Note 2. 5VDC power input to the Pico through a Schottky diode, per the
+   <a href="https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf">Rasbperry Pi Pico Data Sheet</a>
+   (see <b>Powering Pico</b>).  This provides power to the Pico without the
+   need for a USB connection, using an external 5VDC power source, such as
+   a PC power supply 5V rail.  This can be omitted if the Pico will be always
+   powered through its USB port.  The Schottky diode as shown makes it safe
+   to operate the Pico with or without the USB cable connected.
+
+   <li>Note 3. SDA and SCL must be connected to 3.3V through pull-up
+   resistors.  The optimal resistor value depends upon the overall capacitance
+   of the I2C bus lines, which is mostly a function of the number and type of
+   devices connected.  The I2C specifications provide guidelines, and on-line
+   calculators are available.  Values in the 2K to 4K range will work in most
+   designs.  Only one set of pull-up resistors is needed for the entire bus;
+   it's not necessary or desirable to fit each device with separate resistors,
+   since multiple resistors on the bus will just combine in parallel.
+
+   <li>Note 4. Optional RUN/RESET line shown, connected to a GPIO port on
+   the host microcontroller.  If connected, this allows the host to perform
+   a hard reset on the Pico under software control, by pulling the line LOW.
+   The line must be either driven HIGH or allowed to float during normal
+   operation.  The line is pulled to 3.3V internally on the Pico, so it can
+   be left unconnected if reset control isn't required.
+
+</ul>
+
+<h3>Powering the Pico</h3>
+<p>
+   The Pico can be powered through its USB port, or through the Pico's
+   VSYS power chain input.  Various methods for powering the Pico through
+   the VSYS pin are described in the
+   <a href="https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf">Rasbperry Pi Pico Data Sheet</a>;
+   refer to the section entitled <b>Powering Pico</b>.
+</p>
+<p>
+   If you do choose to power the Pico through VSYS, please pay close
+   attention to the advice in the Pico Data Sheet about protecting against
+   power flowing back into the VSYS supply when USB is also powered.  This
+   is most easily accomplished by placing a Shottky diode between the 5V
+   supply and the VSYS input, as shown in the sample application circuit above.
+</p>
+
+<h3>Driving LEDs</h3>
+<p>
+   Small LEDs can driven directly from the Pico's GPIO ports at up to about
+   10mA of forward current.  GPIO ports in OUTPUT mode act as push/pull
+   drivers at 3.3V, so you can use a Pico port as either a high-side or
+   low-side switch.  Since Pico ports will only tolerate 3.3V, they can
+   only directly drive LEDs with forward voltages less than 3.3V.  Most
+   red LEDs have forward voltages of 2V or less, but some other colors
+   require 3.4V or higher.  LEDs with higher forward voltages will require
+   an amplifier circuit, discussed in the next section.
+</p>
+<p>
+   The Pico's output ports don't provide any current limitation, so you must
+   provide a current-limiting resistor for each LED.
+</p>
+<p>
+   <b>High-side switching:</b>  The simplest way to connect an LED is to use
+   the GPIO port as a high-side switch, where the Pico provides the positive
+   supply voltage to the LED's anode, and the LED's cathode is connected to GND.
+</p>
+<img class="illustration" src="high-side-led.png">
+<div class="caption">
+   Pico GPIO driving an LED as a high-side switch.  The GPIO port supplies
+   3.3V to the LED when the port is ON.
+</div>
+
+<p>
+   <b>Low-side switching:</b>  The GPIO port can also be used as a pseudo
+   low-side switch, where the Pico provides the ground connection, and the
+   LED's anode is connected to 3.3V power.  This configuration is necessary
+   if you're driving a device with multiple channels (e.g., an RGB LED) where the
+   anodes are all wired together, known as the "common-anode" configuration.
+   Since the anodes can't be switched individually, you have to do the switching
+   on the cathode (GND) side.
+</p>
+<p>
+   Low-side switching requires the port to be configured as Active Low using
+   the CONFn port configuration register (see the I2C register list below).
+   In Active Low mode, the port will be driven to 3.3V during the OFF portion of
+   the PWM duty cycle, and 0V during the ON portion.  During the OFF portion,
+   then, both ends of the LED are at 3.3V, so there's no voltage potential
+   across the LED, and it turns OFF.  During the ON portion of the duty cycle,
+   the port drops to 0V, creating a positive voltage across the LED that
+   allows it to turn ON.
+</p>
+<img class="illustration" src="low-side-led.png">
+<div class="caption">
+   Pico GPIO driving an LED as a pseudo low-side switch.  The GPIO port
+   must be configured in Active Low mode.  In Active Low mode, the port
+   is at 3.3V during the OFF portion of the duty cycle, which creates a
+   zero-Volt potential across the LED, causing it to turn off.  During
+   the ON portion of the duty cycle, the GPIO is at 0V, creating a 3.3V
+   potential across the LED and causing it to turn on.
+</div>
+<p>
+   Note that this is only a "pseudo" low-side switch.  A true low-side switch
+   would be in high-impedance state during the OFF portion of the duty
+   cycle.  In this case, the port is at the 3.3V supply voltage during
+   the OFF portion.  When used with a 3.3V device, this <i>acts</i> like
+   a low-side switch, by preventing current from flowing during the OFF
+   phase and allowing it during the ON phase.  However, a true low-side
+   switch would be usable with devices with different supply voltages,
+   which this is not; this can only be used with a 3.3V device.  Using
+   a device with a supply voltage higher than 3.3V would expose the GPIO
+   port to the higher voltage, which might destroy the Pico, as its ports
+   can only tolerate 3.3V inputs.
+</p>
+   
+
+
+<h3>Amplifier circuits</h3>
+<p>
+   An amplifier or "booster" circuit of some kind is required if you wish
+   to use the Pico to drive a load of more than around 10mA or with a
+   supply voltage other than 3.3V.
+</p>
+<p>
+   Since a PWMWorker Pico is physically just an ordinary Pico, any
+   amplifier circuit designed to work with a Pico generically will
+   work.  The Pico is a popular device with a great deal of information
+   on it published on the Web, so you should be able to find many examples
+   of circuit designs that will work with it with a little Googling.
+   But to save you some legwork, the sections below provide a few simple
+   but flexible building-block circuits that can be used in many
+   applications.
+</p>
+
+<h4>NPN transistor</h4>
+<p>
+   The simplest type of booster circuit is an NPN transistor switch.
+   Small-signal transistors like 2N2222 can easily switch loads up
+   to a few hundred milliamps and 30V to 50V.  An NPN works best as
+   a low-side switch, where it connects to the GND end of the load
+   being driven.  Note that even though the NPN is acting as a
+   low-side switch, the <i>control</i> input to the switch - which
+   is what the GPIO output port provides - is still Active High:
+   the LED turns ON when the GPIO port output is HIGH.  So you'd
+   configure the port in the default Active High mode for this
+   design.
+</p>
+<img class="illustration" src="low-side-npn.png">
+<div class="caption">
+   NPN transistor switch, controlling a 12V LED.  You can replace the
+   LED and resistor R3 in this circuit with any generic device load
+   up to about 300mA.  The GPIO port should be configured in the
+   default Active High mode.
+</div>
+
+<h4>Darlington array</h4>
+<p>
+   Darlington transistors can control higher currents than small
+   NPN transistors, and there are several chips available that
+   implement multiple channels (typically 8) of Darlington outputs in a
+   single package, such as ULN2803A.  ULN2803A is particular convenient
+   for microcontroller applications like this one, because the chip
+   includes internal current-limiting resistors for the input ports,
+   so that the GPIO ports can be directly connected to the Darlington
+   input ports.  This reduces the part count, saving money and assembly
+   work.
+</p>
+<img class="illustration" src="uln2803.png">
+<div class="caption">
+   ULN2803 Darlington transistor array.  This provides 8 independent
+   output channels with loads up to 500mA per channel and up to 50V supply
+   voltage.  This works just like the NPN transistor circuit above,
+   with the GPIO ports configured in Active High mode.  The LED
+   on output 7C (and its resistor) can be replaced by any load up to
+   500 mA with a supply voltage up to 50V.  Each output 1C through 8C
+   can control an independent device with the same limits.
+</div>
+
+<h4>MOSFET driver</h4>
+<p>
+   For really high-power devices, like solenoids and motors, you
+   need a MOSFET, specifically a large "power" MOSFET.  Many power
+   MOSFETs are available that can switch 10A and up, at 50V
+   or more, which makes the MOSFET the device of choice for
+   controlling anything larger than an LED from a microcontroller.
+   But MOSFETs are somewhat more challenging to control than
+   NPNs and Darlingtons, because most power MOSFETs are all by themselves
+   high-power devices that are above the limits of a Pico GPIO
+   port to control directly.  In particular, most power MOSFETs
+   require voltages well above 3.3V for their control input
+   signal, and many also require higher current than a Pico
+   GPIO port can provide, especially when operating at high
+   PWM frequencies.  So you need an amplifier to drive
+   your amplifier!  There are numerous ways to do this, but
+   the easiest and best is to use one of the many special
+   "gate driver" chips that are purpose-built for this
+   application.  One good example is UCC27524P.  A
+   circuit based on this chip is shown below.  Using a gate
+   driver like this makes the circuit much more forgiving
+   about the MOSFET specs it requires, giving you more
+   flexibility when choosing parts.  The circuit here will
+   work with most power MOSFETs, as long as they're safe
+   to use with the 12V gate drive shown (check the V<sub>GS</sub>
+   limit in the  Absolute Maximum Ratings in the data sheet;
+   most large power MOSFETs have a rating around 20V).
+</p>
+<p>
+   A gate driver chip is particularly beneficial for the Pico
+   because of the high PWM frequencies the Pico is capable of.
+   MOSFETs produce the most heat when they're in their "switching"
+   phase, between fully OFF and fully ON.  The time it takes
+   to complete this transition isn't affected by the switching
+   frequency, so when you increase the PWM frequency, you increase
+   the percentage of time the device spends in the heat-producing
+   switching zone, which makes the MOSFET get hotter faster.  One
+   way to mitigate this is to reduce the PWM frequency; another is
+   to make the switching time faster.  The switching time is a
+   function of the MOSFET's physical properties, and of the gate
+   driver, so one way to make it faster is to make the gate driver
+   faster.   That's what gate driver chips like UCC27524P are all
+   about:  they're designed specifically to make the MOSFET turn
+   on and off as quickly as possible, by delivering rapid bursts
+   of current at each switching transition.  That allows you to
+   operate the MOSFET at higher frequencies with less heating.
+</p>
+<p>
+   Note that this circuit is designed for use with N-channel
+   enhancement-mode MOSFETs only.  The other common type, P-channel,
+   is essentially a polarity-reversed version that won't work
+   in this circuit.
+</p>
+
+<img class="illustration" src="mosfet-out.png">
+<div class="caption">
+   MOSFET output, controlling a 12V LED.  OUT1 can connect to a second,
+   independent device.  You can replace the LED (and its resistor)
+   with any generic device load up to the limits of the MOSFET; many
+   suitable large "power" MOSFETs are available that can switch well
+   over 15A at 50V or even 100V, which is more than enough for most
+   virtual pinball projects.  The GPIO port should be configured in the
+   default Active High mode.
+</div>
+
+<h3>Glitch-free startup</h3>
+<p>
+   When output ports control mechanical devices, it's desirable to
+   design the output circuits for "glitch-free startup", meaning that
+   the devices are deterministically OFF throughout the initial power-up
+   period.  There's necessarily a short time interval between when
+   power is first applied to the device, and when the software has
+   finished initialization and is in control of the output ports.
+   During this time, the software isn't able to control the electronic
+   state of the output ports (since the software isn't fully running
+   yet), so it's up to the hardware design to ensure that devices
+   remain OFF during this time.
+</p>
+<p>
+   The Raspberry Pi Pico has internal circuitry that
+   provides a deterministic electronic state on the ports during
+   the initial power-on reset period.  The Pico sets all ports to
+   high-impedance state at reset, and the ports remain in this state
+   until the firmware program explicitly reconfigures them.
+</p>
+<p>
+   PWMWorker extends this period of deterministic high-impedance
+   port state throughout its own initialization, <i>and</i> through
+   the completion of the host controller's initialization
+   (the host controller is the I2C bus master that's sending
+   commands to the PWMWorker).  PWMWorker holds all ports in the
+   initial high-impedance state until the host sets the ENABLE
+   OUTPUTS bit (0x01) in Control Register 0 (CTRL0, address 0x18)
+   to '1'.  Ports can be configured and set to the desired level
+   while they're still disabled, so the host can ensure that all
+   ports are already in the correct state at the moment they're
+   reconfigured to push-pull (OUTPUT) mode.
+</p>
+<p>
+   The only thing left that you have to worry about in your hardware
+   design is to ensure that the circuit is configured in such a way
+   that the controlled device remains deterministically OFF whenever
+   the GPIO port is in a high-impedance state.  For current-controlled
+   amplifiers (NPN transistors, Darlingtons), this is essentially inherent
+   in the nature of the transistor, and requires no extra components,
+   since a GPIO port in high-impedance state won't supply any
+   current to the transistor input.  For a voltage-controlled
+   device like a MOSFET, however, you must ensure that the control
+   input is in a deterministic OFF state when the GPIO port is
+   in high-impedance state.  This can usually be accomplished
+   simply by providing a pull-up or pull-down resistor that
+   forces the control voltage to the OFF state when the GPIO
+   port isn't driving the signal.  The pull-up/down resistor must
+   be weak enough that the Pico GPIO Port can override it once
+   it's in push-pull mode; a value around 10K is usually
+   suitable.  (The UCC27524P-based MOSFET circuit diagrammed above
+   satisfies this requirement through a pull-down resistor built
+   into the UCC27524P.)
+</p>
+   
+
+
+<h2>Status LED</h3>
+<p>
+   PWMWorker uses the Pico's on-board LED (the small green LED adjacent
+   to the USB port) to show the health and status of the device at a glance:
+</p>
+<ul>
+   <li><b>Initializing:</b>  Solid ON.  The device is in this state
+   briefly immediately after reset, until the software finishes initializing
+   and is ready to accept I2C commands.  This is usually for such a brief
+   time it won't be visible, so if the LED stays solid ON for any length
+   of time, the software has probably crashed or frozen.
+   
+   <li><b>Standby:</b> Short flashes about once every 2 seconds.  This
+   is the initial state after reset and initialization.  All output
+   ports are disabled (in high-impedance state).  The device can also
+   be put back in this mode by an I2C command from the host, which
+   the host might wish to do before powering down or going into
+   sleep/standby mode.
+
+   <li><b>Normal:</b> Steady on/off alternation about every second.
+   Ports are enabled and the device is operating normally, and no
+   I2C activity is currently occurring.
+
+   <li><b>I2C Activity:</b> Rapid flashing. An I2C send or receive
+   is in progress.
+</ul>
+
+<h2>Flipper Logic</h2>
+<p>
+   PWMWorker implements a simple form of the Pinscape Pico Flipper
+   Logic system.  Flipper Logic allows the user to configure each
+   port individually with a power level limit (i.e., a duty cycle
+   threshold) and a time limit.  The port is allowed to exceed
+   the power limit, but only for the time specified in the time
+   limit.  After the port has been above the level limit for the
+   specified maximum time, PWMWorker automatically reduces the
+   physical output level on the port to the limit level.
+</p>
+<p>
+   This scheme is designed especially for high-power solenoids,
+   although it can be used with any device.  It's common in
+   mechanical pinball machines to operate many of the coils at
+   a power level that they can only sustain briefly before
+   overheating.  This allows the machine to achieve a brief
+   burst of high mechanical force from the coil, which is
+   the natural mode of operation for many pinball mechanisms,
+   such as pop bumpers and slingshot kickers.  These power
+   levels are safe for the coils as long as they're only
+   applied intermittently, but leaving a coil energized at
+   full power for more than a few seconds can overheat and
+   destroy the coil.
+</p>
+<p>
+   The Flipper Logic time-and-power limiter is designed as
+   a fail-safe, to ensure that an output port will never be
+   left energized for longer than the time limit, even if
+   the host never commands the coil to de-energize.  A
+   fail-safe like this is useful in practice because the
+   host software on the PC that ultimately sends us commands
+   is often very complex, and complex software sometimes
+   encounters unexpected conditions that makes it abruptly
+   terminate, freeze, or otherwise stop working correctly.
+   PWMWorker is much simpler than the typical software on
+   the host PC, and also much simpler than Pinscape Pico
+   and other I/O controller programs.  This makes it an
+   excellent place to implement a last line of defense,
+   since a less complex piece of software has less to go
+   wrong, and can therefore be made correspondingly more
+   robust.
+</p>
+<p>
+   The name Flipper Logic is a reference to the way that
+   flippers work in mechanical pinball machines.  It's one
+   thing to over-power pop bumpers and slingshot coils,
+   which fire only transiently in response to contact
+   with the moving ball.  It's quite another to do
+   this with flippers, which are under the direct control
+   of the player, who might choose to trap a ball for
+   an indefinite amount of time, holding the flipper coil
+   continuously energized all the while.  Mechanical
+   pinball machines have long dealt with this by using
+   a two-phase system for the flipper coil, with a
+   high-power "lift" phase that overpowers the flipper
+   as it flips upward, and a low-power "hold" phase that
+   kicks in after a brief time and then remains in effect
+   as long as the player keeps pressing the button.  This
+   allows high mechanical force during the over-powered
+   initial lift phase, without running the risk of burning
+   up the coil if the player decides to have a long
+   conversation with a friend while holding the ball
+   trapped.  Flipper Logic uses a similar strategy,
+   using PWM duty cycle to reduce the power to a safe
+   level after a limited time at high power.
+</p>
+
+
+<h2>I2C Interface</h2>
+<p>
+   PWMWorker acts as an I2C slave device, compatible with a standard I2C
+   bus protocol at up to 400 kHz.
+</p>
+
+<h3>Slave address</h3>
+<p>
+   The default I2C slave address is <b>011 0000</b>, or <b>0x30</b>.  (We use
+   7-bit address notation, for consistency with the Pico SDK.  There's also
+   an 8-bit notation, which some other device data sheets use, and which some
+   microcontrollers expect in their SDKs or hardware register interfaces.
+   To convert from 7-bit to 8-bit addressing, simply multiply by 2, so our
+   0x30 default address would become 0x60 in 8-bit notation.)
+</p>
+<p>
+   The I2C address can be easily reconfigured to any other valid I2C
+   address.  Since each device on an I2C bus must have a unique address,
+   you'll have to reconfigure the address for the second PWMWorker and
+   each additional PWMWorker you add to your setup, to make each one unique.
+   You can also change the address of the first PWMWorker, if address
+   0x30 is taken by some other I2C chip in your setup.  Many
+   chips that implement I2C use fixed addresses that can't be changed,
+   or can only use a limited set of pre-chosen addresses, so it will
+   probably be easier to reconfigure PWMWorker to resolve conflicts
+   than to change the other device's address.
+</p>
+<p>
+   To change a PWMWorker's address:
+</p>
+<ul>
+   <li>Connect the Pico to your Windows PC in Boot Loader mode, using the
+   same procedure used to install new firmware (unplug the Pico from all
+   power and USB, plug it back into USB while pressing and holding the BOOTSEL
+   button on top of the Pico)
+   <li>Open a Command Prompt (Windows Terminal) and CD to the Pinscape Pico directory
+   <li>Run the command <tt>SetPWMWorkerAddr 3A</tt>, replacing 3A with the hexadecimal address you wish to assign
+   <li>If more than one Pico is in Boot Loader mode, you must also specify the drive letter for the Pico
+   you want to program, as in <tt>SetPWMWorkerAddr 3B K:</tt>
+   <li>The address must be between 08 and F7 (this is the valid range defined by the I2C standards)
+</ul>
+<p>
+   The new address is stored in the Pico's flash memory, separately from the PWMWorker
+   firmware program.  Once programmed, the Pico will retain this address across resets
+   and power cycles, and even across firmware updates.  You can change it again at any
+   time using the same procedure.
+</p>
+
+<h3>I2C Protocol</h3>
+<p>
+   The Pico implements the standard I2C protocol and electronic interface.  These are
+   widely documented, so we won't reiterate that material here.  Refer to the RP2040
+   Data Sheet for full details on the Pico's hardware implementation, and refer to
+   any generic I2C documentation for details on the protocol and signal timing.
+</p>
+
+<h3>Auto-increment addressing</h3>
+<p>
+   PWMWorker always uses <b>auto-increment</b> register addressing.  (Some I2C devices do
+   this all the time, some do it conditionally depending on the address or mode settings,
+   and some don't do it at all.  PWMWorker is in the "always" camp.)  Each time you read
+   or write a register, the device advances its internal register address counter to the
+   next location.  This allows the master to read or write any  number of consecutively
+   numbered registers in a single transaction.  There are 256 register addresses, numbered
+   0x00 to 0xFF.  The internal address counter automatically wraps back to 0x00 after
+   reading or writing the last register at 0xFF.
+</p>
+
+<h3>Register Set</h3>
+<p>
+   As with most I2C devices, the I2C interface works in terms of "registers", which
+   are notional memory locations in the device that control how it operates.  Reading
+   a register retrieves information on the current device's state; writing a register
+   generally commands the device to <i>do</i> something, or updates the device's
+   configuration settings.
+</p>
+<p>
+   Each register on this device is an 8-bit byte with a unique register address
+   from 0x00 to 0xFF.  Not all locations are assigned; unassigned registers are
+   reserved for future use and should not be written to.  Some registers are
+   defined as bit maps, where each bit has a defined function; any bits in these
+   registers that aren't assigned specific meanings should be considered reserved,
+   and should be set to '0' when writing and ignored when reading.
+</p>
+<p>
+   A few registers are defined as paired to form a 16-bit value, with a low byte
+   and a high byte.  The two registers in these pairs are always at consecutive
+   address, with the low-order (less significant) byte first, which is known as
+   little-endian byte order.  When accessing these registers, you should always
+   read or write both bytes of the register together as a pair, in the same
+   I2C transaction, to ensure that the two halves of the 16-bit value are
+   coherent.
+</p>
+<table class="data">
+   <tr><th>Address</th><th>Name</th><th>Description</th></tr>
+   <tr>
+      <td>0x00</td>
+      <td>LEVEL0</td>
+      <td>
+         Duty cycle level on output pin OUT0, 0-255.  0 is 0% duty cycle, 255 is 100%
+         duty cycle.  By default, intermediate values specify duty cycles as a multiple of 1/255.
+         When gamma correction is enabled on the port, a gamma function is applied to this
+         fraction to determine the actual duty cycle.  When Active Low logic is enabled on
+         the port, the duty cycle (after gamma correction, if applicable) is inverted, so
+         that the port is at LOW logic level during the ON portion of the duty cycle, and
+         HIGH logic level during the OFF portion.
+         <p>
+            This is only applied when outputs are enabled through the CTRL0 configuration
+            register; when outputs are disabled, all OUTn ports are set to high-impedance
+            (floating) state.  However, the host can still set port levels while ports
+            are disabled, and the level settings are stored internally, and are applied
+            as soon as outputs are enabled.  This allows the host to configure all outputs
+            and set their levels before any outputs are enabled, so that all of the outputs
+            are immediately at their correct initial values when they're enabled.
+         </p>
+      </td>
+   </tr>
+   <tr>
+      <td>0x01</td>
+      <td>LEVEL1</td>
+      <td>
+         Duty cycle level on pin OUT1
+      </td>
+   </tr> 
+   <tr>
+      <td>0x02-0x17</td>
+      <td>LEVEL2 through LEVEL23</td>
+      <td>
+         Duty cycle on pins OUT2 through OUT3, respectively
+      </td>
+   </tr> 
+   <tr>
+      <td>0x18</td>
+      <td>CTRL0</td>
+      <td>
+         Control Register 0.  This register contains bit-mapped flags controlling
+         the global state of the device:
+         <ul>
+            <li><b>Bit 7 (0x80) = Reset Registers.</b>  Initially 0.  Write '1'
+            to this bit to initiate a register reset, which sets all of the
+            I2C registers to their initial power-on values, sets all port
+            levels to 0, and clears all Flipper Logic timers.  This restores
+            the device to power-on conditions without performing a full CPU
+            reset.  A full CPU reset takes longer because it has to restore
+            the Pico hardware configuration, but it also more thorough at
+            scrubbing clean any fault conditions that might have occurred.
+            The "soft reset" initiated by setting this bit is useful to set
+            the device to a known state without individually writing all
+            of the registers, and there's no reason to suspect that the
+            device is in a bad state that would warrant a hard reset.
+            <p>
+               The device clears this bit to '0' as the last step of the
+               register reset, so the host can poll CTRL0 to determine when the
+               reset has completed.  Sending new commands while the reset is in
+               progress could result in the new settings being lost, since the
+               reset proceeds asynchronously once initiated.
+            </p>
+
+            <li><b>Bit 6 (0x40) = Hardware Reset Flag.</b>  This is automatically
+            set to '1' after a hard CPU reset for any reason, including a power
+            cycle, a software fault or freeze that triggers a watchdog reset, or a
+            host-initiated CPU reset via the SWRESET register.  This is provided
+            so that the host can detect asynchronous resets that it didn't command,
+            such as power cycles or software faults, which might necessitate
+            resending all configuration registers.  Conversely, the host can use it
+            to determine that the device <i>hasn't</i> been reset, in case the
+            host itself has undergone a CPU reset that didn't trigger a hard reset
+            on the peripherals, in which case the configuration on the PWMWorker
+            might be a stale leftover from a prior session.  The host can clear
+            this bit to '0' as a note to self that it has checked the state; as
+            long as the bit remains '0' on subsequent checks, the host will know
+            that the device hasn't gone through another reset since then.
+            <p>
+               Setting the bit has no side effects. The bit is purely for the
+               host's use as an indicator, with its only special property being
+               that the system automatically sets it to '1' after a hard CPU
+               reset.  Writing '1' to the bit doesn't have any side effects,
+               and in particular doesn't trigger a reset; it just stores a '1'
+               in the bit.  If you want to initiate a reset, you can do that
+               via the SWRESET (0xDD) register.
+            </p>
+               
+            <li><b>Bits 5-1 = Reserved</b>
+
+            <li><b>Bit 0 (0x01) = Enable Outputs.</b>  Initially 0.  When zero,
+            all output ports are configured as Pico GPIO INPUT ports, which sets
+            them to high-impedance (floating) state.  When set to '1', all ports
+            are configured as OUTPUT ports, where they act as 3.3V push/pull
+            drivers.
+         </ul>
+      </td>
+   </tr> 
+   <tr>
+      <td>0x19</td>
+      <td>CTRL1</td>
+      <td>
+         Control Register 1.  This register is reserved for future use.
+      </td>
+   </tr> 
+   <tr>
+      <td>0x1A</td>
+      <td>FREQL</td>
+      <td>
+         PWM Frequency register, low byte.  This is the low-order byte of
+         the 16-bit PWM frequency setting, in Hertz (PWM refresh cycles per
+         second).  This is global to all ports.  The frequency can be set
+         to any value from 8 Hz to 65535 Hz; the default setting is 20000 Hz.
+         <p>
+            The default setting was chosen to be high enough to be out of
+            human hearing range, to minimize the acoustic noise that can occur
+            when inductive devices like motors and solenoids are switched with
+            PWM.  Some such devices are vulnerable to mechanical vibration at
+            PWM frequency, which manifests as acoustic noise.  One way to
+            address this is to raise the frequency until it's too high for
+            human ears to detect.  However, some amplifier devices can't
+            switch above a limiting frequency, so the rate is adjustable
+            in case you need to change it for compatibility with amplifiers
+            or other circuitry on the outputs.
+         </p>
+         <p>
+            Changes to the frequency setting are applied immediately.
+         </p>
+         <p>
+            When changing the frequency, FREQL and FREQH should always
+            be written as part of the same I2C transaction, to ensure that
+            the device reads the new 16-bit value coherently.
+         </p>
+      </td>
+   </tr> 
+   <tr>
+      <td>0x1B</td>
+      <td>FREQH</td>
+      <td>
+         High byte of the 16-bit PWM frequency.
+      </td>
+   </tr> 
+   <tr>
+      <td>0x1E</td>
+      <td>VERSION</td>
+      <td>
+         Read-only: contains the current software version.  This currently reads as 0x01.
+         This will be updated if future versions change any aspect of the interface that
+         a host might need to detect in order to take advantage of new features.
+      </td>
+   </tr> 
+   <tr>
+      <td>0x1F</td>
+      <td>WHOAMI</td>
+      <td>
+         Read-only: contains a signature value that identifies the device.  This always
+         reads as 0x24.  WHOAMI registers are common in I2C devices, to provide the host
+         with a simple sanity-check that the device it's addressing is the type of
+         chip it expects and that the I2C connection is conveying data properly.
+      </td>
+   </tr> 
+   <tr>
+      <td>0x20</td>
+      <td>CONF0</td>
+      <td>
+         OUT0 Configuration Register (CONF0).  This register contains bit-mapped
+         flags controlling the configuration for the OUT0 output port:
+         <ul>
+            <li><b>Bits 7-2 = Reserved</b>
+
+            <li><b>Bit 1 (0x02) = Gamma Correction Enabled.</b>  When this bit is
+            set, the LEVEL0 duty cycle setting for the port is translated through
+            a gamma correction function to determine the actual PWM duty cycle
+            applied to the port.  Gamma correction is designed to improve the
+            perceived linearity of brightness fades when used with LEDs or
+            other lighting.  The human eye perceives brightness logarithmically
+            with respect to power; gamma correction approximates this by treating
+            the LEVEL0 setting as representing the desired <i>apparent</i> brightness,
+            on a linear scale, and mapping that to a corresponding power level (via
+            the duty cycle) that yields that apparent brightness to the eye, taking
+            into account the eye's logarithmic response curve.  When this bit is
+            zero, the LEVEL0 duty cycle is taken as a literal duty cycle selection,
+            as a multiple of 1/255.  The default is 0 (no gamma correction).
+
+            <li><b>Bit 0 (0x01) = Active Low Logic.</b>  When this bit is set,
+            OUT0's duty cycle is inverted on the physical voltage output on the
+            pin, so that the pin is LOW (0V) during the portion of the duty cycle
+            where the port is ON, and HIGH (3.3V) during the portion of the duty
+            cycle where the port is OFF.  So if LEVEL0 is set to 0 (fully OFF),
+            the physical output port will be at a steady HIGH (3.3V) logic level;
+            if LEVEL0 is 255 (fully ON), the physical port will be at a steady
+            LOW (0V) logic level.  This setting doesn't change the "logical"
+            port setting in LEVEL0; it only affects how the ON and OFF portions
+            of the duty cycle translate to HIGH and LOW voltage levels on the
+            pin.  Active Low Logic is particularly useful when you're using
+            an amplifier circuit that's triggered by a LOW logic level on its
+            input.  By default, this bit is 0, which causes the port to use
+            Active High Logic, where the physical pin is at 3.3V during the ON
+            portion of the duty cycle and 0V during the OFF portion.
+         </ul>
+      </td>
+   </tr> 
+   <tr>
+      <td>0x21</td>
+      <td>LIMIT0</td>
+      <td>
+         OUT0 Flipper Logic Power Limit Register.  This sets a maximum power level
+         for the port, on the same 0-255 scale used for the LEVELn registers.  When
+         the port's LEVEL0 register is set to a value greater than the LIMIT0
+         value, the device starts a timer on the port.  When the timer reaches
+         the time limit specified in the TIMELIMIT0L/TIMELIMIT0H registers,
+         the device automatically reduces the port's <i>actual</i> output
+         level to the LIMIT0 value.  The limit remains in effect until the
+         host makes a change to the LEVEL0 value that takes it below the
+         limit.
+      </td>
+   </tr> 
+   <tr>
+      <td>0x22</td>
+      <td>TIMELIMIT0L</td>
+      <td>
+         OUT0 Flipper Logic Time Limit Register, low-order byte.  Together with
+         TIMELIMIT0H, this sets a time limit, in milliseconds, that the port's
+         output level is allowed to exceed the LIMIT0 register value.  After
+         the timeout expires, the port's physical duty cycle is reduced to the
+         value in LIMIT0.  Once the timeout expires, the lower limit remains
+         in effect until the host sends a command to change LEVEL0 to a value
+         at or below the LIMIT0 value.  This ensures that the port will be
+         held at the reduced power level in the event that the host software
+         crashes or otherwise malfunctions, leaving the port stuck at an
+         unsustainably high power level.
+         <p>
+            The TIMELIMITE0L and TIMELIMIT0H registers should always be
+            written as a pair in the same I2C transaction, to ensure that
+            the PWMWorker software reads the two bytes of the 16-bit value
+            coherently.
+         </p>
+      </td>
+   </tr> 
+   <tr>
+      <td>0x23</td>
+      <td>TIMELIMIT0H</td>
+      <td>
+         High-order byte of the 16-bit Time Limit Register for port OUT0
+      </td>
+   </tr> 
+   <tr>
+      <td>0x24</td>
+      <td>CONF1</td>
+      <td>
+         OUT1 Configuration Register; same usage as CONF0, applies to output port OUT1
+      </td>
+   </tr> 
+   <tr>
+      <td>0x25</td>
+      <td>LIMIT1</td>
+      <td>
+         OUT1 Flipper Logic Power Limit Register; same usage as LIMIT0, applies to port OUT1
+      </td>
+   </tr> 
+   <tr>
+      <td>0x26</td>
+      <td>TIMELIMIT1L</td>
+      <td>
+         OUT1 Flipper Logic Time Limit Register, low-order byte
+      </td>
+   </tr> 
+   <tr>
+      <td>0x27</td>
+      <td>TIMELIMIT1H</td>
+      <td>
+         OUT1 Flipper Logic Time Limit Register, high-order byte
+      </td>
+   </tr> 
+   <tr>
+      <td>0x28-0x7F</td>
+      <td>CONFn, LIMITn, TIMELIMITnL, TIMELIMITnH</td>
+      <td>
+         Port register groups for OUT2 through OUT23, arranged in repeating 4-byte
+         blocks, following the same pattern as the OUT0 registers
+      </td>
+   </tr> 
+   <tr>
+      <td>0xDD</td>
+      <td>SWRESET</td>
+      <td>
+         Software Reset register.  This register lets the host perform a
+         CPU reset on the PWMWorker Pico, which can be useful to ensure
+         that the device is in its initial power-on reset state.  In
+         addition, the host can reset the Pico into its native Boot Loader
+         mode, which makes the Pico appear as a virtual USB thumb drive,
+         allowing the user to install new firmware over the USB connection.
+         <p>
+            To prevent accidental reboots due to errant or random writes
+            to the register location, the SWRESET register only triggers a
+            reset when a specific sequence of bytes is written, within a
+            limited time.  The host must first write the "start" byte, 0x11,
+            then write the desired reset command byte within 5 seconds.
+            The writes must necessarily occur in separate transactions,
+            since each write within a transaction increments the destination
+            register address automatically.  The valid sequences are:
+         </p>
+         <ul>
+            <li><b>0x11, 0x22:</b> Execute an ordinary CPU reset, restarting
+            the PWMWorker firmware program
+
+            <li><b>0x11, x033:</b> Reset the Pico into its native Boot Loader
+            mode, where it appears as a virtual USB thumb drive, for installing
+            new firmware
+         </ul>
+         <p>
+            After completing one of these write sequences, the Pico will
+            reset after a brief delay (around 50us).  The delay is to
+            help ensure that the reset doesn't interrupt the I2C transaction
+            in progress, so that the host sees the normal end-of-transaction
+            signals on the bus.  The host should allow enough time for the
+            device to complete the Pico hardware reset and PWMWorker's
+            software initialization before addressing the device again;
+            10ms should be ample.  When the device is reset into Boot Loader
+            mode, it won't appear on the I2C bus again as long as it's in
+            that mode, since the PWMWorker firmware won't be running.
+            Returning from Boot Loader mode requires user intervention
+            or a power cycle on the Pico.
+         </p>
+      </td>
+   </tr> 
+</table>
+
+<h4>Notes on register addressing</h4>
+<p>
+   The LEVELn ports are all arranged in single contiguous block, from
+   address 0x00 to 0x17.  This is intended to allow the host to minimize
+   I2C traffic by consolidating a level update affecting several
+   output ports into a single I2C transaction.  The
+   typical usage pattern during normal operation is that the PC
+   host will send the I/O controller updates via USB every few
+   milliseconds, and the I/O controller will put these into physical
+   effect on the PWM devices by sending I2C commands updating the
+   device-side levels.  These level updates are typically the
+   <i>only</i> traffic during normal operation, so arranging
+   the level registers in a single block helps minimize I2C
+   traffic by allowing any contiguous block of levels to be updated
+   in a single I2C write transaction, without the need to touch
+   any registers other than the level registers.
+</p>
+<p>
+   The <i>other</i> per-port registers - CONFn, LIMITn, TIMELIMITnL,
+   TIMELIMTnH - are arranged in groups by port.  To calculate the
+   address of the register group for OUTn, use <tt>0x20 + 4*n</tt>.
+   Then add 0 to get CONFn, 1 to get LIMITn, and 2 to get TIMELIMITnL.
+   The rationale for grouping these registers by port is that all
+   of these registers are for configuring the port rather than
+   setting its output level.  The host will often want to update
+   all of the configuration registers for a given port together,
+   so this grouping allows a single port's configuration registers
+   to be updated in a single non-stop I2C write.   The grouping
+   makes it equally possible to update all of the configuration
+   registers for all ports, or all of the registers for a contiguous
+   block of ports, in a single write.
+</p>
+
+<h2>Footnotes</h2>
+
+<ul>
+   <li><b><a name="DefinePWM"></a><a href="#DefinePWMBack">Definition of PWM.</a></b>
+   PWM, for Pulse-Width Modulation, is a method for controlling the power level
+   delivered through an electronically switched output port, by rapidly switching
+   the port on and off.  The port is switched on and off at a fixed rate, called
+   the PWM frequency, and the power is controlled by adjusting the portion of
+   this fixed cycle time that the port is switched ON.  The "pulse" of the name
+   refers to the ON portion of the cycle, and the "width" refers to the time
+   duration of the pulse, which is represented as a horizontal width when you
+   plot voltage against time on a graph.  (Engineers are so in the habit of
+   visualizing time geometrically as the X axis that they take it for granted
+   that you can talk about a time duration as a "width".)  By making the switching
+   frequency too fast for the eye to see, PWM can be used to simulate an analog
+   "dimmer switch" using a purely digital on/off port, to control things like
+   LED brightness, motor speed, and solenoid force.
+   <img class="illustration" src="PWM-graph.png">
+</ul>
+
+<h2>Copyright and license</h2>
+<p>
+   PWMWorker software for Raspberry Pi Pico, and accompanying documentation<br>
+   Copyright 2024 Michael J Roberts<br>
+   Released under a BSD 3-clause license<br>
+</p>
+<div style="margin: 1em 2em; border: 1px solid black; padding: 1em 2em">
+<p>
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions are
+   met:
+</p>
+<p>
+   1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+</p>
+<p>
+   2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+</p>
+<p>
+   3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+</p>
+<p>
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+   HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</p>
+</div>
+
+</body>
+</html>

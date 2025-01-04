@@ -1,0 +1,280 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Configuration Editor</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Device Overview
+</div>
+
+<h1>Device Overview Window</h1>
+<p>
+   This window shows the status of a Pinscape Pico device, including
+   its basic identification settings, statistics on performance and
+   memory usage, and a diagram of the Pico's GPIO pin assignments.
+</p>
+
+<h2>GPIO pin assignment diagram</h2>
+<p>
+   The window shows a diagram of the Pico, with all of the pins
+   labeled with their currently configured usages.  The diagram
+   looks like the typical "pinout" diagram that you can find in the Pico
+   documentation and many Pico tutorial Web sites, but it has one
+   important difference: this diagram shows you the <b>actual
+   configured usage</b> of each pin, according to the JSON configuration
+   file currently installed on the Pico.  The typical pinout diagram
+   only shows you the <i>capabilities</i> of each pin.  The
+   current-configuration diagram shown here is especially useful
+   when you're setting up the physical wiring, since it shows you
+   exactly what to connect to each pin.
+</p>
+<p>
+   You can copy the diagram to the clipboard, as an image that you
+   can paste into other programs, via the <b>Edit &gt: Copy Pinout Diagram</b>
+   command.  You can also make a hard-copy printout of the diagram, which
+   might come in handy if the pin cab where you're setting things up isn't
+   in the same room as your PC.  See <a href="#printing">Printing</a> below
+   for some additional information.
+</p>
+
+<h2>Updating the firmware</h2>
+<p>
+   You can update the device's firmware from this window by dragging
+   a .UF2 file from a Windows Explorer desktop window and dropping it
+   onto the <b>Update Firmware</b> button, or onto the Pico diagram.
+   You can also click the <b>Update Firmware</b> button to select a UF2
+   file to install via a file dialog.  After the UF2 file is copied to
+   the Pico, the Pico will automatically reboot, and should then be
+   running the newly installed version of the software.
+</p>
+
+<h2>Backup</h2>
+<p>
+   The <b>Backup</b> menu has commands that let you export the Pico's
+   entire flash memory contents to a local Windows disk file.  You can
+   also export just the "data" section of the Pico's flash, where Pinscape
+   stores its configuration and settings files.
+</p>
+<p>
+   When backing up flash data, the program gives you a choice of file
+   formats:
+</p>
+<ul>
+   <li><b>UF2</b> files use the Pico's native boot loader format.  You
+   can load any UF2 file back into the Pico's flash, restoring the file's
+   contents on the Pico, by placing the Pico into its native Boot Loader
+   mode and then copying the UF2 file to the Pico's virtual thumb drive.
+   <p>
+      This is the best format for creating backups, because no Pinscape
+      software is required to restore the file later, either on the Pico
+      itself or on Windows.  Every Pico has the Boot Loader mode built in,
+      so every Pico is able to restore a UF2 file, even when it's brand
+      new out of the box.
+   </p>
+
+   <li><b>Raw Binary</b> files contain just the flash contents, byte-for-byte,
+   without any other formatting.  Raw binary format is ideal if you want
+   to directly examine or manipulate the contents of the flash, so it's
+   useful if you're writing your own Windows tools that work with the Pico,
+   for debugging or any other purposes.
+</ul>
+
+<h2>Rebooting the Pico</h2>
+<p>
+   The <b>Device</b> menu offers commands for rebooting the Pico
+   into various modes, without the need to physically unplug the Pico
+   or manipulate any buttons.
+</p>
+<ul>
+   <li><b>Reboot Pico</b> simply restarts the Pinscape firmware, as though
+   you had power-cycled the Pico.
+
+   <li><b>Reboot to Safe Mode</b> resets the Pico and invokes Pinscape's
+   Safe Mode.  Safe Mode uses a separate configuration file that's meant
+   to provide a minimal hardware environment, to help debug any problems
+   that occur during normal startup.  You can use this command to test
+   your Safe Mode configuration file.
+
+   <li><b>Boot Loader Mode</b> resets the Pico and invokes its native
+   Boot Loader.  The Boot Loader makes the Pico appear on the Windows
+   desktop as a virtual thumb drive, which accepts UF2 files to install
+   new firmware onto the Pico.  Note that the Config Tool lets you
+   install firmware at any time, without having to go through this
+   extra step, but this command is available as a convenience in case
+   you need to get the Pico into this mode for some other reason.
+</ul>
+
+<h2>Restoring default Pinscape settings on the Pico</h2>
+<p>
+   The <b>Device</b> menu has two commands for removing Pinscape
+   configuration data, to restore default settings.   You can use these
+   if you have a problem with the configuration and want to make sure
+   that old settings are wiped clean.
+</p>
+<p>
+   <b>Device &gt; Delete Configuration Files</b> deletes the two
+   JSON configuration files - the Main configuration file that's
+   used under normal conditions, and the Safe Mode file that's
+   used after crashes or unexpected resets.
+</p>
+<p>
+   <b>Device &gt; Full Factory Reset</b> wipes the entire Pinscape
+   data area on the device, erasing all Pinscape-related data files.
+   This includes the configuration files plus all other data that
+   Pinscape stores in flash, such as plunger configuration readings.
+   This guarantees a full reset, as though you were installing
+   Pinscape on the device for the first time.
+</p>
+<p>
+   Note that it's generally not necessary to wipe the Pinscape files
+   from the device if you want to repurpose the Pico to run some
+   completely different software.  The Pico doesn't have "files"
+   in the sense that Windows does; the flash storage area is
+   more like what Windows would consider an unformatted disk
+   drive.  If you install some non-Pinscape firmware onto the Pico,
+   there's very little chance that it would even notice that
+   Pinscape had ever stored any data in the flash space, so it
+   shouldn't matter one way or the other if you delete the Pinscape
+   files before installing the new firmware.  The main purpose
+   of these "delete" commands is to get rid of them for <i>Pinscape's</i>
+   sake, so that it doesn't try to load old settings.  This is
+   especially meant for cases where old settings are causing
+   a crash or some other unwanted behavior, and you want
+   to be sure that nothing from an old configuration is still present.
+</p>
+
+
+<h2>Restoring a backup</h2>
+<p>
+   If you make a backup file in the UF2 format, you can restore it to
+   the Pico at any time in the future, either using the Config Tool or
+   using the Pico's Boot Loader mode directly.
+</p>
+<p>
+   To restore a UF2 file using the Config Tool, go to the Device Overview
+   window, and drag the UF2 file onto the <b>Update Firmware</b> button.
+   In other words, use exactly the same procedure you'd use to install firmware.
+   Even though the button is labeled <b>Update Firmware</b>, it will accept
+   any valid UF2 file, whether it contains firmware or a data backup.
+</p>
+<p>
+   To restore a UF2 file using the Pico's native boot loader, follow
+   the Pico's standard procedure for installing software:
+</p>
+<ul>
+   <li>Unplug the Pico's USB cable (and unplug any other power source to the Pico, so that it's fully powered off)
+   <li>Press <b>and hold</b> the BOOTSEL button on top of the Pico
+   <li>While still holding BOOTSEL, plug the Pico's USB cable back in
+   <li>Release BOOTSEL
+   <li>The Pico should now appear on the Windows desktop as a thumb drive
+   <li>Use Windows Explorer to copy the UF2 file onto the Pico
+</ul>
+
+<h2>Repair the JOY.CPL display</h2>
+<p>
+   JOY.CPL is the Windows "Game Controllers" control panel.  It shows a
+   list of gamepads and joysticks attached to the system, and lets you
+   see their button and axis controls.  To run it, press Windows+R,
+   type JOY.CPL, and press Return.  This control panel is a convenient
+   way to check on the devices you have attached and confirm that
+   everything's as expected.  But it's a very old part of Windows that's
+   a little buggy.
+</p>
+<p>
+   There's one bug in particular that comes up pretty often with a device
+   like Pinscape that you might reboot many times while setting it up.
+   Each time the device reboots, it runs a risk of triggering a bug
+   in JOY.CPL that will screw up the control panel's list of devices
+   and/or the controls it displays in the device properties window.
+   This bug seems to be entirely within JOY.CPL itself - it doesn't
+   seem to affect any other programs that access game devices.  But
+   it's still alarming to see the screwed-up device information in
+   the control panel - it makes it look like the devices are badly
+   malfunctioning or that your system is somehow corrupted.  Chances
+   are that everything's actually just fine as far as every other
+   program is concerned, but it's hard to tell when the device list
+   in the official control panel is screwed up.
+</p>
+<p>
+   Fortunately, there's an easy workaround for the bug, but it requires
+   a little manual work whenever the bug occurs.  The Config Tool provides
+   a command that carries out the necessary steps, to make it a little
+   more convenient.  To activate the repair command, select <b>Device &gt; Repair JOY.CPL Display</b>
+   from the menu.  This will:
+</p>
+<ul>
+   <li>Reboot the device into Boot Loader mode, to disconnect its virtual game control interfaces
+   <li>Delete the errant JOY.CPL registry keys
+   <li>Bring the device back online
+</ul>
+<p>
+   Be sure to close any other applications that might be accessing the device
+   before running the command.  One of the conditions that's been observed to
+   trigger the bug is when an application is accessing the device during a
+   reset.  (The Pinscape Config Tool makes an effort to always disconnect
+   when it sees a reset coming, to avoid triggering the bug itself, but other
+   programs that access the device might not be so cautious.)
+</p>
+<p>
+   If you prefer to edit the registry keys manually, or if the automated
+   procedure doesn't work for some reason, here are the steps:
+</p>
+<ul>
+   <li>Note the device's USB VID and PID (shown in the Device Overview window under <b>USB Interfaces</b>)
+   <li>Disconnect the device, which you can do by physically unplugging it, or
+   by rebooting it into Boot Loader mode
+   <li>Open RegEdit (press Windows+R, type REGEDIT, and press Enter)
+   <li>Navigate to the following key, replacing <i>vvvv</i> with the VID that you noted earlier, and <i>pppp</i> with the PID:
+   <pre>
+   HKEY_CURRENT_USER\System\CurrentControlSet\Control\MediaProperties\PrivateProperties\DirectInput\VID_<i>vvvv</i>&amp;PID_<i>pppp</i>\Calibration</pre>
+   <li>Delete the key (right-click on it and select Delete)
+   <li>Plug the device back in (or reset it, if it's in Boot Loader mode)
+</ul>
+
+<a name="printing"></a>
+<h2>Printing</h2>
+<p>
+   The <b>File &gt; Print Pinout Diagram</b> lets you make a hard-copy
+   printout of the pinout diagram, which might be helpful while setting
+   up the physical wiring.  The print options should be fairly self-explanatory, 
+   except that the Header and Footer settings in the Page Setup options have
+   some extra hidden features.
+</p>
+<p>
+   First, the header and footer each let you set up three sections, for
+   text that's aligned at the left, center, and right side of the page.
+   Separate the sections with the vertical bar symbol, "|".
+</p>
+<pre>
+    This part is at the left|This is centered|This is at the right
+</pre>
+<p>
+   If there are only two parts, they're aligned left and right:
+</p>
+<pre>
+   This part is at the left|This part is at the right
+</pre>
+<p>
+   If you want to include a vertical bar character literally in the
+   header/footer text printed on the page, type it twice: ||.
+</p>
+<p>
+   Second, there are several substitution variables that you can use,
+   written as <tt>$(<i>name</i>)</tt>.  The substitution variables
+   are:
+</p>
+<ul>
+   <li><tt>$(pageNum)</tt> = current page number
+   <li><tt>$(numPages)</tt> = total number of pages (always 1 for this type of printout)
+   <li><tt>$(date)</tt> = the current date, with system default formatting
+   <li><tt>$(time)</tt> = the current time of day, with system default formatting
+   <li><tt>$(unitNum)</tt> = the Pinscape unit number
+   <li><tt>$(unitName)</tt> = the Pinscape unit name
+   <li><tt>$$</tt> = a literal dollar sign, <tt>$</tt>
+</ul>
+
+</body>
+</html>

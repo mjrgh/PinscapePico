@@ -1,0 +1,23 @@
+; Pinscape Pico - TCD1103 PIO program - ICG (integration clear gate), negative logic
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This is the negative-logic counterpart of TCD1103_ICGpos.  Use this
+; version when the ICG input to the chip is buffered through an inverter,
+; per the data sheet's recommendations.
+
+.program TCD1103_ICGneg
+
+.side_set 1     ; ICG (TCD1103 Shift Gate)
+
+.wrap_target
+    ; hold ICG HIGH for <input>+2 cycles
+    out x, 32          side 0   ; get the HIGH period timing; ICG HIGH (negative logic)
+lowLoop:
+    jmp x-- lowLoop    side 0   ; loop for the HIGH period; ICG HIGH (negative logic)
+         
+    ; hold ICG LOW for ISR+2 cycles
+    mov x, isr         side 1   ; get the LOW period timing; ICG LOW (negative logic)
+highLoop:
+    jmp x-- highLoop   side 1   ; loop for the LOW period; ICG LOW (negative logic)
+
+.wrap

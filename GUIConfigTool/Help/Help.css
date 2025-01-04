@@ -1,0 +1,275 @@
+html {
+    color: #000000;
+    background-color: #FFFFFF;
+    padding: 1em 1em 4em 1em;
+}
+body {
+    max-width: 60em;
+}
+html, table {
+    font: 10pt/16pt Segoe UI;
+}
+
+#TopNav {
+    margin: -2em -2em 1em -2em;
+    padding: 1em 2em;
+    background: #f8f8f8;
+    width: 100vw;
+}
+
+h1 {
+    font-size: 133%;
+    color: #0000E0;
+    border-bottom: 1px solid #b0b0ff;
+    padding: 1em 0px 1em 0px;
+    margin-bottom: 2em;
+}
+h2 {
+    border-top: 1px solid #e8e8e8;
+    padding-top: 1em;
+    font-size: 125%;
+    color: #0000E0;
+    margin: 2em 0px 1ex 0px;
+}
+
+h3 {
+    font-size: 110%;
+    color: #0000E0;
+}
+h4 {
+    color: #0000E0;
+    font-size: 100%;
+    font-weight: bold;
+    margin: 2em 0px 1ex 0px;
+}
+h4 + p {
+    margin-top: 1ex;
+}
+
+    
+li {
+    margin-top: 1em;
+}
+
+h2.mode {
+    padding: 2ex 1ex;
+    margin: 2em -1ex 1em -1ex;
+    background: #f0f0f0;
+    text-align: center;
+    border-top: 1px solid #a0a0a0;
+}
+
+.attrIcon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url(OutputAttrIcons.png) 0px 0px;
+    vertical-align: middle;
+}
+
+h2.mode {
+    padding: 2ex 1ex;
+    margin: 2em -1ex 1em -1ex;
+    background: #f0f0f0;
+    text-align: center;
+    border-top: 1px solid #a0a0a0;
+}
+
+.shift-green {
+    padding: 3px;
+    border: 1px dotted #e0e0e0;
+    background: #F0F0F0;
+    font-weight: bold;
+    color: #00C000;
+}
+.shift-gray {
+    padding: 3px;
+    border: 1px dotted #e0e0e0;
+    background: #F0F0F0;
+    font-weight: bold;
+    color: #A0A0A0;
+}
+
+table.data {
+    font: inherit;
+    display: block;
+    margin: 1em auto;
+    border-collapse: collapse;
+}
+
+table.data td, table.data th {
+    padding: .5ex 2em;
+    border: 1px solid #f0f0f0;
+}
+
+.TOC {
+    margin: 2em 0px;
+}
+
+.jsonTOCEntry {
+    margin: 0px 0px 0px 2em;
+}
+
+.jsonTOCSect {
+    margin: 0ex 0px 1ex 2em;
+}
+.jsonTOCSectTitle {
+    font-weight: bold;
+}
+
+.jsonTOCSect.tocLevel0 {
+    margin-left: 0px;
+}
+.jsonTOCSect.tocLevel0 > .jsonTOCSectTitle {
+    font-size: 125%;
+    margin-bottom: .5em;
+}
+
+.jsonTOCEntry + .jsonTOCSect, .jsonTOCSect > .jsonTOCSect {
+    margin-top: .5ex;
+}
+
+.jsonSectTitle {
+    margin: 1em 0px 1em 0px;
+    padding-top: 1em;
+    border-top: 1px solid #c0c0c0;
+    font-size: 115%;
+    font-weight: bold;
+}
+
+.jsonExampleHdr {
+    font-weight: bold;
+    margin-left: 1em;
+    color: #0000ff;
+}
+
+.jsonSectIndexHdr {
+    font-weight: bold;
+    margin-left: 1em;
+    margin: 0px 0px 1ex 1em;
+    color: #0000ff;
+}
+.jsonSectIndex {
+    font: 10pt/12pt Courier New;
+    margin: 0px 0px 1em 1em;
+    white-space: pre;
+}
+.jsonSectIndex .typeNames {
+    font-style: italic;
+    color: #c00000;
+}
+.jsonSectIndex .propName {
+    font-weight: bold;
+    color: #0000ff;
+}
+.jsonSectIndex .propName a:link, .jsonSectIndex .propName a:visited {
+    text-decoration: none;
+    color: #0000ff;
+}
+.jsonSectIndex .propName a:hover, .jsonSectIndex .propName a:active {
+    text-decoration: underline;
+}
+
+.jsonSectTitle + .jsonExampleHdr {
+    margin-top: -1em;
+}
+.jsonExample {
+    margin: 1em 1em 2em 1em;
+    padding: 1ex 0px;
+    white-space: pre;
+    font: 10pt/12pt Courier New;
+    color: #0000ff;
+    border: 1px solid #f0f0f0;
+    border-left: 16px solid #f0f0f0;
+    overflow-x: auto;
+}
+
+.jsonProp {
+    border: 1px solid #f0f0ff;
+    margin-bottom: 2em;
+}
+.jsonProp > .jsonProp {
+    margin: 2em 0px 2em 2em;
+    padding: 0px;
+}
+.jsonPropHdr {
+    background: #f0f8ff;
+    padding: 1em 1em;
+    margin: 0px 0px 1em 0px;
+}
+.jsonPropHdr > .jsonPropPath {
+    font-family: Courier New;
+    color: #808080;
+}
+.jsonPropHdr > .jsonPropName {
+    font-family: Courier New;
+    font-weight: bold;
+}
+.jsonPropHdr > .jsonPropType {
+    padding-left: 2em;
+    font-style: italic;
+}
+.jsonPropHdr > .jsonPropRequired {
+    padding-left: 2em;
+    font-weight: bold;
+    color: #800000;
+}
+.jsonPropHdr > .jsonPropOptional {
+    padding-left: 2em;
+    color: #008000;
+}
+
+.jsonPropDesc {
+    margin: 1em;
+}
+.jsonClassDesc {
+    margin: 1em;
+}
+
+.jsonProp table {
+    border-collapse: collapse;
+    margin: 1em 0px;
+}
+
+.jsonProp table th {
+    white-space: nowrap;
+}
+
+.jsonProp table td, .jsonProp table th {
+    border: 1px solid #f0f0f0;
+    padding: 1ex 1em;
+}
+
+.jsonEnumVals {
+    font-weight: bold;
+    color: #C00000;
+}
+.jsonEnumVal {
+    font-family: Courier New;
+}
+.jsonEnumVal a:link, .jsonEnumVal a:visited {
+    color: inherit;
+    text-decoration: none;
+}
+.jsonEnumVal a:hover, .jsonEnumVal a:active {
+    text-decoration: underline;
+}
+
+.jsonSee {
+    color: #800080;
+}
+
+#outputSourceTable .rowGroup {
+    background: #ffffe0;
+}
+
+overbar {
+    text-decoration: underline;
+    text-underline-offset: -.9em;
+}
+
+img.circuit-diagram {
+    display: block;
+    margin: 1em auto;
+    max-width: 95%;
+}

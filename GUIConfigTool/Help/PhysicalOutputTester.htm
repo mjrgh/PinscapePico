@@ -1,0 +1,89 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Output Tester</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Output Hardware Tester
+</div>
+
+<h1>Output Hardware Tester</h1>
+<p>
+   This window lets you test the physical output ports directly,
+   bypassing all of the software layers used for the logical ports.
+   This is useful for determining whether a problem with a device
+   is coming from the hardware or somewhere in the software.
+   If a port fails to work correctly in this mode, the problem
+   must lie in either the physical hardware, or in the device-level
+   Pinscape software or configuration setup.
+</p>
+<p>
+   The separate <a href="LogicalOutputTester.htm">Logical Output Port Tester</a>
+   window lets you view and test the software ports that DOF and other
+   game programs on the PC access.  DOF can't access the hardware ports
+   you see here directly; it goes through the logical ports.  Your JSON
+   configuration determines how the logical ports relate to the physical
+   device outputs.
+</p>
+<p>
+   <b style="color: red;">Warning! Flipper Logic timers are disabled
+   when this view is active.</b>  Exercise caution
+   with devices that could overheat if activated for long intervals,
+   since the normal protective timers can't intervene in this mode.
+   When you activate a device port in this mode, it will remain
+   activated until you manually turn it back off.
+</p>
+<p>
+   This mode shows a list of all of the physical output devices,
+   with a slider control for each port that's enabled as an output.
+</p>
+
+<h2>Devices and ports</h2>
+<p>
+   The window shows the Pico's own GPIO ports, plus all of the
+   external peripheral chips that you've configured that can act
+   as output devices.  This includes PWM controller chips (TLC5940,
+   TLC59116, PCA9685), shift register chips (74HC595), and GPIO
+   port extender chips (PCA9555).
+</p>
+<p>
+   Each Pico GPIO pin and each peripheral chip output pin is shown
+   with a slider control.  You can use the sliders to control the
+   current output level on each port, to test its effect on any
+   attached devices.  The sliders use the native PWM range for the
+   chip.  Some PWM chips have 8-bit ranges (0-255), and some have
+   12-bit ranges (0-4095).  Non-PWM chips that can only act as
+   simple on/off switches still present as slider controls, but
+   the range is just 0 to 1, corresponding to OFF and ON.
+</p>
+<p>
+   All of the controls in this view are direct hardware controls.
+   None of the logical output port modifiers apply, since this
+   view bypasses all of that.  No time limiters are applied,
+   nor are features like gamma correction or active high/low
+   polarity inversions.
+</p>
+   
+
+<h2>Disabled ports</h2>
+<p>
+   Some types of devices have bidirectional ports, meaning that the
+   ports can be individually configured as inputs or outputs.  That
+   includes the Pico's GPIO ports as well as ports on GPIO extender
+   chips, such as PCA9555.  The window shows ports for all of the
+   devices that are <i>capable</i> of being assigned as logical output
+   ports, but ports that aren't <i>actually</i> used as outputs will
+   be shown as disabled.
+</p>
+<p>
+   Pico GPIO ports are only enabled in this view when they're assigned
+   to logical output ports in the configuration.  This avoids
+   accidentally interfering with GPIO ports that are used for other
+   purposes, such as for logic signal connections to peripheral chips.
+</p>
+
+</body>
+</html>

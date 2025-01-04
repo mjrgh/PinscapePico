@@ -1,0 +1,475 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Nudge Device Viewer</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Nudge Device Viewer
+</div>
+
+<h1>Pinscape Pico Nudge Device Viewer</h1>
+
+<p>
+   This window shows information on the Nudge Device, which is the
+   subsystem in the Pinscape firmware that processes input from an
+   accelerometer to produce nudge information to pass to the pinball
+   simulator on the PC.
+</p>
+<p>
+   The nudge window reads the nudge information directly from the Pico,
+   so it doesn't depend on any joysticks or game controllers being
+   set up in your configuration.  It bypasses all of the game controller
+   setup and goes straight to the internal Nudge Device interface on the
+   Pico.  If what you're looking for is a way to test the gamepad or
+   XInput setup, to make sure the joystick axes are passing nudge
+   data as expected, the best bet is the Windows joystick tester:
+   press Windows+R, type <b>JOY.CPL</b> into the box, and press return.
+   That'll show you what the Windows operating system sees for
+   joystick input, and thus what the pinball games can see.
+</p>
+
+<h2>Raw accelerometer data</h2>
+<p>
+   This area shows the live readings from the accelerometer,
+   with the horizontal X/Y plane plotted on a 2D graph.  The
+   red crosshairs represents the current X/Y reading from the
+   accelerometer.
+</p>
+<p>
+   The position is plotted in standard units that range from
+   -32768 to +32767 on each axis.  Whatever unit system the
+   physical accelerometer chip uses is automatically translated
+   into these standard units, so that the Pinscape software
+   works consistently regardless of what kind of chip you're using
+   to take the readings.
+</p>
+<p>
+   The zero point at the center of the X/Y graph - the light gray axes
+   labeled  "0" - represents the zero point of the sensor readings
+   from the accelerometer chip.
+</p>
+
+<h3>Auto-centering</h3>
+<p>
+   If the auto-centering option is enabled, the raw data graph
+   also shows the <b>adjusted</b> center point, indicated by a
+   second set of axes labeled CX and CY (for Center X and Y)
+   superimposed over the graph.  This represents the center
+   point after adjusting for any fixed tilt that the firmware
+   detects in the readings.
+</p>
+<p>
+   If  the chip is installed perfectly level, the CX/CY axes
+   will exactly line up with the 0/0 axes at the center of
+   the graph.  It's very difficult to get the installation
+   perfectly level, so in most cases there will be a slight
+   difference between the 0/0 and CX/CY axes, corresponding
+   to the amount of tilt on each axis.
+</p>
+<p>
+   The software corrects for the fixed tilt by taking an average
+   of readings over a few seconds at a time.  Any fixed
+   tilt angle will show up in the readings as a constant bias
+   from the 0/0 center point, from the steady pull of
+   the Earth's gravity along a tilted axis.  When the software
+   sees that the readings are holding steady for several
+   seconds in a row, apart from a normal amount of background
+   vibration that's always present, it a snapshot of the average
+   over the past few seconds, and uses it as the new CX/CY
+   center point.  It then subtracts this bias out from readings
+   passed to the PC.
+</p>
+<p>
+   The tilt correction is a continuous, ongoing process.  The
+   software constantly monitors the readings, and updates the
+   centering point whenever it detects that the machine has been
+   relatively motionless for a few seconds.  This ensures that
+   the centering point remains accurate even if you shift the
+   machine a bit while jostling it during normal play.
+</p>
+<p>
+   The viewer lets you adjust the parameters that control the
+   auto-centering process:
+</p>
+<ul>
+   <li><b>Enable auto-centering:</b> Auto-centering is only enabled
+   if this box is checked.  If you wish to disable the feature
+   entirely, un-check the box.
+   
+   <li><b>Auto-centering interval:</b> This sets the amount of time
+   that the accelerometer must remain still (reading acceleration
+   changes smaller than the "quiet threshold" below) before auto-centering
+   is applied.  This is meant to ensure that the device has fully settled
+   in to its current position before a new center reading is applied.
+   Enter a value in milliseconds.  The recommended setting is around
+   4000 to 5000 ms (4-5 seconds).
+
+   <li><b>Quiet threshold:</b> These text boxes set the limits for
+   the amount of motion that qualifies as at-rest for the purposes
+   of taking an auto-centering reading.  The three boxes correspond
+   to the three accelerometer axes: X (left/right), Y (front/back),
+   and Z (vertical).  Each axis has its own threshold because many
+   accelerometers have different sensitivities and noise levels on
+   the different axes, especially the vertical axis.  The threshold
+   values are in the same units as the raw axis readings, and they
+   represent the maximum <i>change</i> in acceleration readings
+   that count as at-rest.  If auto-centering is too aggressive,
+   applying new center values while you're actively jostling the
+   cabinet, you can decrease these values to make the criteria
+   stricter.  If auto-centering never kicks in when the cabinet
+   is perfectly stationary, or it takes too long for to refresh
+   (as shown in the "Last centered" time reading below the Raw
+   X/Y axis graph), it's probably because there's too much random
+   noise in the accelerometer readings even when the cabinet isn't
+   being disturbed.  Many accelerometers are sensitive enough to
+   pick up very small ambient vibrations, but many also just pick
+   up a lot of random noise that's just internal to the sensor
+   electronics; in either case, these background vibrations,
+   real or spurious, can prevent auto-centering from refreshing
+   if the quiet thresholds are too strict.  Increase the threshold
+   values in this case until auto-centering refreshes reliably
+   when the cabinet isn't being disturbed.
+</ul>
+
+<h3>Auto-centering vs the DC blocker filter</h3>
+<p>
+   In the <a href="#Filtered">Filtered readings</a> section,
+   there's an option for setting up a "DC blocker filter".  The
+   DC blocker filter is designed to remove any fixed offset in
+   the signal, so it has exactly the same effect as the auto-centering
+   system, just using a slightly different mathematical approach.
+</p>
+<p>
+   You can enable both auto-centering and the DC blocker at
+   the same time, but they have the same goal, so you really
+   only need to enable one or the other according to which one's
+   behavior you prefer.  The auto-centering mechanism is based
+   on the system used in the original KL25Z Pinscape software,
+   so you might already be accustomed to how it behaves if you've
+   used a KL25Z Pinscape unit in a pin cab before.  I personally
+   prefer the DC blocker filter, though, because it operates
+   more smoothly and invisibly - it doesn't ever suddenly
+   reset the zero point.
+</p>
+
+<h3>Center Now</h3>
+<p>
+   Click the Center Now button to force a center position
+   snapshot immediately, based on the average of the last
+   few seconds of readings.  This bypasses the normal automatic
+   procedure of waiting for a period of steady readings,
+   indicating that the machine has been motionless for a while,
+   before taking an auto-centering snapshot.
+</p>
+
+<h3>Z axis</h3>
+<p>
+   The Z axis represents the accelerometer's vertical axis.  This
+   isn't normally an input to the pinball simulators, but it's
+   shown here anyway to give you a full view of the data coming
+   in from the accelerometer chip.  This should show a constant
+   upwards acceleration due to Earth's gravity.  If you have the
+   device set as recommended to a 2g dynamic range, this should
+   hover at about half-scale on the positive side of the "CZ" zero point.
+</p>
+<p>
+   (The positive reading on the Z axis might seem backwards.  We
+   normally think of gravity as a downwards force, so it might
+   seem more sensible if the Z axis read -1g instead of +1g.  But
+   accelerometers, and physicists, conceive of the acceleration 
+   as coming from <i>resisting</i> gravity.  If it weren't
+   for the ground holding us up, we'd be in free-fall towards the
+   center of the Earth, and the accelerometer would read zero
+   across the board.   Relative to that frame of reference,
+   the ground propels us steadily upwards at +1g, so we read
+   a positive number on the accelerometer's Z axis.)
+</p>
+<p>
+   The auto-centering mechanism pegs the center point on the Z
+   axis - "CZ" - at a point where the average Z reading equals
+   one standard Earth gravity.  That reflects an assumption
+   baked into the software that the device is deployed somewhere
+   on the surface of the Earth, so if you're using it on the moon,
+   Mars, or a spaceship, the zero point might be a little off.
+</p>
+
+<a name="Filtered"></a>
+<h2>Filtered readings</h2>
+<p>
+   This graph shows the final readings after applying the nudge
+   device's internal filters to the raw accelerometer readings.
+   These are the readings that you'll normally assign to joystick
+   axes for USB reports to the PC, so they're what your pinball
+   game programs will usually see as accelerometer input.
+</p>
+<p>
+   The filters:
+</p>
+<ul>
+   <li>DC blocking, which removes any constant offset in the signal,
+   which can come from any tilt in the sensor's physical installation
+   as well as from internal biases in the sensor's electronics.
+   
+   <li>Jitter filtering, which filters out readings that are within
+   the margin of noise of the prior reading.
+</ul>
+<p>
+   The DC blocker filter serves the same purpose as the auto-centering
+   mechanism - removing the constant tilt bias that's almost always
+   present in accelerometer readings - but using a different strategy.
+   The auto-centering system updates the center point intermittently,
+   whenever it observes a sufficiently long period of stillness in
+   the readings.  The DC blocker filter operates more continuously,
+   using a mathematical algorithm to attenuate the lowest-frequency
+   components of the signal while leaving the high-frequency portions
+   intact.  "DC" is by definition the 0 Hz component of a signal, the
+   lowest possible frequency, so it's possible to remove the 0 Hz
+   signal using a filter that removes frequencies below some very
+   low cutoff point, say 1/5 of a cycle per second.
+</p>
+<p>
+   The auto-centering system and DC block filter are essentially
+   redundant with one another, so it's fine to disable one or the other.
+   (You can also turn off both, although this isn't recommended,
+   since the readings passed to the PC will almost certainly have a tilt
+   bias that will have undesirable effects on most pinball simulators.)
+   You should experiment with the pinball games you use to see which
+   filter produces the best results for you.
+</p>
+
+<h3>DC blocker time</h3>
+<p>
+   This field lets you set the adaptation time constant for the DC
+   blocker filter.  This is in milliseconds - 1000ms equals one second.
+   This value sets the approximate time that the filter takes to
+   cancel out a sudden change in the bias level, such as when the
+   accelerometer sensor position shifts in the cabinet or the cabinet
+   tilt changes slightly after a particularly aggressive nudge.
+   Lower values make the filter more responsive, but at the cost
+   of more sharply attenuating real low-frequency signals from slow
+   movements of the cabinet.  Higher values result in less low-frequency
+   signal attenuation, but make the filter take longer to catch up to
+   bias level changes.  A value around 200ms should work well for
+   most setups.
+</p>
+<p>
+   Set this to zero to disable the DC blocker filter.
+</p>
+
+<h3>Jitter window</h3>
+<p>
+   These boxes set the jitter filter window for each axis.  These
+   values use the abstract device units shown on the graph, 0 to 32767.
+</p>
+<p>
+   The window value for each axis should be roughly equal to the average noise level for
+   the axis, which you can determine using the <a href="#NoiseCal">Noise Calibration</a>
+   procedure.  The noise level is intrinsic to the sensor, so there's not
+   a one-size-fits-all "recommended" level; it's best to find the right
+   level experimentally for your individual device.  You might also want
+   to adjust it by hand up or down from the noise level determined by
+   calibration.  The goal is to minimize the random fluctuations you
+   see on the filtered axis graph when the cabinet is sitting still
+   and isn't being disturbed, so that the pinball simulator won't see
+   spurious accelerations that come purely from the background noise
+   of the sensor.  Adjust the value to the smallest value that keeps the
+   axis values stable (or mostly stable) when the cabinet isn't being
+   disturbed.
+</p>
+<p>
+   Accelerometers can pick up vibration from the cabinet's audio system
+   and mechanical feedback devices like solenoids and motors, so you might
+   also want to test it with a moderate level of audio playback running.
+   On the other hand, you <i>shouldn't</i> try to eliminate vibrations
+   picked up from high-impact tactile feedback devices like flipper coils
+   and shaker motors.  Those devices are <i>intended</i> to noticeably
+   shake the cabinet - that's the whole point of "tactile" - so it's
+   perfectly valid for those signals to feed back into the pinball
+   simulation.  A real pinball machine equally well picks up those kinds
+   of self-made vibrations, and when they're big enough to be tactile
+   to the player, they're big enough to affect the motion of the ball.
+   It would be unrealistic to try to filter them out.
+</p>
+<p>
+   Set the window to 0 to disable jitter filtering for an axis.
+</p>
+
+<h2>Velocity readings</h2>
+<p>
+   These graphs show the velocity that the device calculates from
+   the acceleration readings.  If you think back to your high school
+   physics, you'll recall that an object's velocity is the integral
+   over time of its acceleration.  The device uses that formula to
+   keep track of the implied velocity of the accelerometer sensor,
+   and thus of the pinball cabinet it's installed in.
+</p>
+<p>
+   Most pinball simulators only accept raw acceleration data, not
+   velocities.  You can ignore this section if none of the
+   simulators you use accept velocity data.
+</p>
+<p>
+   The velocity section has two parameters you can adjust:
+</p>
+<ul>
+   <li><b>Decay time:</b>  This is a time period, in milliseconds
+   (one second equals 1000 ms), for attenuating any accumulated
+   component in the velocity reading.  This is intended to correct
+   for any bias in the accelerometer readings, which would add up
+   over time and make the velocity keep growing until it overflowed
+   the internal counters.  The decay time sets the time period for
+   attenuating the accumulated velocity by 50%.  Shorter decay
+   times will cancel out accumulated errors more quickly, so
+   they'll make the velocity readings smoother and more stable,
+   but at the cost of making the ball seem to "jump back" to its
+   starting place after a hard nudge.  Longer times will have
+   less of a noticeable effect on the ball motion, but won't
+   cancel out noisy inputs as quickly.  The default decay time
+   is 2000 ms (2 seconds).
+
+   <li><b>Scaling factor:</b>  This sets the scale of the
+   velocity readings passed to the PC in USB reports, which use
+   16-bit integers (-32768 to +32767).  That's the scale shown on
+   the graph, so that gives you an idea of what the USB reports
+   will convey.  Internally, the device calculates the velocity
+   at higher precision using floating-point math, but it reports
+   in integer units for USB's sake, which it does by applying
+   the scaling factor set here.  The goal with the scaling factor
+   is to make the largest nudges you actually use in practice
+   deflect the velocity reading to <b>almost</b> full-scale
+   on the graph.  That takes maximum advantage of the available
+   precision in the USB reports, by using the full extent of
+   the 16-bit integer scale.
+</ul>
+
+<p>
+   You can observe the practical simulation effects of the
+   velocity settings in the <a href="#PhysicsTester">physics tester</a>
+   box displayed below the velocity graphs. 
+</p>
+   
+
+<a name="NoiseCal"></a>
+<h2>Noise calibration</h2>
+<p>
+   Accelerometer readings always have some random fluctuations in
+   the readings, even when the device is perfectly still and you're
+   not doing jumping jacks next to it.  We refer to this as
+   "noise", using the word the way engineers do, to
+   describe background randomness in a signal.  Accelerometer
+   noise comes from a combination of ambient vibrations that the
+   accelerometer picks up from its environment, and internal
+   imperfections as the device converts the vibrations it senses
+   into an electronic signal.  There's a certain baseline amount
+   of noise endemic to any given device that you can't get rid
+   of, no matter how much foam cushioning you pack around the chip.
+</p>
+   Some devices are inherently noisier than others, which is
+   what the noise calibration feature is all about.  The Pinscape
+   firmware tries to determine when the cabinet is motionless,
+   to determine if it's a good time to auto-center the readings,
+   by watching for periods with a small amount of jiggle in the
+   readings.  The problem is that some devices have more random
+   jiggle when at rest than others, so it's hard to come up with
+   a one-size-fits-all threshold for what constitutes a period
+   of motionless readings.
+</p>
+<p>
+   The Calibrate button runs a calibration to get a baseline
+   noise level for your specific device.  This customizes the
+   threshold that the auto-centering mechanism uses according
+   to the observed characteristics of your accelerometer.
+</p>
+<p>
+   Clicking the Calibrate button starts the calibration process
+   on the device, which runs for about 15 seconds.  During the
+   calibration, Pinscape collects statistics on the incoming
+   raw readings.  At the end of the period, it uses the statistics
+   collected over the calibration period to set the new "quiet"
+   thresholds, based on the standard deviation of the readings
+   collected on each axis over the calibration period.
+</p>
+<p>
+   There's nothing special you have to do during the
+   calibration process, other than leaving the accelerometer
+   undisturbed.  Don't move the device or cause any major
+   vibrations nearby.  The point is to gather statistics
+   on the normal background vibration level that the device
+   picks up when you're not actively trying to jiggle
+   the pin cab.  Note that you shouldn't do anything
+   special to make it extra-quiet during calibration;
+   just let the device measure the normal background level
+   that would be in effect during normal use.
+</p>
+
+<a name="PhysicsTester"></a>
+<h2>Physics tester</h2>
+<p>
+   The nudge setup window includes a simple 2D model of a ball on
+   a flat surface, to help visualize the effects of the nudge settings
+   on a pinball simulation.  The display is drawn to scale based on a
+   standard steel pinball, so that the on-screen ball's diameter
+   represents 1-1/16" in the simulation.  The motion is calculated
+   from the <b>velocity X/Y</b> readings.
+</p>
+<p>
+   Ideally, the ball should remain roughly stationary when the cabinet
+   isn't being disturbed, and it should react when you nudge the cabinet,
+   moving briefly in the opposite direction of the nudge, and then
+   returning to roughly where it started as the cabinet comes to
+   rest again.  It might drift a little bit after a hard nudge,
+   but it should come to rest again before long, roughly back at
+   the center position.  Over time, the ball should stay
+   near the center point. It shouldn't keep drifting indefinitely
+   in any one direction, and definitely shouldn't pick up more speed
+   over time when there's no nudging going on.  This is all based on
+   the basic physics that we're simulating, where the pinball cabinet
+   doesn't actually <i>go</i> anywhere after a nudge; it sways a bit
+   in place, but always comes back to where it started.  A freely-moving
+   ball on a flat, low-friction surface under these conditions should
+   likewise more or less stay put, moving a little bit when the cabinet
+   sways after a nudge, but coming back after the cabinet settles.
+</p>
+<p>
+   It's not essential to get the ball <b>perfectly</b> stationary
+   in the absence of a nudge.  A little random motion is normal,
+   since all accelerometers have a little bit of random noise that
+   will show up in the ball's motion as random wandering.  Keep in
+   mind that the random wandering you see here is exaggerated
+   compared to what you'll see in Visual Pinball and other games,
+   because those games add gravity to the mix - they rarely
+   leave the ball sitting still on a flat surface like this.  The
+   gravity-driven motion is usually so much faster that it
+   completely overwhelms the slight wandering you might see here.
+</p>
+<p>
+   You can manually reposition the ball by clicking within the
+   tester area.  This will also bring the ball to rest.
+</p>
+<p>
+   <b>If the ball is too jumpy when the cabinet isn't moving:</b>
+   This means that it's picking up excessive random noise from the
+   accelerometer.  Try increasing the <b>jitter window</b> values.
+</p>
+<p>
+   <b>If the ball drifts too much after a nudge:</b> This can be
+   caused by excessive noise, so increasing the <b>jitter window</b>
+   values might help.  You can also decrease the <b>velocity decay time</b>
+   to attenuate residual motion after a nudge more aggressively.
+</p>
+<p>
+   <b>If the ball doesn't react enough to a nudge:</b> Try decreasing
+   the <b>jitter window</b> values or increasing the <b>velocity decay time</b>.
+   Both of those changes will increase the sensitivity of the accelerometer,
+   although at the cost of letting through more random noise.
+   You can also try increasing the <b>velocity scaling factor</b>, especially
+   if the deflection shown on the <b>Velocity X/Y</b> graph is small when
+   you give the cabinet a hard nudge.
+</p>
+   
+   
+</body>
+</html>

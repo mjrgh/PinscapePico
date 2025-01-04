@@ -1,0 +1,187 @@
+; Pinscape Pico - TLC5940 PIO state machine program
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This is a Pico PIO program for driving a daisy chain of TLC5940 chips.
+; The program reads the grayscale data from the PIO FIFO, which can be fed
+; by DMA from a memory buffer, and generates TLC5940 SIN and SCLK signals
+; from the data.  It simultaneously generates the GSCLK signal to drive
+; the PWM outputs, and generates BLANK and XLAT signals at the end of the
+; cycle to latch the new inputs and start a new cycle.
+;
+; The main C++ program must initiate a new DMA transfer on each cycle
+; between the end of the grayscale data transmission portion of the cycle
+; and the blanking period.  The grayscale bits are transmitted at the
+; beginning of each cycle, at the same rate as the grayscale clock.  Each
+; blanking cycle is 4096 clocks, and there are 192*<number of chips> data
+; bits per cycle, so with a 4-chip system (typical of a fully populated
+; Pinscape system), the data transmission takes a little under 20% of the
+; blanking cycle.  This leaves quite a large window (about 4ms) during
+; which the C++ program can initiate the new DMA transfer.  The transfer
+; can be started at any time when the DMA channel is idle, since the DMA
+; controller will happily wait until the PIO starts asking for new data
+; at the start of the next cycle.
+;
+; Timing: In the clocking loops, the SCLK and GSCLK periods are exactly
+; two PIO cycles.  The effective TLC5940 grayscale and data clocks
+; will therefore be 1/2 of the PIO clock frequency.  The target clock
+; rate for the TLC5940 can be derived from the desired PWM period,
+; which is 4096 grayscale clock period.  So if you want a 200 Hz PWM
+; frequency, for example, you'd need a 200*4096 Hz = 819.2 kHz GSCLK.
+; The required PIO clock rate would thus be 2*819.2kHz = 1.6384 MHz.
+; The physical PIO clock is configured by setting a divider for the
+; system clock, which on the Pico is 125 MHz.  So given a desired PWM
+; frequency PWMFREQ in Hertz, calculate the PIO clock divider as:
+;
+; CLOCK_DIVIDER = (125000000 / (PWMFREQ * 8192))
+;
+; The DMA buffer is constructed as follows.  All elements are 16-bit
+; half-words.
+;
+;    nBits      - number of bits of grayscale data minus one, equal to ((192 * number of chips in daisy chain) - 1) << 4
+;    nClocks    - number of clocks in grayscale cycle AFTER data bits minus one, equal to (4095 - nBits) << 4
+;    gs_N_15    - grayscale value for last chip, last output port (OUT15), as the 12-bit value << 4
+;    gs_N_14
+;     ...
+;    gs_0_1
+;    gs_0_0
+;
+; GPIO Mappings:
+;
+;    OUT
+;      pin 0 = SIN    (OUT operand bit 0x01)
+;    SET
+;      pin 0 = BLANK  (SET operand bit 0x01)
+;      pin 1 = XLAT   (SET operand bit 0x02)
+;    SIDE SET
+;      pin 0 = SCLK   (sideset bit 0x01)
+;      pin 1 = GSCLK  (sideset bit 0x02)
+;
+; PIO state machine clock divider configuration:
+;   Set PIO SM clock divider = system_clock_Hz / (PWMFREQ*8192 + 8)
+;   where PWMFREQ = the desired PWM refresh frequency, 1Hz to 7324Hz
+;
+; Other PIO state machine settings:
+;   AUTOPULL ON
+;   PULL(OUT) Shift Direction = LEFT (MSB first)
+;   PULL(OUT) Shift Threshold = 12 bits
+;
+.program TLC5940
+.side_set 2      ; SCLK, GSCLK
+
+    ; Top of outer loop
+    ; (This .wrap_target is superfluous, since the implied wrap target
+    ; is the start of the program, but we'll include it anyway for the
+    ; sake of clarity.)
+.wrap_target
+
+    ; Initial setup.  Pull the data bit count and remaining grayscale clock
+    ; count out of the FIFO.  The caller is responsible for providing these
+    ; as a header to the grayscale data.  Load the counts into the scratch
+    ; registers, which we'll use as loop counters.  Keep both clock signals
+    ; low during this prolog.  Note that auto-pull will reload OSR on each
+    ; OUT instruction, since we're pulling the threshold 12 bits at a time.
+    ;
+    ; Pulse SCLK while we're doing the counter loads, to generate the extra
+    ; SCLK that the chip requires to start the grayscale data cycle.  (The
+    ; extra pulse is shown in the timing diagrams in the data sheet.  The
+    ; narrative text doesn't explain it, but it's clearly there in all of
+    ; the timing diagrams, so it seems to be important.)
+    out x, 12          side 0      ; store the bit count in X
+    out y, 12          side 1      ; store the grayscale clock count in Y, pulse SCLK
+
+    ; Data clocking loop.  The TLC5940 clocks data in on the rising edge
+    ; of SCLK, so we need to write a data bit with SCLK low, and then
+    ; raise the clock high on the next cycle.
+    ;
+    ; Also pulse GSCLK while we're at it, to provide the grayscale signal
+    ; to keep the lights on during this cycle.
+    ;
+    ; Note that we pulse SCLK and GSCLK with opposite phase (one is HIGH
+    ; while the other is LOW).  This is what seems to work empirically;
+    ; when they two are in phase, the data signal seems to get garbled.
+    ; The data sheet doesn't seem to indicate that running the two in
+    ; phase would be a problem - everything in the data sheet suggests
+    ; that the two clocks are essentially unrelated.  So maybe it's an
+    ; artifact of my test rig wiring, or of the Pico.  But running the
+    ; two out of phase makes it rock-solid in my test setup, so I'm
+    ; going with that even though it doesn't seem to be a requirement
+    ; of the TLC5940 itself.
+dataLoop:
+    out pins, 1        side 2      ; clock out a data bit from OSR to SIN, SCLK low, GSCLK high
+    jmp x--, dataLoop  side 1      ; loop while (nDataBits--), SCLK high, GSCLK low
+
+    ; Raise our IRQ, to let the main CPU program know that it's time to
+    ; start a new DMA transfer, with the next cycle's LED data.
+    ;
+    ; The IRQ isn't strictly necessary.  The alternative is for the main
+    ; program to poll the DMA channel status, and initiate a new transfer
+    ; when the channel is idle.  That's fine as long as the program is
+    ; able to poll at about 2X the PWM frequency or higher.  For a PWM
+    ; frequency of 250 Hz, that requires the CPU program's main loop to
+    ; run in under 2ms, which is perfectly reasonable.  This gets to be
+    ; impractical once the PWM frequency is above 1000 Hz, though, since
+    ; that caps the main loop time at 500us.  The TLC5940 can run the
+    ; PWM cycle at up to 7324 Hz.  On paper, at least; it might be hard
+    ; to get a clean data signal at that speed, since it corresponds to
+    ; an SCLK rate of 30 MHz, and it would close to the Pico PIO limit.
+    ; But even at 2500 Hz or so, we'd be hard pressed to make a polling
+    ; main loop fast enough.
+    ;
+    ; The IRQ facilitates these higher speeds by coordinating with the
+    ; main CPU to schedule the new DMA transfer immediately when the
+    ; new transfer window opens.  The main CPU should be able respond
+    ; to the interrupt and schedule the new transfer within a few
+    ; microseconds, eliminating the DMA setup as a limiting factor on
+    ; the PWM rate, so we should be able to get close to the chip's
+    ; design maximum if we really wanted to.
+    ; 
+    ; Despite all this work to make it go faster, I'm not sure there's
+    ; any real benefit to driving the TLC5940 above LED speeds, which
+    ; only require about 200 Hz to look absolutely solid to the eye.
+    ; The main reason to go faster is for mechanical devices - motors
+    ; and solenoids - which can transduce the PWM signal to audible
+    ; acoustic noise.  The solution, when this is a problem, is usually
+    ; to raise the PWM frequency to at least 20 kHz, which doesn't
+    ; eliminate the noise, but makes it too high-pitched for humans
+    ; to hear.  (This might not be doing your dog any favors, though.)
+    ; The problem is that the TLC5940 can't go that fast no matter
+    ; what we do here!  The chip has a design limit of 30 MHz for the
+    ; grayscale clock, which corresponds to a 7324 Hz PWM cycle.
+    ; That's well within the human hearing range, so the best we can
+    ; do is shift the noise to a higher, but still audible, pitch.
+    ; Even so, there might still be some benefit; the troublesome
+    ; device might be more prone to vibration at some frequencies
+    ; than others, for example.  So having a wider range of speeds
+    ; to try might be worthwhile.
+    ;
+    ; We send out the IRQ as a one-way signal, with no expectation
+    ; or means of receiving a reply.
+    irq 0              side 0
+
+    ; Grayscale clocking loop.  All data bits have been sent, so now we
+    ; just have to finish the 4096-clock grayscale cycle by clocking GSCLK
+    ; for the remaining number of cycles to reach 4096.  On this loop, we
+    ; ONLY pulse the grayscale clock, since we have no more data to send,
+    ; so the bits are in their correct positions in the shift register on
+    ; the TLC5940's.  If we continued to generate SCLK pulses, the shift
+    ; registers would repeatedly shift in the last bit we left on SIN,
+    ; so we'd lose all of the shift register data that we carefully set
+    ; up in the data loop above.
+clockLoop:
+    set pins, 0        side 2      ; SIN low, SCLK low, GSCLK high
+    jmp y--, clockLoop side 0      ; loop while (nGrayscaleCycles--), GSCLK low
+
+    ; Grayscale cycle completed - we're in the blanking period.  Take
+    ; GSCLK low, drive BLANK high to disable the outputs and clear the
+    ; chip's main cycle counter, pulse XLAT to transfer the new data
+    ; bits from the TLC5940 shift registers to the active display
+    ; counters, and finally take BLANK low to re-enable outputs and
+    ; start the new grayscale cycle.
+    nop                side 0      ; drive SCLK and GSCLK low (they'll stay low throughout blanking)
+    set pins, 1        side 0      ; drive BLANK high
+    set pins, 3        side 0      ; hold BLANK high, pulse XLAT to latch the shift register bits
+    set pins, 1        side 0      ; hold BLANK high, end XLAT pulse
+    set pins, 0        side 0      ; take BLANK low to end the blanking cycle
+
+    ; wrap to the top of the main loop, to carry out the enxt cycle
+    .wrap

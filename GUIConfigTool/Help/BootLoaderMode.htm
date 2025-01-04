@@ -1,0 +1,127 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Config Tool</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Boot Loader Mode
+</div>
+
+<h1>Boot Loader Mode</h1>
+<p>
+   This window lets you install firmware onto a Pico that's running in its
+   native Boot Loader mode.
+</p>
+<p>
+   The Boot Loader isn't part of Pinscape; it's a native feature built directly
+   into the Pico.  You can get any Pico into Boot Loader mode at any time,
+   regardless of any firmware you've previously installed on the Pico (Pinscape
+   or otherwise), with this procedure:
+</p>
+<ul>
+   <li>Unplug the USB cable from the Pico (and any other power inputs)
+   <li><b>Press and hold</b> the small white BOOTSEL button on top of the Pico
+   <li>While still holding BOOTSEL, plug the USB cable back in
+   <li>Release the BOOTSEL button
+</ul>
+<p>
+   While in Boot Loader mode, the Pico appears on the Windows desktop as
+   a generic USB thumb drive.  It's not <i>really</i> a thumb drive; it's
+   just faking it as a convenient way to accept files for firmware installation.
+   You can install firmware simply by copying a compiled firmware file,
+   which on Windows has the suffix <b>.UF2</b>, onto the virtual thumb drive.
+</p>
+<p>
+   Like most microcontrollers, the Pico can only run one firmware program
+   at a time, so copying new firmware onto the Pico replaces any previously
+   installed program.
+</p>
+
+<h2>Rebooting the Pico</h2>
+<p>
+   If the Pico already has the Pinscape (or other) firmware installed,
+   you can get it back into the firmware program by power-cycling
+   the Pico, by unplugging and re-plugging its USB cable.  Or, if you're
+   using the Pico with an expansion board that features a RESET button,
+   simply press the RESET button.
+</p>
+<p>
+   If you install new firmware, the Pico will automatically reboot and
+   run the new firmware when the installation file transfer finishes.
+</p>
+
+<h2>Installing firmware</h2>
+<p>
+   To install new firmware from this window, simply click the Install
+   button.  This will bring up the usual Windows file selector dialog,
+   where you can select the new firmware .UF2 file to install.
+</p>
+
+<h2>Erasing old config files</h2>
+<p>
+   This window lets you erase any Pinscape config files stored on the
+   Pico.  This is meant as a last resort if you're having trouble getting
+   the Pico to start up normally with the Pinscape software, and you suspect
+   that something in the stored configuration is causing it to crash.
+</p>
+<p>
+   To erase stored config data, select <b>Device &gt; Erase Flash Config Files</b>
+   from the main menu.
+</p>
+<p>
+   <b>Warning:</b> This command indiscriminately erases the portion of flash
+   memory on the Pico where Pinscape stores its configuration data.  The
+   command has no way to determine what's currently stored there, if
+   anything, so it simply deletes the area unconditionally.  If the Pico
+   in question is actually running some different firmware program instead
+   of Pinscape, that other software might be using the same flash area for
+   its own purposes.  This command can't tell the difference, so be careful
+   to only use the command with a Pico that you know has Pinscape loaded.
+</p>
+
+<h2>Clear the entire flash memory chip</h2>
+<p>
+   If you want to completely erase the Pico's flash memory, select
+   <b>Device &gt; Clear Entire Flash</b> from the main menu.
+</p>
+<p>
+   This command erases the entire Pico flash memory space, removing any
+   firmware program that was previously installed, along with any other
+   data stored in flash.
+</p>
+<p>
+   This command is meant as a last resort to fix a Pico that's not working
+   properly.  There's no reason to use this command with a working Pico,
+   and in particular, it's not necessary before installing a new firmware
+   program.  Installing new firmware automatically overwrites any previous
+   firmware.
+</p>
+<p>
+   The main scenario where this command might be useful is if you're
+   running firmware that stores its own additional information in flash
+   storage, and something in its stored data has become corrupted in such
+   a way that the program won't start up or run correctly, even after
+   re-installing the firmware itself.  Re-installing firmware only overwrites
+   the portion of flash that the program occupies, so it's possible for
+   extra data areas to survive program updates.  indeed, Pinscape
+   takes advantage of this to store the JSON configuration data, so that
+   your configuration remains intact across firmware updates.
+   But this also has a rare downside, which is that if something in the
+   stored data makes the program crash, re-installing the program isn't
+   enough to cure the problem, since the bad data is still there.
+</p>
+<p>
+   The difference between <b>Clear Entire Flash</b> and <b>Erase Flash Config Files</b>
+   is simply the scope of the erasure.  <b>Clear Entire Flash</b> erases
+   every byte of the flash, so it's quite time-consuming.  It's the nuclear
+   option that ensures that absolutely no old data remains anywhere in memory
+   after the wipe.  <b>Erase Flash Config Files</b> surgically erases just one
+   small control block where Pinscape keeps track of its files.  This makes
+   <b>Erase Flash Config Files</b> quite fast.
+</p>
+
+</body>
+</html>

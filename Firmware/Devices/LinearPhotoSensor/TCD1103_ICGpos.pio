@@ -1,0 +1,62 @@
+; Pinscape Pico - TCD1103 PIO program - ICG (integration clear gate), positive logic
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This program generates the ICG (integration clear gate) signal for the 
+; TCD1103.
+;
+; ICG is the signal that starts a new frame.  Most of the time, the host
+; holds ICG high - ICG is high throughout the whole frame transfer cycle.
+; At the end of the frame, the host takes ICG low; then, while holding
+; ICG low, the host pulses SH high to transfer the live pixels to the
+; shift register.  The host then drives ICG high again to start the new
+; frame transfer, and holds it high throughout the transfer.
+;
+; The ICG and SH pulses must be coordinated with some timing requirements
+; specified in the data sheet.  In brief, the rising edge of the SH pulse
+; must be between 100ns and 500ns after the falling edge of ICG; the SH
+; pulse must be at least 1000ns in duration (no maximum); and ICG must
+; remain low for at least 1000ns (no maximum) after the falling edge of
+; the SH pulse.  In addition, the rising edge of ICG at the end of the
+; ICG-low period must occur while FM (the master clock signal) is high.
+;
+; The new frame's pixels start clocking out of the shift register on the
+; next FM clock cycle after the rising edge of the ICG low period.  The
+; data sheet isn't clear on the exact timing, but it appears that the
+; first pixel is clocked out on the next rising edge of FM.
+;
+; Initial setup: load constant value 623 into ISR (for a 5us low pulse):
+;    Write 623 to the TX FIFO
+;    pio_sm_exec() PULL + OUT ISR, 32
+;
+; Sideset pins:
+;    ICG (Integration Clear Gate)
+;
+; Auto-pull enabled, threshold 32 bits
+;
+; Clocking:  Set the clock divider to 1.
+;
+; FIFO input: For each frame, the host must write the desired timing for
+; each ICG pulse to the TX FIFO.  Write the number of clocks to wait
+; before the next pulse, minus 2 (e.g., for a 1000-clock wait, write 998).
+;
+; The ICG low pulse length is fixed by the ISR parameter initially set up,
+; for ISR+2 clocks.  If you set ISR to 623, you'll get a 625-clock pulse,
+; or 5us.
+;
+
+.program TCD1103_ICGpos
+
+.side_set 1     ; ICG (TCD1103 Shift Gate)
+
+.wrap_target
+    ; hold ICG HIGH for <input>+2 cycles
+    out x, 32          side 1   ; get the HIGH period timing; ICG HIGH
+lowLoop:
+    jmp x-- lowLoop    side 1   ; loop for the HIGH period; ICG HIGH
+         
+    ; hold ICG LOW for ISR+2 cycles
+    mov x, isr         side 0   ; get the LOW period timing; ICG LOW
+highLoop:
+    jmp x-- highLoop   side 0   ; loop for the LOW period; ICG LOW
+
+.wrap

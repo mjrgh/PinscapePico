@@ -1,0 +1,44 @@
+; Pinscape Pico - TSL1410R PIO program - SI (Serial Input/Shutter Control) signal
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This program generates the SI (Serial Input) signal for the TSL1410R.
+; This serves as the sensor's electronic shutter and initiates pixel
+; transfer for a new frame.
+;
+; Each SI pulse we generate is (ISR+2) * 8ns long
+;
+; Sideset pins:
+;    SI (Serial Input/Shutter Control)
+;
+; Auto-pull enabled, threshold 32 bits
+;
+; Clocking: Set the clock divider to 1.
+;
+; ISR pre-load: load N-2 into ISR, where N is the duration of the SI pulse
+; in clock cycles
+;
+; FIFO input: For each frame, the host must write the desired time delay
+; before the next SI pulse to the TX FIFO.  Write the number of clocks of
+; delay time minus 2.  This sets the next pulse time relative to the END
+; of the prior pulse.
+;
+; If the host writes value M to the FIFO, the pulse occurs at M+2 clocks
+; and lasts 32 clocks (256ns).
+;
+
+.program TSL1410R_SI
+
+.side_set 1     ; SI (Serial Input/Shutter Control)
+
+.wrap_target
+    ; Hold SI LOW for <input>+2 cycles
+    out x, 32          side 0   ; get the LOW period timing; SI LOW
+lowLoop:
+    jmp x-- lowLoop    side 0   ; loop for the LOW period; SI LOW
+
+    ; Generate the SI HIGH pulse to start a new frame
+    mov x, isr         side 1   ; get the HIGH period timing; SI HIGH
+highLoop:
+    jmp x-- highLoop   side 1   ; loop for the HIGH period; SI HIGH
+
+.wrap

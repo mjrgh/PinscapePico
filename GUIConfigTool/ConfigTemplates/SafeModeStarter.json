@@ -1,0 +1,71 @@
+// Pinscape Pico - Safe Mode Configuration Example/Starter Template
+// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+//
+// This is a starter template for a Pinscape Pico Safe Mode config file.
+//
+// Safe Mode is triggered if the Pinscape firmware crashes or
+// unexpectedly resets the Pico shortly after startup.  The goal of Safe
+// Mode is to provide a more stable environment by disabling most of the
+// software features and external hardware peripherals that would
+// normally be enabled in the full configuration.  The idea is that most
+// crashes are caused by software defects, so if a crash happens once,
+// it'll probably happen again - and if it happened shortly after
+// startup, the device could get into an infinite loop of crashing and
+// resetting and crashing again and resetting again...  Safe Mode is
+// intended to break out of the loop by disabling whatever part of the
+// software caused the crash.  Since we can't know in advance what part
+// that is, the best bet is just to disable almost everything.  So the
+// Safe Mode config should be minimal, with most optional features and
+// devices disabled.  The simplest Safe Mode config is a completely
+// blank config that leaves everything at factory defaults.  But
+// sometimes it's helpful to set a few carefully selected options, even
+// in Safe Mode.  That's what this file is for.
+
+{
+    // Set the unit number and name, so that we can still easily
+    // recognize the device in the Config Tool listings.  You'll
+    // usually want to change these to match the settings in your
+    // main configuration, so that the unit appears under the same
+    // name and ID in safe mode as in normal operation.
+    id: {
+        unitNum: 1,
+        unitName: "Pinscape",
+        ledWizUnitNum: 0,       // disable LedWiz emulation in safe mode
+    },
+
+    // set logging options
+    logging: {
+        filter: "error warning info config",
+        bufSize: 4096,
+        timestamps: true,
+        typeCodes: true,
+        colors: true,
+    },
+
+    // If you're using a physical UART serial port and/or a USB virtual
+    // COM port, you'll probably want to enable them in Safe Mode, by
+    // copying the serialPorts section from your main config file.
+    //
+    // serialPorts: {
+    //     uart: {
+    //         tx: 0,             // GPIO pin for UART TX
+    //         rx: 1,             // GPIO pin for UART RX
+    //         baud: 115200,      // bit rate; default is 115200
+    //         logging: true,     // enable logging on this port
+    //         console: {
+    //            enable: true,    // enable the interactive command line on this port
+    //            bufSize: 4096,   // buffer size for console output
+    //         },
+    //     },
+    //
+    //     usb: {
+    //         enable: true,       // enable the USB virtual COM port
+    //         logging: true,      // enable logging on this port
+    //         console: {
+    //             enable: true,    // enable the interactive command line on this port
+    //             bufSize: 2048,   // buffer size for console output
+    //         },
+    //     },
+    // },
+
+}

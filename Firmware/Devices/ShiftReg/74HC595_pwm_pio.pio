@@ -1,0 +1,128 @@
+; Pinscape Pico - 74HC595 PIO state machine program - PWM output mode
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; Generates SHIFT, DATA, and LATCH outputs to a 74HC595 daisy chain, with
+; brightness/intensity control through Binary Code Modulation.
+;
+; BCM is similar to PWM, in that it modulates the brightness of an LED or
+; similar device connected to a fixed-voltage switching port by controlling
+; the duty cycle of the port over a short refresh cycle.  PWM controls the
+; duty cycle by switching the port ON continuously for the target fraction
+; of the cycle period, then switching it OFF for the remainder of the cycle,
+; repeating on the next cycle - the ON time is the "pulse width" in the
+; name.  BCM controls the duty cycle by dividing the cycle period into a
+; series of partitions, each twice as long in duration as the prior one.
+; Any integer can be expressed as a sum of powers of 2 - that's what binary
+; arithmetic is all about.  These power-of-2 time partitions of the cycle
+; period thus allow us to construct any time period that's a multiple of
+; the shortest partition out of some subset of the power-of-2 partitions.
+; We use 8 partitions, of duration 1X, 2X, 4X, 8X, 16X, 32X, 64X, and 128X,
+; where X is the natural limit of how quickly we can send a complete shift
+; register refresh to the daisy chain.  This lets us construct any duty
+; cycle that's an integer multiple of X from 0X to 255X by turning a port
+; ON for the subset of partitions that happens to add up to the desired
+; integer.  For example, if we want a duty cycle of 20/255, we'd switch
+; the port ON during the 4X and 16X periods, which add up to 20X out of
+; 255X, and switch the port OFF during all of the other cycles.
+;
+; The neat thing about BCM is that it's extremely easy for a computer
+; program to figure out which partition intervals to switch ON and OFF
+; to achieve a target duty cycle, because that exactly maps to the bits
+; in the binary representation of the target duty cycle.  For the target
+; duty cycle 20/255, we know that the ON periods are 4X and 16X because
+; those are the '1' bits in the binary representation of the number 20.
+; 
+; The other neat thing about BCM, and the real reason we use it here, is
+; that it greatly reduces the amount of switching compared to PWM to achieve
+; the same duty cycle granularity.  PWM effectively constructs its pulses
+; from a series of N partitions over the cycle, so for 8-bit PWM with 256
+; brightness steps, each cycle has 255 partitions.  The host must therefore
+; update every port 255 times over each cycle.  With BCM, there are only
+; log2(N) partitions for the same number of brightness steps - 8 partitions
+; for 8-bit PWM with 256 brightness steps - so the host only has to send
+; updates 8 times over the whole cycle.  This is great for a Pico PIO
+; program, at least for the way we're constructing it, because the host
+; has to stream all of those chip updates through the PIO FIFO port.
+; Reducing the data streaming load from 256*nPorts to 8*nPorts is a huge
+; reduction in work on the CPU side.
+;
+;
+; Protocol:
+;
+; Preload ISR with nPorts-1.
+; NOTE:  nPorts MUST be a multiple of 16.  If the chain has an odd
+; number of chips, the host adds a pseudo chip at the end of the chain
+; to pad out the port count to the next higher multiple of 16.  The
+; data bits for the pseudo chip simply fall off the end of the daisy
+; chain on each sen.d
+;
+; On each loop, the CPU sends us the following data stream:
+;
+;   <port bits 0>    - port bits to send to chips for LSB of PWM level, QH on last chip first
+;   0x00,0x00        - delay loop count for the low-order bit, as a 16-bit value, 0 for the LSB
+;
+;   <port bits 1>    - port bits to send to chips for 2nd least significant bit of PWM level
+;   1*nPorts          - delay loop count for the second bit, 16 bits, 1*nPorts
+;
+;   <port bits 2>
+;   3*nPorts         - delay loop count for the third bit, 16 bits, 3*nPorts
+;
+;   <port bits 3>
+;   7*nPorts
+;
+;   <port bits 4>
+;   15*nPorts
+;
+;   <port bits 5>
+;   31*nPorts
+;
+;   <port bits 6>
+;   63*nPorts
+;
+;   <port bits 7>
+;   127*nPorts
+;
+; The delay time represents the number of iterations of the delay loop,
+; which is contrived to take the same amount of time as the shift loop.
+; So the base time unit X is the shift loop time, and to achieve a time
+; of NX, we must execute the delay loop N-1 times.
+;
+;
+; PIO Clock:
+;   The clock speed is limited by the 74HC595's maximum clock rate for
+;   the SCLK (serial clock) signal.  The effective SCLK speed will be
+;   1/2 of the PIO clock speed, so for a maximum SCLK speed of 4 MHz,
+;   set the PIO clock to 8 MHz.  The 74HC595 data sheet doesn't specify
+;   a maximum SCLK frequency for 3.3V, but interpolating between the
+;   specified 2V and 4V specs, the max is probably around 10MHz.
+;
+; OUT pins:
+;   pin 0 = DS (serial data)
+;
+; SIDE SET pins:
+;   pin 0 = SHCP (serial clock)
+;   pin 1 = STCP (transfer clock)
+;
+; Other PIO configuration:
+;   AUTOPULL ON
+;   PULL(OUT) Shift Direction = RIGHT (LSB first)
+;   PULL(OUT) Shift Threshold = 16 bits
+
+.program C74HC595PWM
+.side_set 2        ; SHCP (shift clock), STCP (latch)
+
+    ; top of main loop 
+.wrap_target
+
+    ; shift loop - update the shift register for the current pulse
+    mov x, isr           side 0     ; load nPorts from ISR into X, take all clock signals low
+shiftLoop:
+    out pins, 1          side 0     ; clock out the next serial data (SER) bit; take SCLK low
+    jmp x--, shiftLoop   side 1     ; loop over nPorts; take SCLK high after each SER write
+
+    ; Delay loop - wait for the pulse duration beyond the minimum shift loop time
+    out x, 16            side 2     ; load delayCount into X, take transfer clock high to latch outputs
+delayLoop:
+    jmp x--, delayLoop   side 0 [1] ; loop delayCount times, delay [1] to equal shift loop time of 2 clocks/iteration
+
+.wrap

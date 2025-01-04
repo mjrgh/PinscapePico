@@ -1,0 +1,8 @@
+packages/**
+**/.vs/
+**/win32/
+**/x64/
+**/pspimage/
+*.uf2
+*.aps
+*.vcxproj.user

@@ -1,0 +1,24 @@
+; Pinscape Pico - TCD1103 PIO program - SH (shift gate), negative logic
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This the negative-logic counterpart of TCD1103_SHpos.pio.  Use this
+; version when the SH input to the chip is buffered through an inverter,
+; per the data sheet's recommendations.
+
+
+.program TCD1103_SHneg
+
+.side_set 1     ; SH (TCD1103 Shift Gate)
+
+.wrap_target
+    ; Hold SH LOW for <input>+2 cycles
+    out x, 32         side 1   ; get the LOW period timing; SH LOW (negative logic)
+lowLoop:
+    jmp x-- lowLoop   side 1   ; loop for the LOW period; SH LOW (negative logic)
+         
+    ; Hold SH HIGH for ISR+2 cycles
+    mov x, isr        side 0   ; get the HIGH period timing; SH HIGH (negative logic)
+highLoop:
+    jmp x-- highLoop  side 0   ; loop for the HIGH period; SH HIGH (negative logic)
+
+.wrap

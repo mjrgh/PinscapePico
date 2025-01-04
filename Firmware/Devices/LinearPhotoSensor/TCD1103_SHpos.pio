@@ -1,0 +1,65 @@
+; Pinscape Pico - TCD1103 PIO program - SH (shift gate), positive logic
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This program generates the SH (shift gate) signal for the TCD1103.
+;
+; SH is the chip's "electronic shutter".  The falling edge of SH ends an
+; integration period, transferring the live pixel charges to an internal
+; register and zeroing the live pixels.  When an SH pulse coincides with
+; ICG (integration clear gate) held low, it has the effect of loading
+; the shift register with the live pixels, capturing a frame for transfer
+; through the shift register.  The time between this SH pulse and the
+; PREVIOUS SH pulse (falling edges for both) is the integration period
+; for the new frame.
+;
+; Timing requirements: an SH pulse (rising edge to falling edge) must
+; last at least 1000ns (1us).
+;
+; How we use SH: The data sheet calls for SH to run as a continuous clock
+; signal, but that's not actually necessary.  In fact, the only SH pulses
+; that matter are those that occur while ICG is being held low, and the
+; immediately prior pulse for each, since the time between those two pulses
+; determines the integration time for the frame captured on the ICG rising
+; edge.  So we only have to generate two SH pulses per cycle: one somewhere
+; during the frame readout time to set the integration period, and one
+; during the ICG-low period at the end of the frame.  The time of the first
+; pulse is determined by subtracting the desired integration period from
+; the absolute time of the second pulse, which is determined by the frame
+; readout time.
+;
+; Initial setup: load constant value 126 into ISR:
+;    Write 126 to the TX FIFO
+;    pio_sm_exec() PULL + OUT ISR, 32
+;
+; Sideset pins:
+;    SH (Shift Gate)
+;
+; Auto-pull enabled, threshold 32 bits
+;
+; Clocking: Set the clock divider to 1.
+;
+; FIFO input: For each frame, the host must write the desired time delay
+; before the next SH pulse to the TX FIFO.  Write the number of clocks of
+; delay time before the next SH pulse, minus 2.  Repeat for each subsequent
+; pulse.
+;
+; If the host writes values M to the FIFO, the pulse occurs at M+2 clocks
+; after the end of the previous pulse, and lasts 128 clocks (1024ns).
+;
+
+.program TCD1103_SHpos
+
+.side_set 1     ; SH (TCD1103 Shift Gate)
+
+.wrap_target
+    ; Hold SH LOW for <input>+2 cycles
+    out x, 32          side 0   ; get the LOW period timing; SH LOW
+lowLoop:
+    jmp x-- lowLoop    side 0   ; loop for the LOW period; SH LOW
+
+    ; Hold SH HIGH for ISR+2 cycles
+    mov x, isr         side 1   ; set X to 126; SH HIGH
+highLoop:
+    jmp x-- highLoop   side 1   ; loop 127 times; SH HIGH
+
+.wrap

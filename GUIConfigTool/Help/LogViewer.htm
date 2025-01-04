@@ -1,0 +1,76 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Log Viewer</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Log Viewer
+</div>
+
+<h1>Log Viewer</h1>
+<p>
+   This window displays the Pinscape Pico device's message log.  The device
+   maintains an in-memory log of recent informational and error messages
+   about the device's status.  You can retrieve and view the latest messages
+   with this tool.
+</p>
+<p>
+   On the device, the log text is stored only in memory, not in permanent flash
+   storage, so it's only possible to access text since the last Pico reboot.
+   In addition, the memory space reserved for log storage is limited in size,
+   so only the most recent text is available.  Older messages are discarded as
+   needed to make room for new messages.  You can configure the memory limit
+   via the JSON config file, with the <tt>logging.bufSize</tt> parameter.
+</p>
+<p>
+   When you open the log viewer window, it immediately retrieves all of
+   the available saved text on the device, going back as far as the memory
+   limit allows.  The window then continues to update automatically as new
+   messages appear.
+</p>
+
+<h2>Printing</h2>
+<p>
+   The print options should be reasonably familiar if you've ever used any
+   other Windows programs, except that the Header and Footer settings in the
+   Page Setup options have some extra hidden features.
+</p>
+<p>
+   First, the header and footer each let you set up three sections, for
+   text that's aligned at the left, center, and right side of the page.
+   Separate the sections with the vertical bar symbol, "|".
+</p>
+<pre>
+    This part is at the left|This is centered|This is at the right
+</pre>
+<p>
+   If there are only two parts, they're aligned left and right:
+</p>
+<pre>
+   This part is at the left|This part is at the right
+</pre>
+<p>
+   If you want to include a vertical bar character literally in the
+   header/footer text printed on the page, type it twice: ||.
+</p>
+<p>
+   Second, there are several substitution variables that you can use,
+   written as <tt>$(<i>name</i>)</tt>.  The substitution variables
+   are:
+</p>
+<ul>
+   <li><tt>$(pageNum)</tt> = current page number
+   <li><tt>$(numPages)</tt> = total number of pages
+   <li><tt>$(date)</tt> = the current date, with system default formatting
+   <li><tt>$(time)</tt> = the current time of day, with system default formatting
+   <li><tt>$(unitNum)</tt> = the Pinscape unit number
+   <li><tt>$(unitName)</tt> = the Pinscape unit name
+   <li><tt>$$</tt> = a literal dollar sign, <tt>$</tt>
+</ul>
+
+
+</body>
+</html>

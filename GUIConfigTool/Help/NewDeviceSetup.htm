@@ -1,0 +1,1462 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico IR Remote Tools</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; New Device Setup
+</div>
+
+<h1>New Device Setup</h1>
+<p>
+   This is a quick guide to getting started with the Pinscape
+   software on a new Pico.  You should already have the Pinscape
+   Pico Config Tool installed on your PC.  You'll also need a
+   copy of the Pinscape firmware, which should have come with
+   the Config Tool, but if not, you can get the latest from the
+   <a target="_blank" href="http://mjrnet.org/pinscape/">Pinscape</a> site.
+</p>
+
+
+<h2>Installing the Pinscape firmware for the first time</h2>
+<p>
+   The first step in setting up a brand new Pico is to install the
+   Pinscape firmware.  You can do this through the Config Tool, but it
+   also requires a couple of manual steps with the Pico to get the
+   device into its "Boot Loader" mode, where it accepts new firmware
+   installs.
+</p>
+<p>
+   The Pico's Boot Loader mode is built directly into the Pico's CPU,
+   in physically un-erasable ROM.  It's ready to go when you take a
+   new Pico out of the box, and it'll still be there no matter how many
+   different firmware programs you install.
+</p>
+<p>
+   To activate Boot Loader mode, you have to do a little deft button-pressing
+   and cord-plugging:
+</p>
+<ul>
+   <li>Unplug the USB cable from the Pico (and any other power inputs)
+   <li><b>Press and hold</b> the small white BOOTSEL button on top of the Pico
+   <li>While <b>still holding</b> BOOTSEL, plug the USB cable back in
+   <li>Release the BOOTSEL button
+</ul>
+<p>
+   This will put the Pico into its Boot Loader mode.
+   In this mode, the Pico appears on the Windows desktop as
+   a generic USB thumb drive.  It's not <i>really</i> a thumb drive; it's
+   just pretending to be one, as a convenient way to accept files for firmware
+   installation.  You can install firmware simply by copying a Pico program
+   file onto the thumb drive, using the normal Windows file copy procedure.
+   A Pico firmware file has the suffix <b>.UF2</b>.
+</p>
+<p>
+   You can also do the file copy within the Config Tool.  When you put the
+   Pico into its Boot Loader mode, it should appear in the Config Tool as
+   a Boot Loader Drive in the list of devices on the left side of the
+   window.  Click on the device to bring up a window with controls to
+   install the firmware.  Doing the installation this way is exactly the
+   same as doing it from the Windows desktop - it just copies a Pinscape
+   .UF2 file onto the Pico's virtual thumb drive.
+</p>
+<p>
+   Like most microcontrollers, the Pico can only run one firmware program
+   at a time, so copying new firmware onto the Pico replaces any previously
+   installed program.  If you already have something else installed on your
+   Pico, be aware that installing Pinscape will replace it.  (You can just
+   as easily replace Pinscape with the other program later on, as long as
+   you have a copy of the other program's .UF2 file.)
+</p>
+
+<h2>Updating existing Pinscape firmware</h2>
+<p>
+   If a Pico is already running Pinscape, you won't have to go through that
+   BOOTSEL maneuver again when updating firmware.  The Config Tool can
+   update it directly, from the <a href="DeviceOverview.htm">Device Overview</a>
+   tab.  Simply click the big "Update Firmware" button in the Device Overview
+   window to select a .UF2 file to install, and the Config Tool will take
+   it from there.
+</p>
+
+<h2>Configuring the software</h2>
+<p>
+   Pinscape Pico is extremely flexible.  It can communicate with about
+   a dozen different kinds of external peripheral chips, including
+   plunger position sensors, accelerometers, button input ports, and
+   PWM output ports.  You can connect external chips in numerous ways,
+   and you can designate the Pico's own on-board ports as various
+   kinds of inputs and outputs.
+</p>
+<p>
+   To handle all of these options, Pinscape Pico uses a configuration
+   file that's stored on the Pico.  Unlike the original KL25Z version
+   of Pinscape, which had an internal configuration file that you
+   could only access through the GUI settings dialog, the Pinscape
+   Pico config file is designed to be edited directly.  It uses the
+   JSON format, which is a modern computer format that's easy and
+   pleasant for humans to work with.
+</p>
+<p>
+   Full documentation of the JSON configuration format is
+   available in the following sources, but you don't have to
+   read all the details just yet.  Continue below for the first
+   steps to set up a basic new configuration.
+</p>
+<ul>
+   <li><a href="ConfigFileFormat.htm">Config File Format</a>: details on the
+   JSON syntax used in the config file
+
+   <li><a href="JSONConfigRef.htm">JSON Configuration Reference</a>: a full
+   list of the available settings
+</ul>
+
+<h3>Launch the Config Editor</h3>
+<p>
+   If you haven't already launched the Pinscape Pico Config Tool, fire
+   it up.  It should show you the <a href="DeviceOverview.htm">Device Overview</a>
+   window for your new Pinscape Pico device.  (If you haven't yet installed
+   the Pinscape firmware, you'll need to do that first.)  If the device
+   isn't selected by default, click on its icon in the list at the left
+   to select it.
+</p>
+<p>
+   Now click on the <b>Configuration</b> tab.  This will bring up the
+   <a href="ConfigEditor.htm">Config Editor</a> window, which lets you
+   view and edit the JSON making up the Pinscape configuration.
+</p>
+<p>
+   A newly installed Pinscape has nothing in its configuration file;
+   it's just a blank text file.  In the absence of any JSON settings,
+   the Pinscape firmware simply uses defaults for all settings.
+</p>
+
+<h4>Template configuration options</h4>
+<p>
+   When you bring up the Config Editor tab for a newly installed Pinscape
+   unit, the Config Editor will notice that there's nothing in the config
+   file, and it'll offer to populate the editor with a starter file.
+   That's a good way to proceed if you like figuring things out by
+   example.  The basic starter file has commented-out examples for
+   many of the common options, so you can browse through the file
+   and un-comment and customize the parts you want to apply to your
+   own setup.
+</p>
+<p>
+   We'll proceed here on the assumption that you're starting with
+   a completely blank configuration.  We'll cover what you need
+   to add to get some basic features working.
+</p>
+
+<h3>Main JSON object</h3>
+<p>
+   The overall JSON file defines an "object" that represents the
+   configuration settings.  The individual settings are "properties"
+   of the object, which is to say, a name/value pairs.
+</p>
+<p>
+   An object is denoted in JSON by a pair of braces surround its
+   list of properties, so the first thing you add to a new, blank
+   config file is that main object, with no properties defined
+   inside yet:
+</p>
+<pre>
+   {  }
+</pre>
+<p>
+   Believe it or not, that's a perfectly valid config file all by
+   itself.  It doesn't define any properties, but that's okay, because
+   Pinscape uses a default value for anything that's missing.  In
+   this case, <i>everything's</i> missing, so every setting takes on
+   its default value.  It's the same as having no config file at all.
+</p>
+<p>
+   The factory defaults are chosen to result in a functioning Pinscape unit,
+   although one that doesn't do very much besides connect to the USB port
+   to await instructions, by way of the Config Tool.  The Pico will also
+   blink its little green LED at about 1 Hz as a sign that it's alive.
+</p>
+<p>
+   The first thing to add to a new configuration is the device's
+   "unit number" and name.  The unit number is important because
+   that's how DOF identifies the device.  If you're going to use the
+   Pico to run any feedback devices, DOF has to be able to find it,
+   so the unit number is critical.  DOF expects that the Pinscape Picos
+   are numbered sequentially starting at 1, so set the unit number on
+   your first Pinscape Pico device to 1.  If you have a second Pico,
+   set its unit number to 2, and so on.
+</p>
+<p>
+   <b>Don't</b> count any KL25Z Pinscape devices in the Pico unit
+   numbering.  DOF recognizes KL25Z and Pico Pinscape units as
+   distinct device types, so their numbering systems are independent
+   from one another.
+</p>
+<p>
+   The unit name is there to help <i>you</i> identify the unit, by
+   giving it a human-readable name that you'll recognize when you see
+   it in a list of available devices.  Set it to any string you like
+   (although it's best to use something fairly short, because the
+   Config Tool doesn't always leave a lot of room for displaying it).
+</p>
+<p>
+   So let's expand our new config file with those identifiers:
+</p>
+<pre>
+   {
+      unitNum: 1,
+      unitName: "Main Pico",
+   }
+</pre>
+<p>
+   Once again, this example shows the <i>entire file</i> so far.  If
+   you copy that whole thing into the Config Editor window, you'll have
+   a working Pinscape configuration that assigns the device unit number 1
+   and the name "Main Pico", and leaves all other settings at their defaults.
+</p>
+<p>
+   Notice that we've split it up across multiple lines, to make it
+   more readable.  JSON doesn't care about that one way or the other; we
+   could have just as well kept the whole thing on a single line.  But
+   I find it easier to read when it's spaced out a bit.
+</p>
+
+<h3>JSON is case-sensitive</h3>
+<p>
+   It's probably worth mentioning at this point that JSON treats case
+   as significant.  You have to enter the property names
+   and other tokens <b>exactly as shown</b>, using the exact same mix
+   of upper- and lower-case letters.
+</p>
+   
+
+<h3>Logging</h3>
+<p>
+   The next basic item to add is message logging instructions.  Pinscape
+   keeps an in-memory log of recent messages on the Pico, which you can
+   view on the PC via the Config Tool, or through a terminal program
+   connected to the Pico via a USB virtual COM port or a physical
+   "COM1" serial port.  Pinscape writes messages to the log as it runs,
+   especially during the boot process while it's setting up all of
+   the attached peripheral devices, output ports, buttons, etc.  The
+   log includes a mix of error and status information.  It can be
+   quite useful for troubleshooting, especially while setting up a
+   new device, since it provides error details on anything that went
+   wrong as well as confirmation that features were set up as expected.
+</p>
+<p>
+   The message log is controlled by the <a href="JSONConfigRef.htm#logging"><tt>logging</tt></a>
+   property in the JSON configuration.  This property contains a sub-object with
+   properties that control various logging options:
+</p>
+<ul>
+   <li><tt>bufSize:</tt> a number setting the size in bytes of the memory
+   area reserved for the log messages.  When the memory fills up, the
+   oldest messages are discarded as needed to make room for new messages,
+   so this sets a limit on how far back in time the log can go.
+
+   <li><tt>filter:</tt> a string, in double quotes, giving a list of
+   the messages types to include in the log.  The logger assigns each
+   message a type, such as "debug", "error", "warning", "info", or "config".
+   The filter lets you select which of these categories to include.
+
+   <li><tt>colors:</tt> a boolean (<tt>true</tt> or <tt>false</tt>),
+   selecting whether or not to include color coding in the log via ANSI
+   escape sequences.  Color coding highlights messages by type, which
+   makes it easier to scan visually for particular message types.
+   It's optional because it takes up more space, so the log won't be
+   able to store as long a history if it's enabled.
+
+   <li><tt>timestamps:</tt> a boolean selecting whether or not to include
+   a timestamp for each message.  Like the color coding, this takes
+   extra space in memory, so it's optional, but it's sometimes helpful
+   to know when an event took place.
+
+   <li><tt>typeCodes:</tt> a boolean seleting whether or not to include
+   type codes when displaying the messages.  These are the same type codes
+   we mentioned for the <tt>filter</tt> property, and like colors and
+   timestamps, including them in the text takes up more memory, but it's
+   often useful information to have.
+</ul>
+
+<p>
+   Here's what the full config file looks like after we add the
+   log options, using a good basic set of options that should work
+   for most setups.
+</p>
+<pre>
+   {
+      unitNum: 1,
+      unitName: "Main Pico",
+
+      logging: {
+         bufSize: 8192,
+         colors: true,
+         filter: "warning error info config",
+         timestamps: true,
+         typecodes: true,
+      },
+   }
+</pre>
+
+<h3>Serial ports</h3>
+<p>
+   Pinscape Pico lets you view the message log in a number of ways.  One way
+   is to use the Config Tool.  You can also connect a terminal window to the Pico,
+   via either a virtual USB COM port or an actual physical serial port, known on
+   the Pico side as a UART port.  To use a terminal window, though, you have to
+   tell Pinscape to set up the type of serial port or ports you wish to use,
+   since it doesn't set these up by default.
+</p>
+<p>
+   The JSON configuration section for the serial ports is under the property
+   <tt><a href="JSONConfigRef.htm#serialPorts">serialPorts</a></tt>.  This
+   property is a sub-object that contains the serial port options.
+<p>
+   To connect to a serial port (virtual or real), you'll need a terminal emulator
+   program.  The one I use is PuTTY, which is an open-source terminal program
+   popular with programmers.
+</p>
+
+<h4>USB virtual COM port</h4>
+<p>
+   A virtual USB COM port runs a terminal window session over the Pico's main
+   USB cable.  This runs alongside all of the Pico's other USB communications,
+   so it doesn't interfere with any other functions.
+</p>
+<p>
+   If you're using Windows 10 or later, Windows comes with built-in support for
+   virtual USB COM ports, so this is completely plug-and-play on the Windows side.
+   For earlier versions of Windows, you have to install a device driver, known as
+   a USB CDC port driver.  Unfortunately, Microsoft never released standard
+   generic USB CDC drivers for Windows 8 or earlier, even though CDC is a
+   standard USB protocol.  But there are several CDC drivers available from
+   various manufacturers who sell USB devices that use CDC, and because
+   it's a standard protocol, you should be able to use any CDC driver
+   designed for your Windows version, even if it was meant for another
+   device type.  Search the Web for "USB CDC driver for Windows <i>X</i>".
+</p>
+<p>
+   To enable the USB COM port, add the <tt><a href="JSONConfigRef.htm#serialPorts.usb">usb</a></tt>
+   property to the <tt>serialPorts</tt> section:
+</p>
+<pre>
+   {
+      serialPorts: {
+         usb: {
+            logging: true,          // enable logging on this port
+            console: {
+               enable: true,        // enable the command console on this port
+               bufSize: 2048,
+               historySize: 256,
+            },
+         },
+      },
+   }
+</pre>
+<p>
+   Adding the <tt>serialPorts.usb</tt> property automatically enables the serial
+   port, which you'll see appear on the Windows side as a COM<i>n</i> port.
+   You can find the COM port number in the Config Tool under the Device Overview
+   page - it'll be listed under the USB Interfaces section.  Once you know the
+   COM port number, you can open PuTTY, select Serial Port as the connection
+   type, and type <b>COM8</b> (or whatever) into the address box.  Set the
+   baud rate to 115200.  You should now be able to connect to view the log
+   and access the command console (which we'll describe more below).
+</p>
+
+<h4>Physical serial port</h4>
+<p>
+   If you have a higher-end gaming computer, it might come with a 9-pin serial
+   port, usually assigned the device name <b>COM1</b> in Windows.  These ports
+   were ubiquitous in older PCs, before USB became standard, but they largely
+   disappeared after that except on gaming PCs.
+</p>
+<p>
+   The Pico has built-in hardware support for a matching serial port, known
+   as a UART port.  You can configure a pair of GPIOs on the Pico as a UART port,
+   and then connect these to a physical COM port on the PC to set up a terminal
+   connection.  You'll also need a DB9-to-GPIO adapter cable, which is an
+   inexpensive passive cable that you can find online.
+</p>
+<p>
+   If your PC doesn't have a physical serial port, you can still connect to
+   the Pico's UART port, using a USB-to-UART adapter cable.  Unlike the DB9-to-GPIO
+   cable, a USB-to-UART cable has some electronics built in, so they tend to be
+   a bit more expensive.
+</p>
+<p>
+   Given the extra cabling required, this connection type is a bit more work
+   to set up than the USB virtual COM port option.  It does have a major advantage,
+   though: the terminal program will stay connected across Pico reboots.  The
+   virtual COM ports always reset every time the Pico resets, which makes it
+   necessary to close and re-open the terminal window.  This is quite annoying
+   if you're rebooting frequently, which might be the case during your initial
+   setup work.  This doesn't happen with a physical serial port, so it's a bit
+   more convenient to use, which might make it worth the extra work to set up.
+   In addition, physical serial ports don't require device drivers on any
+   versions of Windows.
+</p>
+<p>
+   To enable the USB COM port, add the <tt><a href="JSONConfigRef.htm#serialPorts.uart">uart</a></tt>
+   property to the <tt>serialPorts</tt> section.  You'll need to decide on the
+   GPIO ports to use - consult the <a href="PicoPinout.htm">Pico pin-out diagram</a> for that,
+   because only certain ports are allowed as UART TX and RX pins.  Note that
+   the TX and RX pins must not only be capable of their respective roles,
+   but must also be attached to the same UART, either UART0 or UART1.  For
+   example, you can use GP0 for TX and GP1 for RX, because they're both on
+   UART0.  When you look at the pin-out diagram, you'll see that some of
+   the pins are labeled "UART0 TX", "UART1 TX", "UART0 RX", or "UART1 RX".
+   That tells you the capability (TX or RX) and UART unit number (0 or 1).
+   Pick a pair of pins with the same unit number and with the required roles.
+</p>
+<pre>
+   {
+      serialPorts: {
+         uart: {
+            tx: 0,              // Transmit pin is GP0
+            rx: 1,              // Receive pin is GP1
+            baud: 115200,       // you can set this to a lower rate if desired
+            logging: true,      // enable logging
+            console: {
+               enable: true,    // enable the command console on this port
+               bufSize: 2048,
+               historySize: 256,
+            },
+         },
+      },
+   }
+</pre>
+<p>
+   As with the USB virtual COM port, you'll need a terminal emulator program,
+   such as PuTTY.  Open the terminal program, select Serial Port as the connection
+   type, and enter the name of your physical COM port - usually COM1, unless
+   your PC has multiple serial ports.  The baud rate is 115200, unless you set
+   it to a different speed in the JSON object.
+</p>
+   
+
+<h3>Command console</h3>
+<p>
+   In the serial ports section above, we included a <tt>console</tt> to enable
+   a command console on the serial ports.  The command console is another debugging
+   tool that you can access.  I added it mostly for my own use while developing
+   the software, so most of what it does involves low-level access to the software's
+   internal state.  This can supplement the information you can access via the
+   Config Tool.  I'm not sure how useful it will be to anyone who's not actively
+   working on the firmware's C++ code, but there are things you can see in the
+   console that aren't really exposed in the Config Tool.
+</p>
+<p>
+   To access the console, set up one of the serial ports as described above
+   (either a virtual USB COM port or a physical UART port) and open a terminal
+   window on the port.  You can now type commands, using syntax that's similar
+   to the Windows DOS box or Linux command shell.  Type <b>help</b> for a list
+   of available commands; type <b>help <i>command</i></b> for the syntax for
+   a particular command.
+</p>
+<p>
+   It's perfectly fine to enable both logging and console access on the same
+   COM port.  If you do, log messages might appear while you're typing, since
+   they can occur asynchronously in response to hardware events.  If this
+   bothers you, you can disable logging on the port by setting the <tt>logging</tt>
+   property in that port's section to <tt>false</tt>.  Turning off logging on
+   a port won't affect other ports, and it won't affect your ability to
+   view the log from the Config Tool.
+</p>
+
+<h3>Keyboard</h3>
+<p>
+   Pinscape can act as a virtual USB keyboard, converting button presses
+   on your flipper buttons and other cabinet buttons into keyboard key
+   input to the PC.  The first step in setting up keyboard input is to
+   enable the virtual keyboard device, via the <a href="JSONConfigRef.htm#keyboard"><tt>keyboard</tt></a>
+   property.  This property is an object containing keyboard options,
+   which current just consists of whether or not you want to enable the
+   keyboard interface at all.
+</p>
+<pre>
+   {
+      keyboard: {
+         enable: true,
+      },
+   }
+</pre>
+<p>
+   Once the keyboard is enabled, you can set up physical buttons to
+   send key presses to the PC.  The actual button-to-key assignments
+   are handled in a separate section where the button input wiring
+   is defined.  See <a href="#Buttons">Buttons</a> below for details.
+</p>
+
+<h3>Gamepad and XBox Controller input</h3>
+<p>
+   Pinscape can also emulate a traditional USB HID gamepad/joystick device, and
+   an XBox controller.  You can set up either or both of these, and they'll
+   work alongside the keyboard emulation if you're using that.
+</p>
+
+<p>
+   To set up a virtual gamepad input, use the <a href="JSONConfigRef.htm#gamepad"><tt>gamepad</tt></a> property:
+</p>
+<pre>
+   {
+      gamepad: {
+         enable: true,
+         x: "nudge.x",
+         y: "nudge.y",
+         z: "plunger.z",
+      },
+   }
+</pre>
+
+<p>
+   The XBox input is similar, using the <a href="JSONConfigRef.htm#xInput">xInput</tt></a> property:
+</p>
+<pre>
+   {
+      xInput: {
+         enable: true,
+         xRight: "nudge.x",
+         yRight: "nudge.y",
+      },
+   }
+</pre>
+
+<h4>Button inputs</h4>
+<p>
+   The gamepad and XBox controller each provide a set of virtual
+   that you can map to your physical cabinet buttons.  The gamepad has 32
+   generic buttons, labeled "button 1" to "button 32", with no particular
+   pre-assigned meanings.  The XBox controller has a somewhat more structured
+   button collection based on the labeling on the physical controllers:
+   A, B, X, Y, the DPad (direction pad) buttons, Start, Back, etc.  You can
+   map any button on either controller type to any physical input.
+</p>
+<p>
+   As with the keyboard emulation, the button assignments aren't defined
+   directly in the <tt>gamepad</tt> or <tt>xInput</tt> objects, but instead
+   are in a separate <tt>buttons</tt> section that maps the physical inputs
+   to actions.  See <a href="#Buttons">Buttons</a> for details.
+</p>
+
+<h4>Axis controls</h4>
+<p>
+   The gamepad and XBox devices each also have several "axis" controls.  An
+   axis represents an analog reading, which can take on a value along a
+   scale, usually -32768 to +32767.  On physical gamepads and XBox controllers,
+   the axis inputs are used to report the positions of movable controls
+   like joysticks, sliders, and throttles.  In a virtual pinball environment,
+   we re-purpose the axis controls for the analog pin cab inputs: accelerometer
+   input for nudging, and the position of the plunger (ball shooter).
+</p>
+<p>
+   The gamepad provides six axes: X, Y, Z, RX, RY, RZ.  The traditional way to
+   map these axes in a pin cab is to map X/Y to the accelerometer and Z to the
+   plunger.  Pinscape lets you map the axes any way you like, though, so you don't
+   have to stick to that basic convention if it creates any compatibility problems
+   with other games you're running.
+</p>
+<p>
+   The XBox controller has four joystick axes (left X/Y, right X/Y) and two
+   "trigger" axes (left and right).  As with the joystick, you can map any of
+   these axes to any of the input controls.  Note that the trigger axes have a
+   significant limitation, though: they use an 8-bit scale for their position
+   reports (whereas the joystick axes use 16 bits), so they have pretty
+   coarse resolution.
+</p>
+<p>
+   Unlike buttons, you <i>do</i> set up the axis mappings as part of the
+   <tt>gamepad</tt> and <tt>xInput</tt> objects, as shown in the examples
+   above.  Refer to the <a href="JSONConfigRef.htm#gamepad.x"><tt>gamepad.x</tt></a>
+   property reference section for a list of the possible mappings.
+</p>
+
+
+<a name="Buttons"></a>
+<h3>Button inputs</h3>
+<p>
+   Pinscape lets you connect button inputs to the Pico, and converts button
+   presses into PC input, using the USB keyboard, gamepad, and XBox controller
+   emulations described above.  The <a href="JSONConfigRef.htm#buttons"><tt>buttons</tt></a>
+   property in the config file sets up the mappings between the physical buttons
+   and the PC actions they invoke when pressed.
+</p>
+<p>
+   In terms of the electrical wiring, there are a few ways to connect buttons
+   to the Pico:
+</p>
+<ul>
+   <li>GPIO ports
+   <li>PCA9555 GPIO Extender chips
+   <li>74HC165 shift register chips
+</ul>
+
+<h4>GPIO port inputs</h4>
+<p>
+   One way to connect a button is to wire it directly to a Pico GPIO port.
+   That's the easiest setup, but it limits you to a relatively small number
+   of buttons, given the relative small number of Pico GPIO pins.
+</p>
+<p>
+   To connect a button to a GPIO port, connect one of the button's switch
+   terminals to the GPIO pin, and connect the other switch terminal to
+   a Pico GND pin.
+</p>
+<p>
+   The Pico GND pins all connect to the common "DC ground" for the PC,
+   which is the same as the 0V on the PC power supply.  The button connection
+   to GND can be physically wired to any of those points - it doesn't matter
+   which because they're all connected together.
+</p>
+<p>
+   In the <tt>buttons</tt> section, you configure a GPIO input via
+   <tt>source.type</tt> "gpio":
+</p>
+<pre>
+   {
+      buttons: [
+         // button #0
+         {
+            source: { type: "gpio", gpio: 5 },  // GPIO input on pin GP5
+         },
+      ],
+   }
+</pre>
+
+<h4>
+
+<h4>PCA9555 inputs</h4>
+<p>
+   The Pico has a relatively small number of GPIO ports, which limits
+   the number of buttons you can attach.  This is even more limiting
+   if you're attaching anything else to the Pico, such as an accelerometer
+   and plunger sensor, since those will also use up some GPIO ports.
+</p>
+<p>
+   One way to add more ports is with a GPIO Extender chip.  These are
+   special chips that are specifically designed to add extra GPIO-like
+   input/output ports to a microcontroller, while using only a couple of
+   the device's native ports.  Pinscape currently supports one such
+   chip, the PCA9555.
+</p>
+<p>
+   Connecting a PCA9555 chip to the Pico only requires two GPIO ports
+   on the Pico, and in exchange, you get 16 new digital in/out ports -
+   a net gain of 14 ports.  Better still, you can connect up to 8 of
+   these chips to the Pico, all sharing those same two GPIO ports.
+   For a virtual pin cab, you can get all the button inputs you'll
+   probably ever need with just two of the chips, which gives you
+   32 ports.  (Pinscape can also use the ports on these chips as
+   digital output ports, which might give you a reason to add more
+   than two of the chips.)
+</p>
+<p>
+   Wiring a button to a PCA9555 port is basically the same as wiring
+   it to a Pico port.  Connect one of the button's switch terminal to
+   a PCA9555 I/O port, and connect the other terminal to the Pico GND
+   (which is the same as the PC power supply 0V).
+</p>
+<p>
+   Before you can configure the PCA9555 button sources, you have to
+   configure the PCA9555 itself.  This requires two steps.  First,
+   you have to configure the "I2C bus" that the chip is connected to,
+   via the <a href="JSONConfigRef.htm#i2c0"><tt>i2c0</tt></a> or
+   <a href="JSONConfigRef.htm#i2c1"><tt>i2c1</tt></a> property, depending
+   on which GPIO pins the chip is connected to.
+</p>
+<pre>
+   {
+      i2c0: {
+         sda: 13,
+         scl: 14,
+      },
+   }
+</pre>
+<p>
+   Note that an I2C bus can be shared among several chips - not just multiple
+   PCA9555 chips, but other I2C-compatible chips of completely different
+   types.  Pinscape supports a number of I2C-based chips: PWM controllers,
+   ADCs, accelerometers, and various plunger sensors.  You only have to
+   define the i2c0/i2c1 section <i>once</i> for all of the chips that share
+   that bus.
+</p>
+<p>
+   Once the bus is configured, you can configure the PCA9555 itself.  This
+   is done via the <a href="JSONConfigRef.htm#pca9555"><tt>pca9555</tt></a>
+   property, where you specify the chip's bus address and interrupt wiring:
+</p>
+<pre>
+   {
+      pca9555: [
+         {
+            i2c: 0,          // I2C bus number - 0 for I2C0, 1 for I2C1
+            addr: 0x20,      // chip address, set by the A0-A2 pin wiring on the chip
+            interrupt: 23,   // GPIO port connected to the chip's INTERRUPT pin
+         },
+      ],
+   },
+</pre>
+<p>
+   The <tt>pca9555</tt> property is an <b>array of objects</b>, with each
+   entry in the array representing one chip.  The array lets you configure
+   as many chips as you have connected.  You can then refer to each chip
+   by its array index - 0 for the first entry in the array, 1 for the second, etc.
+</p>
+<p>
+   We're finally ready to set up the <a href="JSONConfigRef.htm#buttons.source.type=pca9555"><tt>buttons.source</tt></a> for a button
+   connected to a PCA9555 port:
+</p>
+<pre>
+   {
+      buttons: [
+         // button #0
+         {
+            source: { type: "pca9555", chip: 0, port: "IO0_1" },
+         },
+      ],
+   }
+</pre>
+
+<h4>74HC165 input shift register</h4>
+<p>
+   The 74HC165 is another way to add more input ports to the Pico, to
+   supplement its limited number of native GPIO ports.  This chip requires
+   three GPIO connects on the Pico, and gives you 8 input ports in return.
+   That's a pretty meager gain, but once you've attached one 74HC165
+   to the Pico, you can add any number of additional chips in a daisy
+   chain, without taking up any more GPIO ports.  If you string together
+   four of these chips, you get 32 button inputs, which is ample for
+   a virtual pin cab.
+</p>
+<p>
+   Wiring a button to a 74HC165 port is similar to a GPIO port input,
+   with the addition of a "pull-up" resistor:
+</p>
+<ul>
+   <li>Wire one of the button's switch terminals to a Pico GND pin, or 0V on the PC power supply
+   <li>Wire the other button switch terminal to a 74HC165 input port
+   <li><b>Also</b> wire the second switch terminal to a 10K resistor, and connect the other end of the
+   resistor to the +3.3V power pin on the Pico (3V3 OUT on the <a href="PicoPinout.htm">pinout diagram</a>)
+</ul>
+<p>
+   Before you can configure 74HC165 button inputs, you have to configure
+   the chip itself, using the <a href="JSONConfigRef.htm#74hc165"><tt>"74hc165"</tt></a> property:
+</p>
+<pre>
+   {
+      "74hc165": {
+         nChips: 4,      // number of chips in the daisy chain
+         shld: 14,       // GPIO port connected to SH/LD ports on ALL chips
+         clk: 15,        // GPIO port connected to CLK pin on ALL chips
+         ser: 16,        // GPIO pin connected to SER pin on FIRST chip in chain
+      },
+   }
+</pre>
+<p>
+   Now you can set up the <a href="JSONConfigRef.htm#buttons.source.type=74hc165"><tt>buttons.source</tt></a>
+   for a button wired to a 74HC165 port:
+</p>
+<pre>
+   {
+      buttons: [
+         // button #0
+         {
+            source: { type: "74hc165", chip: 0, port: "B" },
+         },
+      ],
+   }
+</pre>
+
+<h4>Button action</h4>
+<p>
+   Okay, you've got the button wired up, and you've defined a <tt>buttons</tt>
+   array entry giving its <tt>source</tt>.  That lets Pinscape read the button's
+   state so that it can do something when you push it.  Now we have to specify
+   exactly what that something is.  This is done via the button's
+   <a href="JSONConfigRef.htm#buttons.action"><tt>action</tt></a> property.
+</p>
+<p>
+   Pinscape Pico has range of actions it can perform for a button press:
+   send a keyboard key press to the PC; send a gamepad or XBox controller
+   button press to the PC; toggle Night Mode; run a plunger calibration;
+   transmit an IR command; or run a macro.  In most cases, you'll just
+   want to send a key press or gamepad/XBox button press, which are pretty
+   easy to set up.
+</p>
+<p>
+   To send a keyboard key press, set the action type to
+   "<a href="JSONConfigRef.htm#buttons.action.type=key">key</a>",
+   and set the <a href="JSONConfigRef.htm#buttons.action.type=key.key">key</a>
+   property to the name of the keyboard key to send.  See the
+   <a href="JSONConfigRef.htm#buttons.action.type=key.key">reference section</a>
+   for a list of key names.
+</p>
+<pre>
+   {
+      buttons: [
+         {
+            source: { type: "74hc165", chip: 0, port: "B" },
+            action: { type: "key", key: "escape" },
+         },
+      ],
+   }
+</pre>
+<p>
+   To send a gamepad button press, set the action type to
+   "<a href="JSONConfigRef.htm#buttons.action.type=gamepad">gamepad</a>",
+   and set the <a href="JSONConfigRef.htm#buttons.action.type=gamepad.button">button</a>
+   property to the button number, 1 to 32.
+</p>
+<pre>
+   {
+      buttons: [
+         {
+            source: { type: "pca9555", chip: 1, port: "IO1_2" },
+            action: { type: "gamepad", button: 3 },
+         },
+      ],
+   }
+</pre>
+<p>
+   The XBox controller buttons are similar to the gamepad buttons: set the action type to
+   "<a href="JSONConfigRef.htm#buttons.action.type=xInput">xInput</a>",
+   and set the <a href="JSONConfigRef.htm#buttons.action.type=xInput.button">button</a>
+   property to a string naming the button.  See the 
+   <a href="JSONConfigRef.htm#buttons.action.type=xInput.button">reference section</a>
+   for a list of the button names.
+</p>
+<pre>
+   {
+      buttons: [
+         {
+            source: { type: "gpio", gp: 7 },
+            action: { type: "xInput", button: "a" },
+         },
+      ],
+   }
+</pre>
+
+<h4>Button types</h4>
+<p>
+   Most pin cab buttons are simple pushbuttons, which are ON when you're pressing
+   them and OFF the rest of the time.  That's the default if you don't specify
+   another type when setting up a button.  But Pinscape can handle a number of
+   other button styles, via the button
+   <a href="JSONConfigRef.htm#buttons.type">type</a> property:
+   
+</p>
+<ul>
+   <li>Push-and-hold: you have to hold down the button for a defined interval
+   before it'll take effect.  This is useful for buttons that you don't want
+   to engage accidentally, such as a "power off the PC" button.
+
+   <li>Pulse: the button performs its action as a timed pulse when pushed, rather
+   than staying on the whole time you're holding it down.  A pulse button can
+   also perform its action again as a pulse when you release it, or you can set
+   it up to <i>only</i> perform its action when released.
+
+   <li>Toggle: the button toggles its virtual state between ON and OFF each
+   time it's pushed, so that it acts more like a slide switch than like a
+   pushbutton.  This can be useful for buttons that control modes: push the
+   button to engage the mode, push it again to disengage.
+
+   <li>Shift: the button acts as a modifier, changing the meanings of other
+   buttons while being held down.  This is analogous to the SHIFT, CTRL, and ALT
+   keys on a PC keyboard, but it doesn't affect the actual keyboard state - it's
+   just applied to other cab buttons.  Pinscape Pico can handle up to 32 shift
+   buttons, which you can use in different combinations to form chords, the same
+   way that PC keys can be combined into chords like Ctrl+Shift+X.
+</ul>
+
+<p>
+   See the <a href="JSONConfigRef.htm#buttons.type">reference section</a> for a full
+   list and more details on how to set up each button type.
+</p>
+
+<h4>Shift buttons</h4>
+<p>
+   Pinscape Pico lets you define one or more "Shift" buttons, which modify the
+   meanings of other buttons when held down.  It's the same concept as the
+   modifier keys on a PC keyboard - Shift, Ctrl, Alt - but it doesn't affect the PC's
+   keyboard state; it's all internal to Pinscape and just applies to other
+   buttons.  You can define up to 32 shift buttons, allowing for chords
+   of commands analog to PC commands like Ctrl+Shift+X.
+</p>
+<p>
+   The first step in setting up a shift button is to define the shift button
+   itself.  This is like defining any other button, except that you give it type
+   "<a href="JSONConfigRef.htm#buttons.type=shift">shift</a>".  You also have
+   to give it another property, <a href="JSONConfigRef.htm#buttons.shiftBits">shiftBits</a>,
+   which gives the pattern of bits in the "global shift state" that the button activates.
+</p>
+<pre>
+   {
+      buttons: [
+         {
+            type: "shift",
+            shiftBits: 0x0001,
+            tPulse: 20,
+            
+            source: { type: "gpio", gp: 7 },
+            action: { type: "xInput", button: "a" },
+         },
+      ],
+   }
+</pre>
+
+<p>
+   That defines the button wired to GPIO 7 as a modifier button, with shift
+   bit 0x0001.  Whenever this button is being pressed, bit 0x0001 is added
+   (or, rather, "OR"'d) into the "global shift state".  Other buttons can
+   interrogate the global shift state when pressed, and activate or <i>not</i>
+   activate according to whether certain bits are set.  That lets you make
+   a button operate only when the GPIO 7 button is being held down, or
+   only when it's <b>not</b> being held down, or regardless of whether
+   it's up or down.
+</p>
+<p>
+   By default, buttons aren't sensitive at all to the shift bits.  If you
+   want to create a button that ignores any shift buttons you've defined,
+   you don't have to do anything at all, because that's the default.
+</p>
+<p>
+   If you want to make a button operate <b>only when the GPIO 7 button is pressed</b> -
+   in other words, you want to make it a shifted button, shifted by the GPIO 7
+   button - you set it up with shiftMask and shiftBits both set to 0x0001,
+   matching the shiftBits in the modifier button.
+</p>
+<pre>
+   {
+      buttons: [
+         // ...earlier button entries go here...
+         {
+            shiftMask: 0x0001,   // make it sensitive to bit 0x0001
+            shiftBits: 0x0001,   // operate only when bit 0x0001 is set -> GPIO 7 button is being pressed
+            source: { type: "gpio", gp: 8 },
+            action: { type: "xInput", button: "b" },
+         },
+      ],
+   }
+</pre>
+<p>
+   The opposite case is to make a button that operates <b>only when the GPIO 7 is NOT pressed</b>.
+   This is almost the same, but we change the shiftBits to zero to say that the button
+   only operates when the GPIO 7 shift bits aren't present.
+</p>
+<pre>
+   {
+      buttons: [
+         // ...earlier button entries go here...
+         {
+            shiftMask: 0x0001,   // make it sensitive to bit 0x0001
+            shiftBits: 0x0000,   // operate only when bit 0x0001 is cleared -> GPIO 7 button is NOT pressed
+            source: { type: "gpio", gp: 8 },
+            action: { type: "xInput", button: "a" },
+         },
+      ],
+   }
+</pre>
+<p>
+   Note how we've defined two buttons that both have the same source, GPIO 8.
+   That's the real trick to creating modified buttons - we've given the same
+   input two meanings, according to whether or not the GPIO 7 button is
+   pressed.  Normally, the GPIO 8 button sends an "A" key press to the PC,
+   but if you hold down GPIO 7 and press GPIO 8, it sends a "B" press to
+   the PC instead.
+</p>
+<p>
+   You can extend this idea to multiple shift buttons.  If you define a second
+   shift button, you can create chords, analogous to Alt+Ctrl+X keys on the PC.
+   With a two-button chord defined, you can give a single button up to <i>four</i>
+   separate meanings.  Pinscape Pico can handle up to 32 shift buttons, although
+   I tend to think two will be enough for most pin cabs.
+</p>
+   
+
+<h3>Accelerometer nudging</h3>
+<p>
+   Accelerometer-based nudging is one of the core features of any complete
+   virtual pin cab.  The Pico doesn't have a built-in accelerometer, but
+   you can attach an external one to it.  Pinscape Pico can work with
+   several accelerometer chip types:
+</p>
+<ul>
+   <li><a href="JSONConfigRef.htm#lis3dh">LIS3DH</a>
+   <li><a href="JSONConfigRef.htm#mc3416">MC3416</a>
+   <li><a href="JSONConfigRef.htm#mxc6655xa">MXC6655XA</a>
+</ul>
+<p>
+   Adafruit sells the LIS3DH pre-mounted on a small circuit board that's easy
+   to wire to the Pico without any tricky soldering, so that might be a good
+   choice if you're not using an expansion board system that has a built-in
+   accelerometer.
+</p>
+<p>
+   Each supported chip type requires an entry in the configuration file to
+   set it up.  Refer to the linked reference sections above for details
+   on setting up each chip type.  Note that all of these are I2C devices,
+   so you also have to configure the I2C bus that it's attached to, if
+   you haven't already configured it for another device.  See
+   <a href="JSONConfigRef.htm#i2c0"><tt>i2c0</tt></a> and <a href="JSONConfigRef.htm#i2c1"><tt>i2c1</tt></a>.
+</p>
+<p>
+   Once you've set up the chip's hardware configuration, you can configure
+   the nudge system itself.  The main thing that you have to do there is
+   select which accelerometer chip axis to use for each nudge axis.  This
+   is important because it lets you adjust for the orientation of the
+   chip in the cabinet.  You set this up via the <a href="JSONConfigRef.htm#nudge"><tt>nudge</tt></a> property.
+</p>
+<pre>
+   {
+      nudge: {
+         x: "+X",   // use the chip's nominal X axis as the nudge left-right axis
+         y: "-Y",   // use the chip's nominal Y axis, reversed, as the nudge front-back axis
+         z: "+Z",   // use the chip's Z axis for the vertical
+      },
+   }
+</pre>
+
+
+<h3>Plunger</h3>
+<p>
+   Pinscape Pico supports all of plunger sensors from the KL25Z version of
+   Pinscape.  For each sensor type, there are two steps required: first,
+   you configure the sensor hardware, and second, you configure the abstract
+   plunger device.  The plunger device takes input readings from the sensor,
+   and processes them into a form that you can pass to the simulator programs
+   on the PC via the joystick or XBox controller inputs.
+</p>
+<p>
+   For the hardware setup part, refer to the reference section for the sensor
+   you're using:
+</p>
+<ul>
+   <li><a href="JSONConfigRef.htm#ads1115">ADS1115 (ADC) - potentiometer</a>
+   <li><a href="JSONConfigRef.htm#aedr8300">AEDR-8300 (linear quadrature encoder)</a>
+   <li><a href="JSONConfigRef.htm#pico_adc">Pico on-board ADC - potentiometer</a>
+   <li><a href="JSONConfigRef.htm#tcd1103">TCD1103 (linear optical sensor)</a>
+   <li><a href="JSONConfigRef.htm#tsl1410r">TSL1410R (linear optical sensor)</a>
+   <li><a href="JSONConfigRef.htm#tsl1412s">TSL1412S (linear optical sensor)</a>
+   <li><a href="JSONConfigRef.htm#vl6180x">VL6180X (distance sensor)</a>
+   <li><a href="JSONConfigRef.htm#vcnl4010">VCNL4010 (IR proximity sensor)</a>
+</ul>
+<p>
+   Once the sensor is configured, you can set up the plunger device, via
+   the <a href="JSONConfigRef.htm#plunger"><tt>plunger</tt></a> property.  There's
+   not too much required here; all you really need to do is enable it.  There
+   are some other properties that you read about in the
+   <a href="JSONConfigRef.htm#plunger">reference section</a>, for controlling
+   the specifies of ZB Launch and other features.
+</p>
+<pre>
+   {
+      plunger: {
+         enable: true,
+         zbLaunch: {
+            action: { type: "key", key: "return" },
+         }
+      },
+   }
+</pre>
+   
+
+<h3>Feedback device outputs</h3>
+<p>
+   Pinscape Pico can control feedback devices - LEDs, solenoids, motors, etc.
+   Devices can be controlled through the Pico's GPIO ports, but the Pico doesn't
+   have very many GPIO pins, so Pinscape can also control devices through
+   several types of add-on chips:
+</p>
+<ul>
+   <li><a href="JSONConfigRef.htm#74hc595">74HC595 (output shift register)</a>
+   <li><a href="JSONConfigRef.htm#pca9555">PCA9555 (GPIO extender)</a>
+   <li><a href="JSONConfigRef.htm#pca9685">PCA9685 (PWM controller)</a>
+   <li><a href="JSONConfigRef.htm#tlc59116">TLC59116 (PWM controller)</a>
+   <li><a href="JSONConfigRef.htm#tlc5940">TLC5940 (PWM controller)</a>
+</ul>
+<p>
+   The PWM controllers chips give you ports where you can control the brightness
+   or intensity of the effect.  This lets the ports do things like dim LEDs
+   and adjust motor speeds. Pico GPIO ports also provide PWM control.  The
+   shift registers and GPIO extenders only provide simple on/off controls, so
+   they're not as flexible, but they're fine for devices that don't need
+   intensity controls.
+</p>
+<p>
+   You can set up any combination of output device types.  For each such chip
+   you attach to the Pico, you have to add an entry to the JSON configuration
+   to tell the software about the chip.  See the reference sections linked
+   above for details on how to do that for each type of chip.
+</p>
+
+<h4>Booster circuits required</h4>
+<p>
+   Note that all of the output controllers have strict limits on the amount
+   of current they can supply to the feedback device.  This is usually around
+   10 mA, which is <i>very</i> little current, only enough for something like
+   a small indicator LED.  Devices that draw more current than that - which
+   is practically everything in a pin cab - require some kind of "booster"
+   or amplifier circuitry between the output port and the device.  The details
+   of those circuits are beyond the scope of this section, but you can find
+   some circuit plans in the
+   <a href="http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php">Pinscape Build Guide</a>
+   under the <a href="http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=psOutputsStandalone">
+      Pinscape Outputs Setup</a> section.  That's nominally about how to set up
+   outputs for the KL25Z-based Pinscape, but most of what it says there carries
+   over to the Pico.  Most of it can also be adapted to the PWM controllers,
+   shift registers, and GPIO extenders, with the caveat that some of those
+   outputs are "active low" only, which requires a little tweaking to the
+   circuit designs shown for the basic booster circuits.
+</p>
+
+<h4>Logical outputs</h4>
+<p>
+   On the Windows side, none of the software knows anything about Pico GPIO
+   ports, TLC59116 chips, or any of the other hardware that the Pico can use
+   to control output devices.  So how does the Windows software know how to
+   activate your shaker motor or flasher LEDs?  The answer is <b>logical output ports</b>.
+   These are mappings that you define in the JSON configuration to essentially
+   label the physical device ports with simple port numbers that the PC software
+   can deal with.  The main point of contact with the output devices on the
+   Windows side is <a href="http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=DOF">DOF</a>
+   ("Direct Output Framework").  DOF thinks of the outputs as a simple array of
+   numbered ports, numbered 1 to <i>N</i> (where <i>N</i> is however many ports
+   you have available on the Pico).  So we need a way to label all of the
+   actual hardware outputs with those simple numbers that DOF can use.
+   The logical output ports accomplish that for us.
+</p>
+<p>
+   The outputs are defined in the JSON as an array of objects under the
+   <a href="JSONConfigRef.htm#outputs"><tt>outputs</tt></a> property.
+   Each array object corresponds to one DOF port, starting at DOF port #1.
+</p>
+<pre>
+   {
+      outputs: [
+
+         // output port #1
+         { ... },
+
+         // output port #2
+         { ... },
+
+         // output port #3
+         { ... },
+      ],
+   }
+</pre>
+<p>
+   That's all there is to the DOF numbering - DOF sees the ports as this
+   simple array of ports, starting at port #1 and arranged in the order you list
+   them <tt>outputs</tt> elements.
+</p>
+<p>
+   The main thing you're required to define for every port is the physical
+   device that the port controls, which you do via the
+   <a href="JSONConfigRef.htm#outputs.device"><tt>device</tt></a> property.
+   This property is an object, which in turn has a
+   <a href="JSONConfigRef.htm#outputs.device.type"><tt>type</tt></a> property
+   that defines the type of device the port is attached to.  Further properties,
+   which vary by device type, provide details on the specific chip and port.
+   Here are some examples that should be reasonably self-explanatory, but
+   you'll probably also want to look at the
+   <a href="JSONConfigRef.htm#outputs.device"><tt>reference section</tt></a>
+   for all the details.
+</p>
+<pre>
+   {
+      outputs: [
+
+         // output port #1
+         {
+            device: {
+               type: "gpio",      // a direct GPIO port output
+               gpio: 12,          // device is wired to GP12
+               pwm: true,         // use PWM control for the port (this is the default;
+                                  // if false, the port is a simple on/off port)
+               freq: 22000,       // optional, sets the PWM frequency
+            },
+         },
+
+         // output port #2
+         {
+            device: {
+               type: "tlc59116",  // an output on a TLC59116 PWM controller chip
+               chip: 1,           // the second chip (index 0 is the first chip) in
+                                  // the "tlc59116:" configuration section
+               port: 3,           // device is wired to pin OUT3 on the chip
+            },
+         },
+
+         // output port #3
+         {
+            device: {
+               type: "tlc5940",   // an output on a TLC5940 (PWM chip) daisy chain
+               chip: 2,           // the third chip on the daisy chain (index 0 is the first chip)
+               port: 7,           // the device is wired to pin OUT7 on the chip
+            },
+         },
+
+         // output port #4
+         {
+            device: {
+               type: "pca9685",   // an output on a PCA9685 PWM controller chip
+               chip: 1,           // the second chip in the "pca9685:" configuration
+                                  // array (index 0 is the first chip in the array)
+               port: 3,           // the device is wired to pin LED3 on the chip
+            },
+         },
+
+         // output port #5
+         {
+            device: {
+               type: "pca555",    // an output on a PCA9555 GPIO extender chip
+               chip: 1,           // the second chip in the "pca9555:" configuration
+                                  // array (index 0 is the first chip in the array)
+               port: "IO1_3",     // the device is wired to pin IO1_3 on the chip
+            },
+         },
+
+         // output port #6
+         {
+            device: {
+               type: "zblaunch",  // this port controls ZB Launch Mode
+            },
+         },
+
+         // output port #7
+         {
+            device: {
+               type: "virtual",   // this is a virtual port, not connected to any physical device
+            },
+         },
+      ],
+   }
+</pre>
+
+<h4>ZB Launch Mode port</h4>
+<p>
+   The port in the example above with type "zblaunch" establishes the ZB Launch Mode control port.
+   You can read more about the theory behind ZB Launch in the
+   <a href="http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=zblaunch">Pinscape Build Guide</a>.
+</p>
+
+<h4>Virtual output ports</h4>
+<p>
+   The port in the example above with type "virtual" defines a logical output port that DOF can
+   send commands to, but which doesn't control any physical device.  This
+   can be useful for a number of special effects.  For example, you can set
+   up a logical button that takes its control input from a DOF port rather than
+   from a physical button.  Or, you can set up a logical output port that takes
+   its commands from <i>another</i> logical output port, combining that with
+   some other information in a "computed output" formula via the
+   <a href="JSONConfigRef.htm#outputs.source"><tt>source</tt></a> property.
+</p>
+
+<h4>Flipper logic</h4>
+<p>
+   You can configure any port with a protective timer that prevents the port
+   from being activated for too long at a stretch.  Some devices can overheat
+   if they're energized continuously for more than a few seconds, especially
+   the large solenoids used in standard pinball machine assemblies - replay
+   knockers, jet bumpers, etc.  For such devices, you can set up a protective
+   timer that limits the full-power time that's allowed for a given port,
+   reducing the power to a lower level when the timer expires.  We call this
+   "flipper logic", because it's the same strategy that a lot of real pinball
+   machines use to protect their flipper coils from overheating.
+</p>
+<p>
+   The KL25Z Pinscape has a related feature called "Chime Logic", which is
+   the same idea, but it simply cuts the power level to zero when the timer
+   elapses.  It's for digital on/off output ports, which lack the PWM
+   capability that Flipper Logic uses to set a reduced power level, and
+   so has to settle for cutting off the port entirely at the end of the
+   time limit period.  On the Pico version of Pinscape, you can control
+   the timer and power levels directly, so you can get either effect -
+   Flipper Logic or Chime Logic - from this one set of port properties.
+</p>
+<p>
+   There are three <tt>outputs</tt> properties that control the timer protection:
+</p>
+<ul>
+   <li><a href="JSONConfigRef.htm#outputs.timeLimit"><tt>timeLimit</tt></a>:
+   This sets the maximum time, in milliseconds, that the device can be activated
+   continuously at full-power.  After this timer expires, the power to the device
+   is reduced to the <tt>powerLimit</tt> value.
+   
+   <li><a href="JSONConfigRef.htm#outputs.powerLimit"><tt>powerLimit</tt></a>:
+   This sets the reduced power level to apply after the <tt>timeLimit</tt>
+   interval expires, as a PWM level from 0 (completely off) to 255 (100% duty
+   cycle).  If the underlying hardware port is a simple digital on/off port
+   (without any PWM control), this should always be set to 0, since digital
+   ports aren't capable of reduced power levels, and treat any non-zero
+   DOF level as simply "on".
+   
+   <li><a href="JSONConfigRef.htm#outputs.coolingTime"><tt>coolingTime</tt></a>:
+   This sets a minimum delay interval between high-power activations, to allow
+   the device to cool off from its last activation.  This is designed to
+   prevent pathological situations where the PC-side software is switching
+   the port on and off very rapidly - preventing the <tt>timeLimit</tt> from
+   ever being breached - but so frequently that the coil heats up anyway.
+   The cooling-off period essentially limits the duty cycle by ensuring a
+   minimum "off" time between activations.
+</ul>
+<pre>
+   {
+      outputs: [
+         {
+            device: {
+               type: "gpio",      // a direct GPIO port output
+               gpio: 12,          // device is wired to GP12
+               pwm: true,         // enable PWM on the port
+               timeLimit: 100,    // reduce power after 100ms of high-power activation
+               powerLimit: 32,    // reduced power level = 32/255, about 12% PWM duty cycle
+            },
+         },
+      ],
+   }
+</pre>
+
+<h4>Night Mode ports</h4>
+<p>
+   Set the <a href="JSONConfigRef.htm#outputs.noisy"><tt>noisy</tt></a>
+   property on a port to <tt>true</tt> to specify that the port is to
+   be disabled whenever Night Mode is in effect.
+</p>
+
+<h4>Gamma correction</h2>
+<p>
+   Set the <a href="JSONConfigRef.htm#outputs.gamma"><tt>gamma</tt></a>
+   property on a port to <tt>true</tt> enable gamma correction on the port.
+   Gamma correction is mostly for lighting devices like LEDs.  It adjusts
+   the actual PWM level from the nominal level that DOF sets so that the
+   <i>apparent</i> brightness level of an attached LED varies linearly
+   with the DOF level.  The eye perceives brightness logarithmically,
+   so "half power" isn't the same as "half brightness".  Gamma correction
+   compensates for this by remapping the DOF levels onto a logarithmic
+   curve that better approximates the way the eye perceives brightness.
+   This makes fades look smoother and makes brightness effects look
+   more like what the game designers intended.
+</p>
+
+
+<h3>I2C devices</h3>
+<p>
+   Many of the devices that Pinscape Pico supports connect to the Pico through
+   a bus interface known as I<sup>2</sup>C.  (I don't usually bother with the
+   superscript when writing it, so you'll usually see it within these pages
+   as "I2C" instead.  It means the same thing.)
+</p>
+<p>
+   The Pico has built-in hardware support for I2C devices, so it's relatively
+   easy to connect them.  You just have to select two GPIO ports, designated
+   "SDA" and "SCL", and connect them to the corresponding pins on the I2C chips.
+   See the <a href="PicoPinout.htm">Pico pinout diagram</a> for a list of the
+   ports that can be designed in the SDA and SCL roles.  Pay close attention
+   to the way that some pins are labeled "I2C0" and others are "I2C1".  These
+   refer to the two separate I2C controller units on the Pico.  You have to
+   pick an SDA/SCL pair that's on the same unit - so if you select an
+   I2C0 SDA pin, you must pair it with an I2C0 SCL pin.
+</p>
+<p>
+   I2C is a "bus", which is a technical way of saying that you just connect
+   all of the SDA pins together in a daisy chain, and likewise all of the SCL
+   pins.  That's a big part of what makes I2C so popular: you can connect a
+   large number of chips to a microcontroller like the Pico, while tying up
+   only two of its GPIO pins, no matter how many chips you attach.  There
+   are some technical limits to how many chips you can attach, but we're
+   not likely to run up against them for a virtual pin cab setup.
+</p>
+<p>
+   Once you've physically wired the SDA and SCL GPIO pins to the chips,
+   there's one more step: you have to tell the Pinscape software about the
+   bus setup.  You do this with the  <a href="JSONConfigRef.htm#i2c0"><tt>i2c0</tt></a>
+   and <a href="JSONConfigRef.htm#i2c1"><tt>i2c1</tt></a> properties.
+   If you selected an SDA/SCL pair designated I2C0, use the <tt>i2c0</tt>
+   property; if the SDA/SCL pair is on I2C1, use <tt>i2c1</tt>.
+</p>
+<pre>
+   {
+      i2c0: {
+         sda: 12,   // SDA on GP12
+         scl: 13,   // SCL on GP13
+      },
+   }
+</pre>
+   
+
+<h3>Supported add-on chips</h3>
+
+<ul>
+   <li><a href="JSONConfigRef.htm#74hc165">74HC165 (input shift register)</a>
+   <li><a href="JSONConfigRef.htm#74hc595">74HC595 (output shift register)</a>
+   <li><a href="JSONConfigRef.htm#ads1115">ADS1115 (ADC)</a>
+   <li><a href="JSONConfigRef.htm#aedr8300">AEDR-8300 (linear quadrature encoder - plunger)</a>
+   <li><a href="JSONConfigRef.htm#lis3dh">LIS3DH (accelerometer)</a>
+   <li><a href="JSONConfigRef.htm#mc3416">MC3416 (accelerometer)</a>
+   <li><a href="JSONConfigRef.htm#mxc6655xa">MXC6655XA (accelerometer)</a>
+   <li><a href="JSONConfigRef.htm#pca9555">PCA9555 (GPIO extender)</a>
+   <li><a href="JSONConfigRef.htm#pca9685">PCA9685 (PWM controller)</a>
+   <li><a href="JSONConfigRef.htm#pico_adc">Pico on-board ADC</a>
+   <li><a href="JSONConfigRef.htm#tcd1103">TCD1103 (linear optical sensor - plunger)</a>
+   <li><a href="JSONConfigRef.htm#tlc59116">TLC59116 (PWM controller)</a>
+   <li><a href="JSONConfigRef.htm#tlc5940">TLC5940 (PWM controller)</a>
+   <li><a href="JSONConfigRef.htm#tsl1410r">TSL1410R (linear optical sensor - plunger)</a>
+   <li><a href="JSONConfigRef.htm#tsl1412s">TSL1412S (linear optical sensor - plunger)</a>
+   <li><a href="JSONConfigRef.htm#irRx">TSOP384xx (IR receiver)</a>
+   <li><a href="JSONConfigRef.htm#vl6180x">VL6180X (distance sensor - plunger)</a>
+   <li><a href="JSONConfigRef.htm#vcnl4010">VCNL4010 (IR proximity sensor - plunger)</a>
+</ul>
+
+<h2>Safe Mode Configuration</h2>
+<p>
+   The next tab over from <b>Configuration</b> is <b>Safe-Mode Config</b>,
+   which is another text editor window for another JSON file.
+</p>
+<p>
+   The Safe-Mode Config is activated any time the Pico enters Pinscape's
+   Safe Mode, which happens if the device unexpectedly resets or crashes
+   early in the startup process.  The idea is that a crash during startup
+   usually happens because one of the Pinscape hardware drivers or
+   software features that's being initialized by the configuration
+   has a bug, and that bug will cause the startup process to crash
+   over and over at the same place every time.  So to get Pinscape
+   stable enough that we can make configuration changes, we have to
+   disable whatever hardware or software feature is causing the
+   crash.  The easiest and surest way to do that is to disable
+   <i>everything</i> - in other words, to reset to factory defaults.
+   The Safe-Mode Configuration provides a more nuanced approach:
+   it lets you select a subset of features to enable when something
+   goes wrong, so that you can make some customizations even in
+   Safe Mode, while still leaving most things disabled to try to
+   get back to a stable environment.
+</p>
+<p>
+   The Safe-Mode Config works exactly like the main configuration, and
+   uses the identical JSON format and identical JSON settings.  There
+   are no restrictions on what it can contain, and you can even make a
+   copy of your whole regular config here if you want.  But that would
+   defeat the purpose; the point is to minimize the number of features
+   enabled, to avoid enabling whatever feature caused the crash that
+   triggered Safe Mode.
+</p>
+<p>
+   Some of the things you might want to include in the Safe Mode config:
+</p>
+<ul>
+   <li><b>unitNum</b>
+   <li><b>unitName</b>
+   <li><b>logging</b>
+   <li><b>serialPorts</b>
+</ul>
+<p>
+   In most cases, you can simply set these up the same way as the main
+   configuration.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico IR Remote Tools</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Config File Format
+</div>
+
+<h1>Config File Format</h1>
+<p>
+   Pinscape Pico uses the JSON format for its configuration files.  JSON is compact, flexible,
+   and expressive, and most people consider it easy to read and convenient to work
+   with.  Pinscape Pico uses it for its configuration data for these reasons, and
+   because it's also easy for computers to process.
+</p>
+<p>
+   If you're not familiar with JSON, this section provides a brief
+   overview of the syntax.
+</p>
+<p>
+   For a full list of all of the available settings, see
+   <a href="JSONConfigRef.htm">JSON Configuration Reference</a>.
+</p>
+
+
+<a name="SyntaxOverview"></a>
+<h2>Overview of JSON syntax</h2>
+<p>
+   JSON, which stands for Javascript Object Notation, is based on Javascript's
+   syntax for defining objects.  An object in JSON is a collection of named values,
+   where the values can be numbers, text strings, boolean values (<tt>true</tt>
+   or <tt>false</tt>), the special value <tt>null</tt> that signifies the
+   explicit omission of any other value, arrays, or nested objects.  An array
+   is an ordered list of values, each of which can be any of the types we've
+   covered so far.  And a nested object is sub-collection of named values,
+   which likewise can be any of these types, including more nested objects.
+</p>
+<p>
+   A JSON file overall consists of what we call a "root object", which is simply
+   one big object that collects all of the file's values together and gives them
+   names.  It's written like this:
+</p>
+<pre>
+   {
+      a: 1,
+      b: "two"
+   }
+</pre>
+<p>
+   That's all there is to the basic object syntax in JSON: a list of "name: value"
+   pairs, separated by commas, and enclosed in braces, <tt>{</tt> and <tt>}</tt>.
+   The names are also called "property names", because each name/value pair
+   constitutes a property of the object.  The associated value is sometimes
+   called the "property value".
+</p>
+
+<h3>Comments</h3>
+<p>
+   Comments can be written in the two common Javascript/C/C++ styles:
+</p>
+<pre>
+   // This comment runs to the end of the line
+
+   /*
+      While this style of comment runs until the matching star-slash
+   */
+</pre>
+
+<a name="PropNameDetails"></a>
+<h3>Some more details on property names</h3>
+<p>
+   There are some rules and exceptions to rules about property names that are
+   worth mentioning.
+</p>
+
+<h4>Property names must be unique</h4>
+<p>
+   One important requirement is that every property name in an object's collection
+   of properties has to be unique.  It's perfectly fine to re-use the same name in
+   sub-objects, but all of the names directly within a single object have to be
+   different from one another.  So you can't have two properties both named <tt>a</tt>
+   in the same object, for example.
+</p>
+
+<h4>Most property names don't have to be quoted</h4>
+<p>
+   Standard JSON requires all of the property names, like <tt>a</tt> and <tt>b</tt> in
+   the example above, to be enclosed in double quote marks.  The Pinscape Pico JSON
+   relaxes that rule to allow unquoted names as shown in the example, for the simple
+   reason that it's more convenient when you're creating these files by hand.e
+   Pinscape Pico's JSON parser is perfectly happy to accept the standard JSON
+   syntax with the quotes included, but it doesn't require the quotes and won't
+   complain if you leave them out.  We'll leave them out from most of our examples
+   because I think it makes them a little easier to read.
+</p>
+
+<h4>But some names <i>do</i> need quotes</h4>
+<p>
+   There is one important exception to the "no quotes, no problems" rule.
+   If a property name doesn't start with an alphabetic character, or contains
+   anything other than letters and numbers and underscores, you have to use the
+   quotes after all, even in Pinscape's relaxed version of JSON.   For example, a
+   property named "74hc595", which is actually one that Pinscape Pico uses,
+   requires the quotes because it starts with a digit.
+</p>
+
+<h3>Nested objects</h3>
+<p>
+   You can nest objects to any depth, by enclosing the sub-objects in braces:
+</p>
+<pre>
+   {
+      description: "This is the top-level object",
+      obj:
+      {
+         description: "This is the first nested object",
+         obj:
+         {
+           description: "This is the second nested object"
+         }
+      }
+   }
+</pre>
+<p>
+   Note how each object, from the root object to the innermost nested
+   object, has a <tt>description</tt> property.  That's allowed because
+   each nested object is a distinct object, and it's fine to use the
+   same property name in multiple objects.  The only restriction is
+   that you can't use the same property name twice in the <i>same</i>
+   object.
+</p>
+<p>
+   It's okay to leave a dangling comma after the last property in
+   an object:
+</p>
+<pre>
+   {
+      a: 1, b: 2, c: 3,
+   }
+</pre>
+<p>
+   Many Javascript coders make a habit of including a dangling final
+   comma as a matter of routine, because it makes it less likely that
+   you'll forget to add the comma if you come back to the object some
+   time later and add more properties.
+</p>
+
+<h3>Arrays</h3>
+<p>
+   An array is an ordered list of values, separated by commas, enclosed
+   in square brackets.
+</p>
+<pre>
+   {
+      array: [1, 2, 3, "four"]
+   }
+</pre>
+<p>
+   You can freely mix values of different types in an array.  Array values
+   can themselves be arrays, and can also be objects.
+</p>
+<pre>
+   {
+      anotherArray: [
+         1,
+         {
+            prop: "This is an object within the array",
+            prop2: "with a couple of properties"
+         },
+         [ "An array within the array", "with a couple of string values",
+         "four"
+      ]
+   }
+</pre>
+<p>
+   As with objects, a dangling comma after the last item in an array is
+   allowed, and some Javascript coders consider it good form to include
+   one all the time, as insurance against forgetting to add one if you
+   expand the array later.
+</p>
+<pre>
+   {
+      array: [1, 2, 3, "four", ]
+   }
+</pre>
+
+<h3>Strings</h3>
+<p>
+   Strings are runs of text enclosed in quote marks:
+</p>
+<pre>
+   {
+      s: "A sample string"
+   }
+</pre>
+<p>
+   If necessary, you can continue a string across multiple lines of text,
+   by ending each continuing line with a backslash:
+</p>
+<pre>
+   {
+      t: "A long string \
+   that needs multiple line \
+   to get it all down."
+   }
+</pre>
+<p>
+   Be careful to place the backslash at the <i>very end of the line</i>,
+   with nothing after it - not even blank spaces.  If anything follows
+   the backslash other than a newline character, the parser won't treat
+   the backslash as continuing the line, so you'll see an error complaining
+   about a missing close quote.  The newline itself is <i>not</i> part of
+   the string - the string above is equivalent to this:
+</p>
+<pre>
+   {
+      t: "A long string that needs multiple line to get it all down."
+   }
+</pre>
+<p>
+   Note that any blank spaces at the start of the continuation lines <i>are</i>
+   part of the string, so you should be careful to start each continuation
+   line at the first column, with no spaces at the left other than those you
+   actually want to include in the string.
+</p>
+
+
+<h3>Numbers</h3>
+<p>
+   A number in JSON can be an integer value or a floating-point value. All
+   values have to fit the "double precision floating point format" that most
+   modern programming languages use.  That format applies certain limits to the
+   minimum and maximum values, and the number of decimal places of precision
+   that the numbers can accurately represent.  But those limits are so huge
+   that you shouldn't have to worry about them in a Pinscape Pico context.
+</p>
+<p>
+   To write an integer value, simply write it in the ordinary way:
+</p>
+<pre>
+   {
+      a: 1001
+   }
+</pre>
+<p>
+   You can also use C-style hexadecimal notation if you wish:
+</p>
+<pre>
+   b: 0x7FFF
+</pre>
+<p>
+   Fractional values are also entered in the ordinary decimal notation:
+</p>
+<pre>
+   d: 50.75
+</pre>
+<p>
+   Scientific notation of the sort used in Javascript, C, and many other
+   programming languages is also accepted, although it's essentially never
+   useful in a Pinscape context, so we mention this only to be pedantic.
+</p>
+<pre>
+   c: 2.99792458e10,   // the speed of light, in cm/s
+</pre>
+
+<h3>Booleans</h3>
+<p>
+   Boolean values, also known as logic or truth values, are entered with
+   the literal words <tt>true</tt> and <tt>false</tt>.
+</p>
+<pre>
+   {
+      x: true,
+      y: false
+   }
+</pre>
+
+<h3>Null and undefined</h3>
+<p>
+   The literal words <tt>null</tt> and <tt>undefined</tt> signify the
+   absence of any other value.  In most cases, simply omitting a property
+   is equivalent to specifying either of these non-values, but it's
+   sometimes desirable to say explicitly that you're leaving something
+   out, if only to make it clear the next time you refer to the file
+   that you didn't forget to include it but actually intended to leave
+   it out.
+</p>
+<p>
+   Standard JSON doesn't allow <tt>undefined</tt> at all; it does allow
+   <tt>null</tt>.  Pinscape's relaxed version of JSON accepts both,
+   mostly for the sake of not surprising anyone who hasn't read the
+   documentation and uses <tt>undefined</tt> out of
+   familiarity with Javascript.  I don't think there are any contexts
+   in Pinscape Pico where <tt>null</tt>, <tt>undefined</tt>, or the
+   simple absence of a property value mean different things. 
+   They should all be utterly interchangeable in Pinscape configurations.
+</p>
+
+</body>
+</html>

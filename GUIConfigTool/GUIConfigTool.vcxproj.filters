@@ -1,0 +1,496 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{e4954328-21c7-4f52-a535-7800d733030f}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{344c50f9-c6d4-48fe-9218-35bfdf822b2f}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{296485d7-006a-43d8-8201-eeadcddec065}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="JSONLexer">
+      <UniqueIdentifier>{e2de09fc-2955-476d-a139-c20c7878435d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Help Files">
+      <UniqueIdentifier>{2b825d62-bfe9-4d0b-819c-b7b734ca5dee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content Files">
+      <UniqueIdentifier>{27197b3e-4537-4dee-b717-a525b854407c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ConfigTemplates">
+      <UniqueIdentifier>{3867eca9-e55c-4e7b-929e-986f63c3a5e6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GUIConfigTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WrapperWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NoDeviceWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SetUpNewDeviceWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceOverviewWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OfflineDeviceWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BootLoaderWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AboutBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VersionNumber.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ButtonTesterWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigEditorWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceThreadWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputTesterWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlungerCalWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LogViewerWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONLexer\Accessor.cxx">
+      <Filter>JSONLexer</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONLexer\DefaultLexer.cxx">
+      <Filter>JSONLexer</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONLexer\LexAccessor.cxx">
+      <Filter>JSONLexer</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONLexer\LexerBase.cxx">
+      <Filter>JSONLexer</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONLexer\LexerModule.cxx">
+      <Filter>JSONLexer</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONLexer\LexerSimple.cxx">
+      <Filter>JSONLexer</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONLexer\PropSetSimple.cxx">
+      <Filter>JSONLexer</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONLexer\StyleContext.cxx">
+      <Filter>JSONLexer</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONLexer\WordList.cxx">
+      <Filter>JSONLexer</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlashProgressDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FirmwareDropTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JSONExt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IRTesterWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WinUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NudgeDeviceWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HelpWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroPinSim.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HiResTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Firmware\JSON.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseDeviceWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WrapperWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SetUpNewDeviceWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceOverviewWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OfflineDeviceWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BootLoaderWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AboutBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VersionNumber.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ButtonTesterWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigEditorWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceThreadWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LogViewerWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputTesterWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlungerCalWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\Accessor.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\CharacterSet.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\DefaultLexer.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\LexAccessor.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\LexerBase.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\LexerModule.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\LexerSimple.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\Lexilla.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\LexJSON.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\OptionSet.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\PropSetSimple.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\SciLexer.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\StyleContext.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONLexer\WordList.h">
+      <Filter>JSONLexer</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FlashProgressDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FirmwareDropTarget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONExt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TabEmbeddableWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IRTesterWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WInUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PinscapePicoAPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NudgeDeviceWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HelpWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroPinSim.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HiResTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseDeviceWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GUIConfigTool.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\Disconnected.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\BootselButton.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\JoystickButtonOff.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\JoystickButtonOn.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\Keyboard.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\Keyboard.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\Logo.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\MenuIconHelp.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\OutputAttrIcons.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\ShiftIcon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\XBoxController.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\XBoxController.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\ConfigEditToos.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\ConfigEditTools.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\ErrorIcon.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\ProgramIcon.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\bitmap1.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\xbox-controller-disabled.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\JoystickButtonNA.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\BootDriveIcon.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\NewDeviceIcon.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\PinscapePicoDeviceIcon.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\PinscapePicoOfflineIcon.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\PicoDiagram.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\PicoDiagram.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\PicoDiagramHilited.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\Crosshairs.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\HelpTools.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="resources\OpenPinDevButtons.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="Help\IRRX-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\PCA9555-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\TLC5940-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\IRTX-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\RV-3032-C7-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\DS1307-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\DS3231M-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\ADS1115-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\LIS3DSH-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\LIS3DH-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\74hc595-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\74hc165-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\PWMWorker-wiring.png">
+      <Filter>Help Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Help\PlungerCal.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\OutputTester.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\LogViewer.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\ConfigTool.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\ConfigEditor.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\ButtonTester.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\Help.css">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\LogicalOutputTester.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\OutputAttrIcons.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\PhysicalOutputTester.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\License.txt">
+      <Filter>Content Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\BootLoaderMode.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\IRRemote.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\DeviceOverview.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\ConfigFileFormat.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\NewDeviceSetup.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="ConfigTemplates\ProExpansionBoard.json">
+      <Filter>ConfigTemplates</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="ConfigTemplates\SafeModeStarter.json">
+      <Filter>ConfigTemplates</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="ConfigTemplates\Starter.json">
+      <Filter>ConfigTemplates</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\JSONConfigRef.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\NudgeWin.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="resources\MicrosoftEdgeWebview2Setup.exe">
+      <Filter>Content Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\PicoPinout.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\PicoPinout.htm">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="ConfigTemplates\DIYExpansionBoard.json">
+      <Filter>ConfigTemplates</Filter>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+  </ItemGroup>
+</Project>

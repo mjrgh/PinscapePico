@@ -1,0 +1,63 @@
+; Pinscape Pico - TCD1103 PIO program - FM (master clock), positive logic
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This PIO program generates the FM (master clock) signal for the TCD1103
+; in positive logic.  FM is a square-wave clock signal that drives the
+; chip's pixel shift register output and internal logic.  The data sheet
+; calls for this signal to run continuously at a constant rate.  During
+; frame transfers, the chip clocks out one pixel to its analog output line
+; for each two FM clock cycles.
+;
+; Since the FM signal is a simple continuous square wave signal, we could
+; have used one of the Pico's native PWM units to generate the signal
+; instead of dedicating a PIO program to it.  The main reason to use a PIO
+; is that it avoids tying up a PWM unit at a fixed clock rate, which could
+; create resource allocation hassles for the user.  In addition, using a
+; PIO for FM makes it a little easier to coordinate the timing of the FM
+; signal with the other signals we generate for the chip.
+;
+; Pins:
+;   SIDE SET - FM (TCD1103 master clock)
+;
+; Clocking:
+;   * Set the ADC clock source to the system PLL clock:
+;     CLK_ADC_CTRL = 0x00000020;   // clksrc_pll_sys
+;
+;   * Select an ADC clock divider of 2 (recommended, for 62.5 MHz ADC
+;     operation) or 3 (for 41.67 MHz ADC operation)
+;
+;   * Set the PIO clock divider to 24 * ADC clock divider
+;
+; How these settings were derived:
+;
+;   - This must be synchronized to the ADC clock, and the PIO can only run on
+;     the system clock, so the ADC clock source must be set to the system clock.
+;     (Note that the system clock runs at 125 MHz by default, whereas the Pico
+;     on-board ADC is designed for a 48 MHz clock source.  The ADC does work at
+;     higher clock speeds, but it's probably better to divide the system clock
+;     by 2 or 3 to get closer to the ADC design speed.  A divider of 2 seems
+;     to work well and gives us a 2.4ms frame transfer cycle with the TCD1103,
+;     which is pretty close to ideal for the Pinscape plunger system.)
+;
+;   - This PIO program generates one FM clock cycle per two PIO clock cycles
+;
+;   - The TCD1103 requires two FM clock cycles per pixel
+;
+;   - The ADC takes 96 ADC clock cycles to complete one ADC sample.  One ADC clock
+;     cycle equals ADC_CLOCK_DIVIDER system clock cycles, so one ADC sample =
+;     96*ADC_CLOCK_DIVIDER system clock cycles.
+;
+;   - To generate 2 FM clocks per ADC cycle, we need 2 FM clocks per 
+;     96*ADC_CLOCK_DIVIDER system clocks, or 4 PIO clocks per 96*ADC_CLOCK_DIVIDER
+;     system clocks; therefore PIO clock divider = 96/4*ADC_CLOCK_DIVIDER ==
+;     24*ADC_CLOCK_DIVIDER.
+
+
+.program TCD1103_FMpos
+
+.side_set 1     ; FM (TCD1103 master clock)
+
+.wrap_target
+     nop   side 0     ; drive FM low
+     nop   side 1     ; drive FM high
+.wrap

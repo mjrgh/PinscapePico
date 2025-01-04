@@ -1,0 +1,82 @@
+; Pinscape Pico - 74HC165 PIO state machine program
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; Setup:
+;   Set SH/LD pin to SHIFT mode initially
+;   Pre-load PIO SM scratch register Y with the LOAD bit state for SH/LD
+;
+; Protocol: 
+;
+; 1. The host writes the port count minus 1 (e.g., 3 chips = 24 ports,
+; write byte value 23) to the TX FIFO to initiate a read cycle
+;
+; 2. The PIO program reads the shift register data in a loop, and sends
+; it back via the RX FIFO as follows:
+;
+;    <byte = first chip's bits, most significant bit = H, lsb = A)
+;    <byte = second chip's bits, msb = H, lsb = A>
+;     ...
+;    <byte = last chip's bits, msb = H, lsb = A>
+;
+; The host triggers each read by writing the TX FIFO.  This allows the
+; host to control the sampling rate.  The raw sampling rate is so fast
+; that it would saturate the CPU if we let the PIO run freely and
+; synchronized on the the CPU side with interrupts.  We could just let
+; the host read from the RX FIFO by polling, and that would throttle
+; the PIO loop by stalling the PIO each time the RX FIFO filled, but
+; the host would then always be reading stale input that had been
+; sitting in the FIFO.  It's better to let the host solicit input by
+; sending us a signal via the TX FIFO.
+;
+; PIO Clock:
+;   Clock should be set no higher than 12 MHz
+;   -> clock divider for 125 MHz system clock = 10.4167
+;
+; IN pins:
+;   pin 0 = QH (serial data out)
+;
+; OUT pins:
+;   pin 0 = SH/LD (shift/load)
+;
+; SIDE SET pins:
+;   pin 0 = CLK (serial clock)
+;
+; PRE-LOAD:
+;   Pre-load Y with LOAD state bit for SH/LD (0 for standard 74HC165, where LOAD mode is active low)
+;
+; Other PIO configuration:
+;   AUTOPUSH ON
+;   PUSH(IN)  Shift Direction = LEFT (LSB first)
+;   PUSH(IN)  Shift Threshold = 8 bits
+
+.program C74HC165
+.side_set 1        ; CLK
+
+.wrap_target
+    ; Top of main loop 
+
+    ; load the port loop counter into X (the host pre-loads it into OSR)
+    ; take SH/LD LOW to load parallel input ports into the shift register
+    ; hold for one extra clock cycle
+    out x, 8          side 0  ; load loop count into X
+
+    ; Toggle SH/LD into LOAD mode for two clocks, then go back to SHIFT mode.
+    ; The extra clocks are a (probably overly) conservative interpretation
+    ; of the timing requirements in the data sheet, to ensure we give the
+    ; chip enough time to load the parallel input ports into the shift
+    ; register before we start shifting.
+    mov pins, y       side 0 [1]
+    mov pins, !y      side 0 [1]
+
+    ; Read serial data from the shift register.  The daisy chain clocks out
+    ; port H/D7 from the first chip on the chain first.  Since IN is set to
+    ; shift left, port H ends up in the most significant bit of the byte
+    ; corresponding to the chip.
+    ;
+    ; After SH/LD returns to SHIFT mode, the first chip's output pin QH
+    ; is set to position H in the shift register.  We therefore read the
+    ; data bit first, THEN clock in the next bit (moving to position G).
+chipLoop:
+    in pins, 1        side 0  ; read the next data bit, take CLK low
+    jmp x--,chipLoop  side 1  ; loop, take CLK high to clock in the next serial bit
+.wrap

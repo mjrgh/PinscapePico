@@ -1,0 +1,676 @@
+<!-- Pinscape Pico / Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+<html>
+<head>
+   <title>Pinscape Pico Configuration Editor</title>
+   <link rel="stylesheet" href="Help.css">
+</head>
+<body>
+
+<div id="TopNav">
+   <a href="ConfigTool.htm">Pinscape Pico Config Tool</a> &gt; Configuration Editor
+</div>
+
+<h1>Configuration Editor</h1>
+<p>
+   This window provides a text editor for the JSON files that Pinscape Pico
+   uses to specify and store the device's configuration settings.
+</p>
+<p>
+   For details on what goes in a configuration file, refer to:
+</p>
+<ul>
+   <li><a href="ConfigFileFormat.htm">Config File Format</a>: details on the
+   JSON syntax used in the config file
+
+   <li><a href="JSONConfigRef.htm">JSON Configuration Reference</a>: a full
+   list of the available settings
+</ul>
+<p>
+   There are two separate configuration files you can edit:
+</p>
+<ul>
+   <li><b>Main configuration:</b> This contains all of the settings that
+   you want to put into effect during normal operation.
+
+   <li><b>Safe Mode configuration:</b> This is loaded when the device
+   enters "Safe Mode", which is triggered if the Pico unexpectedly
+   resets due to a software crash.  The idea is to create a minimal
+   environment with most of the peripheral devices disabled, in the hope
+   of bypassing whatever section of the Pinscape software contains
+   the bug that caused the crash.  Many parts of the software are
+   tied to specific devices, and will only be invoked when those
+   devices are enabled, so a stripped-down configuration might be
+   more stable than the original full configuration.
+   <p>
+      Safe Mode is particularly important when a crash occurs
+      <i>while the Pico is initializing</i>.  Without Safe Mode, a
+      crash soon after reset could create an infinite loop of crashing,
+      resetting, and crashing again, because whatever setting is
+      causing the crash would just get restored again on every
+      reset.  That's extremely inconvenient, because you need the
+      Pinscape software to be running in order to update its configuration
+      file.  If it just keep crashing over and over, you can't easily
+      update the config file to fix (or at least disable) whatever
+      was causing the crash.  Safe Mode is meant to provide a stable
+      environment that lets you at least inspect and update the
+      configuration files.
+   </p>
+   <p>
+      There are no restrictions on what the Safe Mode configuration
+      can contain.  In fact, it can be a complete duplicate of the Main
+      configuration if you want, but that would obviously defeat the
+      purpose.  The point is to minimize the features enabled, to
+      minimize the things that can go wrong, while still allowing
+      you to enable selected features of your choice.
+   </p>
+</ul>
+
+<h2>Template Files</h2>
+<p>
+   The Config Tool comes with a few starter files that you can use
+   to quickly populate the configuration, and then edit to match
+   your specific customizations.  The configuration editor will
+   automatically offer to load one of these when the first time
+   you connect to a newly installed Pico.  You can also manually
+   one of the template files at any time, via <b>File &gt; Import from Template File</b>.
+</p>
+<p>
+   The template files are simply JSON text files stored in the
+   <b>ConfigTemplates</b> folder within the main Config Tool program
+   install folder, so you can inspect their contents with Notepad or
+   any other Windows text editor if you want to take a look before
+   importing them into the config editor.
+</p>
+<p>
+   The included template files are:
+</p>
+<ul>
+   <li><b>Generic all-purpose template (Starter.json):</b>
+   This file lists most of the available configuration options as comments,
+   with brief explanations.  The commented-out options are there to act as
+   placeholders that you can easily put into effect as needed by un-commenting
+   them.  The idea is that it lets you see all of the options at a glance by
+   browsing through the file, and you can pick out the ones you need for your
+   system, un-commenting them and filling in your custom details.
+
+   <li><b>DIY-Friendly Expansion Board (DIYExpansionBoard.json):</b>
+   Settings for the Pinscape Pico DIY-Friendly Expansion Board, an open-source
+   circuit board designed for DIY construction, with parts that are suitable
+   for hand-soldering.  The DIY-Friendly board is designed to be an ultimate
+   "all-in-two" design (it uses two linked circuit boards) that includes
+   practically every I/O feature you'd ever need for a high-end pin cab,
+   using only parts that are easily sourced and easily soldered by hand.
+   This file has all of the fixed settings required for
+   this board, and placeholders for items that need customization, such as
+   button mappings.
+
+   <li><b>"Pro" Expansion Board (ProExpansionBoard.json):</b>
+   Settings for the Pinscape Pico "Pro" Expansion Board, an open-source
+   circuit board design based mostly on SMD (surface-mount) parts.  This
+   was designed as an ultimate all-in-one expansion board that includes
+   practically every I/O feature you'd ever need for even the most elaborate
+   virtual pin cab, packed into one compact board.  The high density is possible
+   thanks to the use of fine-pitch SMD parts, but the trade-off is that
+   this board really requires factory assembly, because many of the small
+   SMD parts are too difficult to solder by hand - that's the "Pro" part,
+   in counterpoint to "DIY-Friendly".
+
+   <li><b>Generic Safe-Mode template (SafeModeStarter.json):</b>
+   A basic set of settings for Safe Mode.
+</ul>
+
+<h2>Saving changes to the Pico</h2>
+<p>
+   When you first open the editor window, it retrieves the current
+   config file from the Pico and displays its contents.
+</p>
+<p>
+   After making changes, you can update the Pico with the new settings
+   by going to the menu and selecting <b>File &gt; Save to Pico</b>.
+   The editor automatically checks the JSON code for syntax errors
+   before sending it to the Pico, to avoid loading unusable config
+   files onto the device.  If no errors are detected, the editor
+   transmits the file to the Pico for storage in the Pico's flash
+   memory.
+</p>
+<p>
+   After saving the main configuration file, the Pico automatically
+   reboots, so that the configuration changes are put into effect
+   immediately.  The Safe Mode configuration doesn't trigger an
+   automatic reboot when saved, since that configuration is only
+   used in post-crash situations.
+</p>
+<p>
+   If you want to discard your changes and reload what's currently
+   stored on the Pico, select <b>File &gt; Reload from Pico</b>.
+   (You can also undo changes one-by-one via <b>Edit &gt; Undo</b>.)
+</p>
+
+<h3>Auto-Backup</h3>
+<p>
+   By default, the editor makes a local backup copy on disk each
+   time you invoke <b>Save to Pico</b>.  This is meant as a fail-safe
+   against data loss in the event that something goes wrong with the
+   Pico save, such as a USB disconnect, a Pico software crash, or
+   the Config Tool itself carshing.  Saving to the Pico overwrites
+   the old copy of the configuration in the Pico's flash memory, so
+   any unexpected interruption in the save process can leave an
+   empty or truncated copy of the file on the Pico.
+</p>
+<p>
+   The local auto-backup copy provides an easy way to recovery
+   if this ever happens.  You can simply load the backup copy
+   into the configuration editor using <b>File &gt; Import from File</b>,
+   and then use <b>Save to Pico</b> as normal.
+</p>
+<p>
+   You can disable the auto-backup feature using the Editor
+   Preferences dialog.  You can also change the folder location
+   where the backups are saved, which defaults to a subfolder
+   named <b>AutoBackup</b> within the Config Tool's main program
+   install folder (see below).
+</p>
+<p>
+   The auto backup files have names of the form
+   <b>Config_<i>PicoID</i>_<i>Date</i>_<i>Time</i></b>, where
+   <b><i>PicoId</i></b> is the hardware ID of the Pico.  (Safe
+   Mode configurations start with <b>SafeMode_</b> in place
+   of <b>Config_</b>.)  The hardware ID is included to helps
+   tell apart files belonging to different Picos, in case you're
+   using more than one.  The timestamps prevent a new file from
+   overwriting an older file, in case you want to go back to an
+   older version.
+</p>
+
+<h4>Auto-backup folder</h4>
+<p>
+   By default, the backup files are saved in the <b>AutoBackup</b>
+   subfolder of the Config Tool's main program install folder.
+   You can change this via <b>Tools &gt; Editor Preferences</b>,
+   where you can enter a different location in the <b>Folder</b>
+   box.
+</p>
+<p>
+   The <b>Folder</b> path can be specified as a normal Windows
+   path, but you can also use the following substitution variables:
+</p>
+<ul>
+   <li><b>$(InstallDir)</b> - the folder where the Config Tool
+   program is installed.
+
+   <li><b>$(SettingsDir)</b> - the folder containing the currently
+   active Settings file.  By default, the Settings file is in the
+   folder where the Config Tool program is installed, but you
+   can override this with a <a href="ConfigTool.htm#SettingsFileLocation">command-line option</a>
+   when launching the Config Tool.  This substitution variable
+   lets you refer to the settings location currently in use.
+</ul>
+
+<h4>Automatic cleanup (deletion of old files)</h4>
+<p>
+   Creating a backup copy on every save will eventually leave
+   a lot of old versions in the backup folder.  You can always
+   delete unwanted old versions manually from time to time, but
+   the Config Tool can automatically help with that if you like,
+   by deleting versions older than a specified age.  This is
+   enabled by default, with a default maximum age of 30 days.
+</p>
+<p>
+   Automatic cleanup happens each time you launch the Config
+   Tool.   It doesn't require any interaction; the program simply
+   looks for files in the Auto Backup folder older than the
+   specified maximum age and deletes them.  It only deletes
+   files as follows:
+</p>
+<ul>
+   <li>Cleanup <i>only</i> runs when you run the Config Tool
+   (it won't delete any files between sessions)
+
+   <li>Cleanup only happens once per program run, right after the program is launched
+
+   <li>Cleanup only operates on files in the Auto Config folder,
+   as selected in the options settings
+
+   <li>Cleanup only looks for files matching the naming pattern <b>xxx_xxx_DATE_TIME.json</b>
+   (so you can protect files from cleanup simply by renaming them to a different format)
+
+   <li>The date of the file is taken from the <b>DATE_TIME</b> portion of the <b>filename</b>,
+   matching the <b>xxx_xxx_DATE_TIME.json</b> pattern.  The Windows timestamp on the file
+   is ignored for the purposes of calculating the file's age.
+</ul>
+<p>
+   You can disable automatic cleanup entirely, or change the
+   maximum number of days before deletion, via the <b>Tools &gt; Editor Preferences</b>
+   command.
+</p>
+
+<h2>Saving and importing local files</h2>
+<p>
+   <b>File &gt; Save a Copy As</b> lets you save the current
+   editor window contents to a local file on your Windows system.
+   The command prompts you for the name and location
+   of the saved file with a normal Windows file selection dialog.
+</p>
+<p>
+   This is useful if you want to save a backup copy or
+   a snapshot of the configuration on your Windows system.
+   It also gives you an easy way to load the configuration
+   text into an external text editor program, if you'd prefer to
+   work on it with a different editor.
+</p>
+<p>
+   <b>File &gt; Import from File</b> does the opposite of Save As,
+   loading a local Windows file into the editor window.  The loaded
+   file replaces the entire current contents of the window.  You can
+   use this to restore a saved backup copy, or to update the Pico with
+   changes you've made to the exported file through an external
+   text editor program or other tools.
+</p>
+
+<h3>Using your own stand-alone text editor</h3>
+<p>
+   If you'd prefer to <i>routinely</i> work on the Pinscape config
+   files using a stand-alone text editor program, rather than the
+   editor built into the Config Tool, it might be more convenient to
+   set up some macros in your editor that invoke the separate
+   command-line version of the Config Tool to load and save the
+   JSON file directly from the Pico.  Most good programmer's text
+   editors provide macro capabilities that let you automate the interface
+   between the editor and external command-line tools, so that the editor
+   can send and retrieve files through external processors, such
+   as sending a file to a compiler and reading back error messages.
+   The command-line Config Tool's <tt>--get-config</tt> and
+   <tt>--put-config</tt> options should be suitable for use with
+   that kind of macro interface.  The suggested procedure:
+</p>
+<ul>
+   <li>Program a LOAD CONFIGURATION macro in your editor that
+   uses <tt>--get-config</tt> to pull the configuration data from
+   the Pico and store it in a temp file; the macro then opens the
+   temp file in your editor
+
+   <li>Program a SAVE CONFIGURATION macro in your editor that
+   saves changes back to the temp file, then invokes <tt>--put-config</tt>
+   to write the temp file back to the Pico, followed by <tt>--reset</tt> to
+   reboot the Pico (to put the new configuration into effect)
+</ul>
+
+<h2>Property Navigation and Documentation</h2>
+<p>
+   The editor keeps track of the section you're currently working
+   on, showing the current property name on the right side of the
+   top control bar.  Click on the property name to go to the
+   documentation reference section for that property.
+</p>
+<p>
+   The drop arrow next to the property brings up a menu of all of
+   the top-level property sections defined in the file so far.
+   Select one of the menu items to navigate straight to that section.
+</p>
+
+<h2>Auto-completion</h2>
+<p>
+   As you type, the editor will attempt to provide suggestions
+   based on the current context.  If you start typing a property
+   name, the editor will pop up a list of all of the property
+   names that it thinks are valid in the current context.
+   If you're typing a value, and the current property has a
+   limited set of valid choices, the editor will pop up a list
+   of the allowed values.
+</p>
+<p>
+   When a list pops up, you can select an entry with the mouse
+   or by pressing Tab or Enter, and you can change the selection
+   with the up and down arrow keys.  That lets you enter a property
+   name by just typing its first few letters to find it in the list.
+</p>
+<p>
+   If you want to cancel the pop-up list, just press Escape or
+   backspace.  You can also just keep typing and pretend the
+   list isn't there.  The list will go away on its own when you
+   type a non-symbol character such as ":" or ",".
+</p>
+<p>
+   If you find auto-complete overly intrusive or annoying, you
+   can disable it via the Editor Preferences dialog.
+</p>
+
+<a name="SchemaCheck"></a>
+<h2>Syntax and Schema Checking</h2>
+<p>
+   <b>File &gt; Check for Errors</b> runs a JSON syntax check on the
+   file.  If any errors are found, the program displays a list
+   of errors in a panel below the editor window.  Double-click
+   on a message in the error list to jump to the location in
+   the source text.
+</p>
+<p>
+   If the syntax check succeeds, the command proceeds to check the
+   file against the JSON "schema", which is the set of rules
+   governing which property names are allowed, which are required,
+   and what values they can have.  The error panel will appear
+   with a list of any problems detected.  Double-click on a message
+   in the error list to jump to the source location.
+</p>
+<p>
+   Many schema rule violations are relatively benign.  It's
+   always harmless to add an extra property that the firmware
+   doesn't know about, for example, since the firmware will just
+   ignore any properties it doesn't recognize.  However, an unknown
+   property is often a sign that you entered a property name
+   incorrectly, such as getting the upper/lower case mix in a
+   name wrong (since JSON is strictly case-sensitive).  So it's
+   best to assume that any errors listed are important, and make
+   sure you understand them before you dismiss them as just
+   another computer program being overly fussy.
+</p>
+<p>
+   Missing "required" properties are more problematic than
+   extra unrecognized properties, because the firmware won't
+   usually be able to configure a device or feature without all
+   of the required settings for that feature.  For example, if you
+   don't tell the status LED device (rgbStatusLight) which GPIOs
+   are connected to the LED color channels, the firmware won't
+   know how to address the LED, so the LED won't function at all.
+   However, this is still relatively harmless in the big picture,
+   since the missing information will only affect that one device
+   or option; a non-working status LED won't prevent the button
+   inputs from working, for example.
+</p>
+<p>
+   The schema rules are programmed into the Config Tool, so
+   they're not necessarily 100% identical to the actual rules
+   that the firmware uses when it reads the configuration.
+   There might be some differences especially if you're using a
+   version of the firmware that's newer or older than your
+   Config Tool version, since new properties might be added
+   in newer firmware versions.  It's always best to check the
+   device message log after making any changes to make sure
+   that the firmware is interpreting the settings as you
+   intended and that they're working properly.  The schema
+   check is only meant to be a quick way of checking for
+   superficial errors, such as typos in the property names.
+</p>
+
+<h3>Checks before saving</h3>
+<p>
+   The <b>Save to Pico</b> command always automatically runs a syntax
+   check before committing the file to the Pico, and it won't update the
+   Pico unless the syntax check passes.  Invalid syntax would
+   effectively revert the Pico back to entirely default settings
+   by making the JSON unusable, which you probably wouldn't want.
+</p>
+<p>
+   Optionally, <b>Save to Pico</b> can also run a schema rules check.
+   You can control whether or not the rules check happens via the Editor
+   Preferences dialog.  If the rules check finds any errors, the editor will
+   prompt you (via a dialog) whether you want to program the Pico anyway,
+   or review the errors without saving.  The editor gives you the option
+   to save the updates even if there are schema rules violations, because
+   the rest of the JSON is usually still usable.  Most rules violations
+   only affect the particular option they apply to, and don't interfere
+   with any other settings.
+</p>
+
+<h2>Find and Replace</h2>
+<p>
+   The Find box in the toolbar at the top of the editor window
+   lets you do simple literal-text searches.  This quick-find
+   control searches incrementally as you enter text, so you can
+   see the next match immediately.  Press Return to end the search
+   and stay on the matched text; press Escape to cancel the search
+   and return to the original cursor position.
+</p>
+<p>
+   For more powerful search options, use the <b>Edit &gt; Find and Replace</b>
+   menu command.  This gives you options to search by exact case, whole words,
+   and regular expressions.  It also can automatically replace matches with
+   new text.
+</p>
+
+<h3>Search options</h3>
+<p>
+   The Find and Replace dialog has a few extra options for your search.
+</p>
+<ul>
+   <li><b>Match whole word only</b> lets you search for entire words.
+   By default, the text will be matched even if it occurs in the
+   middle of a word.
+
+   <li><b>Match case</b> only matches text that has exactly the same
+   mix of upper/lower case letters as the search term.  By default,
+   the search is insensitive to case.
+
+   <li><b>Regular expression</b> interprets the search term as a
+   regular expression pattern rather than as literal text.  See below
+   for more details.
+
+   <li><b>Preserve case</b> mimics the pattern of upper/lower case
+   letters in the matched source text when performing a replacement.
+   <ul>
+      <li>If the matched text is all lower-case, then the replacement
+      text is all converted to lower-case
+      <li>If the matched text is all upper-case, then the replacement
+      text is all converted to upper-case
+      <li>If the matched text uses a mix of upper and lower case,
+      then the replacement text is substituted exactly as given in
+      the Replace With box
+      <li>If the matched text uses a mix of upper and lower case,
+      and its first letter is capitalized, then the first letter of the
+      replacement text is capitalized, and the rest is left as given
+      in the Replace With box
+   </ul>
+   <p>
+      For example, suppose you un-check Match Case, check Preserve
+      Case, enter <b>gpioport</b> in the Find What box, and type
+       <b>outputPin</b> in the Replace With box.  Here's how the
+      replacement will work for various matches:
+   </p>
+   <style type="text/css">
+      #preserveCaseExamples td:nth-child(1), #preserveCaseExamples td:nth-child(2) { white-space: nowrap; }
+   </style>
+   <table class="data" id="preserveCaseExamples">
+      <tr><th>Original text</th><th>New text after replacement</th><th>Explanation</th></tr>
+      <tr><td>GPIOPORT: 7</td><td>OUTPUTPIN: 7</td><td>Original is all caps, so replacement is converted to all caps</tr>
+      <tr><td>gpioport: 7</td><td>outputpin: 7</td><td>Original is all lower case, so replacement is converted to all lower case</tr>
+      <tr><td>gpioPort: 7</td><td>outputPin: 7</td><td>Original is mixed case, so the Replace With text is used exactly as entered</tr>
+      <tr><td>GpioPort: 7</td><td>OutputPin: 7</td><td>Original is mixed case with the first letter capitalized, so the Replace With text's first letter is capitalized</tr>
+   </table>
+   <p>
+      If you <i>don't</i> check Preserve Case, the result is much
+      simpler: every case is replaced with the exact text in the Replace With
+      box, <b>outputPin</b>, in that exact mix of upper and lower case.
+   </p>
+
+</ul>
+
+
+<h3>Regular expression searches</h3>
+<p>
+   The Find-and-Replace dialog lets you search by literal text or by
+   regular expression patterns.  Tick the <b>Regular Expression</b>
+   checkbox to enable regular expression searching.
+</p>
+<p>
+   The regular expression grammar is the one implemented in the standard
+   C++11 compiler library, for which you can find the full technical
+   details in many C++ language references, such as <a href="https://en.cppreference.com/w/cpp/regex/ecmascript">https://en.cppreference.com/w/cpp/regex/ecmascript</a>.
+   You can also rely pretty well on any manual covering standard Javascript
+   regular expressions, since the C++ and Javascript grammars are almost
+   exactly the same.  Here's a very quick summary of the elements I use most often:
+</p>
+<table class="data">
+   <tr><th>Symbol</th><th>Meaning</th></tr>
+   <tr><td>.</td><td>Match any single character (except newlines)</td></tr>
+   <tr><td>?</td><td>Match the preceding symbol zero or once</td></tr>
+   <tr><td>*</td><td>Match the preceding symbol zero or more times: <tt>x*</tt> matches zero or more <tt>x</tt>'s, <tt>.*</tt> matches any string</td></tr>
+   <tr><td>+</td><td>Match the preceding symbol one or more times</td></tr>
+   <tr><td>{<i>m,n</i>}</td><td>Match the preceding symbol at least <i>m</i> times and at most <i>n</i> times</td></tr>
+   <tr><td>( )</td><td>Groups text for operators: <tt>(abc)+</tt> matches the sequence <tt>abc</tt> one or more times; also
+      creates a back-reference that you can use in a substitution in the Replace With text</td></tr>
+   <tr><td>[ ]</td><td>Matches any single character listed inside the brackets: <tt>[0123457]</tt> matches one octal digit; you
+      can also use ranges, such as <tt>[0-7]</tt> or <tt>[a-z]</tt>, and exclusions, as in <tt>[^a-z]</tt> (match any single character <i>except</i> a to z)</td></tr>
+   <tr><td>|</td><td>An "OR" that matches the expressions on either side of the bar: <tt>abc|def</tt> matches either <tt>abc</tt> or <tt>def</tt></td></tr>
+   <tr><td>\d</td><td>Matches a single digit</td></tr>
+   <tr><td>\d</td><td>Matches a single non-digit</td></tr>
+   <tr><td>\w</td><td>Matches a single word character (alphabetic, digit)</td></tr>
+   <tr><td>\W</td><td>Matches any single character that's <i>not</i> a word character</td></tr>
+   <tr><td>\s</td><td>Matches a single space, tab, or other whitespace character</td></tr>
+   <tr><td>\S</td><td>Matches any single character that's <i>not</i> whitespace</td></tr>
+   <tr><td>\b</td><td>Matches a position at the start or end of a word (this is an "assertion" that matches a <i>position</i> in the source text, without
+      using up any of the characters of the source text</td></tr>
+   <tr><td>^</td><td>Matches the beginning of a line</td></tr>
+   <tr><td>$</td><td>Matches the end of a line</td></tr>
+   <tr><td>\B</td><td>Matches a position that's <i>not</i> at the start or end of a word</td></tr>
+   <tr><td>\. \* \? \+ \( \) \[ \] \| \\ \{ \} \^ \$</td><td>Putting a backslash, \, in front of one of the special symbols
+      removes its specialness, making it literally match the special character; so <tt>\(</tt> matches an open
+      paren, <tt>\*</tt> matches an asterisk, <tt>\\</tt> matches a backslash, and so on</td></tr>
+</table>
+<p>
+   There are some other more advanced features, such as non-greedy
+   quantifiers (<tt>??</tt>, <tt>+?</tt>, <tt>*?</tt>, <tt>{m,n}?</tt>),
+   positive and negative assertions, named character classes, and back-references,
+   that you can read about in a C++ or Javascript reference guide.
+</p>
+
+<h3>Regular expression replacement with back-references</h3>
+<p>
+   When you enable regular expressions in the search box, you also get
+   a special feature for the replacement text called "back-references".
+   A back-reference is the portion of the original text that matched
+   a parenthesized section of the regular expression.  You can substitute
+   the back-reference text into the replacement text, using the special
+   codes <tt>\1</tt>, <tt>\2</tt>, <tt>\3</tt>, and so on.  When the
+   replacement is carried out, <tt>\1</tt> in the Replace With text is
+   replaced with the original text in the buffer that matches the first
+   parenthesized portion of the Find What regular expression, <tt>\2</tt>
+   is replaced with the second parenthesized group match, and so on.
+</p>
+<p>
+   You can also use <tt>\0</tt> to substitute the
+   entire matching source text.
+</p>
+<p>
+   For example, the search term <tt>gpio:(\d+)</tt>, will match the
+   literal text "gpio:" followed by a string of decimal digits.  The
+   replacement text <tt>port:\1</tt> will replace each occurrence
+   with the string "port:" followed by the <i>same digit string</i>
+   from the original text, so "gpio:7" will become "port:7" and
+   "gpio:12" will become "port:12".
+</p>
+
+<h2>Printing</h2>
+<p>
+   The print options should be self-explanatory (or at least familiar
+   enough, if you've ever used any other Windows programs), except that
+   the Header and Footer settings in the Page Setup options have some
+   extra hidden features.
+</p>
+<p>
+   First, the header and footer each let you set up three sections, for
+   text that's aligned at the left, center, and right side of the page.
+   Separate the sections with the vertical bar symbol, "|".
+</p>
+<pre>
+    This part is at the left|This is centered|This is at the right
+</pre>
+<p>
+   If there are only two parts, they're aligned left and right:
+</p>
+<pre>
+   This part is at the left|This part is at the right
+</pre>
+<p>
+   If you want to include a vertical bar character literally in the
+   header/footer text printed on the page, type it twice: ||.
+</p>
+<p>
+   Second, there are several substitution variables that you can use,
+   written as <tt>$(<i>name</i>)</tt>.  The substitution variables
+   are:
+</p>
+<ul>
+   <li><tt>$(pageNum)</tt> = current page number
+   <li><tt>$(numPages)</tt> = total number of pages
+   <li><tt>$(date)</tt> = the current date, with system default formatting
+   <li><tt>$(time)</tt> = the current time of day, with system default formatting
+   <li><tt>$(type)</tt> = the configuration type, "Main" or "Safe Mode"
+   <li><tt>$(unitNum)</tt> = the Pinscape unit number
+   <li><tt>$(unitName)</tt> = the Pinscape unit name
+   <li><tt>$$</tt> = a literal dollar sign, <tt>$</tt>
+</ul>
+
+
+<h2>Emacs Mode</h2>
+<p>
+   The JSON editor has a preference setting for Emacs-style key bindings.
+   Emacs is an old text editor that's mostly used by Linux C++ programmers,
+   so I don't expect there's much overlap with Windows virtual pin cab
+   builders, but I know there's at least one example (me).
+</p>
+<p>
+   When you enable Emacs mode, the Configuration Editor uses key bindings
+   that match the basic set of keys Emacs uses for cursor navigation and simple
+   editing operations.  It's not even remotely a complete Emacs
+   emulation, and it doesn't have any of Emacs's advanced features
+   or scripting capabilities.  For the most part, it's just a remapping of
+   the keyboard for people who prefer using the Emacs-style key bindings,
+   with a few tweaks to the UI behavior to better match the Emacs idioms.
+   But it doesn't add any new features or capabilities; it's just the
+   same editor with different key assignments.
+</p>
+<table class="data">
+   <tr><th>Key sequence</th><th>Command</th></tr>
+   <tr><td>Ctrl+A</td><td>Start of line</td></tr>
+   <tr><td>Ctrl+B</td><td>Cursor left ("back")</td></tr>
+   <tr><td>Ctrl+C</td><td>Copy</td></tr>
+   <tr><td>Ctrl+D</td><td>Delete character</td></tr>
+   <tr><td>Ctrl+E</td><td>End of line</td></tr>
+   <tr><td>Ctrl+F</td><td>Cursor right ("forward")</td></tr>
+   <tr><td>Ctrl+G</td><td>Cancel selection mode/cancel search</td></tr>
+   <tr><td>Ctrl+K</td><td>Delete to end of line ("kill")</td></tr>
+   <tr><td>Ctrl+L</td><td>Scroll to center the cursor on screen</td></tr>
+   <tr><td>Ctrl+N</td><td>Cursor down ("next line")</td></tr>
+   <tr><td>Ctrl+O</td><td>Open the line here by inserting a newline after the cursor</td></tr>
+   <tr><td>Ctrl+P</td><td>Cursor up ("previous line")</td></tr>
+   <tr><td>Ctrl+R</td><td>Reverse search</td></tr>
+   <tr><td>Ctrl+S</td><td>Search</td></tr>
+   <tr><td>Ctrl+T</td><td>Transpose characters at caret</td></tr>
+   <tr><td>Ctrl+V</td><td>Page down</td></tr>
+   <tr><td>Alt+W </td><td>Page up</td></tr>
+   <tr><td>Esc W</td><td>Page up</td></tr>
+   <tr><td>Ctrl+W</td><td>Cut selection</td></tr>
+   <tr><td>Esc W</td><td>Copy selection</td></tr>
+   <tr><td>Alt+W</td><td>Copy selection</td></tr>
+   <tr><td>Ctrl+Y</td><td>Paste last cut/copy ("yank")</td></tr>
+   <tr><td>Ctrl+Z</td><td>Scroll down a line</td></tr>
+   <tr><td>Alt+Z</td><td>Scroll up a line</td></tr>
+   <tr><td>Esc Z</td><td>Scroll up a line</td></tr>
+   <tr><td>Ctrl+Space</td><td>Set the selection starting point</td></tr>
+   <tr><td>Ctrl+_</td><td>Go to line number</td></tr>
+   <tr><td>Ctrl+[</td><td>Check for errors</td></tr>
+   <tr><td>Alt+%</td><td>Search and replace</td></tr>
+   <tr><td>Esc %</td><td>Search and replace</td></tr>
+   <tr><td>Esc &lt;</td><td>Go to top of file</td></tr>
+   <tr><td>Alt+&lt;</td><td>Go to top of file</td></tr>
+   <tr><td>Esc &gt;</td><td>Go to end of file</td></tr>
+   <tr><td>Alt+&gt;</td><td>Go to end of file</td></tr>
+   <tr><td>F1</td><td>Help</td></tr>
+   <tr><td>F3</td><td>Find Next</td></tr>
+   <tr><td>Shift+F3</td><td>Find Previous</td></tr>
+   <tr><td>F12</td><td>Save to a local file</td></tr>
+   <tr><td>Ctrl+F9</td><td>Undo</td></tr>
+   <tr><td>Ctrl+F10</td><td>Redo</td></tr>
+   <tr><td>Ctrl+X G</td><td>Go to line number</td></tr>
+   <tr><td>Ctrl+X H</td><td>Select All</td></tr>
+   <tr><td>Ctrl+X R</td><td>Redo</td></tr>
+   <tr><td>Ctrl+X U</td><td>Undo</td></tr>
+   <tr><td>Ctrl+X Ctrl+F</td><td>Import from file</td></tr>
+   <tr><td>Ctrl+X Ctrl+R</td><td>Reload from Pico</td></tr>
+   <tr><td>Ctrl+X Ctrl+S</td><td>Save to Pico</td></tr>
+   <tr><td>Ctrl+X Ctrl+W</td><td>Write to file</td></tr>
+   <tr><td>Ctrl+X Ctrl+X</td><td>Move cursor to other end of selection</td></tr>
+</table>
+   
+</body>
+</html>

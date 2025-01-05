@@ -22,7 +22,7 @@ early stage in its development.
 (and the controller's feedback features (LEDs and rumble motors) can be mapped to
 output ports via the "computed output" feature)
 
-* [Open Pinball Device](OpenPinballDevice/OpenPinballDeviceHID.htm) support
+* [Open Pinball Device](http://mjrnet.org/pinscape/OpenPinballDevice/OpenPinballDeviceHID.htm) support
 
 * All input devices (keyboard, gamepad, XBox, Open Pinball Device) are optional, they can be mixed
 and matched in any combination, and and all of their virtual controls (buttons,

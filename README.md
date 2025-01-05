@@ -12,7 +12,28 @@ little more "technical" than the KL25Z system, especially at this
 early stage in its development.
 
 
-## Quick overview of features
+## Quick setup guide
+
+A pre-built Windows installation is available on the github project page, 
+under the **Releases** section in the right panel.  
+
+The distribution is a simple ZIP file, and installation is just a
+matter of unpacking the ZIP file into a local directory on your hard
+disk.  The only caveat is that you should **not** use a folder within
+the system Program Files tree, because Windows applies special write
+protection to that whole tree.  Just about anywhere else should be fine,
+such as a root-level folder (C:\PinscapePico, say) or a folder within
+your personal C:\Users folder.
+
+Once you unpack the files, you can launch the Pinscape Pico GUI Config
+Tool by double-clicking **GUIConfigTool.exe**.  That's designed to be
+your main gateway to the system.  The program will offer on-screen
+instructions for setting up a new Pico with the Pinscape software.
+
+More setup details can be found [below](#SetupDetails).
+
+
+## Overview of features
 
 * USB keyboard emulation, for button input mapping
 
@@ -121,7 +142,10 @@ for troubleshooting problems that don't easily yield to other means
 and software status for button inputs, feedback device outputs, plunger sensor, and IR features
 
 
-## Initial firmware installation
+<a name="SetupDetails"></a>
+## More details on installation
+
+### Initial Pico firmware installation
 
 The Pinscape Pico Config Tool guides you through the initial setup process for a new
 device.  Just run the program and follow the on-screen instructions under the "New
@@ -149,7 +173,7 @@ After the initial install, you can install firmware updates directly
 through the Config Tool without all of the manual steps.
 
 
-## Configuration
+### Configuration
 
 This project's configuration setup is rather different from the KL25Z
 Pinscape setup.  Instead of a graphical config tool, Pinscape Pico
@@ -179,7 +203,7 @@ settings don't go into effect until you reboot the device, which is
 why we also added `--reset` at the end.
 
 
-## Firmware updates
+### Firmware updates
 
 You can update the firmware using the same procedure as the initial
 install, manually forcing the Pico into Boot Loader mode and manually
@@ -310,13 +334,16 @@ programming system that can't readily import C++ APIs.  See
 [USBProtocol/README.md](USBProtocol/README.md) for details.
 
 
-## Building from source
+## Building the project from source
 
-To build the project from source, clone the github repository to your
-PC.  (You can also download a snapshot of the github code as a ZIP
-file and unpack it into a local directory on your PC.)  The firmware
-and Windows tools use completely separate build systems; see below
-for instructions for each.
+A pre-built Windows distribution is available on the github page,
+under the **Releases** section in the right panel.
+
+If you wish to build the project from source, clone the github
+repository to your PC.  (You can also download a snapshot of the
+github code as a ZIP file and unpack it into a local directory on your
+PC.)  The firmware and Windows tools use completely separate build
+systems; see below for instructions for each.
 
 
 ### Building the Pinscape firmware

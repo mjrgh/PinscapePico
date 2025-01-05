@@ -81,7 +81,7 @@ int main(int argc, char **argv)
         ++p;
     else if (p[0] == '0' && tolower(p[1]) == 'x')
         p += 2;
-    int addr = static_cast<int>(p, nullptr, 16));
+    int addr = static_cast<int>(p, nullptr, 16);
     if (addr < 0x08 || addr > 0xF7)
     {
         printf("Invalid address - must be a hex number from 08 to F7\n");

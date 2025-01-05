@@ -1,0 +1,24 @@
+Release build procedure
+
+- Build PinscapePico/firmware
+
+   ..\..\update-cmake
+   mk clean
+   mk
+
+- Build PinscapePico/PWMWorker
+
+   ..\..\update-cmake
+   mk clean
+   mk
+
+- Build Windows programs
+
+   Launch Visual Studio, open PinscapePico.sln
+   Select Release/x64 configuration
+   Build > Clean Solution
+   Build > Build Solution
+
+- Build a zip bundle
+
+   build-release-zip

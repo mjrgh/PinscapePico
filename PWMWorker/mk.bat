@@ -1,2 +1,2 @@
-@nmake
-@nmake -f SetPWMWorkerAddr.mak
+@nmake -f makefile %*
+@nmake -f SetPWMWorkerAddr.mak %*

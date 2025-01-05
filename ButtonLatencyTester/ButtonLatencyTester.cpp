@@ -90,12 +90,12 @@ static void ClockTestMode(PinscapePico::PicoClockSync &cloc);
 const int NAveragingRounds = 100;
 const int NFilterRounds = 10;
 
-// convenience class wrapping a system handle
-struct HandleHolder
+// convenience class wrapping a system handle (file, event)
+struct SysHandleHolder
 {
-	HandleHolder() : h(NULL) { }
-	HandleHolder(HANDLE h) : h(h) { }
-	~HandleHolder() { Clear(); }
+	SysHandleHolder() : h(NULL) { }
+	SysHandleHolder(HANDLE h) : h(h) { }
+	~SysHandleHolder() { Clear(); }
 	
 	void Clear()
 	{
@@ -709,12 +709,12 @@ public:
 	virtual void Main()
 	{
 		// find the Open Pinball Device HID for the selected unit
-		HandleHolder hOPD;
+		SysHandleHolder hOPD;
 		USHORT inReportLen = 0;
 		for (auto &hid : ctx->hids)
 		{
 			// open the HID
-			HandleHolder h(CreateFileW(hid.c_str(),
+			SysHandleHolder h(CreateFileW(hid.c_str(),
 				GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
 				NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL));
 			if (h != INVALID_HANDLE_VALUE)
@@ -789,7 +789,7 @@ public:
 		}
 
 		// set up an event for overlapped read
-		HandleHolder hEvent(CreateEvent(NULL, TRUE, FALSE, NULL));
+		SysHandleHolder hEvent(CreateEvent(NULL, TRUE, FALSE, NULL));
 
 		// monitor input
 		std::vector<BYTE> buf(inReportLen);

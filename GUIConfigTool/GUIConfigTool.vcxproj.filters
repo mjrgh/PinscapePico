@@ -370,45 +370,6 @@
     <Image Include="resources\OpenPinDevButtons.bmp">
       <Filter>Resources</Filter>
     </Image>
-    <Image Include="Help\IRRX-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\PCA9555-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\TLC5940-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\IRTX-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\RV-3032-C7-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\DS1307-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\DS3231M-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\ADS1115-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\LIS3DSH-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\LIS3DH-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\74hc595-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\74hc165-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\PWMWorker-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Help\PlungerCal.htm">
@@ -485,6 +446,45 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="ConfigTemplates\DIYExpansionBoard.json">
       <Filter>ConfigTemplates</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\74hc165-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\74hc595-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\ADS1115-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\DS1307-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\DS3231M-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\IRRX-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\IRTX-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\LIS3DH-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\LIS3DSH-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\PCA9555-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\PWMWorker-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\RV-3032-C7-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\TLC5940-wiring.png">
+      <Filter>Help Files</Filter>
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>

@@ -141,6 +141,21 @@ for troubleshooting problems that don't easily yield to other means
 * GUI configuration and testing tool, with detailed visualizations of hardware
 and software status for button inputs, feedback device outputs, plunger sensor, and IR features
 
+## Documentation
+
+The main documentation right now is the Config Tool help.  That has extensive
+information on the Config Tool itself, with a lot of details on the how the
+firmware works.  The JSON Configuration Reference section in particular has
+extremely detailed information on all of the features, subsystems, and peripheral
+hardware supported.
+
+You can access this from the Help menu in the GUI Config Tool (GUIConfigTool.exe),
+or you can simply open **Help\ConfigTool.htm** in your favorite browser.
+
+In case you'd like to just read about the system without actually installing
+anything, I've made the same help files available online, at
+[mjrnet.org/pinscape/PinscapePico/Help/ConfigTool.htm](http://mjrnet.org/pinscape/PinscapePico/Help/ConfigTool.htm)
+
 
 <a name="SetupDetails"></a>
 ## More details on installation

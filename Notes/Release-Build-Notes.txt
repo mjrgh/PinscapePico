@@ -22,3 +22,11 @@ Release build procedure
 - Build a zip bundle
 
    build-release-zip
+
+- Create a release on github
+
+   tag vX.Y.Z
+   push --tags
+   create the release via the github workflow
+
+- Copy Config Tool help files to mjrnet.org site

@@ -116,25 +116,14 @@ remain competitive.
 
 ## Status
 
-These designs are currently prototypes, on paper only.  I haven't even
-built the physical boards, so the designs haven't been tested at all.
-In addition, the software doesn't exist.  The original Pinscape
-firmware can only be used with the FRDM-KL25Z, and it would require a
-substantial amount of work to port to the Pico.  I think a port would
-be relatively straightforward given that the Pico is in most ways a
-more capable microcontroller platform than the KL25Z, but it would
-nonetheless be a lot of work to port the software, since the software
-is pretty intimately tied to the low-level hardware details of the
-KL25Z.
+This design is currently a prototype, on paper only.  I haven't
+built a physical version of the whole board, although I've 
+physically build and tested all of the main sub subsystems to
+verify that the electronic designs are sound.
 
-At the moment, I don't have any time budgeted to port the software or
-do a test build of the boards.  I drew up the boards mostly to see
-what it would take to replicate the original expansion board feature
-set with a Pico, and to see what I could fit everything onto a single
-board.  I do want to pursue this project further at some point, but I
-don't know how long it'll be before I get to it, so I thought I'd
-publish the plans here in case they're useful to anyone who might be
-able to make more tangible progress in the near term.
+All of the devices on this board are supported by the Pinscape Pico
+software, and the Config Tool comes with a template configuration
+file with all of the necessary settings.
 
 
 ## Design Notes
@@ -675,5 +664,3 @@ coin doors (for the coin chute lamps) and Suzo-Happ lighted
 push-buttons.  This was eliminated in later versions (due to space
 constraints).  However, there's a companion Power Distribution Board
 that includes the same 6.3V regulator.
-
-

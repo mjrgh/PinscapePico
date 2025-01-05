@@ -12,6 +12,7 @@ little more "technical" than the KL25Z system, especially at this
 early stage in its development.
 
 <a href="ScreenShots/ConfigToolMain.png"><img src="ScreenShots/ConfigToolMain-Thumb.png"></a>
+<a href="ScreenShots/ConfigToolEditor.png"><img src="ScreenShots/ConfigToolEditor-Thumb.png"></a>
 <a href="ScreenShots/ConfigToolButtons.png"><img src="ScreenShots/ConfigToolButtons-Thumb.png"></a>
 <a href="ScreenShots/ConfigToolOutputs.png"><img src="ScreenShots/ConfigToolOutputs-Thumb.png"></a>
 
@@ -290,17 +291,17 @@ Boot Loader view, if the device is currently in Boot Loader mode.
 
 ## Expansion boards
 
-Pinscape Pico is designed to work with many different hardware
-configurations.  It has drivers for multiple chips in all of the
-categories important to virtual pinball cab builders: accelerometers,
-PWM controllers, ADCs, GPIO extenders, shift registers (input and
-output), plunger sensors, and more.  This makes it possible to use the
-Pinscape Pico software in a wide range of hardware environments, from
-a stand-alone Pico, to a solderless setup with QWIIC breakout boards,
-to a custom circuit board.
+Pinscape Pico will work on a completely stand-alone Pico, but for
+a full virtual pin cab setup, you'll almost certainly want to add
+some external peripherals to supplement the Pico's relatively
+small complement of GPIO ports, and its lack of an on-board
+accelerometer.
 
 As part of the Pinscape Pico project, I've developed a few custom
-"expansion boards" purpose-built for virtual pin cabs:
+"expansion boards" purpose-built for virtual pin cabs.
+
+<a href="ScreenShots/DIYBoardMain.png"><img src="ScreenShots/DIYBoardMain-Thumb.png"></a>
+<a href="ScreenShots/DIYBoardPower.png"><img src="ScreenShots/DIYBoardPower-Thumb.png"></a>
 
 * **DIY-friendly expansion board set:**  A two-board set, designed
   to work together as a unit, providing a complete virtual pin cab
@@ -329,10 +330,11 @@ As part of the Pinscape Pico project, I've developed a few custom
   KL25Z in your old setup.
 
 But Pinscape Pico isn't limited to *my* expansion board designs.
-The software is designed from the ground up to work with many
-different peripherals, and it doesn't make any assumptions about
-which peripheral devices are present.  It'll work just as well
-with other people's expansion board designs as with my board designs.
+The software was designed from the ground up to be fully configurable,
+and has support for numerous peripheral options.  It doesn't make any 
+assumptions about which peripheral devices are present.  It'll work 
+just as well with other people's expansion board designs as with my
+board designs.
 
 
 ## Pinscape Pico API for Windows applications

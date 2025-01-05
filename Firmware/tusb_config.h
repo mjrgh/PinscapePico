@@ -97,8 +97,24 @@
 // so buffers on the order of a a few KB are fine.)
 #define CFG_TUD_CDC_TX_BUFSIZE  1024
 #define CFG_TUD_CDC_RX_BUFSIZE  64
-#define CFG_TUD_VENDOR_TX_BUFSIZE 4096
-#define CFG_TUD_VENDOR_RX_BUFSIZE 4096
+
+// For the vendor interface, make room in the FIFO to buffer a
+// reply/request header plus the maximum "extra data" transfer size,
+// currently 4K.  This allows the vendor interface handler to buffer an
+// entire reply without blocking, and allows buffering one entire
+// request on receive.  One receive request is adequate because the
+// protocol only supports one client connection at a time (so we don't
+// have to worry about multiple clients throwing requests at us
+// concurrently), and it's synchronous, in that the client has to wait
+// for a reply before sending the next request.
+//
+// Since this is included from tinyusb, we'd rather not complicate build
+// dependencies by dragging in the USB protocol headers, so we'll just
+// hard-code a number for the header size portion of the buffer size,
+// leaving some extra room for future expansion.  The request/reply
+// headers are currently 28 bytes; bump up to 256 for headroom.
+#define CFG_TUD_VENDOR_TX_BUFSIZE (256+4096)
+#define CFG_TUD_VENDOR_RX_BUFSIZE (256+4096)
 
 // Report ID prefixes
 #define REPORT_ID_KEYBOARD 1
@@ -107,3 +123,10 @@
 // Enable debugging if desired
 //#define CFG_TUSB_DEBUG 2
 //#define CFG_TUSB_DEBUG_PRINTF tusbLogPrintf
+
+// Custom instrumentation entrypoint for additional debugging code
+// we add to tinyusb
+#ifdef __cplusplus
+extern "C"
+#endif
+   void logToPinscape(const char *f, ...);

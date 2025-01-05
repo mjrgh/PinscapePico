@@ -128,7 +128,7 @@ void PCA9685::Configure(JSONParser &json)
                 char jsonLocus[32];
                 snprintf(jsonLocus, _countof(jsonLocus), "pca9685[%d].oe", index);
                 oePort.reset(OutputManager::ParseDevice(
-                    jsonLocus, Format("PCA9685 (/OE)", index), json, oeVal, false, true));
+                    jsonLocus, Format("PCA9685[%d] (/OE)", index), json, oeVal, false, true));
 
                 // abort on failure
                 if (oePort == nullptr)
@@ -163,7 +163,7 @@ void PCA9685::Configure(JSONParser &json)
             char oeBuf[32];
             Log(LOG_CONFIG, "pca9685[%d] configured on I2C%d addr 0x%02x; /OE=%s, drive, %s logic\n",
                 index, bus, addr,
-                oePort != nullptr ? "Not Connected" : oePort->FullName(oeBuf, sizeof(oeBuf)),
+                chip->oePort != nullptr ? chip->oePort->FullName(oeBuf, sizeof(oeBuf)) : "Not Connected",
                 (chip->mode2 & MODE2_OUTDRV) != 0 ? "totem-pole" : "open-drain",
                 (chip->mode2 & MODE2_INVRT) != 0 ? "inverted " : "positive");
         }, true);

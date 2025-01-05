@@ -9590,15 +9590,16 @@ GND).</text>
 <plain>
 <text x="7.62" y="73.66" size="2.54" layer="91">Accelerometer
 I2C address 0x18</text>
-<text x="71.12" y="12.7" size="1.778" layer="91">Note: SDO/SA0 sets I2C address:
+<text x="67.31" y="2.54" size="1.778" layer="91" align="center-left">SDO/SA0 sets I2C address:
 GND = 0x18, VDD = 0x19</text>
+<text x="80.264" y="12.954" size="1.778" layer="91" align="center-left">CS = VDD -&gt; I2C mode</text>
 </plain>
 <instances>
 <instance part="IC3" gate="G$1" x="45.72" y="50.8" smashed="yes">
 <attribute name="NAME" x="77.47" y="30.48" size="1.778" layer="95" align="center-left"/>
 <attribute name="VALUE" x="77.47" y="27.94" size="1.778" layer="96" align="center-left"/>
 </instance>
-<instance part="GND42" gate="1" x="66.04" y="7.62" rot="MR0"/>
+<instance part="GND42" gate="1" x="63.5" y="7.62" rot="MR0"/>
 <instance part="GND51" gate="1" x="40.64" y="40.64" rot="MR90"/>
 <instance part="GND52" gate="1" x="86.36" y="43.18" rot="MR270"/>
 <instance part="GND50" gate="1" x="86.36" y="48.26" rot="MR270"/>
@@ -9613,14 +9614,9 @@ GND = 0x18, VDD = 0x19</text>
 <nets>
 <net name="GND" class="0">
 <segment>
-<pinref part="IC3" gate="G$1" pin="CS"/>
 <pinref part="GND42" gate="1" pin="GND"/>
-<wire x1="66.04" y1="15.24" x2="66.04" y2="12.7" width="0.1524" layer="91"/>
 <pinref part="IC3" gate="G$1" pin="SDO/SA0"/>
-<wire x1="66.04" y1="12.7" x2="66.04" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="63.5" y1="15.24" x2="63.5" y2="12.7" width="0.1524" layer="91"/>
-<wire x1="63.5" y1="12.7" x2="66.04" y2="12.7" width="0.1524" layer="91"/>
-<junction x="66.04" y="12.7"/>
+<wire x1="63.5" y1="15.24" x2="63.5" y2="10.16" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="GND51" gate="1" pin="GND"/>
@@ -9680,6 +9676,12 @@ GND = 0x18, VDD = 0x19</text>
 <pinref part="C3" gate="G$1" pin="1"/>
 <wire x1="22.86" y1="50.8" x2="22.86" y2="48.26" width="0.1524" layer="91"/>
 <junction x="22.86" y="50.8"/>
+</segment>
+<segment>
+<pinref part="IC3" gate="G$1" pin="CS"/>
+<wire x1="66.04" y1="15.24" x2="66.04" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="66.04" y1="12.7" x2="68.58" y2="12.7" width="0.1524" layer="91"/>
+<label x="68.58" y="12.7" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>

@@ -633,7 +633,7 @@ static void ShowLog(std::unique_ptr<VendorInterface> &upDevice, const std::strin
 			HWND hwnd = NULL;
 			HANDLE hDeviceNotifier = NULL;
 
-			static DWORD Main(void *param)
+			static DWORD CALLBACK Main(void *param)
 			{
 				ThreadCtx *self = reinterpret_cast<ThreadCtx*>(param);
 				const TCHAR *className = _T("PinscapePico.CmdLineConfigTool.Notify");
@@ -1654,10 +1654,13 @@ int main(int argc, char **argv)
 	// show the selected device stats
 	if (!quietMode)
 	{
-		printf("Connected to Pinscape Pico unit #%d (%s), hardware ID %s\n"
-			"Firmware version %d.%d.%d, build date %s\n\n",
+		printf("Connected to Pinscape Pico unit #%d (%s)\n"
+			"Hardware ID %s (%s, RP%d CPU v%d, ROM %s)\n"
+			"Firmware version %d.%d.%d, build date %s (Pico SDK %s, %s)\n\n",
 			devId.unitNum, devId.unitName.c_str(), devId.hwid.ToString().c_str(),
-			vsn.major, vsn.minor, vsn.patch, vsn.buildDate);
+			devId.FriendlyBoardName().c_str(), devId.cpuType, devId.cpuVersion, devId.romVersionName.c_str(),
+			vsn.major, vsn.minor, vsn.patch, vsn.buildDate,
+			devId.picoSDKVersion.c_str(), devId.compilerVersion.c_str());
 	}
 
 	// this is now the selected device

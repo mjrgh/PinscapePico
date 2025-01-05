@@ -1006,14 +1006,32 @@ void PinscapeVendorIfc::ProcessRequest()
     }
 
     // Send the response packet; flush it so that the reply goes to the
-    // host immediately, even if we ended on a partial buffer.
+    // host immediately, even if we ended on a partial endpoint buffer.
+    // Tinyusb only transmits by default on endpoint buffer boundaries
+    // (64 bytes for the Pico's Full Speed interface).
     tud_vendor_write(&resp, sizeof(resp));
     tud_vendor_flush();
 
     // Send the additional response data, if any
     if (resp.xferBytes != 0)
     {
-        tud_vendor_write(pXferOut, resp.xferBytes);
+        // Send the transfer data.  The endpoint FIFO should always be big
+        // enough to handle the response header plus the maximum extra transfer
+        // data size, so it's an error if we couldn't write the whole thing.
+        // Since the protocol is synchronous, there can't be old data sitting
+        // in the buffer, and we explicitly size the buffer in the tusb
+        // configuration to be big enough for a maximum reply, so the only
+        // way we should have a partial write is if our tusb configuration
+        // is wrong.  If this error occurs, CFG_TUD_VENDOR_TX_BUFSIZE in
+        // tusb_config.h is probably set too small - it must be large enough
+        // to accommodate sizeof(resp) plus the maximum xferOut data size.
+        if (uint32_t written = tud_vendor_write(pXferOut, resp.xferBytes); written < resp.xferBytes)
+        {
+            Log(LOG_ERROR, "VendorIfc: incomplete transfer data write: xferBytes=%u, written=%u (check tusb_config.h -> CFG_TUD_VENDOR_TX_BUFSIZE)\n",
+                resp.xferBytes, written);
+        }
+
+        // flush immediately, in case we didn't fill the endpoint buffer
         tud_vendor_flush();
     }
 

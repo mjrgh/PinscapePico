@@ -819,3 +819,21 @@ extern "C" int tusbLogPrintf(const char *f, ...)
     return ret;
 }
 #endif // CFG_TUD_DEBUG
+
+// Additional instrumentation for tinyusb.  This is the same idea as
+// tusbLogPrintf() above, but this one's for adding OUR instrumentation
+// to tinyusb code - tusbLogPrintf is for tinyusb's own instrumentation
+// that's part of the official distribution.  Our version lets us add
+// selective instrumentation, without activating the voluminous built-in
+// debug logging, to track down specific issues we want to investigate.
+//
+// Since this is our own instrumentation, we log it under the DEBUG
+// category (rather than the TINYUSB category that we use for tinyusb's
+// own native instrumentation).
+extern "C" void logToPinscape(const char *f, ...)
+{
+    va_list va;
+    va_start(va, f);
+    LogV(LOG_DEBUG, f, va);
+    va_end(va);
+}

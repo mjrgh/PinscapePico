@@ -11,6 +11,10 @@ original KL25Z Pinscape, plus some neat new tricks.  It's also a
 little more "technical" than the KL25Z system, especially at this
 early stage in its development.
 
+<a href="ScreenShots/ConfigToolMain.png"><img src="ScreenShots/ConfigToolMain-Thumb.png"></a>
+<a href="ScreenShots/ConfigToolButtons.png"><img src="ScreenShots/ConfigToolButtons-Thumb.png"></a>
+<a href="ScreenShots/ConfigToolOutputs.png"><img src="ScreenShots/ConfigToolOutputs-Thumb.png"></a>
+
 
 ## Quick setup guide
 
@@ -610,7 +614,7 @@ Released under a BSD 3-clause license - NO WARRANTY
 CRC++, Copyright (c) 2022, Daniel Bahr.  Distributed under a BSD
 3-clause license.
 
-The Pico C++ SDK, Copyright 2020 by Raspberry Pi (Trading) ltd.
+Pico C++ SDK, Copyright 2020 by Raspberry Pi (Trading) ltd.
 Distributed under a BSD 3-clause license.
 
 Scintlla Edit Control, Copyright 1998-2021 by Neil Hodgson

@@ -1,6 +1,7 @@
 @echo off
 
 rem  Construct the release date stamp
+set SysDateTime=
 for /f "skip=1" %%i in ('wmic os get localdatetime') do if not defined SysDateTime set SysDateTime=%%i
 set ReleaseDate=%SysDateTime:~0,8%
 echo Building release %ReleaseDate%

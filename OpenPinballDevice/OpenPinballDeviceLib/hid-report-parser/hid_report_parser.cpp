@@ -894,6 +894,12 @@ namespace {
 							// negative shift -> right shift (by -shift number of bits)
 							int8_t shift = shift_dest - shift_src;
 
+							// disable shift count warnings for this section, as the static shift
+							// counts exceed the static type size for 32-bit builds, but it's
+							// harmless since we're explicitly checking the type size
+							#pragma warning(push)
+							#pragma warning(disable: 4293)
+
 							bit_copy_t mask = (((bit_copy_t)1 << block_size) - 1) << shift_dest;
 							bit_copy_t v = 0;
 							{
@@ -946,6 +952,9 @@ namespace {
 								case 1: bits[idx] = (bits[idx] & (uint8_t)mask) | (uint8_t)v;
 								}
 							}
+
+							// done with the spurious shift count warnings
+							#pragma warning(pop)
 						}
 					}
 				}

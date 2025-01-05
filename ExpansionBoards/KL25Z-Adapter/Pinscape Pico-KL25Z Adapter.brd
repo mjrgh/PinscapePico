@@ -3119,7 +3119,6 @@ for trimmer refence see : &lt;u&gt;www.electrospec-inc.com/cross_references/trim
 </elements>
 <signals>
 <signal name="GND">
-<contactref element="IC3" pad="8"/>
 <contactref element="IC3" pad="5"/>
 <contactref element="IC3" pad="10"/>
 <contactref element="IC3" pad="12"/>
@@ -3158,7 +3157,6 @@ for trimmer refence see : &lt;u&gt;www.electrospec-inc.com/cross_references/trim
 <contactref element="SW1" pad="C"/>
 <contactref element="SW1" pad="D"/>
 <via x="39.05" y="24.55" extent="1-16" drill="0.3"/>
-<wire x1="60.25" y1="25.47" x2="60.25" y2="24.55" width="0.3" layer="1"/>
 <wire x1="60.25" y1="24.55" x2="60.5" y2="24.3" width="0.3" layer="1"/>
 <wire x1="58.55" y1="25.67" x2="57.57" y2="25.67" width="0.3" layer="1"/>
 <wire x1="57.57" y1="25.67" x2="57.3" y2="25.4" width="0.3" layer="1"/>
@@ -3445,6 +3443,8 @@ for trimmer refence see : &lt;u&gt;www.electrospec-inc.com/cross_references/trim
 <wire x1="9.7" y1="40.7" x2="5.25" y2="40.7" width="1" layer="1"/>
 <wire x1="5.25" y1="40.7" x2="3.1" y2="42.85" width="1" layer="1"/>
 <wire x1="3.1" y1="44.675" x2="3.1" y2="42.85" width="1" layer="1"/>
+<contactref element="IC3" pad="8"/>
+<wire x1="60.25" y1="27.87" x2="60.25" y2="25.47" width="0.3" layer="1"/>
 </signal>
 <signal name="BUTTON1">
 <contactref element="FRDM1" pad="A4"/>

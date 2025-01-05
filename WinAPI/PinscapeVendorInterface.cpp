@@ -2186,23 +2186,38 @@ int VendorInterface::SendRequest(
 	// read any additional response data
 	if (resp.xferBytes != 0)
 	{
-		// If the caller didn't provide an output vector, it's an error,
-		// but we'll still need to read the data to keep the pipe in sync.
-		if (xferInData == nullptr)
+		// make room for the transfer-in data
+		uint8_t *xferInPtr = nullptr;
+		std::unique_ptr<BYTE> dummyBuf;
+		if (xferInData != nullptr)
 		{
-			// read the data into a temporary object
-			std::unique_ptr<BYTE> buf(new BYTE[resp.xferBytes]);
-			Read(buf.get(), resp.xferBytes, sz, REQUEST_TIMEOUT);
-
-			// the absence of an output buffer is a parameter error
-			return PinscapeResponse::ERR_BAD_PARAMS;
+			// the caller provided a buffer - size it to hold the transfer
+			xferInData->resize(resp.xferBytes);
+			xferInPtr = xferInData->data();
+		}
+		else
+		{
+			// the caller didn't provide a buffer - create a dummy buffer
+			dummyBuf.reset(new BYTE[resp.xferBytes]);
+			xferInPtr = dummyBuf.get();
 		}
 
-		// resize the output buffer vector and read the data
-		xferInData->resize(resp.xferBytes);
-		hr = Read(xferInData->data(), resp.xferBytes, sz, REQUEST_TIMEOUT);
-		if (!SUCCEEDED(hr) || sz != resp.xferBytes)
-			return PipeHRESULTToReturnCode(hr);
+		// read the data (which might arrive in multiple chunks)
+		for (auto xferRemaining = resp.xferBytes ; xferRemaining != 0 ; )
+		{
+			// resize the output buffer vector and read the data
+			hr = Read(xferInPtr, xferRemaining, sz, REQUEST_TIMEOUT);
+			if (!SUCCEEDED(hr))
+				return PipeHRESULTToReturnCode(hr);
+
+			// deduct this read from the remaining total and bump the read pointer
+			xferRemaining -= static_cast<uint16_t>(sz);
+			xferInPtr += sz;
+		}
+
+		// if we had to create a dummy buffer, it's a parameter error
+		if (xferInData == nullptr)
+			return PinscapeResponse::ERR_BAD_PARAMS;
 	}
 
 	// the USB exchange was concluded successfully, so return the status

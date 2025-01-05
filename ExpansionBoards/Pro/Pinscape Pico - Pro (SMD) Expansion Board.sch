@@ -15448,7 +15448,6 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="J17" library="pinhead" deviceset="PINHD-1X3" device=""/>
 <part name="J19" library="pinhead" deviceset="PINHD-1X6" device=""/>
 <part name="IC26" library="SamacSys_Parts" deviceset="LIS3DHTR" device=""/>
-<part name="GND42" library="supply1" deviceset="GND" device=""/>
 <part name="GND51" library="supply1" deviceset="GND" device=""/>
 <part name="GND52" library="supply1" deviceset="GND" device=""/>
 <part name="GND50" library="supply1" deviceset="GND" device=""/>
@@ -15495,6 +15494,7 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="R48" library="resistor" deviceset="R-US_" device="R0402" value="1.6K"/>
 <part name="R49" library="resistor" deviceset="R-US_" device="R0402" value="100R"/>
 <part name="R50" library="resistor" deviceset="R-US_" device="R0402" value="330R"/>
+<part name="GND42" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -16055,6 +16055,9 @@ software control</text>
 <description>Accelerometer</description>
 <plain>
 <text x="73.66" y="68.58" size="2.54" layer="91">Accelerometer</text>
+<text x="81.28" y="-3.048" size="1.778" layer="91" align="center-left">SDO/SA0 sets I2C address:
+GND = 0x18, VDD = 0x19</text>
+<text x="107.95" y="7.874" size="1.778" layer="91" align="center-left">CS = VDD -&gt; I2C mode</text>
 </plain>
 <instances>
 <instance part="C35" gate="G$1" x="43.18" y="40.64" smashed="yes">
@@ -16066,10 +16069,10 @@ software control</text>
 <attribute name="NAME" x="97.79" y="25.4" size="1.778" layer="95" align="center-left"/>
 <attribute name="VALUE" x="97.79" y="22.86" size="1.778" layer="96" align="center-left"/>
 </instance>
-<instance part="GND42" gate="1" x="86.36" y="5.08" rot="MR0"/>
 <instance part="GND51" gate="1" x="60.96" y="35.56" rot="MR90"/>
 <instance part="GND52" gate="1" x="106.68" y="38.1" rot="MR270"/>
 <instance part="GND50" gate="1" x="106.68" y="43.18" rot="MR270"/>
+<instance part="GND42" gate="1" x="83.82" y="2.54" rot="MR0"/>
 </instances>
 <busses>
 </busses>
@@ -16079,11 +16082,6 @@ software control</text>
 <pinref part="GND40" gate="1" pin="GND"/>
 <wire x1="43.18" y1="33.02" x2="43.18" y2="35.56" width="0.1524" layer="91"/>
 <pinref part="C35" gate="G$1" pin="2"/>
-</segment>
-<segment>
-<pinref part="IC26" gate="G$1" pin="CS"/>
-<pinref part="GND42" gate="1" pin="GND"/>
-<wire x1="86.36" y1="10.16" x2="86.36" y2="7.62" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="GND51" gate="1" pin="GND"/>
@@ -16100,12 +16098,18 @@ software control</text>
 <wire x1="101.6" y1="43.18" x2="104.14" y2="43.18" width="0.1524" layer="91"/>
 <pinref part="GND50" gate="1" pin="GND"/>
 </segment>
+<segment>
+<pinref part="IC26" gate="G$1" pin="SDO/SA0"/>
+<wire x1="83.82" y1="10.16" x2="83.82" y2="5.08" width="0.1524" layer="91"/>
+<pinref part="GND42" gate="1" pin="GND"/>
+</segment>
 </net>
 <net name="SDA" class="0">
 <segment>
 <pinref part="IC26" gate="G$1" pin="SDA/SDI/SDO"/>
 <wire x1="81.28" y1="10.16" x2="81.28" y2="7.62" width="0.1524" layer="91"/>
-<label x="81.28" y="7.62" size="1.27" layer="95" rot="R270" xref="yes"/>
+<wire x1="81.28" y1="7.62" x2="78.74" y2="7.62" width="0.1524" layer="91"/>
+<label x="78.74" y="7.62" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SCL" class="0">
@@ -16137,6 +16141,12 @@ software control</text>
 <wire x1="63.5" y1="63.5" x2="63.5" y2="45.72" width="0.1524" layer="91"/>
 <junction x="63.5" y="45.72"/>
 <junction x="43.18" y="45.72"/>
+</segment>
+<segment>
+<wire x1="88.9" y1="7.62" x2="86.36" y2="7.62" width="0.1524" layer="91"/>
+<pinref part="IC26" gate="G$1" pin="CS"/>
+<wire x1="86.36" y1="7.62" x2="86.36" y2="10.16" width="0.1524" layer="91"/>
+<label x="88.9" y="7.62" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>
@@ -21854,10 +21864,10 @@ and battery holder unpopulated.</text>
 Use 7-bit address notation, per
 Pico SDK conventions
 
+  $18  LIS3DHTR (accelerometer)
   $20  IC24 PCA9555 (GPIO expander)
   $21  IC25 PCA9555 (GPIO expander)
   $48  IC29 ADS1115 (ADC)
-  $4C  IC15 MC3416 (Accelerometer)
   $51  IC32 RV-3032-C7 (RTC)
   $60  IC15 TLC59116F (PWM)
   $61  IC16 TLC59116F (PWM)

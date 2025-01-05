@@ -44,10 +44,11 @@ as digital ON/OFF outputs or as PWM outputs
 
 * Support for digital ON/OFF output ports via PCA9555 GPIO expander chips
 
-* An add-on project, "PWMWorker", turns a second Pico into a 24-port
-I2C PWM controller, the equivalent of 1&half; TLC59116 or PCA9685
-chips in a DIY-friendly package: add more PWM ports to your system, 24
-at a time, without any SMD soldering
+* An add-on project, "PWMWorker", turns additional Picos into 24-port
+I2C PWM controllers, the equivalent of 1&half; TLC59116 or PCA9685
+chips, but in the DIY-friendly Pico package, and at the DIY-friendly
+Pico price point.  Add more PWM ports to your system, 24
+at a time, without any SMD soldering ([Data Sheet](http://mjrnet.org/pinscape/PWMWorker/DataSheet/PWMWorkerDataSheet.htm) &bull; [Project subtree](PWMWorker))
 
 * Support for button inputs directly through Pico GPIO ports, as well as through
 74HC165 shift registers and PCA9555 GPIO expanders

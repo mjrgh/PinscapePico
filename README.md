@@ -296,7 +296,8 @@ with other people's expansion board designs as with my board designs.
 Part of this project is a C++ API for accessing a Pinscape Pico
 device from a Windows application.  The API is packaged as a C++
 static-link library (.lib) that you can include in any C++ project.
-Refer to the source files in the [WinAPI](tree/main/WinAPI) folder.
+Refer to [WinAPI/README.md](WinAPI/README.md), and the source
+files in the WinAPI/ folder.
 
 ### USB protocols
 
@@ -304,8 +305,8 @@ The Windows C++ API is built atop a set of documented, structured, and
 extensible USB protocols.  You can access the device directly through
 its USB protocols in cases where the Windows API isn't suitable, such
 as from a Linux host, from another microcontroller, or from a Windows
-programming system that can't readily import C++ APIs.  See the files
-in [USBProtocol/](tree/main/USBProtocol) for details.
+programming system that can't readily import C++ APIs.  See
+[USBProtocol/README.md](USBProtocol/README.md) for details.
 
 
 ## Building from source

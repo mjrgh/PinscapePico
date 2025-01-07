@@ -196,7 +196,6 @@ target_include_directories(PinscapePico PUBLIC .)
 target_link_libraries(
     PinscapePico
     pico_stdlib
-    pico_stdio_uart
     pico_unique_id
     pico_multicore
     pico_time

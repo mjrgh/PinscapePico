@@ -19,15 +19,8 @@
 #include "Pinscape.h"
 #include "Main.h"
 #include "USBIfc.h"
-#include "XInput.h"
 #include "Logger.h"
 #include "USBCDC.h"
-#include "BootselButton.h"
-#include "Reset.h"
-#include "Outputs.h"
-#include "Devices/Accel/MXC6655XA.h"
-#include "Devices/PWM/TLC59116.h"
-#include "Devices/PWM/TLC5940.h"
 
 // global singleton
 USBCDC usbcdc;

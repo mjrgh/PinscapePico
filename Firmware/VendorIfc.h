@@ -141,6 +141,7 @@ public:
         resp.xferBytes = xferOut.len = nBytes;
         return xferOut.data;
     }
+    
     // Deferred reboot subcommand.  This is one of the Request::SUBCMD_RESET_xxx
     // codes for a reboot command.  These commands are processed asynchronously
     // to allow time to send the USB reply back to the host and to allow for an

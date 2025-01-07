@@ -23,7 +23,6 @@
 #include "VendorIfc.h"
 #include "../USBProtocol/VendorIfcProtocol.h"
 #include "Version.h"
-#include "BytePackingUtils.h"
 #include "Logger.h"
 #include "USBCDC.h"
 #include "crc32.h"
@@ -47,7 +46,6 @@
 #include "Devices/ShiftReg/74HC165.h"
 #include "Devices/PWM/PWMWorker.h"
 #include "Watchdog.h"
-#include "crc32.h"
 
 // global singleton
 PinscapeVendorIfc psVendorIfc;

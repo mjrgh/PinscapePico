@@ -79,7 +79,7 @@ public:
     // set display modes
     void SetDisplayModes(bool timestamps, bool typeCodes, bool colors);
 
-    // configure the logger subsystem
+    // configure the logger subsystem from JSON data
     void Configure(JSONParser &json);
 
     // Run logging tasks
@@ -212,6 +212,7 @@ public:
     public:
         USBCDCLogger();
         void Configure(JSONParser &json);
+        void Configure(bool loggingEnabled, bool consoleEnabled, int consoleBufSize, int consoleHistSize);
 
         // command console
         CommandConsole console;

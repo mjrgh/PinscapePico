@@ -1370,6 +1370,31 @@
 <vertex x="-1.651" y="-4.2545"/>
 </polygon>
 </package>
+<package name="SHDR6W183P0X396_1X6_2377X762X1">
+<description>&lt;b&gt;640445-8&lt;/b&gt;&lt;br&gt;
+</description>
+<pad name="1" x="0" y="0" drill="2.05" diameter="3.075" shape="square"/>
+<pad name="2" x="3.96" y="0" drill="2.05" diameter="3.075"/>
+<pad name="3" x="7.92" y="0" drill="2.05" diameter="3.075"/>
+<pad name="4" x="11.88" y="0" drill="2.05" diameter="3.075"/>
+<pad name="5" x="15.84" y="0" drill="2.05" diameter="3.075"/>
+<pad name="6" x="19.8" y="0" drill="2.05" diameter="3.075"/>
+<text x="9.398" y="4.064" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="9.525" y="2.159" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<wire x1="-2.29" y1="-5.205" x2="-2.29" y2="3.296" width="0.05" layer="51"/>
+<wire x1="-2.29" y1="3.296" x2="22.03" y2="3.296" width="0.05" layer="51"/>
+<wire x1="22.03" y1="3.296" x2="22.03" y2="-5.205" width="0.05" layer="51"/>
+<wire x1="22.03" y1="-5.205" x2="-2.29" y2="-5.205" width="0.05" layer="51"/>
+<wire x1="-2.04" y1="-4.955" x2="-2.04" y2="3.046" width="0.1" layer="51"/>
+<wire x1="-2.04" y1="3.046" x2="21.78" y2="3.046" width="0.1" layer="51"/>
+<wire x1="21.78" y1="3.046" x2="21.78" y2="-4.955" width="0.1" layer="51"/>
+<wire x1="21.78" y1="-4.955" x2="-2.04" y2="-4.955" width="0.1" layer="51"/>
+<wire x1="0" y1="-4.955" x2="21.78" y2="-4.955" width="0.2" layer="21"/>
+<wire x1="21.78" y1="-4.955" x2="21.78" y2="3.046" width="0.2" layer="21"/>
+<wire x1="21.78" y1="3.046" x2="-2.04" y2="3.046" width="0.2" layer="21"/>
+<wire x1="-2.04" y1="3.046" x2="-2.04" y2="0" width="0.2" layer="21"/>
+<rectangle x1="-2.032" y1="-4.826" x2="21.844" y2="-2.286" layer="21"/>
+</package>
 <package name="HDRV5W117P0X396_1X5_1981X762X1">
 <description>&lt;b&gt;640445-5&lt;/b&gt;&lt;br&gt;
 </description>
@@ -1397,34 +1422,6 @@
 <vertex x="-9.86" y="2.54"/>
 <vertex x="9.952" y="2.54"/>
 <vertex x="9.952" y="4.572"/>
-</polygon>
-</package>
-<package name="SHDR4W117P0X396_1X4_1585X762X1">
-<description>&lt;b&gt;640445-4&lt;/b&gt;&lt;br&gt;
-</description>
-<pad name="1" x="5.94" y="0" drill="1.85" diameter="2.775" shape="square"/>
-<pad name="2" x="1.978" y="0" drill="1.85" diameter="2.775"/>
-<pad name="3" x="-1.984" y="0" drill="1.85" diameter="2.775"/>
-<pad name="4" x="-5.946" y="0" drill="1.85" diameter="2.775"/>
-<text x="-5.109" y="5.969" size="1.27" layer="25" align="center">&gt;NAME</text>
-<text x="-0.029" y="-2.413" size="0.8" layer="27" align="center">&gt;VALUE</text>
-<wire x1="8.172" y1="-3.298" x2="-8.178" y2="-3.298" width="0.05" layer="51"/>
-<wire x1="-8.178" y1="-3.298" x2="-8.178" y2="5.203" width="0.05" layer="51"/>
-<wire x1="-8.178" y1="5.203" x2="8.172" y2="5.203" width="0.05" layer="51"/>
-<wire x1="8.172" y1="5.203" x2="8.172" y2="-3.298" width="0.05" layer="51"/>
-<wire x1="7.922" y1="-3.048" x2="-7.928" y2="-3.048" width="0.1" layer="21"/>
-<wire x1="-7.928" y1="-3.048" x2="-7.928" y2="4.953" width="0.1" layer="51"/>
-<wire x1="-7.928" y1="4.953" x2="7.922" y2="4.953" width="0.1" layer="51"/>
-<wire x1="7.922" y1="4.953" x2="7.922" y2="-3.048" width="0.1" layer="21"/>
-<wire x1="5.94" y1="-3.048" x2="-7.928" y2="-3.048" width="0.2" layer="21"/>
-<wire x1="-7.928" y1="-3.048" x2="-7.928" y2="4.953" width="0.2" layer="21"/>
-<wire x1="-7.928" y1="4.953" x2="7.922" y2="4.953" width="0.2" layer="21"/>
-<wire x1="7.922" y1="4.953" x2="7.922" y2="0" width="0.2" layer="21"/>
-<polygon width="0.127" layer="21">
-<vertex x="-7.776" y="4.826"/>
-<vertex x="-7.776" y="2.921"/>
-<vertex x="7.845" y="2.921"/>
-<vertex x="7.845" y="4.826"/>
 </polygon>
 </package>
 <package name="HDRV2W66P0X254_1X2_762X572X100">
@@ -1788,6 +1785,20 @@
 <pin name="15" x="0" y="-17.78" length="middle"/>
 <pin name="16" x="22.86" y="-17.78" length="middle" rot="R180"/>
 </symbol>
+<symbol name="640445-6">
+<wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
+<wire x1="15.24" y1="-15.24" x2="15.24" y2="2.54" width="0.254" layer="94"/>
+<wire x1="15.24" y1="-15.24" x2="5.08" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="5.08" y1="2.54" x2="5.08" y2="-15.24" width="0.254" layer="94"/>
+<text x="16.51" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
+<text x="16.51" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
+<pin name="1" x="0" y="0" length="middle"/>
+<pin name="2" x="0" y="-2.54" length="middle"/>
+<pin name="3" x="0" y="-5.08" length="middle"/>
+<pin name="4" x="0" y="-7.62" length="middle"/>
+<pin name="5" x="0" y="-10.16" length="middle"/>
+<pin name="6" x="0" y="-12.7" length="middle"/>
+</symbol>
 <symbol name="640445-5">
 <wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
 <wire x1="15.24" y1="-12.7" x2="15.24" y2="2.54" width="0.254" layer="94"/>
@@ -1800,18 +1811,6 @@
 <pin name="3" x="0" y="-5.08" length="middle"/>
 <pin name="4" x="0" y="-7.62" length="middle"/>
 <pin name="5" x="0" y="-10.16" length="middle"/>
-</symbol>
-<symbol name="640445-4">
-<wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
-<wire x1="15.24" y1="-10.16" x2="15.24" y2="2.54" width="0.254" layer="94"/>
-<wire x1="15.24" y1="-10.16" x2="5.08" y2="-10.16" width="0.254" layer="94"/>
-<wire x1="5.08" y1="2.54" x2="5.08" y2="-10.16" width="0.254" layer="94"/>
-<text x="16.51" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
-<text x="16.51" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
-<pin name="1" x="0" y="0" length="middle"/>
-<pin name="2" x="0" y="-2.54" length="middle"/>
-<pin name="3" x="0" y="-5.08" length="middle"/>
-<pin name="4" x="0" y="-7.62" length="middle"/>
 </symbol>
 <symbol name="640454-2">
 <wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
@@ -2195,6 +2194,35 @@ Source: &lt;a href="https://datasheet.datasheetarchive.com/originals/distributor
 </device>
 </devices>
 </deviceset>
+<deviceset name="640445-6" prefix="J">
+<description>&lt;b&gt;6 way friction lock header,3.96mm pitch&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/640445-6.pdf"&gt; Datasheet &lt;/a&gt;</description>
+<gates>
+<gate name="G$1" symbol="640445-6" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SHDR6W183P0X396_1X6_2377X762X1">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+<connect gate="G$1" pin="4" pad="4"/>
+<connect gate="G$1" pin="5" pad="5"/>
+<connect gate="G$1" pin="6" pad="6"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="DESCRIPTION" value="6 way friction lock header,3.96mm pitch" constant="no"/>
+<attribute name="HEIGHT" value="11.049mm" constant="no"/>
+<attribute name="MANUFACTURER_NAME" value="TE Connectivity" constant="no"/>
+<attribute name="MANUFACTURER_PART_NUMBER" value="640445-6" constant="no"/>
+<attribute name="MOUSER_PART_NUMBER" value="571-6404456" constant="no"/>
+<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.com/Search/Refine.aspx?Keyword=571-6404456" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
 <deviceset name="640445-5" prefix="J">
 <description>&lt;b&gt;Headers &amp; Wire Housings FRCTN LK HDR STR 5P Square post tin&lt;/b&gt;&lt;p&gt;
 Source: &lt;a href="https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&amp;DocId=Customer Drawing640445AD5pdfEnglishENG_CD_640445_AD5.pdf640445-5"&gt; Datasheet &lt;/a&gt;</description>
@@ -2218,33 +2246,6 @@ Source: &lt;a href="https://www.te.com/commerce/DocumentDelivery/DDEController?A
 <attribute name="MANUFACTURER_PART_NUMBER" value="640445-5" constant="no"/>
 <attribute name="MOUSER_PART_NUMBER" value="571-640445-5" constant="no"/>
 <attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/TE-Connectivity/640445-5?qs=P8zzrVhehateG3JS5ZzrEg%3D%3D" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="640445-4" prefix="J">
-<description>&lt;b&gt;Conn Wire to Board HDR 4 POS 3.96mm Solder ST Top Entry Thru-Hole Package&lt;/b&gt;&lt;p&gt;
-Source: &lt;a href="https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&amp;DocId=Customer Drawing640445AD5pdfEnglishENG_CD_640445_AD5.pdf640445-4"&gt; Datasheet &lt;/a&gt;</description>
-<gates>
-<gate name="G$1" symbol="640445-4" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="SHDR4W117P0X396_1X4_1585X762X1">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-<connect gate="G$1" pin="3" pad="3"/>
-<connect gate="G$1" pin="4" pad="4"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="DESCRIPTION" value="Conn Wire to Board HDR 4 POS 3.96mm Solder ST Top Entry Thru-Hole Package" constant="no"/>
-<attribute name="HEIGHT" value="13.716mm" constant="no"/>
-<attribute name="MANUFACTURER_NAME" value="TE Connectivity" constant="no"/>
-<attribute name="MANUFACTURER_PART_NUMBER" value="640445-4" constant="no"/>
-<attribute name="MOUSER_PART_NUMBER" value="571-6404454" constant="no"/>
-<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/TE-Connectivity-AMP/640445-4?qs=P8zzrVhehatZnQ7HMsIjxw%3D%3D" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -10327,7 +10328,6 @@ high speed (Philips)</description>
 <part name="C14" library="rcl" deviceset="C-US" device="025-024X044" value="4.7uF">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
 </part>
-<part name="J2" library="SamacSys_Parts" deviceset="640445-4" device=""/>
 <part name="GND38" library="supply1" deviceset="GND" device=""/>
 <part name="J11" library="SamacSys_Parts" deviceset="640454-2" device=""/>
 <part name="J10" library="SamacSys_Parts" deviceset="215079-4" device=""/>
@@ -10411,6 +10411,7 @@ high speed (Philips)</description>
 <part name="R31" library="resistor" deviceset="R-US_" device="0204/7" value="2R5">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
+<part name="J2" library="SamacSys_Parts" deviceset="640445-6" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -10466,10 +10467,6 @@ on /RESET low OR /PERIPHERAL_POWER_ENABLE high.</text>
 <instance part="PICO2" gate="G$1" x="96.52" y="45.72"/>
 <instance part="D1" gate="G$1" x="119.38" y="68.58"/>
 <instance part="J12" gate="A" x="198.12" y="96.52"/>
-<instance part="J2" gate="G$1" x="185.42" y="170.18" smashed="yes">
-<attribute name="NAME" x="201.93" y="172.72" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="201.93" y="170.18" size="1.778" layer="96" align="center-left"/>
-</instance>
 <instance part="J14" gate="A" x="198.12" y="134.62"/>
 <instance part="R26" gate="G$1" x="276.86" y="38.1" smashed="yes" rot="MR180">
 <attribute name="NAME" x="278.638" y="39.3446" size="1.778" layer="95" rot="MR0"/>
@@ -10511,6 +10508,10 @@ on /RESET low OR /PERIPHERAL_POWER_ENABLE high.</text>
 <instance part="Q15" gate="G$1" x="292.1" y="38.1" smashed="yes" rot="MR180">
 <attribute name="NAME" x="297.942" y="39.37" size="1.778" layer="95" rot="MR180" align="center-left"/>
 <attribute name="VALUE" x="297.942" y="36.83" size="1.778" layer="96" rot="MR180" align="center-left"/>
+</instance>
+<instance part="J2" gate="G$1" x="185.42" y="170.18" smashed="yes">
+<attribute name="NAME" x="201.93" y="170.18" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="201.93" y="167.64" size="1.778" layer="96" align="center-left"/>
 </instance>
 </instances>
 <busses>
@@ -10567,14 +10568,22 @@ on /RESET low OR /PERIPHERAL_POWER_ENABLE high.</text>
 <label x="187.96" y="129.54" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<pinref part="J2" gate="G$1" pin="2"/>
 <wire x1="182.88" y1="167.64" x2="185.42" y2="167.64" width="0.1524" layer="91"/>
-<pinref part="J2" gate="G$1" pin="1"/>
 <wire x1="180.34" y1="170.18" x2="182.88" y2="170.18" width="0.1524" layer="91"/>
 <label x="180.34" y="170.18" size="1.27" layer="95" rot="R180" xref="yes"/>
 <wire x1="182.88" y1="170.18" x2="185.42" y2="170.18" width="0.1524" layer="91"/>
 <wire x1="182.88" y1="167.64" x2="182.88" y2="170.18" width="0.1524" layer="91"/>
 <junction x="182.88" y="170.18"/>
+<wire x1="182.88" y1="167.64" x2="182.88" y2="165.1" width="0.1524" layer="91"/>
+<junction x="182.88" y="167.64"/>
+<wire x1="182.88" y1="165.1" x2="185.42" y2="165.1" width="0.1524" layer="91"/>
+<pinref part="J2" gate="G$1" pin="1"/>
+<pinref part="J2" gate="G$1" pin="2"/>
+<pinref part="J2" gate="G$1" pin="3"/>
+<wire x1="182.88" y1="165.1" x2="182.88" y2="162.56" width="0.1524" layer="91"/>
+<junction x="182.88" y="165.1"/>
+<pinref part="J2" gate="G$1" pin="4"/>
+<wire x1="182.88" y1="162.56" x2="185.42" y2="162.56" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="Q16" gate="G$1" pin="E"/>
@@ -11110,16 +11119,16 @@ on /RESET low OR /PERIPHERAL_POWER_ENABLE high.</text>
 </net>
 <net name="5V" class="0">
 <segment>
-<pinref part="J2" gate="G$1" pin="4"/>
-<wire x1="182.88" y1="162.56" x2="185.42" y2="162.56" width="0.1524" layer="91"/>
-<label x="182.88" y="162.56" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="182.88" y="157.48" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="J2" gate="G$1" pin="6"/>
+<wire x1="185.42" y1="157.48" x2="182.88" y2="157.48" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="12V" class="0">
 <segment>
-<pinref part="J2" gate="G$1" pin="3"/>
-<label x="182.88" y="165.1" size="1.27" layer="95" rot="R180" xref="yes"/>
-<wire x1="182.88" y1="165.1" x2="185.42" y2="165.1" width="0.1524" layer="91"/>
+<label x="182.88" y="160.02" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="J2" gate="G$1" pin="5"/>
+<wire x1="185.42" y1="160.02" x2="182.88" y2="160.02" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="BUTTON_DATA" class="0">

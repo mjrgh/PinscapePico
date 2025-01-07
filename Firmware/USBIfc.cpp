@@ -25,7 +25,9 @@
 // Pico SDK headers
 #include <pico/stdlib.h>
 #include <pico/unique_id.h>
+#include <tusb.h>
 #include <device/usbd_pvt.h>
+#include <class/hid/hid_device.h>
 
 // project headers
 #include "../OpenPinballDevice/OpenPinballDeviceReport.h"

@@ -111,6 +111,9 @@ public:
     // console is enabled, false if not.
     bool Configure(const char *descName, const JSONParser::Value *val);
 
+    // configure from preloaded data
+    bool Configure(const char *descName, bool enable, int bufSize, int histSize);
+
     // Set foreground/background mode.  A console typically shares a
     // host connection with a logger.  The logger can generate output
     // asynchronously, which can interrupt the command line editing in
@@ -397,9 +400,6 @@ protected:
 
     // command handlers
     static void Command_help(const ConsoleCommandContext *ctx);
-    static void Command_reset(const ConsoleCommandContext *ctx);
-    static void Command_version(const ConsoleCommandContext *ctx);
-    static void Command_devtest(const ConsoleCommandContext *ctx);
 
     // Generic PWM output controller chip command handler.  Provides
     // options to view the chip's statistics, list output port status,

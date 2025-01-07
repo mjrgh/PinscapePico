@@ -98,6 +98,9 @@ static void MainLoop();
 static void Configure(PicoReset::BootMode bootMode);
 static void Command_memory(const ConsoleCommandContext *c);
 static void Command_loopstats(const ConsoleCommandContext *c);
+static void Command_reset(const ConsoleCommandContext *ctx);
+static void Command_version(const ConsoleCommandContext *ctx);
+static void Command_devtest(const ConsoleCommandContext *ctx);
 
 // ---------------------------------------------------------------------------
 // 
@@ -142,9 +145,30 @@ int main()
         "  -l, --list     list statistics (default if no options specified)\n"
         "  -r, --reset    reset the statistics counters",
         Command_loopstats);
+
     CommandConsole::AddCommand(
         "mem", "show memory usage statistics", "mem  (no options)\n",
         Command_memory);
+
+    CommandConsole::AddCommand(
+        "reboot", "hardware-reset the Pico",
+        "reboot [mode]\n"
+        "  -r, --reset      reset the Pico and restart the Pinscape firmware program\n"
+        "  -s, --safe-mode  reset the Pico and restart Pinscape in Safe Mode\n"
+        "  -b, --bootsel    launch the Pico ROM Boot Loader, for installing new firmware",
+        Command_reset);
+
+    CommandConsole::AddCommand(
+        "version", "show firmware and hardware information",
+        "version (no arguments)",
+        Command_version);
+
+    CommandConsole::AddCommand(
+        "devtest", "special development testing functions",
+        "devtest [options]\n"
+        "  --block-irq <t>            block IRQs for <t> milliseconds\n"
+        "  --config-put-timeout <t>   simulate config write delay of <t> milliseconds\n",
+        Command_devtest);
 
     // Set the boot mode to apply to the NEXT hardwaer reset, in case a
     // watchdog reset occurs during initialization or early in the main
@@ -682,7 +706,7 @@ static void MainLoop()
 static void SecondCoreMain()
 {
     // enter our main loop
-    for (uint64_t t0 = time_us_64() ;;)
+    for (uint64_t t0 = time_us_64() ; ; )
     {
         // run second-core button polling
         Button::SecondCoreDebouncedSource::SecondCoreTask();
@@ -777,7 +801,7 @@ static void Command_loopstats(const ConsoleCommandContext *c)
             "  Average time: %llu us\n"
             "  Max time:     %lu us\n"
             "\n"
-            "Recent secondary loop counters:\n"
+            "Recent second-core loop counters:\n"
             "  Iterations:   %llu (since last stats reset)\n"
             "  Average time: %llu us\n"
             "  Max time:     %lu us\n",
@@ -802,7 +826,126 @@ static void Command_loopstats(const ConsoleCommandContext *c)
         else if (strcmp(a, "-r") == 0 || strcmp(a, "--reset") == 0)
         {
             mainLoopStats.Reset();
+            secondCoreLoopStatsResetRequested = true;            
             c->Print("Main loop statistics reset\n");
+        }
+        else
+        {
+            return c->Usage();
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+//
+// Console command - show version information
+//
+static void Command_version(const ConsoleCommandContext *c)
+{
+    if (c->argc != 1)
+        return c->Usage();
+
+    c->Printf("Pinscape Pico firmware v%d.%d.%d (build %s)\n",
+              VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, buildTimestamp);
+
+    pico_unique_board_id_t id;
+    pico_get_unique_board_id(&id);
+    c->Printf("Pico hardware ID: %02X%02X%02X%02X%02X%02X%02X%02X\n",
+              id.id[0], id.id[1], id.id[2], id.id[3],
+              id.id[4], id.id[5], id.id[6], id.id[7]);
+
+    uint8_t cpuVsn = rp2040_chip_version();
+    uint8_t romVsn = rp2040_rom_version();
+    char romVsnStr[16];
+    sprintf(romVsnStr, "B%d", romVsn - 1);
+    c->Printf(
+        "RP2040 CPU version: %d\n"
+        "RP2040 ROM version: %d (%s)\n"
+        "Pico SDK version:   %s\n"
+        "Compiler:           %s\n",
+        cpuVsn,
+        romVsn, romVsn >= 1 ? romVsnStr : "Unknown",
+        PICO_SDK_VERSION_STRING,
+        COMPILER_VERSION_STRING);
+}
+
+// ---------------------------------------------------------------------------
+//
+// Console command - reset the Pico
+//
+static void Command_reset(const ConsoleCommandContext *c)
+{
+    if (c->argc != 2)
+        return c->Usage();
+
+    if (strcmp(c->argv[1], "-r") == 0 || strcmp(c->argv[1], "--reboot") == 0 || strcmp(c->argv[1], "--reset") == 0)
+    {
+        c->Print("Resetting\n");
+        picoReset.Reboot(false);
+    }
+    else if (strcmp(c->argv[1], "-s") == 0 || strcmp(c->argv[1], "--safe-mode") == 0)
+    {
+        c->Printf("Entering Safe Mode\n");
+        picoReset.Reboot(false, PicoReset::BootMode::SafeMode);
+    }
+    else if (strcmp(c->argv[1], "-b") == 0 || strcmp(c->argv[1], "--bootsel") == 0)
+    {
+        c->Print("Entering Pico ROM Boot Loader\n");
+        picoReset.Reboot(true);
+    }
+    else
+        c->Usage();
+}
+
+// ---------------------------------------------------------------------------
+//
+// Console command - development/debug tests
+//
+void Command_devtest(const ConsoleCommandContext *c)
+{
+    // make sure we have at least one option
+    if (c->argc <= 1)
+        return c->Usage();
+
+    // parse options
+    for (int argi = 1 ; argi < c->argc ; ++argi)
+    {
+        const char *arg = c->argv[argi];
+        if (strcmp(arg, "--block-irq") == 0)
+        {
+            // get the time
+            if (argi + 1 >= c->argc)
+                return c->Printf("Missing time argument for --block-irq\n");
+            int t = atoi(c->argv[++argi]);
+
+            // wait with interrupts off
+            c->Printf("Disabling interrupts and waiting %d ms...\n", t);
+            uint64_t tEnd = time_us_64() + t*1000;
+            {
+                // extend the watchdog by the wait time (plus a bit)
+                WatchdogTemporaryExtender wte(t + 10);
+
+                // disable IRQs
+                IRQDisabler irqd;
+
+                // wait; run the logger task in the meantime
+                while (time_us_64() < tEnd)
+                    logger.Task();
+            }
+        }
+        else if (strcmp(arg, "--config-put-timeout") == 0)
+        {
+            // get the delay time
+            if (argi + 1 >= c->argc)
+                return c->Printf("Missing time delay argument for --config-put-timeout\n");
+
+            // set the time, converting milliseconds to microseconds
+            auto delay_ms = atoi(c->argv[++argi]);
+            G_debugAndTestVars.putConfigDelay = delay_ms * 1000ULL;
+            if (delay_ms == 0)
+                c->Printf("PutConfig delay simulation ended\n");
+            else
+                c->Printf("PutConfig delay simulation now in effect, delay %u ms; set to 0 to end simulation\n", delay_ms);
         }
         else
         {

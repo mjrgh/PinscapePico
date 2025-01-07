@@ -727,6 +727,13 @@ void Logger::USBCDCLogger::Configure(JSONParser &json)
     }
 }
 
+void Logger::USBCDCLogger::Configure(bool loggingEnabled, bool consoleEnabled, int consoleBufSize, int consoleHistSize)
+{
+    loggingEnabled = true;
+    if (consoleEnabled)
+        console.Configure("USB CDC", consoleEnabled, consoleBufSize, consoleHistSize);
+}
+
 void Logger::USBCDCLogger::Task()
 {
     // if there isn't a terminal connected, do nothing; this will preserve

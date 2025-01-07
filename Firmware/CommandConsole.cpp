@@ -69,26 +69,6 @@ CommandConsole::CommandConsole()
             "\n"
             "With no arguments, 'help' shows a list of available commands.",
             &CommandConsole::Command_help);
-
-        AddCommand(
-            "reboot", "hardware-reset the Pico",
-            "reboot [mode]\n"
-            "  -r, --reset      reset the Pico and restart the Pinscape firmware program\n"
-            "  -s, --safe-mode  reset the Pico and restart Pinscape in Safe Mode\n"
-            "  -b, --bootsel    launch the Pico ROM Boot Loader, for installing new firmware",
-            &CommandConsole::Command_reset);
-
-        AddCommand(
-            "version", "show firmware and hardware information",
-            "version (no arguments)",
-            &CommandConsole::Command_version);
-
-        AddCommand(
-            "devtest", "special development testing functions",
-            "devtest [options]\n"
-            "  --block-irq <t>            block IRQs for <t> milliseconds\n"
-            "  --config-put-timeout <t>   simulate config write delay of <t> milliseconds\n",
-            &CommandConsole::Command_devtest);
             
         inited = true;
     }
@@ -101,33 +81,36 @@ bool CommandConsole::Configure(const char *descName, const JSONParser::Value *va
     if (val->IsUndefined())
     {
         // enable by default
-        enabled = true;
-        outputBuf.resize(8192);
-        history.resize(256);
+        return Configure(descName, true, 8192, 256);
     }
     else
     {
-        // enable/disable
-        enabled = val->Get("enable")->Bool(true);
+        // enable/disable by JSON settings
+        return Configure(
+            descName, 
+            val->Get("enable")->Bool(true),
+            val->Get("bufSize")->Int(-1),
+            val->Get("historySize")->Int(-1));
+    }
+}
 
-        // set the buffer size
-        if (enabled)
-        {
-            // get the output buffer size
-            int bufSiz = val->Get("bufSize")->Int(-1);
-            bufSiz = std::max(bufSiz, 8192);
-            bufSiz = std::min(bufSiz, 32767);
-            outputBuf.resize(bufSiz);
+bool CommandConsole::Configure(const char *descName, bool enabled, int bufSize, int histSize)
+{
+    this->enabled = enabled;
+    if (enabled)
+    {
+        // get the output buffer size
+        bufSize = std::max(bufSize, 8192);
+        bufSize = std::min(bufSize, 32767);
+        outputBuf.resize(bufSize);
 
-            // get the command history buffer size
-            int histSiz = val->Get("historySize")->Int(-1);
-            histSiz = std::max(histSiz, 256);
-            histSiz = std::min(histSiz, 2048);
-            history.resize(histSiz);
-
-            // start the first command prototype in the history
-            AddHistory("");
-        }
+        // get the command history buffer size
+        histSize = std::max(histSize, 256);
+        histSize = std::min(histSize, 2048);
+        history.resize(histSize);
+        
+        // start the first command prototype in the history
+        AddHistory("");
     }
 
     // done; log it and return the enabled status
@@ -1424,113 +1407,6 @@ void CommandConsole::Command_help(const ConsoleCommandContext *c)
         }
     }
 }
-
-void CommandConsole::Command_reset(const ConsoleCommandContext *c)
-{
-    if (c->argc != 2)
-        return c->Usage();
-
-    if (strcmp(c->argv[1], "-r") == 0 || strcmp(c->argv[1], "--reboot") == 0 || strcmp(c->argv[1], "--reset") == 0)
-    {
-        c->Print("Resetting\n");
-        picoReset.Reboot(false);
-    }
-    else if (strcmp(c->argv[1], "-s") == 0 || strcmp(c->argv[1], "--safe-mode") == 0)
-    {
-        c->Printf("Entering Safe Mode\n");
-        picoReset.Reboot(false, PicoReset::BootMode::SafeMode);
-    }
-    else if (strcmp(c->argv[1], "-b") == 0 || strcmp(c->argv[1], "--bootsel") == 0)
-    {
-        c->Print("Entering Pico ROM Boot Loader\n");
-        picoReset.Reboot(true);
-    }
-    else
-        c->Usage();
-}
-
-void CommandConsole::Command_version(const ConsoleCommandContext *c)
-{
-    if (c->argc != 1)
-        return c->Usage();
-    
-    c->Printf("Pinscape Pico firmware v%d.%d.%d (build %s)\n",
-              VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, buildTimestamp);
-
-    pico_unique_board_id_t id;
-    pico_get_unique_board_id(&id);
-    c->Printf("Pico hardware ID: %02X%02X%02X%02X%02X%02X%02X%02X\n",
-              id.id[0], id.id[1], id.id[2], id.id[3],
-              id.id[4], id.id[5], id.id[6], id.id[7]);
-
-    uint8_t cpuVsn = rp2040_chip_version();
-    uint8_t romVsn = rp2040_rom_version();
-    char romVsnStr[16];
-    sprintf(romVsnStr, "B%d", romVsn - 1);
-    c->Printf(
-        "RP2040 CPU version: %d\n"
-        "RP2040 ROM version: %d (%s)\n"
-        "Pico SDK version:   %s\n"
-        "Compiler:           %s\n",
-        cpuVsn,
-        romVsn, romVsn >= 1 ? romVsnStr : "Unknown",
-        PICO_SDK_VERSION_STRING,
-        COMPILER_VERSION_STRING);
-}
-
-void CommandConsole::Command_devtest(const ConsoleCommandContext *c)
-{
-    // make sure we have at least one option
-    if (c->argc <= 1)
-        return c->Usage();
-
-    // parse options
-    for (int argi = 1 ; argi < c->argc ; ++argi)
-    {
-        const char *arg = c->argv[argi];
-        if (strcmp(arg, "--block-irq") == 0)
-        {
-            // get the time
-            if (argi + 1 >= c->argc)
-                return c->Printf("Missing time argument for --block-irq\n");
-            int t = atoi(c->argv[++argi]);
-
-            // wait with interrupts off
-            c->Printf("Disabling interrupts and waiting %d ms...\n", t);
-            uint64_t tEnd = time_us_64() + t*1000;
-            {
-                // extend the watchdog by the wait time (plus a bit)
-                WatchdogTemporaryExtender wte(t + 10);
-
-                // disable IRQs
-                IRQDisabler irqd;
-
-                // wait; run the logger task in the meantime
-                while (time_us_64() < tEnd)
-                    logger.Task();
-            }
-        }
-        else if (strcmp(arg, "--config-put-timeout") == 0)
-        {
-            // get the delay time
-            if (argi + 1 >= c->argc)
-                return c->Printf("Missing time delay argument for --config-put-timeout\n");
-
-            // set the time, converting milliseconds to microseconds
-            auto delay_ms = atoi(c->argv[++argi]);
-            G_debugAndTestVars.putConfigDelay = delay_ms * 1000ULL;
-            if (delay_ms == 0)
-                c->Printf("PutConfig delay simulation ended\n");
-            else
-                c->Printf("PutConfig delay simulation now in effect, delay %u ms; set to 0 to end simulation\n", delay_ms);
-        }
-        else
-        {
-            return c->Usage();
-        }
-    }
-}
-
 
 // ---------------------------------------------------------------------------
 //

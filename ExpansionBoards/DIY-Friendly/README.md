@@ -72,7 +72,7 @@ your original ideas.
 ## Features
 
 * 32 button inputs, using shift register chips for extremely low latency
-scans (tens of milliseconds)
+scans (order of 10 microseconds)
 
 * Accelerometer (LIS3DH), installed via a pre-assembled module
 available from Adafruit (no need to hand-solder the tiny SMD chip),

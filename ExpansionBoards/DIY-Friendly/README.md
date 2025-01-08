@@ -276,11 +276,10 @@ under **Powering Pico**.  Any similar device can be substituted:
 If (forward current) at least 1A, Vf (forward voltage drop) at 1A
 less than 400mV.
 
-TIP107: PNP Darlington.  This switches 3.3V power to the accelerometer
-and ADC, allowing the Pico to fully reset those devices by
+2N5195G: PNP switching transistor.  This switches 3.3V power to the 
+accelerometer and ADC, allowing the Pico to fully reset those devices by
 power-cycling them.  Any PNP with gain of at least 50 and maximum
-collector current of at least 200mA should work.  (TIP107 has much
-higher specs than this.)
+collector current of at least 200mA should work.
 
 2N2222: Small-signal NPN transistor.  Any common small-signal NPN
 should work, as this is used only for logic voltage switching.

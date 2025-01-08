@@ -675,34 +675,46 @@ static void MainLoop()
 // Second core entrypoint.  This is the entrypoint for the second CPU
 // core after a reboot.
 //
-// The secondary core's entire job currently is polling GPIO-source
-// button inputs.  It's useful to poll GPIO buttons at extremely high
-// frequency so that we can catch switch state transitions early in the
-// "bounce" phase, during which the voltage rapidly oscillates between
-// on and off states.  Bounces can be just a few microseconds long, so
-// we have to poll at that time scale to catch the transition early in
-// the process.  The earlier we catch the bounce oscilations, the
+// The secondary core's entire job is to poll button inputs, from GPIO
+// ports and high-speed shift registers.  It's useful to poll both of
+// these as extremely high frequency so that we can detect button state
+// transitions early in the "bounce" phase, during which the voltage on
+// the switch input rapidly oscillates between on and off states.
+// Individual bounce oscillations can be just a few microseconds long,
+// so we have to poll at that time scale to catch the transition early
+// in the process.  The earlier we catch the bounce oscilations, the
 // quicker we detect the button state change, and the lower the latency
 // in the corresponding HID report to the host.
 //
 // The Pico hardware is capable of interrupting the CPU on a GPIO input
 // edge, so we *could* do the button monitoring via an IRQ handler.  But
-// the high-frequency oscillations make it somewhat undesirable to use
-// an interrupt handler, because of the heavy load it places on the CPU
-// to service the flurry of interrupts that occur at switch transitions.
-// Offloading this work to the second core eliminates the load on the
-// primary core.
+// the high-frequency oscillations actually make interrupts slower than
+// polling, because of the heavy load it places on the CPU to service
+// the flurry of interrupts that occur at switch transitions.  Polling
+// runs at a constant rate regardless of how many edges occur in a short
+// time, so we don't get the CPU locked into doing nothing but servicing
+// interrupts during the early bounce phase.  Offloading the button
+// polling to the second core allows us to do the polling in an
+// extremely tight loop that can keep the polling cycle time on the
+// order of a few microseconds, which is fast enough to detect the start
+// of the switch bounce phase almost instantly.
 //
-// Note that polling the GPIO inputs is somewhat better than using
-// interrupts, because of the more constant secondary core CPU load with
-// polling, but only if the main loop doesn't have other work to do.  As
-// long as the loop is only polling the buttons, we can go through the
-// loop in a few microseconds, achieving the high polling rate we need
-// to achieve extremely low-latency button state change detection.  If
-// in the future we need to add substantial other work here that extends
-// the loop out to more than perhaps 25us, it will become better to do
-// the monitoring via interrupts.
+// We monitor both GPIO ports and fast shift register ports here.  The
+// shift registers are clocked in asynchronously in hardware, via PIO
+// programs, so that doesn't add any work to the polling loop.  Fast
+// shift registers can clock in a full set of button ports (32 to 64 for
+// a typical virtual pin cab) in about 10-20 us, so we can read those
+// buttons nearly as fast as GPIOs, and fast enough that we can apply
+// the same hardware-level switch bounce interpreation to them.
 //
+// It doesn't make sense to monitor slower devices here, such as I2C
+// GPIO extenders.  The fast polling algorithm assumes that we can read
+// the physical switch state on a time scale where we can see individual
+// bounce oscillations, which isn't true for an I2C input, where we only
+// receive updates about every 1ms.  Those can be handled with the
+// standard polling algorithm on the main core, which doesn't require
+// the extremely short cycle time (but also can't detect switch state
+// transitions as close to instantaneously as we can here).
 static void SecondCoreMain()
 {
     // enter our main loop

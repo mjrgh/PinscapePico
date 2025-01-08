@@ -1023,12 +1023,6 @@ const uint16_t *tud_descriptor_string_cb(uint8_t index, uint16_t langId)
     return usbIfc.GetStringDescriptor(index, langId);
 }
 
-// vendor transmission completion callback
-void tud_vendor_tx_cb(uint8_t itf, uint32_t sent_bytes)
-{
-    usbIfc.OnVendorTX(itf, sent_bytes);
-}
-
 // vendor control transfer callback - invoked when a control transfer occurs on a vendor interface
 bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, const tusb_control_request_t *request)
 {

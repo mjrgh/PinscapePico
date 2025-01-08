@@ -298,7 +298,9 @@ small complement of GPIO ports, and its lack of an on-board
 accelerometer.
 
 As part of the Pinscape Pico project, I've developed a few custom
-"expansion boards" purpose-built for virtual pin cabs.
+"expansion boards" purpose-built for virtual pin cabs.  They're
+all open-source designs that anyone can build; you can find the
+EAGLE layouts in the [ExpansionBoards](ExpansionBoards) folder.
 
 <a href="ScreenShots/DIYBoardMain.png"><img src="ScreenShots/DIYBoardMain-Thumb.png"></a>
 <a href="ScreenShots/DIYBoardPower.png"><img src="ScreenShots/DIYBoardPower-Thumb.png"></a>

@@ -121,6 +121,7 @@ const char *VendorInterface::ErrorText(int status)
 		{ PinscapeResponse::ERR_BAD_REQUEST_DATA, "Data or format error in request" },
 		{ PinscapeResponse::ERR_BAD_REPLY_DATA, "Data or format error in reply" },
 		{ PinscapeResponse::ERR_NOT_FOUND, "File/object not found" },
+		{ PinscapeResponse::ERR_RETRY_OK, "Retry succeeded" },
 	};
 
 	// look up an existing message

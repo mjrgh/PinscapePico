@@ -74,7 +74,7 @@
    actual joystick, but which can be repurposed in a pin cab controller to carry nudge
    and plunger readings.  Choosing "joystick" was also good for users, since
    HID joysticks don't need any device drivers on Windows or most other operating
-   systems; just plug them and go.  Joysticks are even good for the programmers who
+   systems; just plug them in and go.  Joysticks are even good for the programmers who
    develop the various pinball simulators, since most systems have good API support
    for them.
 </p>
@@ -91,11 +91,11 @@
    so there's no pressure from users to change it.
 </p>
 <p>
-   Like many legacy technology decisions, though, the joystick interface wasn't
-   really the optimal answer to the "what kind of device?" question.  Pinball
-   controllers aren't <i>actually</i> joysticks, so pretending that they are
-   violates a key principle of the USB HID architecture, which is that devices
-   should identify themselves according to the abstract function they perform.
+   Like many legacy technology decisions, this one has persisted more due to
+   inertia than to optimality.  It's not really the ideal answer to the "what kind of
+   device?" question.  Pinball controllers aren't <i>actually</i> joysticks, so pretending
+   that they are violates a key principle of the USB HID architecture, which is that
+   devices should identify themselves according to the abstract function they perform.
    That's important because it allows applications that want to access devices
    like joysticks to do so generically, without having to be programmed with
    a list of specific brand names and models they recognize.  All joysticks
@@ -115,9 +115,10 @@
 </p>
 <p>
    The missed opportunity of the early "what kind of device?" decision was
-   that it was never really a multiple choice question where the only valid
-   answers were "keyboard, mouse, or joystick".   The better answer would
-   have been "none of the above, this is a new kind of thing that you've
+   that the early developers misconstrued the problem as a multiple choice
+   question whose only valid answers were "keyboard, mouse, or joystick".
+   In fact, it's really an essay question, where we could just as well
+   answer "none of the above, this is a new kind of thing that you've
    never heard of before".  That's a perfectly valid answer in the HID scheme.
    The early designers were absolutely right to choose <i>some kind of HID</i>,
    because the magical no-device-driver feature that they knew attached to
@@ -134,7 +135,7 @@
    it consistent with the way HID was meant to be used, eliminating
    conflicts between pinball I/O controllers and non-pinball video games,
    and also eliminating conflicts between pinball simulators and true
-   joysticks.  There's almost no added work at all for device developers,
+   joysticks.  This doesn't create any added work at all for device developers,
    since the details of implementing the new interface are almost exactly
    like implementing a joystick.  There is some added work for simulator
    designers, since they won't be able to use the native OS joystick APIs
@@ -145,7 +146,7 @@
    In terms of compatibility, there should be no negative impacts at all,
    because the new interface can be implemented alongside the existing
    joystick system on both devices and simulators.  The new interface amounts
-   to a new extension to the existing systems that users can adopt at their
+   to an extension to the existing systems that users can adopt at their
    own pace as it becomes available in the programs and devices they use.
 </p>
 <p>

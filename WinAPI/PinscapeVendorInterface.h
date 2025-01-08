@@ -10,12 +10,12 @@
 // To access the vendor interface, the first step is to enumerate
 // available devices:
 // 
-//    std::list<PinscapePico::VendorInterface::VendorInterfaceDesc> devices;
+//    std::list<PinscapePico::VendorInterfaceDesc> devices;
 //    HRESULT hr = PinscapePico::VendorInterface::EnumerateDevices(devices);
 //    if (SUCCEEDED(hr))
 //       ...
 //
-// Now you can open a device from the path list:
+// Now you can open a device from the enumeration list:
 // 
 //    PinscapePico::VendorInterface *vi = nullptr;
 //    hr = devices.front().Open(vi);

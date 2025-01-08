@@ -247,9 +247,9 @@ namespace PinscapePico
 	class VendorInterface;
 	class VendorInterfaceDesc
 	{
-		// Note that the constructor is private, for use by the enumerator
-		// in the base class.  We let the enumerator access it by making the
-		// parent class a friend, and we let std::list's emplace() access it
+		// Note that the vendor interface constructor is private, for use by 
+		// the enumerator.  We let the enumerator access it by making the
+		// vendor class a friend, and we let std::list's emplace() access it
 		// via the private ctor key type that only friends can use.
 		friend class VendorInterface;
 		struct private_ctor_key_t {};
@@ -268,27 +268,16 @@ namespace PinscapePico
 		const WCHAR *DeviceInstanceId() const { return deviceInstanceId.c_str(); }
 
 		// Find the CDC (virtual COM) port associated with this device.
-		// Pinscape Pico can be configured to expose a CDC port that can
-		// be used to access log messages and command console functions
-		// via a terminal window.  The CDC port appears in Windows as a
-		// virtual COMn port.  The COMn port number can't be configured
-		// by the user, since it's assigned automatically by Windows when
-		// the device first connects.  This function lets you identify
-		// that system-assigned port number given a device path.
+		// The device sets up a CDC port for logging and command console
+		// access.  Windows assigns the COM port number, and the device
+		// itself has no way to control or query the port number, so we
+		// provide this method to help applications find the associated
+		// port number.
 		// 
-		// If the device exposes a CDC port, this fills in 'name' with
-		// the COMn port name string and returns true.  If no CDC port
-		// is found (or any error occurs), the function returns false.
-		//
-		// The COM port name returned is of the form "COMn", where n
-		// is a number.  This is the format that most user interfaces
-		// use to display available ports and accept as input to
-		// select a port.  You can also use this name in many Windows
-		// system calls involving COM ports, either directly as the
-		// string or by extracting the number suffix.  Note that the
-		// number might be more than one digit, since it's possible
-		// to add quite a lot of virtual COM ports.  For CreateFile(),
-		// prepend the string "\\\\.\\" to the name returned.
+		// The COM port is returned as a "COMn" string that can be used
+		// in many Windows system calls accepting COM port device names.
+		// For CreateFile(), prepend "\\\\.\\" to the COMn string to
+		// form the device path.
 		bool GetCDCPort(TSTRING &name) const;
 
 		// Open the path to get a live handle to a device

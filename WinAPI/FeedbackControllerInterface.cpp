@@ -315,7 +315,6 @@ void FeedbackControllerInterface::Init()
 	// Move our first read.  We always keep an overlapped read
 	// outstanding.
 	QueueRead();
-
 }
 
 FeedbackControllerInterface::~FeedbackControllerInterface()

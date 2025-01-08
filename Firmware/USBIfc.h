@@ -397,8 +397,8 @@ public:
     // suspended status
     bool IsSuspended() const { return suspended; }
 
-    // Vendor transmission completion event callback
-    void OnVendorTX(uint8_t ifc, uint32_t nBytesSent) { }
+    // Handle a vendor-interface control transfer
+    bool VendorControlXfer(uint8_t rhport, uint8_t stage, const tusb_control_request_t *request);
 
     // device mount state change events
     void OnMountDevice() { mounted = everMounted = true; suspended = false; OnDeviceStateChanged(); }
@@ -1265,9 +1265,6 @@ public:
     // Get a string descriptor
     const uint16_t *GetStringDescriptor(uint8_t index, uint16_t langId);
 
-    // Handle a vendor-interface control transfer
-    bool VendorControlXfer(uint8_t rhport, uint8_t stage, const tusb_control_request_t *request);
-
     // Get Report event handler
     uint16_t OnGetHIDReport(uint8_t instance, uint8_t id, hid_report_type_t type, uint8_t *buf, uint16_t reqLen);
 
@@ -1327,12 +1324,6 @@ protected:
 
     // is the bus suspended?
     bool suspended = false;
-
-    // USB string descriptor indices
-    static const int STRID_LANGID  = 0;
-    static const int STRID_MANUF = 1;
-    static const int STRID_PROD = 2;
-    static const int STRID_SERIAL = 3;
 
     // Remote wakeup pending.  We set this when the host PC is in "suspend"
     // mode (a low-power sleep state) and an event occurs on the client side

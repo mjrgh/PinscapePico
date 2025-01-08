@@ -34,6 +34,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ButtonLatencyTester", "Butt
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenPinballDeviceLib", "OpenPinballDevice\OpenPinballDeviceLib\OpenPinballDeviceLib.vcxproj", "{1F0B1E90-62B2-4982-A934-71B149489568}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ButtonLatencyTester2", "ButtonLatencyTester2\WinHost\ButtonLatencyTester2.vcxproj", "{8D5253EA-4AD9-4DD0-8991-B91D36487826}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -140,6 +142,18 @@ Global
 		{1F0B1E90-62B2-4982-A934-71B149489568}.Release|x64.Build.0 = Release|x64
 		{1F0B1E90-62B2-4982-A934-71B149489568}.Release|x86.ActiveCfg = Release|Win32
 		{1F0B1E90-62B2-4982-A934-71B149489568}.Release|x86.Build.0 = Release|Win32
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Debug|ARM64.ActiveCfg = Debug|x64
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Debug|ARM64.Build.0 = Debug|x64
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Debug|x64.ActiveCfg = Debug|x64
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Debug|x64.Build.0 = Debug|x64
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Debug|x86.ActiveCfg = Debug|Win32
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Debug|x86.Build.0 = Debug|Win32
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Release|ARM64.ActiveCfg = Release|x64
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Release|ARM64.Build.0 = Release|x64
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Release|x64.ActiveCfg = Release|x64
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Release|x64.Build.0 = Release|x64
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Release|x86.ActiveCfg = Release|Win32
+		{8D5253EA-4AD9-4DD0-8991-B91D36487826}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

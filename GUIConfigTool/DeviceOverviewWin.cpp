@@ -206,8 +206,8 @@ void DeviceOverviewWin::PaintOffScreen(HDC hdc0)
     y += hdc.DrawTextF(x, y, 1, mainFont, HRGB(0x000000), "CPU: %s, Version: %d, ROM: %d (%s)",
         devID.cpuType == 2040 ? "RP2040" : devID.cpuType == 2350 ? "RP2350" : "Unknown",
         devID.cpuVersion, devID.romVersion, devID.romVersionName.c_str()).cy;
-    y += hdc.DrawTextF(x, y, 1, mainFont, HRGB(0x000000), "Build environment: Pico SDK %s, %s", 
-        devID.picoSDKVersion.c_str(), devID.compilerVersion.c_str()).cy;
+    y += hdc.DrawTextF(x, y, 1, mainFont, HRGB(0x000000), "Build environment: Pico SDK %s, TinyUSB %s, %s", 
+        devID.picoSDKVersion.c_str(), devID.tinyusbVersion.c_str(), devID.compilerVersion.c_str()).cy;
     y += 16;
 
     // show details if online, otherwise just show offline status

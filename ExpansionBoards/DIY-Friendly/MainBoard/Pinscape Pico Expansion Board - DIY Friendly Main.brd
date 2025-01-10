@@ -4652,18 +4652,6 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <contactref element="C16" pad="2"/>
 <contactref element="D4" pad="C"/>
 <contactref element="R31" pad="1"/>
-<polygon width="1" layer="1" thermals="no">
-<vertex x="94.8" y="93.3"/>
-<vertex x="110.1" y="93.3"/>
-<vertex x="110.1" y="98"/>
-<vertex x="94.8" y="98"/>
-</polygon>
-<polygon width="1" layer="16" thermals="no">
-<vertex x="94.9" y="93.3"/>
-<vertex x="110.1" y="93.3"/>
-<vertex x="110.1" y="98"/>
-<vertex x="94.9" y="98"/>
-</polygon>
 <contactref element="J2" pad="1"/>
 <contactref element="J2" pad="2"/>
 <contactref element="J2" pad="3"/>
@@ -4740,6 +4728,14 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <vertex x="151.4" y="61.5"/>
 <vertex x="147.2" y="61.5"/>
 </polygon>
+<wire x1="96.3" y1="95.9" x2="96.3" y2="93.7" width="1.5" layer="16"/>
+<wire x1="100.26" y1="95.9" x2="100.26" y2="93.64" width="1.5" layer="16"/>
+<wire x1="104.22" y1="95.9" x2="104.22" y2="93.68" width="1.5" layer="16"/>
+<wire x1="108.18" y1="95.9" x2="108.18" y2="93.62" width="1.5" layer="16"/>
+<wire x1="96.3" y1="95.9" x2="96.3" y2="98" width="1.5" layer="1"/>
+<wire x1="100.26" y1="95.9" x2="100.26" y2="93.84" width="1.5" layer="1"/>
+<wire x1="104.22" y1="95.9" x2="104.22" y2="93.72" width="1.5" layer="1"/>
+<wire x1="108.18" y1="95.9" x2="108.2" y2="93.6" width="1.5" layer="1"/>
 </signal>
 <signal name="SDA">
 <contactref element="JP2" pad="5"/>
@@ -5853,11 +5849,9 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="107.93" y1="68.03" x2="109.3" y2="69.4" width="1" layer="16"/>
 <wire x1="109.3" y1="69.4" x2="109.3" y2="82.8" width="1" layer="16"/>
 <wire x1="107.93" y1="68.03" x2="107.3" y2="68.03" width="1" layer="16"/>
-<wire x1="110.284" y1="83.784" x2="109.6" y2="83.1" width="1" layer="16"/>
 <contactref element="J2" pad="5"/>
-<wire x1="109.6" y1="83.1" x2="109.3" y2="82.8" width="1" layer="16"/>
 <wire x1="112.14" y1="95.9" x2="112.14" y2="85.64" width="1" layer="16"/>
-<wire x1="112.14" y1="85.64" x2="110.284" y2="83.784" width="1" layer="16"/>
+<wire x1="112.14" y1="85.64" x2="109.3" y2="82.8" width="1" layer="16"/>
 </signal>
 <signal name="OUTCTL2">
 <contactref element="IC1" pad="4"/>

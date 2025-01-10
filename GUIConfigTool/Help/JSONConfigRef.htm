@@ -9175,15 +9175,6 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 <a name="workerPico"></a>
 <div class="jsonSectTitle">Worker Pico PWM Controller</div>
 <p>
-  // worker Pico #1
-  {
-  i2c: 1,
-  addr: 0x3A,
-  pwmFreq: 5000,
-  },
-  ],
-  }
-  </p><p>
   Configures a collection of auxiliary Picos running PWMWorker.  PWMWorker
   is a separate Pico firmware program, provided with the Pinscape Pico software
   suite, that turns a Pico into a sophisticated PWM Controller chip.  You can
@@ -9261,6 +9252,15 @@ For an introduction to the JSON syntax and the overall file layout, refer to
             addr: 0x30,
             pwmFreq: 20000,
         },
+
+        // worker Pico #1
+        {
+            i2c: 1,
+            addr: 0x3A,
+            pwmFreq: 5000,
+        },
+     ],
+  }
 </div>
 <div class="jsonProp">
   <div class="jsonPropHdr">

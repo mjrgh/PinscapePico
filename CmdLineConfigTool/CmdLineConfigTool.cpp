@@ -75,15 +75,30 @@ static void ShowDeviceList()
 		ErrorExit("Error enumerating device paths", hr);
 
 	// list the devices
+	int nErrors = 0;
 	printf("Unit   Hardware ID        Name\n");
 	for (auto &path : paths)
 	{
 		std::unique_ptr<VendorInterface> dev;
 		PinscapePico::DeviceID id;
 		if (SUCCEEDED(path.Open(dev)) && SUCCEEDED(dev->QueryID(id)))
+		{
 			printf("%4d   %s   %s\n", id.unitNum, id.hwid.ToString().c_str(), id.unitName.c_str());
+		}
 		else
+		{
 			_tprintf(_T("[Error retrieving Hardware ID for path %s]\n"), path.Name());
+			++nErrors;
+		}
+	}
+
+	if (nErrors > 0)
+	{
+		printf("\nNote: errors might be due to access conflicts with other programs.  The\n"
+			"Pinscape Pico USB configuration/control interface requires exclusive access,\n"
+			"so only one program can access it at a time.  Try closing any other Pinscape\n"
+			"Pico configuration tools or similar programs that are current running, and\n"
+			"try again.\n");
 	}
 }
 
@@ -1586,8 +1601,8 @@ int main(int argc, char **argv)
 	// version banner
 	if (!quietMode)
 	{
-		printf("Pinscape Pico Config Tool / v%s, build %s\n"
-			"Copyright 2024 Michael J Roberts / BSD-3-Clause License / NO WARRANTY\n",
+		printf("Pinscape Pico Config Tool  Version %s, build %s\n"
+			"Copyright 2024 Michael J Roberts / BSD-3-Clause License / NO WARRANTY\n\n",
 			gVersionString, GetBuildTimestamp());
 	}
 
@@ -1602,7 +1617,7 @@ int main(int argc, char **argv)
 	}
 
 	// with no arguments, just show usage
-	if (argi == argc)
+	if (argi == argc && deviceID.size() == 0)
 	{
 		printf("\n");
 		UsageExit();
@@ -1656,11 +1671,11 @@ int main(int argc, char **argv)
 	{
 		printf("Connected to Pinscape Pico unit #%d (%s)\n"
 			"Hardware ID %s (%s, RP%d CPU v%d, ROM %s)\n"
-			"Firmware version %d.%d.%d, build date %s (Pico SDK %s, %s)\n\n",
+			"Firmware version %d.%d.%d, build date %s (Pico SDK %s, TinyUSB %s, %s)\n\n",
 			devId.unitNum, devId.unitName.c_str(), devId.hwid.ToString().c_str(),
 			devId.FriendlyBoardName().c_str(), devId.cpuType, devId.cpuVersion, devId.romVersionName.c_str(),
 			vsn.major, vsn.minor, vsn.patch, vsn.buildDate,
-			devId.picoSDKVersion.c_str(), devId.compilerVersion.c_str());
+			devId.picoSDKVersion.c_str(), devId.tinyusbVersion.c_str(), devId.compilerVersion.c_str());
 	}
 
 	// this is now the selected device

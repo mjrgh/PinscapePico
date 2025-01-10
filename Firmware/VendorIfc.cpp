@@ -298,6 +298,17 @@ void PinscapeVendorIfc::ProcessRequest()
             for (const char *p = PICO_SDK_VERSION_STRING ; *p != 0 && dst+1 < dstMax ; *dst++ = *p++);
             *dst++ = 0;
 
+            // Copy the tinyusb version number into the transfer data.  (Note
+            // that TUSB_VERSION_STRING is defined erroneously in some versions
+            // of the library headers to not expand the macros, so it comes out
+            // as "TUSB_VERSION_MAJOR.TUSB_VERSION_MINOR.TUSB_VERSION_REVISION".
+            // So don't use that; construct our own string instead.)
+#define PSVI_STRING(x) #x
+#define PSVI_XSTRING(x) PSVI_STRING(x)
+#define PVSI_TUSB_VERSION_STRING PSVI_XSTRING(TUSB_VERSION_MAJOR) "." PSVI_XSTRING(TUSB_VERSION_MINOR) "." PSVI_XSTRING(TUSB_VERSION_REVISION)
+            for (const char *p = PVSI_TUSB_VERSION_STRING ; *p != 0 && dst+1 < dstMax ; *dst++ = *p++);
+            *dst++ = 0;
+
             // copy the compiler version into the transfer data
             for (const char *p = COMPILER_VERSION_STRING ; *p != 0 && dst+1 < dstMax ; *dst++ = *p++);
             *dst++ = 0;

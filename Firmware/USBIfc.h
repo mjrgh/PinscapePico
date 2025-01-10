@@ -428,7 +428,6 @@ public:
     // listed in the configuration descriptor.  These must be kept in sync with
     // the configuration descriptor.
     static const int VENDORIFC_IDX_CONFIG = 0;   // our Config & Control interface
-    static const int VENDORIFC_IDX_XINPUT = 1;   // xbox controller interface
 
     // String descriptor indices
     static const uint8_t STRDESC_LANG = 0;          // USB standard entry for language identifier code
@@ -1373,18 +1372,43 @@ extern USBIfc::Gamepad gamepad;
 extern USBIfc::OpenPinballDevice openPinballDevice;
 extern USBIfc::FeedbackController feedbackController;
 
+// The most reliable way to detect the version number is via the macros
+// for the three components, TUSB_VERSION_(MAJOR|MINOR|REVISION), which
+// are integers making up a stereotypical Major.Minor.Revision version
+// stamp.  Some versions of the headers also define a version string macro
+// (although some of those have errors that make it come out as literally
+// "TUSB_VERSION_MAJOR.TUSB_VERSION_MINOR.TUSB_VERSION_REVISION", which
+// isn't very helpful).  Some define a TUSB_VERSION_NUMBER composite, but
+// the developers couldn't make up their minds about the radix for combining
+// the parts; some use radix-256 (e.g., 0x010203 for 1.2.3), some use
+// radix-100 (e.g., decimal 10203 for version 1.2.3).  So that's not useful
+// across versions either.
+//
+// For our purposes, it is useful to have a high-radix composite form of
+// the version number, since that's easy to compare to reference points as
+// a scalar quantity.  But we need a consistent radix, so we'll define our
+// own, using radix-100.
+#define PINSCAPE_TUSB_VERSION_NUMBER ((TUSB_VERSION_MAJOR*10000) + (TUSB_VERSION_MINOR*100) + TUSB_VERSION_REVISION)
+
 // Cover macro for driver name in usbd_class_driver_t definitions.
 // This is only present for DEBUG >= 2 for versions before 0.17, and
 // always present for 0.17 and later.
-#if (CFG_TUSB_DEBUG >= 2) || (TUSB_VERSION_NUMBER >= 1700)
+#if (CFG_TUSB_DEBUG >= 2) || (PINSCAPE_TUSB_VERSION_NUMBER >= 1700)
 #define TUSB_DRIVER_NAME(_name)  _name,
 #else
 #define TUSB_DRIVER_NAME(_name)
 #endif
 
 // Changes in 0.17.0
-#if TUSB_VERSION_NUMBER >= 1700
+#if PINSCAPE_TUSB_VERSION_NUMBER >= 1700
 #define IF_TUSB_001700(...) __VA_ARGS__
 #else
 #define IF_TUSB_001700(...)
+#endif
+
+// Changes in 0.16.0
+#if PINSCAPE_TUSB_VERSION_NUMBER >= 1600
+#define IF_TUSB_001600(...) __VA_ARGS__
+#else
+#define IF_TUSB_001600(...)
 #endif

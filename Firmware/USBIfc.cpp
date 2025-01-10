@@ -1068,7 +1068,7 @@ usbd_class_driver_t const *usbd_app_driver_get_cb(uint8_t *driverCount)
         {
             TUSB_DRIVER_NAME("XINPUT")     // driver name
             &XInput::Driver::Init,         // initialize driver
-            IF_TUSB_001700(&XInput::Driver::DeInit,)  // deinitialize driver
+            IF_TUSB_001600(&XInput::Driver::DeInit,)  // deinitialize driver
             &XInput::Driver::Reset,        // reset driver
             &XInput::Driver::Open,         // open driver
             &XInput::Driver::ControlXfer,  // device control request

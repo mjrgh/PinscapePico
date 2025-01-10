@@ -140,6 +140,14 @@ namespace PinscapePico
 		// software developers everywhere.
 		std::string picoSDKVersion;
 
+		// Tinyusb library version string.  Tinyusb is the official
+		// USB API of the Pico SDK, but is a separate code base that's
+		// versioned independently, so the Pico SDK version doesn't
+		// necessary imply a particular Tinyusb version, thus the
+		// need for separate version identification here.  This uses
+		// the typical X.Y.Z format.
+		std::string tinyusbVersion;
+
 		// Compiler version string, in the form "CompilerName X.Y.Z".
 		// This is the name and version of the compiler used to build
 		// the firmware, which might be useful for diagnostics and

@@ -1,4 +1,4 @@
-# Pinscape Pico
+# <img src="logo-text.png">
 
 Pinscape Pico is a sequel to the original Pinscape virtual pinball
 controller, redesigned for the Raspberry Pi Pico.
@@ -237,7 +237,7 @@ updating the firmware.
 
 To update the firmware from a DOS box, use the command-line config tool:
 
-`ConfigTool --update=PinscapePico.uf2`
+`ConfigTool --update PinscapePico.uf2`
 
 That automatically places the Pico into Boot Loader mode, copies
 the specified UF2 file into its flash, and reboots the Pico to

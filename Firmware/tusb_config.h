@@ -50,7 +50,10 @@
 #define CFG_TUD_HID             5
 
 // Maximum number of vendor interfaces.  We use one vendor interface
-// for our custom Pinscape Configuration & Control interface.
+// for our custom Pinscape Configuration & Control interface.  (Note
+// that XInput doesn't count against this, because it's not defined
+// using tusb's built-in "vendor" class.  It's instead defined as an
+// application-custom-class driver.)
 //
 // Note that Tinyusb's notion of a vendor interface is narrower than the
 // USB specification's.  The USB spec defines a vendor interface as any

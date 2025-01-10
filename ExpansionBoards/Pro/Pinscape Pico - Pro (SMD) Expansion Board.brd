@@ -5825,19 +5825,15 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <via x="138" y="36.7" extent="1-16" drill="0.5"/>
 <via x="138" y="22.9" extent="1-16" drill="0.5"/>
 <via x="138.7" y="9.4" extent="1-16" drill="0.5"/>
-<polygon width="0.2" layer="1" thermals="no">
-<vertex x="155.1" y="92.9"/>
-<vertex x="159.4" y="92.9"/>
-<vertex x="159.4" y="77.3"/>
-<vertex x="155.1" y="77.3"/>
-</polygon>
-<polygon width="0.2" layer="16" thermals="no">
-<vertex x="155" y="92.9"/>
-<vertex x="159.3" y="92.9"/>
-<vertex x="159.3" y="77.3"/>
-<vertex x="155" y="77.3"/>
-</polygon>
 <contactref element="J1" pad="1"/>
+<wire x1="157.3" y1="91.14" x2="155.64" y2="91.14" width="1.5" layer="16"/>
+<wire x1="157.3" y1="87.18" x2="155.78" y2="87.18" width="1.5" layer="16"/>
+<wire x1="157.3" y1="83.22" x2="155.72" y2="83.22" width="1.5" layer="16"/>
+<wire x1="157.3" y1="95.1" x2="155.3" y2="95.1" width="1.5" layer="16"/>
+<wire x1="157.3" y1="95.1" x2="155.3" y2="95.1" width="1.5" layer="1"/>
+<wire x1="157.3" y1="91.14" x2="155.54" y2="91.14" width="1.5" layer="1"/>
+<wire x1="157.3" y1="87.18" x2="155.72" y2="87.18" width="1.5" layer="1"/>
+<wire x1="157.3" y1="83.22" x2="155.62" y2="83.22" width="1.5" layer="1"/>
 </signal>
 <signal name="5V">
 <wire x1="161.4" y1="11.8" x2="161.4" y2="43.5" width="1" layer="16"/>

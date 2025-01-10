@@ -256,12 +256,17 @@ namespace PinscapePico
         //   for example.
         //
         // - Pico SDK version string: the version of the Pico SDK
-        //   used to build the firmware.
+        //   used to build the firmware.  The format is defined by
+        //   the SDK developers, but it currently uses the typical
+        //   "x.y.z" convention.
         //
+        // - Tinyusb version string: the version of the tinyusb
+        //   library used to build the firmware, of the form "x.y.z".
+        //    
         // - Compiler version string: the name and version of the
         //   C++ compiler used to build the firmware, typically
         //   of the form "GNUC x.y.z".
-        //    
+        //
         // The hardware ID is a unique identifier for the physical Pico
         // unit, programmed permanently into ROM at the factory during the
         // Pico manufacturing process.  It's unique and immutable, so it

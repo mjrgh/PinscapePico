@@ -785,31 +785,25 @@ int VendorInterface::QueryID(DeviceID &id)
 		// set the LedWiz unit number
 		id.ledWizUnitMask = reply.args.id.ledWizUnitMask;
 
-		// read the name strings from the extra transfer data
+		// The extra transfer data consists of a series of null-terminated
+		// strings, with single-byte characters.  The strings are in a defined order,
+		// packed sequentially, with each string immediately following the null
+		// byte of the previous string.
 		{
-			// set up to read the strings
 			const BYTE *p = xferIn.data();
 			const BYTE *end = p + xferIn.size();
+			auto GetNextStr = [&p, end](std::string &s) {
+				const BYTE *start = p;
+				for (; p < end && *p != 0 ; ++p) ;
+				s.assign(reinterpret_cast<const char*>(start), p - start);
+				++p;
+			};
 
-			// read the unit name, up to the null byte
-			const BYTE *start = p;
-			for (; p < end && *p != 0 ; ++p) ;
-			id.unitName.assign(reinterpret_cast<const char*>(start), p - start);
-
-			// read the board name, up to the null byte
-			if (p < end) ++p;
-			for (start = p ; p < end && *p != 0; ++p) ;
-			id.targetBoardName.assign(reinterpret_cast<const char*>(start), p - start);
-
-			// read the SDK version string, up to the null byte
-			if (p < end) ++p;
-			for (start = p ; p < end && *p != 0 ; ++p) ;
-			id.picoSDKVersion.assign(reinterpret_cast<const char*>(start), p - start);
-
-			// read the GNUC version string, up to the null byte
-			if (p < end) ++p;
-			for (start = p ; p < end && *p != 0 ; ++p) ;
-			id.compilerVersion.assign(reinterpret_cast<const char*>(start), p - start);
+			GetNextStr(id.unitName);
+			GetNextStr(id.targetBoardName);
+			GetNextStr(id.picoSDKVersion);
+			GetNextStr(id.tinyusbVersion);
+			GetNextStr(id.compilerVersion);
 		}
 	}
 

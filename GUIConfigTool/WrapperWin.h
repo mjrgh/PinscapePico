@@ -174,6 +174,7 @@ protected:
 	// Device menu command handlers
 	void Reboot();
 	void RebootSafeMode();
+	void RebootFactoryMode();
 	void BootLoaderMode();
 	void InstallFirmware(int cmd);
 	void ExportFlash(int cmd);

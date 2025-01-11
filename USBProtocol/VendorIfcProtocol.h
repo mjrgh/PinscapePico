@@ -301,6 +301,14 @@ namespace PinscapePico
         // host side will generally need to close and re-open its USB
         // connection.
         //
+        // When rebooting the firmware, the caller can select which
+        // settings file to load: the normal full settings file, the Safe
+        // Mode settings file, or no settings file ("factory").  Note
+        // that resetting in factory mode doesn't delete any settings;
+        // it simply skips loading any of the available settings files
+        // during the post-reset initialization, which has the effect of
+        // using factory defaults for all settings.
+        //
         // Resetting into Boot Loader mode can be used to install a
         // firmware update.  After the reset, the Pico will reconnect as
         // an RP2 Boot device, with its associated USB virtual disk drive.
@@ -320,6 +328,7 @@ namespace PinscapePico
         static const uint8_t SUBCMD_RESET_NORMAL = 0x01;      // run firmware program in standard mode
         static const uint8_t SUBCMD_RESET_SAFEMODE = 0x02;    // run firmware program in Safe Mode
         static const uint8_t SUBCMD_RESET_BOOTLOADER = 0x03;  // reset into the Pico's native Boot Loader mode
+        static const uint8_t SUBCMD_RESET_FACTORY = 0x04;     // reset firmware program, don't load any settings
 
         // Set the wall clock time.  This lets the host PC send the
         // current time of day and calendar date to the Pico.  The Pico

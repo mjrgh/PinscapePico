@@ -805,6 +805,10 @@ bool WrapperWin::OnCommand(WORD notifyCode, WORD ctlCmdId, HWND hwndCtl, LRESULT
             RebootSafeMode();
             return true;
 
+        case ID_DEVICE_ENTERFACTORYMODE:
+            RebootFactoryMode();
+            return true;
+
         case ID_DEVICE_BOOTLOADERMODE:
             BootLoaderMode();
             return true;
@@ -1488,7 +1492,14 @@ void WrapperWin::Reboot()
 void WrapperWin::RebootSafeMode()
 {
     ExecDeviceCommand([](VendorInterface *dev) { return dev->EnterSafeMode(); },
-        "Rebooting device", "Success - the Pico has been rebooted");
+        "Rebooting device", "Success - the Pico has been rebooted to Safe Mode");
+}
+
+// reboot into factory mode
+void WrapperWin::RebootFactoryMode()
+{
+    ExecDeviceCommand([](VendorInterface *dev) { return dev->EnterFactoryMode(); },
+        "Rebooting device", "Success - the Pico has been rebooted to Factory Mode");
 }
 
 // reboot into boot loader mode

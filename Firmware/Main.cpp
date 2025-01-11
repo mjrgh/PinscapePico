@@ -155,6 +155,8 @@ int main()
         "reboot [mode]\n"
         "  -r, --reset      reset the Pico and restart the Pinscape firmware program\n"
         "  -s, --safe-mode  reset the Pico and restart Pinscape in Safe Mode\n"
+        "  -f, --factory    reset the Pico and restart with no config files loaded (factory settings)\n"
+        "                   (note: doesn't delete anything; just skips loading settings after reset)\n"
         "  -b, --bootsel    launch the Pico ROM Boot Loader, for installing new firmware",
         Command_reset);
 
@@ -899,6 +901,11 @@ static void Command_reset(const ConsoleCommandContext *c)
     {
         c->Printf("Entering Safe Mode\n");
         picoReset.Reboot(false, PicoReset::BootMode::SafeMode);
+    }
+    else if (strcmp(c->argv[1], "-f") == 0 || strcmp(c->argv[1], "--factory") == 0)
+    {
+        c->Printf("Resetting to factory settings (all settings at defaults)\n");
+        picoReset.Reboot(false, PicoReset::BootMode::FactoryMode);
     }
     else if (strcmp(c->argv[1], "-b") == 0 || strcmp(c->argv[1], "--bootsel") == 0)
     {

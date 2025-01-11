@@ -397,6 +397,17 @@ namespace PinscapePico
 		// crashes.
 		int EnterSafeMode();
 
+		// Reboot the Pico without loading any settings.  This restarts
+		// the firmware with "factory" defaults for all settings.  This
+		// doesn't delete any of the settings files; it simply skips
+		// loading any of the available files.  On the next normal
+		// reboot, the existing settings file will be loaded as usual.
+		// This allows starting a session with default settings in place
+		// temporarily, for the duration of the session, without any
+		// permanent change to the settings files.
+		int EnterFactoryMode();
+
+
 		// Send an ENTER BOOT LOADER command to the device.  This resets
 		// the Pico into its ROM boot loader mode.  The USB connection
 		// will be dropped when the device resets, so the current handle

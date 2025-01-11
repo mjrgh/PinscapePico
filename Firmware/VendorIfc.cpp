@@ -47,6 +47,42 @@
 #include "Devices/PWM/PWMWorker.h"
 #include "Watchdog.h"
 
+// Tinyusb has a serious regression in the official 0.17.0 release that
+// puts the USB connection into a wedged state after a sleep/resume cycle.
+// The error was a regression in 0.17.0, and was fixed in the official
+// 0.18.0, so it ONLY affects *exactly* version 0.17.0.  Unfortunately,
+// that's the version in the current official Raspberry Pi SDK (2.1.0),
+// so anyone buliding against the official SDK will get the buggy code.
+// I added the fix to my UNOFFICIAL build of the 2.1.0 SDK, along with
+// a marker macro to let client code know that the fix is included.
+//
+// So: when we detect version 0.17.0, we'll test for the presence of
+// the marker macro, and fail the build if it's not there.  This is
+// in the hope of saving the next fellow A LOT of debugging work
+// figuring out why sleep/resume is hosing the connection.
+//
+// DO NOT IGNORE THIS ERROR!  DO NOT #define AWAY THE PROBLEM!
+// The test is here to make your life easier, by saving you the trouble
+// of building a firmware binary that won't work properly, which is what
+// you'll get if you build against the official 2.1.0 SDK.  There are
+// two valid ways to satify this error check:
+//
+// 1. Build against some official SDK release OTHER THAN 2.1.0, such
+// as 1.5.1.  2.1.0 is the only SDK that includes the buggy TinyUSB
+// release.
+//
+// 2. Get my UNOFFICIAL 2.1.0 SDK snapshot, and build against that
+// INSTEAD OF the official 2.1.0.  My SDK snapshot is the same as the
+// official 2.1.0, with the addition of the fix for the TinyUSB
+// regression.  My unofficial 2.1.0 SDK build is at:
+//
+// https://github.com/mjrgh/pico-sdk-2.1.0
+//
+#if (PINSCAPE_TUSB_VERSION_NUMBER == 1700) && !defined(PINSCAPE_PICO_TUSB_VENDOR_DEVICE_FIX_53989A9)
+#error You are building against the stock TinyUSB 0.17.0, which contains a serious error that will make the USB connection unstable.  You MUST select a different TinyUSB version.  See the comments at this #error line in VendorIfc.cpp for recommended solutions.
+#endif
+
+
 // global singleton
 PinscapeVendorIfc psVendorIfc;
 

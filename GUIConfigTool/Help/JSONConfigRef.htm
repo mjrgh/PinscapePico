@@ -8951,7 +8951,37 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 <a name="usb"></a>
 <div class="jsonSectTitle">USB Settings</div>
 <p>
-  Configures the USB connection.
+  Configures the USB connection, particularly the USB device identifiers,
+  known as the VID (vendor ID) and PID (product ID).  Together, these two
+  16-bit integers form an identifier that is intended to identify a device
+  uniquely among all USB devices, across all time and space, for the whole
+  of the known universe.  To ensure this degree of uniqueness, the VID/PID
+  for any given device is meant to be issued by a central authority, USB-IF,
+  which manages the USB standards and specifications.  In practice, many 
+  devices - especially open-source projects like this one, but also a fair
+  number of commercial devices from smaller vendors - use ad hoc
+  VID/PID codes that weren't official assigned, because USB-IF charges a rather
+  substantial fee for registration.  This makes it possible that some
+  devices are using the same VID/PID codes without knowing it, which might
+  create a conflict with Windows drivers if you simultaneously plug in two
+  devices whose developers happened to pick the same codes.
+  </p><p>
+  Which brings us to the whole reason that Pinscape Pico makes the VID/PID 
+  codes configurable:  to let you resolve any conflicts that the default
+  codes create in your system.  All of the Pinscape Pico USB interfaces are
+  discoverable on the Windows side independently of the VID/PID codes, so
+  you can basically set these codes to any values you want without disrupting
+  any Windows software that accesses the Pinscape system.  That makes it
+  safe to change the VID/PID settings as needed in the rare case where they
+  create a conflict with another device.  In the absence of such a conflict,
+  it's better to leave well enough alone, lest you <i>create</i> a conflict
+  by accidentally choosing a VID/PID that some other device in your system
+  is already using.  How would you know if you have a conflict?  You
+  probably have a conflict if plugging in Pinscape Pico makes some other
+  device stop working, or if it awakes some non-Pinscape program on your
+  system that mistakes the Pico for some entirely different kind of device.
+  In either of those cases, changing the VID/PID codes on the Pinscape unit
+  should resolve it.
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{

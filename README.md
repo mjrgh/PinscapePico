@@ -19,16 +19,15 @@ early stage in its development.
 
 ## Quick setup guide
 
-A pre-built Windows installation is available on the github project page, 
-under the **Releases** section in the right panel.  
+A pre-built Windows installation is available on the github project page,
+under the **Releases** section in the right panel.
 
-The distribution is a simple ZIP file, and installation is just a
-matter of unpacking the ZIP file into a local directory on your hard
-disk.  The only caveat is that you should **not** use a folder within
-the system Program Files tree, because Windows applies special write
-protection to that whole tree.  Just about anywhere else should be fine,
-such as a root-level folder (C:\PinscapePico, say) or a folder within
-your personal C:\Users folder.
+The distribution is a ZIP file.  To install, just unpack the ZIP file
+into a local directory on your hard disk.  **Don't** put it in a folder
+under the system Program Files tree, because Windows applies special
+write protection to that whole tree.  Just about anywhere else should be
+fine, such as a root-level folder (C:\PinscapePico, say) or a folder
+within your personal C:\Users folder.
 
 Once you unpack the files, you can launch the Pinscape Pico GUI Config
 Tool by double-clicking **GUIConfigTool.exe**.  That's designed to be
@@ -38,7 +37,7 @@ instructions for setting up a new Pico with the Pinscape software.
 More setup details can be found [below](#SetupDetails).
 
 
-## Overview of features
+## Features
 
 * USB keyboard emulation, for button input mapping
 
@@ -226,11 +225,13 @@ why we also added `--reset` at the end.
 ### Firmware updates
 
 You can update the firmware using the same procedure as the initial
-install, manually forcing the Pico into Boot Loader mode and manually
-copying the new UF2 file.  But there's an easier way: once Pinscape is
-installed, you can use the Config Tool to do the transfer with a
-couple of mouse clicks, with no need to physically unplug the Pico or
-fuss with the BOOTSEL button.
+install, by forcing the Pico into Boot Loader mode via the BOOTSEL
+button and manually copying the new UF2 file. 
+
+But there's also an easier way.  Once Pinscape is installed, the
+Config Tool can install firmware updates for you with a couple of
+mouse clicks, with no need to physically unplug the Pico or fuss with
+the BOOTSEL button.
 
 In the GUI config tool, the main Overview window has controls for
 updating the firmware.
@@ -314,15 +315,19 @@ EAGLE layouts in the [ExpansionBoards](ExpansionBoards) folder.
 
 * **"Pro" expansion board:** An all-in-one board with a similar
   set of features to the DIY-friendly set, just with everything
-  packed into a single board, thanks to the higher density achievable
-  with fine-pitch SMD parts.  I call it the "Pro" board not because
-  it's any better than the DIY board, but just because it's not
-  something that you can easily assemble by hand, thanks to the
-  use of small SMD parts.  It's really only practical to assemble
-  robotically.  This design is more economical than the DIY board
-  for production in volume, so it might be something that one of
-  our enterprising community members who's set up for retail sales
-  might want to look into.
+  packed into a single board, thanks to the higher density made possible
+  by fine-pitch SMD parts.  I call it the "Pro" board not because
+  it's any better than the DIY board, but just because it's not the 
+  sort of thing most people would *want* to build by hand, thanks
+  to the use of small SMD parts.  It's really only practical to assemble
+  robotically, and that probably means that it will only be economical
+  to produce in moderately large batches, like tens or hundreds or units.
+  I expect that this will be an obstacle to DIYers, but one of our
+  enterprising community members who's set up for retail sales might
+  be able to build them and offer them for sale.  But even so, the
+  "pro" isn't for "proprietary" - it's still an open-source design
+  that you can build yourself, provided you have the means to work
+  with the small SMD parts involved.
 
 * **KL25Z adapter:** An adapter board that makes the Pico mimic
   a KL25Z, for use with the original Pinscape KL25Z expansion boards.
@@ -369,37 +374,48 @@ PC.)  The firmware and Windows tools use completely separate build
 systems; see below for instructions for each.
 
 
-### Building the Pinscape firmware
+### Building the main Pinscape Pico firmware program
 
 The firmware requires the Pico C++ SDK.  For most of the project's
 development phase, I was using SDK 1.5.1; shortly before the first
 release, I made the (perhaps risky) move of updating to the latest
-SDK version, 2.1.0.  The firmware has been built and tested against
-both of those SDK versions, so you can take your pick.  It's been
-tested more thoroughly with the 1.5.1 SDK, but it seems pretty solid
-with 2.1.0 so far, so it's probably better to use the newer 2.1.0
-unless you run into a problem that you suspect is due to an SDK 
-version incompatibility.
+SDK version, 2.1.0.  I did most of my development and testing against
+1.5.1, but I'd nonetheless recommend moving to 2.1.0, so that you're
+on the latest from Raspberry Pi, **with the the important caveat**
+that you use my fixed version of 2.1.0 instead of the official one.
 
-Raspberry Pi provided an official one-click Windows installer to
-set up a command-line build environment for 1.5.1, at
-https://github.com/raspberrypi/pico-setup-windows/.
+#### How to install 1.5.1
 
-For 2.1.0, Raspberry Pi has deprecated the Windows installer in
-favor of a new Visual Studio Code extension, which in principle
-should be easier to set up and use.  But at the moment, it seems
-to be a work-in-progress, to such an extent that I can't get it
-to even install on my system.  So I cobbled together my own 2.1.0
-version of the command-line environment from the raw materials,
-and I've made a self-contained snapshot of the result available at
-https://github.com/mjrgh/pico-sdk-2.1.0.  This is for x64 Windows only;
-if you want to build on another platform, you should go directly to
-the Raspberry Pi official site for options.  My 2.1.0 snapshot is
-just about as easy to set up as the official release 1.5.1 was, so it's
-a good option if you run into the same problems I did with the official
-VS Code extension for 2.1.0.  If you *can* get the VS Code version
-of 2.1.0 to work, you might prefer that to my jury-rigged command-line
-environment, especially if you prefer working in an IDE.
+If you want to go with the tried-and-true 1.5.1, that's easy.
+Raspberry Pi provides an official one-click Windows installer, at
+https://github.com/raspberrypi/pico-setup-windows/.  Just follow
+the normal Setup program instructions.
+
+#### How to install 2.1.0
+
+Raspberry Pi unfortunately deprecated the Windows installer for 2.1.0,
+in favor of a Visual Studio Code extension.  In principle, that should
+be just as easy to set up, but it still seems to be a work in progress
+- I can't even get it to install on my machine.  What's more, the
+official 2.1.0 library has a couple of serious errors, one that will
+simply cause a compiler error when you try to build, and a second,
+more insidious error that will make the USB connection unstable when
+you deploy the firmware.
+
+To address the install problems and library errors, I've created my
+own unofficial 2.1.0 Windows build environment, with everything you
+need pre-built and pre-packaged, and fixes for the library
+regressions.  This is for x64 Windows only.  If you want to build on
+another platform, you should go directly to the Raspberry Pi site and
+follow their instructions.  However, you should still get my modified
+snapshot of the pico-sdk/ (library source code) tree, and replace
+the one in the official version, so that you get my library fixes.
+
+My 2.1.0 snapshot is available at https://github.com/mjrgh/pico-sdk-2.1.0.
+You can either `git clone` that repository to your machine, or you can
+just download it all as a ZIP snapshot and install it in a local folder.
+
+#### NMAKE
 
 For any version of the SDK on Windows, you'll also need to install
 Microsoft's NMAKE build tool.  That's not included in any of the
@@ -409,12 +425,16 @@ freely available, even though they don't let anyone else distribute
 it.  The easiest way to get that is to install the free Visual Studio
 Community Edition.
 
+#### Pico SDK documentation 
 For tons of documentation about how to use the Pico SDK, see
 [Getting started with Raspberry Pi Pico](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf).
 That has instructions for setting up the build environment on other
 platforms (Linux, MacOS) if you prefer to work on one of those.
 But you won't need to read all of that if you just want to build the
 Pinscape firmware, as the instructions below should cover it.
+
+#### Step-by-step build instructions
+
 Note that this assumes that you've already set up the SDK tools
 on Windows as explained above, and assumes that you're using the
 command-line build process (as opposed to VS Code or some other IDE).

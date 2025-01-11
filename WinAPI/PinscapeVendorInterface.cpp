@@ -878,6 +878,12 @@ int VendorInterface::EnterSafeMode()
 	return SendRequestWithArgs(PinscapeRequest::CMD_RESET, args);
 }
 
+int VendorInterface::EnterFactoryMode()
+{
+	uint8_t args = PinscapeRequest::SUBCMD_RESET_FACTORY;
+	return SendRequestWithArgs(PinscapeRequest::CMD_RESET, args);
+}
+
 int VendorInterface::EnterBootLoader()
 {
 	uint8_t args = PinscapeRequest::SUBCMD_RESET_BOOTLOADER;

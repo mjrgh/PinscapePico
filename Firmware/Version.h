@@ -3,6 +3,9 @@
 
 #pragma once
 
+// use the common project version numbering
+#include "../PinscapeVersion.h"
+
 // Major, minor, and patch version numbers.  These are displayed as a
 // dotted triplet, MAJOR.MINOR.PATCH, where all fields are rendered as
 // decimal values without leading zeroes.  So (1, 2, 3) is displayed
@@ -19,9 +22,9 @@
 // version resets to zero whenever the minor version changes, and the
 // minor version resets to zero when the major version changes.
 //
-#define VERSION_MAJOR  0
-#define VERSION_MINOR  1
-#define VERSION_PATCH  0
+#define VERSION_MAJOR  PINSCAPE_PICO_VERSION_MAJOR
+#define VERSION_MINOR  PINSCAPE_PICO_VERSION_MINOR
+#define VERSION_PATCH  PINSCAPE_PICO_VERSION_PATCH
 
 // Build timestamp.  This is a printable 12-character string, in the
 // format YYYYMMDDhhmmss, giving the compile timestamp for the main

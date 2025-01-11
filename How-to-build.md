@@ -12,9 +12,8 @@ systems; see below for instructions for each.
 Building the firmware requires the Pico C++ SDK from Raspberry Pi.
 For most of the project's development phase, I was using SDK 1.5.1;
 shortly before the first release, I made the (perhaps risky) move of
-updating to the latest SDK version, 2.1.0.  I did most of my
-development and testing against 1.5.1, so it's the more thoroughly
-tested of the two options, but I'd nonetheless recommend moving
+updating to the latest SDK version, 2.1.0.  Even though 1.5.1 is
+the more thoroughly tested of the two options, I'd still recommend moving
 to 2.1.0, **with the the important caveat** that you should use my **corrected**
 version of 2.1.0 instead of the official one, which has a couple
 of serious bugs.
@@ -65,6 +64,7 @@ it.  The easiest way to get that is to install the free Visual Studio
 Community Edition.
 
 ### Pico SDK documentation 
+
 For tons of documentation about how to use the Pico SDK, see
 [Getting started with Raspberry Pi Pico](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf).
 That has instructions for setting up the build environment on other

@@ -3,9 +3,10 @@
 
 
 #include "VersionNumber.h"
+#include "../PinscapeVersion.h"
 
 // program version string
-const char *gVersionString = "0.1.0";
+const char *gVersionString = PINSCAPE_PICO_VERSION_STRING;
 
 // Get the build timestamp in our canonical YYYYMMDDhhmmMODE format.
 // Since the build timestamp is fixed at compile time, this builds

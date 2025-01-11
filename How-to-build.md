@@ -1,8 +1,5 @@
 # Building the project from source
 
-A pre-built Windows distribution is available on the github page,
-under the **Releases** section in the right panel.
-
 If you wish to build the project from source, clone the github
 repository to your PC.  (You can also download a snapshot of the
 github code as a ZIP file and unpack it into a local directory on your
@@ -10,33 +7,34 @@ PC.)  The firmware and Windows tools use completely separate build
 systems; see below for instructions for each.
 
 
-## Building the main Pinscape Pico firmware program
+## Pico SDK setup
 
-The firmware requires the Pico C++ SDK.  For most of the project's
-development phase, I was using SDK 1.5.1; shortly before the first
-release, I made the (perhaps risky) move of updating to the latest
-SDK version, 2.1.0.  I did most of my development and testing against
-1.5.1, but I'd nonetheless recommend moving to 2.1.0, so that you're
-on the latest from Raspberry Pi, **with the the important caveat**
-that you use my fixed version of 2.1.0 instead of the official one.
+Building the firmware requires the Pico C++ SDK from Raspberry Pi.
+For most of the project's development phase, I was using SDK 1.5.1;
+shortly before the first release, I made the (perhaps risky) move of
+updating to the latest SDK version, 2.1.0.  I did most of my
+development and testing against 1.5.1, but I'd nonetheless recommend
+moving to 2.1.0, so that you're on the latest from Raspberry Pi,
+**with the the important caveat** that you use my fixed version of
+2.1.0 instead of the official one.
 
 ### How to install SDK 1.5.1
 
 If you want to go with the tried-and-true 1.5.1, that's easy.
 Raspberry Pi provides an official one-click Windows installer, at
-https://github.com/raspberrypi/pico-setup-windows/.  Just follow
-the normal Setup program instructions.
+https://github.com/raspberrypi/pico-setup-windows/.  Download
+and run the installer, and follow the on-screen prompts.
 
 ### How to install SDK 2.1.0
 
-Raspberry Pi unfortunately deprecated the Windows installer for 2.1.0,
-in favor of a Visual Studio Code extension.  In principle, that should
-be just as easy to set up, but it still seems to be a work in progress
-- I can't even get it to install on my machine.  What's more, the
-official 2.1.0 library has a couple of serious errors, one that will
-simply cause a compiler error when you try to build, and a second,
-more insidious error that will make the USB connection unstable when
-you deploy the firmware.
+Raspberry Pi deprecated the Windows installer for 2.1.0, in favor of a
+Visual Studio Code extension.  In principle, that should be just as
+easy to set up, but it still seems to be a work in progress - I can't
+even get it to install on my machine.  What's more, the official 2.1.0
+library has a couple of serious errors, one that will simply cause a
+compiler error when you try to build, and a second, more insidious
+error that will make the USB connection unstable when you deploy the
+firmware.
 
 To address the install problems and library errors, I've created my
 own unofficial 2.1.0 Windows build environment, with everything you
@@ -48,8 +46,13 @@ snapshot of the pico-sdk/ (library source code) tree, and replace
 the one in the official version, so that you get my library fixes.
 
 My 2.1.0 snapshot is available at https://github.com/mjrgh/pico-sdk-2.1.0.
-You can either `git clone` that repository to your machine, or you can
-just download it all as a ZIP snapshot and install it in a local folder.
+Unlike the official 1.5.1 installer, this is just a snapshot of my
+environment, so there's nothing to "install"; you just copy the whole
+directory tree into a folder on your hard disk.  To do that, you can
+either `git clone` the repository, or you can download it all as a ZIP
+and unpack it in a local folder on your machine.  (To get the ZIP,
+click the **Code** drop-down box at top right of the main page, and 
+select **Download Zip**.)
 
 ### NMAKE
 
@@ -69,9 +72,9 @@ platforms (Linux, MacOS) if you prefer to work on one of those.
 But you won't need to read all of that if you just want to build the
 Pinscape firmware, as the instructions below should cover it.
 
-### Step-by-step build instructions
+## Building the main Pinscape Pico firmware program
 
-Note that this assumes that you've already set up the SDK tools
+The steps below assume that you've already set up the SDK tools
 on Windows as explained above, and assumes that you're using the
 command-line build process (as opposed to VS Code or some other IDE).
 

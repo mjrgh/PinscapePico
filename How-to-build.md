@@ -13,10 +13,11 @@ Building the firmware requires the Pico C++ SDK from Raspberry Pi.
 For most of the project's development phase, I was using SDK 1.5.1;
 shortly before the first release, I made the (perhaps risky) move of
 updating to the latest SDK version, 2.1.0.  I did most of my
-development and testing against 1.5.1, but I'd nonetheless recommend
-moving to 2.1.0, so that you're on the latest from Raspberry Pi,
-**with the the important caveat** that you use my fixed version of
-2.1.0 instead of the official one.
+development and testing against 1.5.1, so it's the more thoroughly
+tested of the two options, but I'd nonetheless recommend moving
+to 2.1.0, **with the the important caveat** that you should use my **corrected**
+version of 2.1.0 instead of the official one, which has a couple
+of serious bugs.
 
 ### How to install SDK 1.5.1
 
@@ -29,37 +30,36 @@ and run the installer, and follow the on-screen prompts.
 
 Raspberry Pi deprecated the Windows installer for 2.1.0, in favor of a
 Visual Studio Code extension.  In principle, that should be just as
-easy to set up, but it still seems to be a work in progress - I can't
-even get it to install on my machine.  What's more, the official 2.1.0
-library has a couple of serious errors, one that will simply cause a
-compiler error when you try to build, and a second, more insidious
-error that will make the USB connection unstable when you deploy the
-firmware.
+easy to set up, but it still seems to be a work in progress, so much
+so that I can't even get it to install on my machine.  What's more,
+the official 2.1.0 library has a couple of serious errors, one that
+will simply cause a compiler error when you try to build, and a
+second, more insidious error that will make the USB connection
+unstable when you deploy the firmware.
 
-To address the install problems and library errors, I've created my
-own unofficial 2.1.0 Windows build environment, with everything you
-need pre-built and pre-packaged, and fixes for the library
-regressions.  This is for x64 Windows only.  If you want to build on
-another platform, you should go directly to the Raspberry Pi site and
+So, to address the install glitches and library errors, I've created my
+own unofficial 2.1.0 Windows build environment, which includes all
+of the required tools and **corrected** versions of the library
+files.  This is for x64 Windows only - if you want to build on Linux
+or MacOS, you should go directly to the Raspberry Pi site and
 follow their instructions.  However, you should still get my modified
 snapshot of the pico-sdk/ (library source code) tree, and replace
-the one in the official version, so that you get my library fixes.
+the one in the official version, so that you're including my
+library corrections.
 
 My 2.1.0 snapshot is available at https://github.com/mjrgh/pico-sdk-2.1.0.
 Unlike the official 1.5.1 installer, this is just a snapshot of my
 environment, so there's nothing to "install"; you just copy the whole
-directory tree into a folder on your hard disk.  To do that, you can
-either `git clone` the repository, or you can download it all as a ZIP
-and unpack it in a local folder on your machine.  (To get the ZIP,
-click the **Code** drop-down box at top right of the main page, and 
-select **Download Zip**.)
+directory tree into a folder on your hard disk.  You can `git clone`
+the repository if you have git set up, or you can just download the
+repository as a ZIP file and unpack it into a local folder.
 
 ### NMAKE
 
 For any version of the SDK on Windows, you'll also need to install
 Microsoft's NMAKE build tool.  That's not included in any of the
 pre-built snapshots (mine or the official Raspberry Pi releases)
-because it's proprietary Microsoft software - but Microsoft makes it
+because it's proprietary Microsoft software.  But Microsoft makes it
 freely available, even though they don't let anyone else distribute
 it.  The easiest way to get that is to install the free Visual Studio
 Community Edition.

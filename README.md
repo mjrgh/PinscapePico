@@ -391,29 +391,28 @@ for commands and option flags.
 The original Pinscape software runs on the NXP FRDM-KL25Z, a
 microcontroller based on the Arm M0+.  The KL25Z was marketed primarily
 as a development platform for NXP's Arm CPUs, but in many ways, it was
-an ideal platform for something like Pinscape: it has a
-generous complement of GPIOs, an excellent MEMS accelerometer on
-board, built-in USB, an integrated high-resolution ADC, and on-chip
-peripherals for all of the common peripheral interconnects (UART, SPI,
-I2C).  It has almost everything you'd need for a virtual pin cab
-controller built into the board; the only thing that pin cab builders
-had to add externally was MOSFET drivers to switch high-power devices.
-In a full system, we also had to add external PWM controllers, since the
-KL25Z didn't have as many PWM control channels as are needed for a
-typical virtual pin cab.  The KL25Z was also quite reasonably priced,
-at under $20 MSRP.
+an ideal platform for something like Pinscape: it has a generous complement
+of GPIOs, an excellent MEMS accelerometer on board, built-in USB, an
+integrated high-resolution ADC, and on-chip hardware interfaces for all
+of the common peripheral interconnects (UART, SPI, I2C).  It has almost
+everything you'd need for a virtual pin cab controller built into the board;
+the only thing that pin cab builders had to add externally was MOSFET drivers
+to switch high-power devices.  In a full system, we also had to add external
+PWM controllers, since the KL25Z didn't have as many PWM control channels as
+are needed for a typical virtual pin cab.  The KL25Z was also quite reasonably
+priced, at under $20 MSRP.
 
 But alas, NXP hasn't produced new KL25Z units since around 2018, and
 most retailers that sold them ran out of inventory around 2021.  It's
 been getting increasingly difficult to find them available for sale in
-the years since.  Sellers who do have them know how difficult they are
-to find and are asking ridiculously high prices for them, as much as
-5X MSRP.  The Pico, in contrast, is amply available, and Raspberry Pi
-has publicly committed to keeping them in production for many years
-to come.  (Raspberry Pi also recently released the Pico 2, an updated
-version with an even faster CPU.  That will extend the life of the
-product family even further.)  The Pico is also even less expensive
-than the KL25Z was, at just $5 MSRP.
+the years since.  Sellers who do have any left know how scarce they are
+and are demanding scalper prices, as much as 5X MSRP.  The Pico,
+in contrast, is amply available, and Raspberry Pi has publicly committed
+to keeping them in production for many years to come.  (Raspberry Pi
+also recently released the Pico 2, an updated version with an even faster
+CPU.  That will extend the life of the product family even further.)
+The Pico is also even less expensive than the KL25Z's original retail
+price, at just $4 MSRP.
 
 Like the KL25Z, the Pico based on the Arm M0+ CPU core, but that's
 about the only thing that the devices have in common technologically.
@@ -443,10 +442,12 @@ possible to interface to a wide range of external devices with minimal
 CPU load.  Pinscape Pico takes advantage of the Pico's unique hardware
 to provide support for large number of external peripherals, with
 extremely flexible configuration options.  It offers several different
-ways to attach huge sets buttons and outputs with only a few GPIO
-ports; it supports multiple accelerometers, with an open architecture
-that will allow expanding to new devices in the future; it supports
-multiple external ADCs to supplement the somewhat meager on-board ADC.
+ways to attach ample sets of button inputs and feedback device
+outputs, using only a few GPIO ports; it supports multiple
+accelerometers, with an open architecture that will allow expanding to
+new devices in the future; it supports multiple external ADCs to
+supplement the somewhat meager on-board ADC; and it supports all
+of the original Pinscape KL25Z plunger sensors.
 
 
 ## How Pinscape uses the Pico's flash memory

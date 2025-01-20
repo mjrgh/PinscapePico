@@ -709,7 +709,7 @@ int VendorInterface::QueryMeasurements(std::vector<MeasurementData> &data)
 	const auto *hdr = reinterpret_cast<ListHeader*>(xferIn.data());
 	if (hdr->cb < offsetnext(ListHeader, nData) 
 		|| hdr->cbData < offsetnext(ListEle, latencyMedian)
-		|| xferIn.size() < hdr->cb + hdr->nData*hdr->cbData)
+		|| xferIn.size() < static_cast<size_t>(hdr->cb + hdr->nData*hdr->cbData))
 		return VendorResponse::ERR_BAD_REPLY_DATA;
 
 	// make room in the output list, and clear to all zeroes

@@ -44,6 +44,10 @@ echo ^>^>^> Building PWMWorker firmware
 call :BuildFirmware PWMWorker
 if errorlevel 1 goto abort
 
+echo ^>^>^> Building ButtonLatencyTester2 firmware
+call :BuildFirmware ButtonLatencyTester2\Firmware
+if errorlevel 1 goto abort
+
 rem  Build the Windows Release configurations
 echo.
 echo ^>^>^> Building Windows tools (Release^|x86)

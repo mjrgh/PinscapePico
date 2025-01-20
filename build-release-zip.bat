@@ -21,3 +21,9 @@ zip %ReleaseZip% GUIConfigTool.exe Scintilla.dll MicrosoftEdgeWebview2Setup.exe
 zip -r %ReleaseZip% Help ConfigTemplates
 zip %ReleaseZip% ConfigTool.exe
 popd
+
+rem  Build the Button Latency Tester zip
+set BLT2ReleaseZip="%cd%\Releases\ButtonLatencyTester2-%ReleaseDate%.zip"
+if exist %BLT2ReleaseZip% del %BLT2ReleaseZip%
+zip -j %BLT2ReleaseZip% ButtonLatencyTester2\Firmware\ButtonLatencyTester2.uf2
+zip -j %BLT2ReleaseZip% x64\release\ButtonLatencyTester2.exe

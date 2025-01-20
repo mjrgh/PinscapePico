@@ -5,6 +5,19 @@ pinball cabinets.  It's nominally designed to be used with the
 Pinscape Pico expansion boards, but it could really be used with just
 about any pin cab setup, with or without an I/O board like Pinscape.
 
+## Danger - high voltage
+
+This board provides connections to the 120VAC mains inputs to the
+various DC power supplies.  It also has a section for 48VDC power.
+Line voltage and 48VDC are both hazardous, capable of causing electric
+shock and fires.  The board must be installed in the cabinet so that
+it's shielded from accidental contact with the operator or with loose
+articles, in a grounded metal enclosure (grounded to Earth ground
+through the AC outlet) or an insulated enclosure.
+
+
+## Features
+
 This board has several functions special to pin cabs:
 
 * "Smart" power switching: Virtual pin cabs typically have two or
@@ -24,6 +37,19 @@ Just plug an unused floppy-disk power connector from your PC ATX
 power supply into the matching port on this board, and it'll control
 the relay, which in turn switches AC power to your auxiliary power
 supplies.
+
+* DC power supply wire routing: Most of the switch-mode power supplies
+(SMPS) that people use in pin cab projects have exposed screw
+terminals for all of their wiring, including the 120VAC power input.
+The power distribution board has a corresponding shrouded header for
+each power supply ("shrouded" means that the pins are enclosed in a
+plastic housing to protect against accidental contact).  This lets you
+create a single pluggable cable for each SMPS, so that you don't have
+to mess with the screw terminals as often - just wire the screw
+terminal once, and then you can safely plug and unplug it via the
+power distribution board connector.  This is simpler when doing
+maintenance work, reduces the chances of errors when reconnecting
+wires, and makes the wiring a little neater.
 
 * Filtering: This board includes some large capacitors to help filter
 voltage spikes on the secondary supplies and ensure quick power
@@ -57,8 +83,8 @@ you can easily wire each supply to the distro board, keeping the
 wiring tidy.  The 120VAC connections to the OEM supplies are all
 switched through the "smart" relay, too.
 
-* Power hub: The board includes a fairly ample set of output ports for
-5V, 6.3V, 12V, 24V, 48V, and GND connections, for running wiring to
-the various feeedback devices.  This is just a convenience to help
-tidy up your wiring by providing enough ports that you won't have to
-improvise by tying multiple wires together.
+* Power hub: The board includes an ample set of output ports for 5V,
+6.3V, 12V, 24V, 48V, and GND connections, for running wiring to the
+various feeedback devices.  This is a convenience to help tidy up your
+wiring by providing enough ports that you won't have to improvise by
+tying multiple wires together.

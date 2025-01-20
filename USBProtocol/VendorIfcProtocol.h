@@ -238,30 +238,31 @@ namespace PinscapePico
         //
         // - Unit name: the unit name string, assigned in the JSON config.
         //   This is a name assigned by the user, as a convenience for
-        //   more easily identifying the device in display listings and
-        //   the like.
+        //   identifying the device in display listings and the like.
         //
         // - Target board ID: the name string used in the Pico SDK to
-        //   identify the target board in the firmware build process.
-        //   The Pico is an open-source design with many clones, some
-        //   compatible with the original reference design and some
-        //   with different on-board peripherals.  Boards with custom
-        //   hardware changes generally require the firmware to be
-        //   rebuilt with different parameters.  That's what this ID
-        //   indicates: the board configuration that the running
-        //   firmware was built for.  This isn't a "live" board ID;
-        //   it only indicates which configuration the firmware was
-        //   compiled for.  So it won't distinguish between an
-        //   original Raspberry Pi Pico and a compatible clone,
-        //   for example.
+        //   identify the target board selected at compile time for the
+        //   firmware build process.  The Pico is an open-source design
+        //   with many clones, some compatible with the original reference
+        //   design and some with slight differences that require different compile-time
+        //   build settings.  That's what this ID indicates: the board
+        //   configuration that the running firmware was built for.
+        //   This isn't a "live" board ID; it only indicates which
+        //   build configuration was used to compile the firmware.  So
+        //   it won't distinguish among clones that use identical build
+        //   configurations.
         //
         // - Pico SDK version string: the version of the Pico SDK
         //   used to build the firmware.  The format is defined by
         //   the SDK developers, but it currently uses the typical
         //   "x.y.z" convention.
         //
-        // - Tinyusb version string: the version of the tinyusb
+        // - TinyUSB version string: the version of the TinyUSB
         //   library used to build the firmware, of the form "x.y.z".
+        //   (TinyUSB is the Pico SDK's official USB layer, but it's
+        //   a separate pboject with its own versioning.  The Pico
+        //   SDK version doesn't necessarily imply a particular
+        //   TinyUSB version.)
         //    
         // - Compiler version string: the name and version of the
         //   C++ compiler used to build the firmware, typically
@@ -584,6 +585,9 @@ namespace PinscapePico
         //       new averaging window.
         //
         // SUBCMD_STATS_QUERY_CLOCK
+        //   Note: for clock synchronization, use CMD_SYNC_CLOCKS instead of
+        //   this when possible, since that's much more precise.
+        //
         //   Query the Pico system clock.  This returns two UINT64 values
         //   packed into the reply arguments, representing times on the Pico
         //   system clock, expressed in microseconds since the last CPU reset.
@@ -1103,6 +1107,81 @@ namespace PinscapePico
         static const uint8_t SUBCMD_QUERY_IR_CMD = 0x01;
         static const uint8_t SUBCMD_QUERY_IR_RAW = 0x02;
 
+        // Synchronize clocks between the Pico and the host system.  This
+        // uses the USB SOF (Start-of-frame) signal as a shared time
+        // reference point to determine the correspondence between the
+        // Pico's internal microsecond clock and the host clock time, so
+        // that each system can translate between its local clock and the
+        // other system's clock.
+        //
+        // IMPORTANT: Clock synchronization must be enabled before first
+        // use, by invoking this command with 0xFFFF in the frame number
+        // field.  The USB frame tracking required for this work adds some
+        // slight run-time overhead, so it's disabled by default.  You can
+        // later disable it again by invoking the command with 0xFFFE in the
+        // frame number field.
+        //
+        // Even though this command is called "synchronize clocks", it
+        // doesn't actually change the clock on either system.  It simply
+        // provides both systems with a shared time reference point that
+        // they can use to translate absolute event times from one system's
+        // clock to the other.  We take it for granted that each system has
+        // a high-precision clock that measures time in terms of TIME UNITS
+        // SINCE AN EPOCH, where the epoch is an arbitrary fixed zero point.
+        // For the Pico, the epoch is the last CPU reset time.  To compare
+        // times on the two systems, then, we need to know the difference in
+        // time between the two epochs (Pico epoch and host epoch) on some
+        // THIRD clock, which we can refer to as "real time" or "wall clock
+        // time".  This interval between the two epochs is the TIME OFFSET
+        // between the two clocks, and that's what this command is all
+        // about.
+        //
+        // To use this command, the host must be able to access the USB
+        // adapter hardware on the port physically connected to the Pico, to
+        // obtain the current USB hardware frame counter and the host system
+        // timestamp for the start of the current USB frame.  On Windows,
+        // this can be obtained from WinUsb_GetCurrentFrameNumberAndQpc().
+        //
+        // The USB adapter hardware on the host maintains a 10-bit frame
+        // counter.  At precise 1ms intervals, the adapter increments the
+        // frame counter and sends a special packet known as SOF (Start of
+        // Frame) to the device.  The SOF packet contains the host frame
+        // number, and both host and device mark the time on their
+        // respective system clocks when this packet is sent/received, so
+        // the SOF serves as a shared reference point that marks a fixed
+        // point in time.  In other words, the time marked on the Pico clock
+        // at SOF represents the same instant on an external third-party
+        // clock as the time marked at SOF on the Windows clock.  The two
+        // systems can then use this point as a shared "zero" point for
+        // calculating relatives times to other events.
+        //
+        // The caller populates args.timeSync in the request arguments.
+        // This provides the Pico with the current USB frame number, and the
+        // SOF timestamp on the HOST clock for the start of that frame.
+        // It's critical for the host to use a very recent frame, preferably
+        // the current frame, as the reference point.  The frame counter is
+        // a 10-bit field that's incremented every 1ms, so it rolls over
+        // every 1.024 seconds.  The Pico has no way to determine if a
+        // rollover has occurred, so the transaction must be concluded
+        // within one second of the host setting up the parameters.  This is
+        // trivially accomplished provided the host captures the USB
+        // hardware information immediately before sending the request.
+        //
+        // On return, the Pico populates args.timeSync in the reply
+        // arguments to pass back the Pico clock time that corresponds to
+        // the start of the same frame.  This allows the host to calculate
+        // the offset between the two clocks, which in turn allows the host
+        // to calculate the Pico timestamp for any event given the host
+        // timestamp.
+        //
+        // A synchronization reference point is only good for a few minutes,
+        // because the Pico and Windows system clocks will drift apart over
+        // time.  The Pico clock in particular isn't very accurate; it's
+        // rated accuracy is 30 ppm, which translates to 2.5 seconds of
+        // drift per day.  If you're using clock synchronization for
+        // measurements at a millisecond scale, you should refresh the
+        // offset calculation about once a minute.
+        static const uint8_t CMD_SYNC_CLOCKS = 0x15;
 
         // Length of the arguments union data, in bytes.  This is the number
         // of bytes of data in the arguments union that are actually used.
@@ -1240,6 +1319,28 @@ namespace PinscapePico
                 uint16_t pwmLevel;
 
             } __PackedEnd outputDevPort;
+
+            // CMD_SYNC_CLOCKS request arguments
+            struct __PackedBegin TimeSync
+            {
+                // Host clock time recorded at SOF for the frame number in
+                // usbFrameNumber.  This is expressed in microseconds from
+                // an arbitrary (host-defined) zero point.
+                uint64_t hostClockAtSof;
+
+                // USB hardware frame number corresponding to the SOF time
+                // in hostClockAtSof.  This is a 10-bit number that must be
+                // obtained from the host USB adapter on the host port where
+                // the Pico is connected.
+                //
+                // Special values:
+                //   0xFFFF    Enable frame tracking (required before first sync call)
+                //   0xFFFE    Disable frame tracking
+                uint16_t usbFrameNumber;
+                const static uint16_t ENABLE_FRAME_TRACKING = 0xFFFF;
+                const static uint16_t DISABLE_FRAME_TRACKING = 0xFFFE;
+                
+            } __PackedEnd timeSync;
         } args;
     } __PackedEnd;
 
@@ -1444,6 +1545,15 @@ namespace PinscapePico
                 uint8_t irCommandCount;
                 
             } __PackedEnd tvon;
+
+            // CMD_SYNC_CLOCKS reply arguments
+            struct __PackedBegin TimeSync
+            {
+                // Pico clock time corresponding the SOF for the USB
+                // frame number provided with the request.
+                uint64_t picoClockAtSof;
+
+            } __PackedEnd timeSync;
         } args;
     } __PackedEnd;
 

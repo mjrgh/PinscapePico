@@ -1,5 +1,17 @@
 // Pinscape Pico - Pico Clock Synchronizer
 // Copyright 2024 Michael J Roberts / BSD-3-Clause license, 2025 / NO WARRANTY
+// 
+// NOTE: This class is based on the original QueryPicoSystemClock() time
+// synchronization API.  The alternative SynchronizeClocks() API is more
+// accurate, so it should be used when precise time comparisons are
+// required, such as for latency testing.  This class is most useful for
+// cases where low USB usage is more important than precision, because it
+// can perform reasonably accurate projections of Pico clock times based
+// on previous USB readings, without the need to send a new USB request
+// for every clock projection.  In contrast, the SynchronizeClocks() API
+// is precise, but requires a USB round trip in close real-time proximity
+// to each host-side event to be translated to the Pico clock.
+// 
 //
 // The PicoClockSync class helps a Windows application synchronize Windows
 // timestamps with Pinscape Pico timestamps, so that a time reading taken 

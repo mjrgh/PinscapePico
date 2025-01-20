@@ -433,7 +433,7 @@ namespace PinscapePico
 		// wipe of the Pico.)
 		//
 		// If you want to delete the JSON configuration file only,
-		// use EraseConfig().  That removes the user settings but
+		// use EraseConfig().  That removes the user settings, but
 		// preserves internal persistent data, such as calibration
 		// data.
 		//
@@ -481,6 +481,45 @@ namespace PinscapePico
 		// reset, to start a new rolling-average window.
 		int QueryStats(PinscapePico::Statistics *stats, size_t sizeofStats,
 			bool resetCounters);
+
+		// Synchronize clocks with the Pico.  This uses the USB SOF (Start
+		// Of Frame) signal to create a fixed reference point in time shared
+		// between the Windows host and the Pico, so that the two systems
+		// can translate event times between their two clocks with high
+		// precision.
+		// 
+		// On success, picoClockOffset is filled in with the time offset
+		// between the Pico's system clock and the Windows high-precision
+		// QueryPerformanceCounter() clock, in microseconds, such that
+		// you can calculate the Pico clock time corresponding to any
+		// given Windows clock time as:
+		//
+		//   T[Pico] = T[Windows] + picoClockOffset
+		// 
+		// The clock synchronization offset varies over time, because the
+		// Pico and Windows clocks are based on independent frequency
+		// generators, so the two clocks drift from real time at
+		// different rates that are unpredictable.  The Pico clock's rated
+		// accuracy is about 30 ppm, so it can drift by up to 0.1 seconds
+		// per hour, or 2.5 seconds per day.  The client should therefore
+		// refresh the offset from time to time, according to how much
+		// precision it needs.  For millisecond-scale measurements, you
+		// should refresh about once a minute.
+		// 
+		// Before using this function, clock synchronization must be
+		// explicitly enabled via EnableClockSync().  The clock sync feature
+		// adds some run-time overhead on both host and Pico, so it's
+		// disabled by default.
+		//
+		// Returns the usual status code (OK or ERR_xxx).
+		int SynchronizeClocks(int64_t &picoClockOffset);
+
+		// Enable/disable time sync.  Clock synchronization adds a small
+		// amount of run-time overhead on both the host and the Pico, since
+		// each system must keep track of USB hardware frame times, so the
+		// synchronization system is disabled by default to eliminate that
+		// overhead for clients that don't need it.
+		int EnableClockSync(bool enable);
 
 		// Query the Pico system clock time, for synchronizing between Pico
 		// timestamps and Windows timestamps.
@@ -1167,6 +1206,9 @@ namespace PinscapePico
 
 		// WinUSB handle to the device
 		WINUSB_INTERFACE_HANDLE winusbHandle = NULL;
+
+		// USB SOF time tracking handle
+		HANDLE timeTrackingHandle = NULL;
 
 		// File system path of the device
 		WSTRING path;

@@ -113,6 +113,60 @@ using TVs that don't remember their power state)
 across Pico resets, even when the board is unpowered
 
 
+## Power limits
+
+All of the output ports have limits on how much power they can handle.
+The ports are all designed to have ample limits for the typical sorts
+of devices used in virtual pinball machines, with the goal that you
+shouldn't have to spend a lot of time with a calculator figuring out
+if you're within the limits.  But even so, you should do some rough
+calculations based on your devices to make sure you stay within the
+limits listed below.
+
+### Combined active current level - main board
+
+The combined current level for all devices on the main board that are
+active **at the same time** must not exceed 44A.  
+
+This only applies to devices that are activated simultaneously.  THe
+total load of all devices *connected* can be higher, as long as you
+don't attempt to run them all at the same time.
+
+(Rationale: all switched current ultimately flows through four pins on
+the 640445-x power supply connector, which are rated for 14A maximum
+per pin, yielding 56A total, or 44A after a 20% safety margin.)
+
+
+### Combined active current level - power board
+
+The power board has the same combined limit as the main board for
+devices activated **at the same time**, 44A, for the same reason.
+
+### MOSFET outputs (main board and power board)
+
+Each individual MOSFET output must not exceed 11A, 80% of the 
+I<sub>D</sub>[Max] for the MOSFET selected (22A for FDPF085N10A).
+
+(Rationale: the 640445-x connector is rated for 14A maximum per pin,
+or 11A after a 20% safety margin.)
+
+### Flasher and strobe outputs (main board)
+
+Each individual flasher output must not exceed 800mA.  This is enough
+current to run two typical 3W RGB LED channels in parallel.
+
+(Rationale: the connector is rated for 1A per pin maximum, and the
+ULN2803A is rated for 500mA per channel maximum, with each pin connected
+to two channels.  This yields 800mA maximum with a 20% safety margin.)
+
+### Lamp outputs (power board)
+
+Each individual lamp output must not exceed 400mA.
+
+(Rationale: each channel is driven by a single ULN2803A channel, which
+is rated at 500mA maximum, or 400mA after a 20% safety margin.)
+
+
 ## ADS1115 ADC
 
 This should be installed if, and only if, you're using a potentiometer

@@ -173,7 +173,7 @@ CombinedReader::CombinedReader()
 	auto allDevices = EnumerateDevices();
 
 	// open a reader on each device
-	for (const auto &device : devices)
+	for (const auto &device : allDevices)
 	{
 		// try opening this device
 		auto *reader = Reader::Open(device);
@@ -211,8 +211,8 @@ bool CombinedReader::Read(OpenPinballDeviceReport &report)
 		// OR all buttons.  Each logical button should only be mapped on
 		// a single device, so a button's bit should be zero on every
 		// device except the one where it's mapped.
-		report.genericButtons |= report.genericButtons;
-		report.pinballButtons |= report.pinballButtons;
+		report.genericButtons |= devReport.genericButtons;
+		report.pinballButtons |= devReport.pinballButtons;
 
 		// For the nudge and plunger axes, use any non-zero value reported
 		// from any device.  There should never be more than one physical

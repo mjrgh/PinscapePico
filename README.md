@@ -361,29 +361,31 @@ The Windows C++ API is built atop a set of documented, structured, and
 extensible USB protocols.  You can access the device directly through
 its USB protocols in cases where the Windows API isn't suitable, such
 as from a Linux host, from another microcontroller, or from a Windows
-programming system that can't readily import C++ APIs.  See
+programming language that can't readily import C++ APIs.  See
 [USBProtocol/README.md](USBProtocol/README.md) for details.
 
 
 ## Command Console
 
-The firmware provides a very simplistic command console that provides
-access to some internal debugging and troubleshooting information, which
-is designed entirely for use by the developers, so it's not designed with
-user-friendliness foremost in mind.  However, it might be useful for
-in-depth troubleshooting, and might be of passing interest to the curious.
+The firmware implements a very simplistic command console, which
+provides access to some internal debugging and troubleshooting
+information.  It was designed for use by the developers, so user
+friendliness was not foremost in mind.  However, it might be useful at
+times for in-depth troubleshooting, and might be of passing interest
+to the curious.
 
-The console must be enabled explicitly, since it requires a serial connection
-of some kind, either UART or USB CDC, which consumes some resources on the
-Pico.  The console also consumes some additional resources of its own.  See
+The console must be enabled explicitly, since it requires a serial
+connection of some kind, either UART or USB CDC.  Those consume some
+resources on the Pico, so they're not enabled by default.  The console
+also consumes some additional resources of its own when enabled.  See
 the Config Tool help section on the JSON configuration for details on
 setting up serial port access and enabling the console.
 
-Once enabled, you can access the console via a terminal program such as PuTTY.
-Connect PuTTY (or other terminal program of your choice) to the Pico's COM port
-(real or virtual).  You should be presented with a command prompt.  Type
-`help` for a list of commands.  The console provides simple tab-completion
-for commands and option flags.
+Once enabled, you can access the console via a terminal program such
+as PuTTY.  Connect PuTTY (or another terminal program of your choice)
+to the Pico's COM port (real or virtual).  You should be presented
+with a command prompt.  Type `help` for a list of commands.  The
+console provides simple tab-completion for commands and option flags.
 
 
 ## Background
@@ -477,20 +479,19 @@ predictable.  The Boot Loader always installs the program image at the
 "bottom" of flash (the lowest memory address), in a contiguous block
 equal to the size of the image.  This predictability is what allows
 Pinscape to share the flash space with the program image, to store its
-own persistent application data.  Pinscape simply uses a portion of
+own persistent application data.  Pinscape uses a portion of
 flash at a safe distance from the bottom section where the program
 image goes (all the way at the opposite end, in fact, at the "top" of
 the flash space).  Pinscape uses this capability to store your
 configuration file and other settings, such as plunger calibration
-data.
+data.  Since it's not in the part of flash that the boot loader uses,
+the configuration data survives firmware updates.
 
-Even though the Pico itself doesn't have any structure for its flash,
-Pinscape itself adds its own file-system structure, using the high
-end of the flash space (at the opposite end from the firmware program
-load area).  The file storage area is intended only for internal use
-within the firmware, so it's not exposed as general-purpose storage
-for user access, but the command console has some simple tools that
-can access it for development, debugging, and troubleshooting use.
+Pinscape imprints its own simple file-system-like layout on this extra
+data space, and the command console has some simple tools that let you
+view the layout, primarily for development and debugging purposes.
+But it's not a real file system by any means; it's just a way for
+Pinscape to organize its internal data structures.
 
 
 ## License

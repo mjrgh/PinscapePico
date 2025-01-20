@@ -13,6 +13,7 @@
 #include <pico/unique_id.h>
 #include <hardware/flash.h>
 #include <hardware/watchdog.h>
+#include <hardware/structs/usb.h>
 #include <tusb.h>
 
 // local project headers
@@ -1044,6 +1045,11 @@ void PinscapeVendorIfc::ProcessRequest()
         }
         break;
 
+    case Request::CMD_SYNC_CLOCKS:
+        // clock sync request
+        resp.status = ProcessClockSync(curRequest.args.timeSync, resp.args.timeSync);
+        break;
+
     default:
         // bad command request
         resp.status = Response::ERR_BAD_CMD;
@@ -1288,6 +1294,137 @@ void PinscapeVendorIfc::ClearCurRequest()
 
     // clear the incoming transfer data
     xferIn.Clear();
+}
+
+// ---------------------------------------------------------------------------
+//
+// Host clock synchronization
+//
+
+// Process a clock sync request (CMD_SYNC_CLOCKS)
+int PinscapeVendorIfc::ProcessClockSync(const Request::Args::TimeSync &req, Response::Args::TimeSync &resp)
+{
+    // check for special frame numbers, which indicate subcommands
+    // rather than regular clock synchronization requests
+    switch (req.usbFrameNumber)
+    {
+    case Request::Args::TimeSync::ENABLE_FRAME_TRACKING:
+        // enable frame tracking - install the interrupt handler if not already enabled
+        if (!irqInstalled)
+        {
+            // Add our shared USB IRQ handler.  TinyUSB installs a shared handler
+            // at highest priority.  We don't really care about the priority, since
+            // all we care about is noting the time of SOF changes, which we can
+            // detect by comparing to the previous SOF value.
+            //
+            // Note that we don't have to worry about enabling the interrupt,
+            // because TinyUSB has to do that for its own purposes. 
+            irq_add_shared_handler(USBCTRL_IRQ, &USBIRQ, PICO_SHARED_IRQ_HANDLER_DEFAULT_ORDER_PRIORITY);
+            irqInstalled = true;
+
+            // Enable the client user-mode SOF callback.  We don't actually use
+            // this to intercept the SOF events, since the user-mode callback
+            // is handled in the task queue processing, which can have latency
+            // up to our main loop time.  We instead intercept the interrupt
+            // directly so that we can capture the time with about 1us accuracy.
+            // HOWEVER, TinyUSB optimizes its own interrupt overhead by disabling
+            // the SOF interrupt at the hardware level when no one is using it.
+            // And the way to tell TinyUSB that we depend upon the interrupt is
+            // to enable the callback.
+            usbIfc.EnableSOFInterrupt(USBIfc::SOFClientClockSync, true);
+        }
+        return Response::OK;
+
+    case Request::Args::TimeSync::DISABLE_FRAME_TRACKING:
+        // disable frame tracking - uninstall the interrupt handler if installed
+        if (irqInstalled)
+        {
+            // Remove the handler.  DON'T disable the IRQ, because TinyUSB still
+            // needs it for its own handler.
+            irq_remove_handler(USBCTRL_IRQ, &USBIRQ);
+            irqInstalled = false;
+
+            // We no longer need the SOF callback.  This lets TinyUSB selectively
+            // disable the SOF interrupt at the hardware level when it's not using
+            // the signal for anything internally, which reduces the CPU load of
+            // handling unnecessary interrupts.
+            usbIfc.EnableSOFInterrupt(USBIfc::SOFClientClockSync, false);
+        }
+        return Response::OK;
+        
+    default:
+        // Regular request
+        {
+            // validate the frame number
+            if (req.usbFrameNumber > 2047)
+                return Response::ERR_BAD_PARAMS;
+
+            // if we're not tracking SOFs (i.e., the IRQ handler isn't
+            // installed), we can't satisfy the request
+            if (!irqInstalled)
+                return Response::ERR_NOT_READY;
+
+            // Snapshot the Pico-side USB hardware frame number and time, so
+            // that we're working with coherent values even if a new SOF
+            // interrupt occurs while we're working
+            uint16_t picoCurFrameNum;
+            uint64_t picoCurFrameTime;
+            {
+                IRQDisabler irqd;
+                picoCurFrameNum = usbFrameCounter;
+                picoCurFrameTime = tUsbFrameCounter;
+            }
+            
+            // The frame counter is only an 11-bit value that's incremented every
+            // 1ms, so it rolls over every 2.048 seconds.  Fortunately, we know for
+            // certain that the host frame number must always be EQUAL TO OR LESS
+            // THAN the current Pico frame number, because the host can't send us
+            // messages from the future.  If the host frame number is nominally
+            // higher than the Pico frame number, it means that the Pico number
+            // rolled over from 2047 to 0 since the host frame number was recorded.
+            // (This of course assumes that the frame is within the past 2.048
+            // seconds, so that it hasn't rolled over more than once.  That's
+            // always true as long as the caller captures the USB frame information
+            // immediatly before sending the request.)
+            int dFrame = static_cast<int>(picoCurFrameNum) - static_cast<int>(req.usbFrameNumber);
+            if (dFrame < 0)
+                dFrame += 2048;
+            
+            // Frames start precisely every 1ms, so the elapsed time between the
+            // two frames is 1000us per frame.  The frame counter is incremented
+            // by one at each interval, so we can determine the number of frames
+            // between the two counter values simply by taking the arithmetic
+            // difference of the counters.
+            int dt = dFrame * 1000;
+            
+            // Now we can figure the Pico system clock time at the host SOF
+            // time: it's the Pico SOF time for the current frame, minus the
+            // elapsed time between the Pico frame and the host frame.
+            resp.picoClockAtSof = picoCurFrameTime - dt;
+
+            // Calculate the host clock offset, such that:
+            //
+            //   T[Host] = T[Pico] + hostClockOffset
+            //
+            // This allows us to the calculate the time on the host clock
+            // corresponding to any given time on the Pico clock.
+            hostClockOffset = static_cast<int64_t>(req.hostClockAtSof - resp.picoClockAtSof);
+        }
+        return Response::OK;
+    }
+}
+
+// USB IRQ handler - installed when start-of-frame time tracking
+// is enabled via CMD_SYNC_CLOCKS
+void PinscapeVendorIfc::USBIRQ()
+{
+    // if the USB hardware frame number has changed, note the timestamp
+    uint16_t frameCounter = usb_hw->sof_rd & USB_SOF_RD_BITS;
+    if (frameCounter != psVendorIfc.usbFrameCounter)
+    {
+        psVendorIfc.usbFrameCounter = frameCounter;
+        psVendorIfc.tUsbFrameCounter = time_us_64();
+    }
 }
 
 // ---------------------------------------------------------------------------

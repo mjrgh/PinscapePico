@@ -250,6 +250,50 @@ public:
 
     // Time of last IR pulse
     uint64_t tLastIRPulse = 0;
+
+    // Process a clock sync request (CMD_SYNC_CLOCKS)
+    int ProcessClockSync(const Request::Args::TimeSync &req, Response::Args::TimeSync &resp);
+
+    // enable time sync
+    void EnableTimeSync(bool enable);
+
+    // Host clock time offset, in microseconds.  Given a timestamp for
+    // an event on the Pico system clock, T[Pico], you can calculate the
+    // corresponding time on the host clock, T[Host] as
+    //
+    //  T[Host] = T[Pico] + hostClockOffset
+    //
+    int64_t hostClockOffset = 0;
+
+    // USB hardware frame counter, and time of last frame counter
+    // change.  The host maintains an 11-bit frame counter, which is
+    // incremented every 1ms exactly.  On each 1ms frame boundary, the
+    // host sends an SOF (Start Of Frame) packet with the new frame
+    // number.  The host can correlate frame boundaries with the host
+    // system clock to order of microsecond precision, and we can do the
+    // same thing with the Pico clock by way of the USB IRQ, which fires
+    // on every SOF packet received.  The frame counter is shared across
+    // the connection, so knowing the microsecond time on the host clock
+    // and the Pico clock for a given frame number lets us synchronize
+    // the clocks to high precision.  Note that we don't need to know
+    // EVERY frame number, just a single RECENT frame number, because we
+    // can count on the frames starting at precise 1000us intervals.  If
+    // the host tells us that frame Fw has host timestamp Tw, and we
+    // know that frame F' has Pico timestamp Tp, we know that the time
+    // between frames F and F' is 1000us * (F - F'), so we can determine
+    // that the Pico clock at frame F was Tp+1000us*(F - F').  Thus we
+    // know that Tw on the host clock equals Tp+1000us(F - F') on the
+    // Pico clock, which gives us the offset between the two clocks and
+    // thus allows us to calculate the Pico clock time for any given
+    // host clock time.
+    volatile uint16_t usbFrameCounter = 0;
+    volatile uint64_t tUsbFrameCounter = 0;
+
+    // USB IRQ handler.  This isn't installed by default; it's only
+    // installed when the host enables frame tracking for
+    // CMD_SYNC_CLOCKS.
+    static void USBIRQ();
+    bool irqInstalled = false;
 };
 
 // global singleton

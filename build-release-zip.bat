@@ -14,6 +14,7 @@ rem  Build the new zip
 zip %ReleaseZip% License.txt
 zip -j %ReleaseZip% Firmware\PinscapePico.uf2
 zip -j %ReleaseZip% PWMWorker\PWMWorker.uf2
+zip -j %ReleaseZip% PWMWorker\exe\SetPWMWorkerAddr.exe
 
 pushd x64\release
 zip %ReleaseZip% GUIConfigTool.exe Scintilla.dll MicrosoftEdgeWebview2Setup.exe

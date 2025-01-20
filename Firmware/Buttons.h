@@ -825,7 +825,7 @@ public:
     public:
         XInputButtonAction(uint8_t buttonNum) : buttonNum(buttonNum) { }
         virtual void OnStateChange(bool state) override;
-        virtual void GenName() override { sprintf(nameBuf, "XInputdButton(%d)", buttonNum); }
+        virtual void GenName() override { sprintf(nameBuf, "XInputButton(%d)", buttonNum); }
         virtual void PopulateDesc(PinscapePico::ButtonDesc *desc) const override;
 
         // the xbox controller button we report, 0-15 (see the button

@@ -96,8 +96,8 @@ void PicoLED::UpdateBlinkTime()
         break;
 
     case USBStatus::Dismounted:
-        // Dismounted - 250ms every 2.5 seconds
-        picoLED.SetInterval(250, 2250);
+        // Dismounted - 250ms every 4 seconds
+        picoLED.SetInterval(250, 3750);
         break;
     }
 }

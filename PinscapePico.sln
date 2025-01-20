@@ -34,7 +34,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ButtonLatencyTester", "Butt
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenPinballDeviceLib", "OpenPinballDevice\OpenPinballDeviceLib\OpenPinballDeviceLib.vcxproj", "{1F0B1E90-62B2-4982-A934-71B149489568}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ButtonLatencyTester2", "ButtonLatencyTester2\WinHost\ButtonLatencyTester2.vcxproj", "{8D5253EA-4AD9-4DD0-8991-B91D36487826}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ButtonLatencytester2", "ButtonLatencyTester2\WinHost\ButtonLatencyTester2.vcxproj", "{8D5253EA-4AD9-4DD0-8991-B91D36487826}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1F0B1E90-62B2-4982-A934-71B149489568} = {1F0B1E90-62B2-4982-A934-71B149489568}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

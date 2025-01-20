@@ -15,7 +15,6 @@
 #include <pico/stdlib.h>
 
 // local project headers
-#include "USBIfc.h"
 #include "Logger.h"
 #include "JSON.h"
 
@@ -34,6 +33,9 @@ public:
 
     // configure the port from the serialPort.usb configuration item
     void Configure(const JSONParser::Value *val);
+
+    // configure from fixed parameters; currently just enables the interface
+    void Configure();
 
     // is the USB CDC port configured?
     bool IsConfigured() const { return configured; }

@@ -106,6 +106,14 @@ class CommandConsole
 {
 public:
     CommandConsole();
+
+    // Show the console banner.  This is when we detect a newly detected
+    // terminal on the console's serial port.  To allow this class to be
+    // reused in different subprojects, we farm out the implementation
+    // to the client code.  If you're seeing this as an unresolved symbol,
+    // just add it to one of your subproject's files.  For the main
+    // Pinscape Pico firmware, it's in main.cpp.
+    void ShowBanner();
     
     // Configure from the given parent key.  Returns true if the
     // console is enabled, false if not.

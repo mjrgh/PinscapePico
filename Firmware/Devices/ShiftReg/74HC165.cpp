@@ -556,7 +556,7 @@ void C74HC165::Command_main(const ConsoleCommandContext *c, int specifiedChipNum
             {
                 c->Printf("74HC165[%d] chip %d port status:\n", chainNum, i);
                 c->Printf("  Data: %02X\n", data[i]);
-                for (int j = 0 ; j < 7 ; ++j)
+                for (int j = 0 ; j < 8 ; ++j)
                     c->Printf("  %c: %s\n", j + 'A', Get(i*8 + j) ? "HIGH" : "LOW");
             }
         }

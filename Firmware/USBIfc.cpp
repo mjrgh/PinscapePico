@@ -492,13 +492,13 @@ static const uint8_t xinputDescriptors[] = {
     USBIfc::EndpointOutXInput, 0x08,   // endpoint out, maximum data size
     0x00, 0x00,                        // unknown
     
-    // Endpoint descriptor (in)
+    // Endpoint descriptor (in - device to host)
     // Length, descriptor type (endpoint), EP address, attrs, packet size, interval (ms)
     0x07, TUSB_DESC_ENDPOINT, USBIfc::EndpointInXInput, 0x03, 0x20,0x00, 0x01,
     
-    // Endpoint descriptor (out)
+    // Endpoint descriptor (out - host to device)
     // Length, descriptor type (endpoint), EP address, attrs, packet size, interval (ms)
-    0x07, TUSB_DESC_ENDPOINT, USBIfc::EndpointOutXInput, 0x03, 0x20,0x00, 0x08,
+    0x07, TUSB_DESC_ENDPOINT, USBIfc::EndpointOutXInput, 0x03, 0x20,0x00, 0x01,
 };
 
 const uint8_t *USBIfc::GetConfigurationDescriptor(int /*index*/)
@@ -556,7 +556,7 @@ const uint8_t *USBIfc::GetConfigurationDescriptor(int /*index*/)
         // Add our Configuration & Control vendor interface.  This interface is
         // accessed on the host by custom application software that speaks our
         // special protocol.  On Windows, we use WinUsb to access the interface.
-        // Interface number, string index, EP Out & IN address, EP size        
+        // Interface number, string index, EP Out & IN address, EP size
         const uint8_t ven[] = { TUD_VENDOR_DESCRIPTOR(IFCNUM_VENDOR, STRDESC_VENIFC, EndpointOutVendor, EndpointInVendor, CFG_TUD_VENDOR_EP_BUFSIZE) };
         static_assert(sizeof(ven) == TUD_VENDOR_DESC_LEN);
         Append(p, ven, sizeof(ven));
@@ -681,28 +681,43 @@ const uint16_t *USBIfc::GetStringDescriptor(uint8_t index, uint16_t /*langId*/)
     // If it's in range, return the descriptor from our table, otherwise
     // return null.
     //
-    // Note that Tinyusb wants a pointer to a uint16_t array, whereas our
+    // Note that TinyUSB wants a pointer to a uint16_t array, whereas our
     // table element is a byte vector.  We store the byte vector because we
-    // want to be sure that the bytes are in the correct endian order for
-    // wire transmission, without further translation every time we get a
-    // request.  As it happens, that's what Tinyusb wants, too, even though
-    // its interface suggests otherwise.  The uint16_t* return type in the
-    // interface says that Tinyusb wants a native uint16_t array, but it
-    // doesn't; it actually wants a byte array that it can pass back to
-    // the host without translation (the first thing that the Tinusb caller
-    // will do on return is reinterpret_cast the result pointer back to
-    // uint8_t*).  If Tinyusb really wanted a uint16_t array here, it would
-    // translate the local byte order to wire byte order (little Endian)
-    // on our return, which it doesn't.  It works out the same way on most
-    // device platforms anyway, since almost everyone's little-Endian these
-    // days, but it's still a design error in the interface.  The type cast
-    // here isn't just safe, but actually *correct*; it just compensates for
-    // the error in the API design.  The value we're passing back is exactly
-    // what the caller really wants.
+    // want to be sure that the bytes are in the correct endian order for wire
+    // transmission, without further translation every time we get a request.
+    // As it happens, that's what TinyUSB wants, too, even though its
+    // interface suggests otherwise.  The uint16_t* return type in the
+    // interface says that TinyUSB wants a native uint16_t array, but it
+    // doesn't; it actually wants a byte array that it can pass back to the
+    // host without translation (the first thing that the TinyUSB caller will
+    // do on return is reinterpret_cast the result pointer back to uint8_t*).
+    //
+    // If TinyUSB really wanted a uint16_t array here, it would translate the
+    // local byte order to wire byte order (little Endian) on our return,
+    // which it doesn't.  It accidentally works on Pico, since Pico is
+    // little-endian, and it accidentally works on most other devices, since
+    // almost everyone's little-Endian these days, but it's still a design
+    // error in the interface.  The type cast here isn't just safe, but
+    // actually *correct*; it just compensates for the error in the API
+    // specification.  The value we're passing back is exactly what the
+    // caller really wants.
     if (auto it = stringDescriptors.find(index) ; it != stringDescriptors.end())
         return reinterpret_cast<const uint16_t*>(it->second.data());
     else
         return nullptr;
+}
+
+void USBIfc::EnableSOFInterrupt(int clientID, bool enable)
+{
+    // add/remove the client bit in the client status bit vector
+    uint32_t clientBit = 1UL << clientID;
+    if (enable)
+        sofInterruptClientEnable |= clientBit;
+    else
+        sofInterruptClientEnable &= ~clientBit;
+
+    // enable in TinyUSB if it's enabled in ANY client
+    tud_sof_cb_enable(sofInterruptClientEnable != 0);
 }
 
 bool USBIfc::VendorControlXfer(uint8_t rhport, uint8_t stage, const tusb_control_request_t *request)
@@ -1053,6 +1068,16 @@ void tud_resume_cb()
     usbIfc.OnBusResumed();
 }
 
+// SOF (Start-of-Frame) callback.  If enabled via tud_sof_cb_enable(),
+// TinyUSB enables the SOF interrupt at the hardware level and invokes
+// this callback, always in user space (during task processing), after
+// each SOF interrupt.  TinyUSB only calls this when the client
+// explicitly enables the callback, which allows the library to disable
+// the SOF interrupt at the hardware level when it's not needed,
+// reducing CPU load from handling unnecessary interrupts.
+void tud_sof_cb(uint32_t frame_count)
+{
+}
 
 // ---------------------------------------------------------------------------
 //

@@ -116,11 +116,16 @@ public:
     uint64_t tSendComplete = 0;
     
     // report time statistics
-    uint64_t nSends = 0;
+    uint64_t nSendsStarted = 0;
+    uint64_t nSendsCompleted = 0;
     uint64_t totalCompletionTime = 0;
     
     // log the start of a report transmission
-    void LogSendStart(uint64_t t) { tSendStart = t; }
+    void LogSendStart(uint64_t t)
+    {
+        tSendStart = t;
+        nSendsStarted += 1;
+    }
     
     // log the completion of a report transmission
     void LogSendComplete(uint64_t t)
@@ -130,7 +135,7 @@ public:
         
         // collect total send time statistics
         totalCompletionTime += tSendComplete - tSendStart;
-        nSends += 1;
+        nSendsCompleted += 1;
     }
     
     // OUT endpoint buffer
@@ -163,8 +168,8 @@ public:
 
         uint8_t reserved[6] { 0, 0, 0, 0, 0, 0 };  // reserved/unused
 
-        bool operator==(const InReport &other) { return memcmp(this, &other, sizeof(*this)) == 0; }
-        bool operator!=(const InReport &other) { return memcmp(this, &other, sizeof(*this)) != 0; }
+        bool operator==(const InReport &other) const { return memcmp(this, &other, sizeof(*this)) == 0; }
+        bool operator!=(const InReport &other) const { return memcmp(this, &other, sizeof(*this)) != 0; }
     };
 
     // as a sanity check, make sure that the report struct size matches

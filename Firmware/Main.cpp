@@ -762,6 +762,17 @@ static void SecondCoreMain()
 
 // ---------------------------------------------------------------------------
 //
+// Command console welcome banner
+//
+void CommandConsole::ShowBanner()
+{
+    PutOutputFmt(
+        "\n\033[0;1mPinscape Pico command console - Firmware v%d.%d.%d, build %s\033[0m\n",
+        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, buildTimestamp);
+}
+
+// ---------------------------------------------------------------------------
+//
 // Console command - show memory statistics in a console session
 //
 static void Command_memory(const ConsoleCommandContext *c)
@@ -864,7 +875,7 @@ static void Command_version(const ConsoleCommandContext *c)
 
     pico_unique_board_id_t id;
     pico_get_unique_board_id(&id);
-    c->Printf("Pico hardware ID: %02X%02X%02X%02X%02X%02X%02X%02X\n",
+    c->Printf("Pico hardware ID:   %02X%02X%02X%02X%02X%02X%02X%02X\n",
               id.id[0], id.id[1], id.id[2], id.id[3],
               id.id[4], id.id[5], id.id[6], id.id[7]);
 
@@ -873,13 +884,17 @@ static void Command_version(const ConsoleCommandContext *c)
     char romVsnStr[16];
     sprintf(romVsnStr, "B%d", romVsn - 1);
     c->Printf(
+        "Target board type:  %s\n"
         "RP2040 CPU version: %d\n"
         "RP2040 ROM version: %d (%s)\n"
         "Pico SDK version:   %s\n"
+        "TinyUSB library:    %d.%d.%d\n"
         "Compiler:           %s\n",
+        PICO_BOARD,
         cpuVsn,
         romVsn, romVsn >= 1 ? romVsnStr : "Unknown",
         PICO_SDK_VERSION_STRING,
+        TUSB_VERSION_MAJOR, TUSB_VERSION_MINOR, TUSB_VERSION_REVISION,
         COMPILER_VERSION_STRING);
 }
 

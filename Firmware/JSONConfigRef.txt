@@ -1388,6 +1388,32 @@ xInput object optional
   virtual USB devices (keyboard, gamepadr) - Pinscape can emulate
   all of these devices at once.
 
+  <b>IMPORTANT:</b>  When you configure a virtual XBox controller input, you
+  <b>MUST</b> go through a manual device driver installation step in Windows
+  before you can use the device.  Here's the procedure:
+  <ul>
+    <li>First, finish configuring the Pico with the xInput section enabled
+    <li>Save the new configuration to the Pico so that it reboots with the new settings in effect
+    <li>Open Device Manager, and find the PinscapePicoXInput device
+    <li>Double-click the device in Device Manager to open its Properties page
+    <li>Select the <b>Driver</b> tab and click <b>Update Driver</b>
+    <li>Click <b>Browse my computer for drivers</b>
+    <li>Click <b>Let me pick from a list of available drivers on my computer</b>
+    <li>Find the <b>XBox 360 Peripherals" section, and select <b>XBox 360 Controller for Windows</b>
+    <li>Click through the warning (this appears because Windows can tell from the USB IDs this isn't really an XBox controller,
+       but in this case that's okay because the device speaks the XBox protocol and thus will work with the driver despite
+       the difference in ID codes)
+  </ul>
+  This is required because the Windows device driver for XBox controllers only installs
+  automatically when it recognizes a device matching the USB VID/PID codes that Microsoft
+  uses for its <i>real</i> XBox controller devices.  Pinscape Pico doesn't use those codes,
+  so the driver doesn't find it automatically.  If Pinscape <i>did</i> use those codes,
+  this manual driver step wouldn't be necessary, but this really isn't a good idea because
+  it might have undesirable side effects with other software that looks for the same codes
+  and might not work correctly with a device like Pinscape that has other USB functions
+  besides the XBox interfaces.  It's an annoying extra step you have to go through, but
+  you should only have to do it during initial setup.
+
 xInput.enable bool optional
   Enable the virtual XBox controller interface.  False by default.
 

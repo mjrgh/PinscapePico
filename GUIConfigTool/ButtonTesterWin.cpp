@@ -1173,7 +1173,7 @@ static const XBoxLayout xboxLayout[] ={
 };
 
 // OPD pinball button names, in order of the bits in the HID report struct
-static const char *opdButtonName[] = {
+static const char *opdButtonNames[] = {
     "Start", "Exit", "Extra Ball", "Coin 1", "Coin 2", "Coin 3", "Coin 4", "Launch Ball",
     "Lockbar Fire", "Left Flipper", "Right Flipper", "Left Flipper 2", "Right Flipper 2", "Left MagnaSave", "Right MagnaSave", "Tilt Bob",
     "Slam Tilt", "Coin Door", "Service Cancel", "Service Down", "Service Up", "Service Enter", "Left Nudge", "Forward Nudge",
@@ -1443,7 +1443,7 @@ void ButtonTesterWin::PaintOffScreen(HDC hdc0)
         if (layoutPending)
         {
             RECT rcToolTip{ x, y, x + cxOPDBtn, y + cyOPDBtn };
-            SetTooltip(rcToolTip, i + 100, opdButtonName[i]);
+            SetTooltip(rcToolTip, i + 100, opdButtonNames[i]);
         }
 
         // advance to the next cell (it's a single row, so just move horizontally)
@@ -1601,8 +1601,8 @@ void ButtonTesterWin::PaintOffScreen(HDC hdc0)
                 sprintf_s(actionDesc, "Gamepad Button %d", pDesc->actionDetail);
             else if (pDesc->actionType == PinscapePico::ButtonDesc::ACTION_OPENPINDEV)
             {
-                if (pDesc->actionDetail >= 33 && pDesc->actionDetail <= 33 + _countof(opdButtonName))
-                    sprintf_s(actionDesc, "OpenPinDev '%s'", opdButtonName[pDesc->actionDetail - 33]);
+                if (pDesc->actionDetail >= 33 && pDesc->actionDetail <= 33 + _countof(opdButtonNames))
+                    sprintf_s(actionDesc, "OpenPinDev '%s'", opdButtonNames[pDesc->actionDetail - 33]);
                 else
                     sprintf_s(actionDesc, "OpenPinDev Button %d", pDesc->actionDetail);
             }

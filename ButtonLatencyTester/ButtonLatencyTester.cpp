@@ -84,7 +84,8 @@ using VendorIfcDesc = PinscapePico::VendorInterfaceDesc;
 
 // forwards
 static void ButtonTestMode(std::shared_ptr<PinscapePico::VendorInterface> &dev, PinscapePico::PicoClockSync &clock, bool haveInitialSkew);
-static void ClockTestMode(PinscapePico::PicoClockSync &cloc);
+static void ClockTestMode(PinscapePico::PicoClockSync &clock);
+static void ClockTestMode2(std::shared_ptr<VendorIfc> &dev);
 
 // synchronization clock options
 const int NAveragingRounds = 100;
@@ -130,6 +131,7 @@ int main(int argc, char **argv)
 	double initialSkew = 0.0;
 	bool haveInitialSkew = false;
 	bool clockTestMode = false;
+	bool clockTestMode2 = false;
 	for (int i = 1 ; i < argc ; ++i)
 	{
 		const char *a = argv[i];
@@ -149,7 +151,8 @@ int main(int argc, char **argv)
 				"Options:\n"
 				"  --id <unit>      Select device by unit number, name, or hardware ID\n"
 				"  --skew <skew>    Set the initial clock skew value\n"
-				"  --sync-tests     Run clock synchronization statistical tests\n"
+				"  --sync-tests     Run QueryPicoSystemClock statistical tests\n"
+				"  --sync-tests2    Run SynchronizeClocks statistical tests\n"
 			);
 			return 1;
 		}
@@ -167,6 +170,10 @@ int main(int argc, char **argv)
 		{
 			// flag the test mode
 			clockTestMode = true;
+		}
+		else if (strcmp(a, "--sync-tests2") == 0)
+		{
+			clockTestMode2 = true;
 		}
 		else
 		{
@@ -228,6 +235,10 @@ int main(int argc, char **argv)
 	{
 		ClockTestMode(picoClock);
 	}
+	else if (clockTestMode2)
+	{
+		ClockTestMode2(dev);
+	}
 	else
 	{
 		// normal button latency testing mode
@@ -240,12 +251,12 @@ int main(int argc, char **argv)
 
 // --------------------------------------------------------------------------
 //
-// Clock synchronization tester main
+// QueryPicoSystemClock tests
 //
 void ClockTestMode(PinscapePico::PicoClockSync &picoClock)
 {
 	// Introduce the mode
-	printf("*** Synchronization Test Mode ***\n"
+	printf("*** QueryPicoSystemClock() Test Mode ***\n"
 		"This mode gathers statistics on the Pico/Windows clock synchronization system.\n"
 		"Precise clock synchronization is important for latency testing because it's\n"
 		"needed to calculate the time between hardware events on the Pico and the USB\n"
@@ -254,8 +265,12 @@ void ClockTestMode(PinscapePico::PicoClockSync &picoClock)
 		"The test compares live clock synchronization readings to projections based on\n"
 		"the Windows clock time, to determine the range of deviation between the results.\n"
 		"This provides an estimate of the uncertainty in the Pico clock readings, which\n"
-		"carries over to uncertainty in latency measurements.\n\n"
-		"Press Q to exit.\n\n");
+		"carries over to uncertainty in latency measurements.\n"
+		"\n"
+		"This mode uses the QueryPicoSystemClock() interface, which uses an NTP-like\n"
+		"protocol to synchronize the clocks.  This should be able to achieve precision\n"
+		"at around the USB microframe scale of 125us.\n"
+		"\n");
 
 	// adjust the skew time at increasing intervals
 	double adjustSkewTime = 120.0f * 1.0e6;
@@ -333,6 +348,112 @@ void ClockTestMode(PinscapePico::PicoClockSync &picoClock)
 			adjustSkewTime *= 2.0;
 		}
 	}
+}
+
+// --------------------------------------------------------------------------
+//
+// SynchronizeClocks() tests
+//
+void ClockTestMode2(std::shared_ptr<VendorIfc> &dev)
+{
+	// Introduce the mode
+	printf("*** SynchronizeClocks() Test Mode ***\n"
+		"This mode gathers statistics on the Pico/Windows clock synchronization system.\n"
+		"Precise clock synchronization is important for latency testing because it's\n"
+		"needed to calculate the time between hardware events on the Pico and the USB\n"
+		"reports representing those events reaching the host.\n"
+		"\n"
+		"This mode uses the SynchronizeClocks() interface, which uses the USB SOF\n"
+		"(Start Of Frame) marker as a time reference point shared between the host\n"
+		"and Pico.  This should be able to achieve sync precision close to 1us.\n"
+		"\n"
+		"The test collects clock offset measurements between the Pico and Windows, and\n"
+		"compares consecutive measurements for consistency.  Over a short time period,\n"
+		"the offset should be nearly the same on every measurement.  Over longer time\n"
+		"intervals, clock drift will make the offset change gradually, so comparisons\n"
+		"between offset measurements taken at widely separated times are less useful,\n"
+		"and aren't characterized in this test procedure.\n"
+		"\n");
+
+	// enable synchronization
+	int stat = dev->EnableClockSync(true);
+	if (stat != PinscapeResponse::OK)
+	{
+		printf("Error initializing clock sync: %s (error code %d)\n", dev->ErrorText(stat), stat);
+		return;
+	}
+
+	// allow both sides to go through a full frame cycle before proceeding
+	Sleep(2048);
+
+	// main loop
+	printf("\n"
+		"*** Main loop ***\n"
+		"The main loop gathers statistics indefinitely.  Press Q to quit.\n\n");
+
+	int n = 0;
+	int64_t prvOffset = 0;
+	int64_t deltaMin = 0, deltaMax = 0;
+	int64_t deltaSum = 0;
+	int64_t deltaSqSum = 0;
+	for (UINT64 tPrint = GetTickCount64() ; ; )
+	{
+		// check for keyboard input
+		if (_kbhit())
+		{
+			switch (_getch())
+			{
+			case 'q':
+			case 'Q':
+				// stop on Q
+				return;
+				continue;
+			}
+		}
+
+		// read the current Pico offset
+		int64_t picoClockOffset = 0;
+		if ((stat = dev->SynchronizeClocks(picoClockOffset)) != PinscapeResponse::OK)
+		{
+			printf("Error reading Pico time offset: %s (error code %d)\n", dev->ErrorText(stat), stat);
+			continue;
+		}
+
+		// if we have a prior sample, figure the delta and update accumulators
+		if (n > 0)
+		{
+			int64_t delta = picoClockOffset - prvOffset;
+			if (n > 1)
+			{
+				if (delta < deltaMin) deltaMin = delta;
+				if (delta > deltaMax) deltaMax = delta;
+			}
+			else
+			{
+				deltaMin = deltaMax = delta;
+			}
+
+			deltaSum += delta;
+			deltaSqSum += delta*delta;
+		}
+		prvOffset = picoClockOffset;
+		++n;
+
+		// update statistics display at 5-second intervals
+		if (UINT64 now = GetTickCount64() ; now > tPrint + 5000)
+		{
+			double avg = static_cast<double>(deltaSum)/(n-1);
+			double sd = sqrt(static_cast<double>(deltaSqSum)/n - avg*avg);
+
+			printf("Delta(n=%d, avg=%.2lf, std=%.2lf, min=%lld, max=%lld)\n", 
+				n, avg, sd, deltaMin, deltaMax);
+			tPrint = now;
+		}
+	}
+
+	// before exiting, turn off synchronization timekeeping, to
+	// remove the overhead it imposes on the device
+	dev->EnableClockSync(false);
 }
 
 // --------------------------------------------------------------------------
@@ -415,6 +536,21 @@ struct ButtonTesterCtx
 		// enumerate associated HIDs
 		if (int stat = dev->EnumerateAssociatedHIDs(hids); stat != PinscapeResponse::OK)
 			printf("Warning: unable to query associated HIDs for device (error code %d, %s)\n", stat, VendorIfc::ErrorText(stat));
+
+		// if desired, enable SynchronizeClocks
+		if (useSyncClocksAPI)
+		{
+			if (int stat = dev->EnableClockSync(true); stat != PinscapeResponse::OK)
+				printf("Warning: error enabling Clock Sync timekeeping: %s (code %d)\n", dev->ErrorText(stat), stat);
+		}
+	}
+
+	~ButtonTesterCtx()
+	{
+		// turn off Clock Sync timekeeping if enabled (since it imposes some
+		// small run-time overhead on the device)
+		if (useSyncClocksAPI)
+			dev->EnableClockSync(false);
 	}
 
 	// device
@@ -423,16 +559,23 @@ struct ButtonTesterCtx
 	// Pico clock synchronizer
 	PinscapePico::PicoClockSync &clockSync;
 
+	// Flag:
+	//   true -> use SynchronizeClocks() API for clock sync.
+	//   false -> use QueryPicoSystemClock() API
+	bool useSyncClocksAPI = true;
+
 	// Flag: always resync clocks with the Pico each time we process
-	// events.  If this is true, we'll resync the Pico clock during
-	// each event processing cycle.  If false, we'll rely on the
-	// projected time from the initial sync.  Resyncing on each event
-	// is slower, since it requires a series of USB transactions, but
-	// it might be somewhat more accurate given that the clocks tend
-	// to drift out of sync over time, since they're independent
-	// hardware.  The clock skew factor is meant to help with that,
-	// but it assumes a constant skew rate, whereas the actual skew
-	// is probably pretty variable.
+	// events.  Applies only to QueryPicoSystemClock() API.
+	// 
+	// If this is true, we'll resync the Pico clock during each event
+	// processing cycle.  If false, we'll rely on the projected time
+	// from the initial sync.  Resyncing on each event is slower, since
+	// it requires a series of USB transactions, but it might be
+	// somewhat more accurate given that the clocks tend to drift out
+	// of sync over time, since they're independent hardware.  The
+	// clock skew factor is meant to help with that, but it assumes a
+	// constant skew rate, whereas the actual skew is probably pretty
+	// variable.
 	bool alwaysResyncClocks = true;
 
 	// device ID information
@@ -500,8 +643,19 @@ struct ButtonTesterCtx
 		QueryEventLog();
 
 		// If desired, sync the clock
-		if (alwaysResyncClocks)
-			clockSync.Sync(1, 5);
+		int64_t clockSyncOffset = 0;
+		if (useSyncClocksAPI)
+		{
+			// Using SynchronizeClocks API - get the current offset
+			if (int stat = dev->SynchronizeClocks(clockSyncOffset); stat != PinscapeResponse::OK)
+				printf("SynchronizeClocks() error: %s (code %d)\n", dev->ErrorText(stat), stat);
+		}
+		else
+		{
+			// Using QueryPicoSystemClock API - resync on every event if desired
+			if (alwaysResyncClocks)
+				clockSync.Sync(1, 5);
+		}
 
 		// process the event queue until empty
 		mutex.lock();
@@ -514,9 +668,13 @@ struct ButtonTesterCtx
 			// release the mutex while we work on the event
 			mutex.unlock();
 
+			// translate the Windows time when we read the HID event to the Pico clock
+			auto hidTimeOnPico = useSyncClocksAPI ?
+				clockSync.TicksToMicroseconds(hidEvent.windowsTime) + clockSyncOffset :
+				clockSync.ProjectPicoTime(hidEvent.windowsTime);
+
 			// log the HID event
 			auto &button = hidEvent.button;
-			auto hidTimeOnPico = clockSync.ProjectPicoTime(hidEvent.windowsTime);
 			printf("Button %d [GPIO %d] [%s]  HID time %.3lf win -> %.3lf Pico, Pico timestamp %.3lf, last %s + %.3lf ms\n",
 				hidEvent.button.logicalButtonNum, hidEvent.button.gpio,
 				hidEvent.eventType == 0 ? "Release" : "Press",

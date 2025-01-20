@@ -705,7 +705,7 @@ void Digital74HC595::Command_main(const ConsoleCommandContext *c, int specifiedC
             for (int i = start ; i <= end ; ++i)
             {
                 c->Printf("74HC595[%d] chip %d port levels:\n", chainNum, i);
-                for (int j = 0 ; j < 7 ; ++j)
+                 for (int j = 0 ; j < 8 ; ++j)
                     c->Printf("  Q%c: %s\n", j + 'A', GetNativeLevel(i*8 + j) ? "HIGH" : "LOW");
             }
         }
@@ -1183,7 +1183,7 @@ void PWM74HC595::Command_main(const ConsoleCommandContext *c, int specifiedChipN
             for (int i = start ; i <= end ; ++i)
             {
                 c->Printf("74HC595[%d] chip %d port levels:\n", chainNum, i);
-                for (int j = 0 ; j < 7 ; ++j)
+                for (int j = 0 ; j < 8 ; ++j)
                     c->Printf("  Q%c: %d\n", j + 'A', GetNativeLevel(i*8 + j));
             }
         }

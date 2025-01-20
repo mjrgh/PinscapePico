@@ -1275,9 +1275,7 @@ void CommandConsole::SetForegroundMode(bool fg)
         if (!firstPromptDisplayed)
         {
             // first prompt -> show a little banner to let them know this is a console
-            PutOutputFmt(
-                "\n\033[0;1mPinscape Pico command console - Firmware v%d.%d.%d, build %s\033[0m\n",
-                VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, buildTimestamp);
+            ShowBanner();
             firstPromptDisplayed = true;
         }
 

@@ -48,13 +48,13 @@ void XInput::Command_xinput(const ConsoleCommandContext *c)
             "  Configured:       %s\n"
             "  Player Index:     %d%s\n"
             "  Reporting:        %s\n"
-            "  Num reports sent: %llu\n"
+            "  Num reports sent: %llu started, %llu completed\n"
             "  Avg report time:  %.2f ms\n",
             xInput.enabled ? "Yes" : "No",
             xInput.playerIndex, (xInput.playerIndex < 0 ? " (Not assigned)" : ""),
             xInput.reportsEnabled ? "Enabled" : "Disabled",
-            xInput.nSends,
-            static_cast<float>(xInput.totalCompletionTime / xInput.nSends) / 1000.0f);
+            xInput.nSendsStarted, xInput.nSendsCompleted,
+            xInput.nSendsCompleted == 0 ? 0.0f : static_cast<float>(xInput.totalCompletionTime / xInput.nSendsCompleted) / 1000.0f);
     };
 
     if (c->argc == 1)
@@ -118,27 +118,11 @@ bool XInput::Configure(JSONParser &json)
 // periodic task processing
 void XInput::Task()
 {
-    // Check if it's time to send an input report (device-to-host).
-    // Wait at least 500us after sending the last repor, or at least 2ms
-    // after the last send completed, whichever is later.  This is
-    // intended to minimize latency between the time we buffer a report
-    // and the time the host actually reads it.  Device-to-host reports
-    // can only be initiated by the host; when we call "send", it
-    // doesn't actually send anything, since only the host can initiate
-    // a transfer.  "Send" simply places the data in a buffer, where it
-    // will sit until the host decides to read it.  Observationally, the
-    // XInput driver on Windows polls at regular 4ms intervals.  We can
-    // estimate when the next polling request will occur by adding the
-    // expected interval to the completion time for the last polling
-    // request.  The interval is only a guess - it's controlled by the
-    // host, not by us, and the host could change it dynamically if it
-    // wanted.
+    // Send input to the host if the IN endpoint is ready
     uint64_t t = time_us_64();
     if (enabled
         && reportsEnabled
         && !usbIfc.IsSuspended()
-        && t > tSendStart + 500
-        && t > tSendComplete + 2000
         && tud_ready() && !usbd_edpt_busy(0, USBIfc::EndpointInXInput))
     {
         // take a snapshot of the accelerometer state

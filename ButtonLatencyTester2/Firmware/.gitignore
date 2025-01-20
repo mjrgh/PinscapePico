@@ -1,0 +1,13 @@
+BuildTime.txt
+*.bin
+*.dis
+*.elf
+*.elf.map
+*.hex
+*.ld
+CMakeCache.txt
+CMakeFiles/**
+pico-sdk/**
+*.cmake
+CMakeDoxyfile.in
+Makefile

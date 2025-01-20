@@ -2075,50 +2075,61 @@ Button::GPIOSource::EventLog::EventLog(bool enable) : enable(enable)
 
 void Button::GPIOSource::EventLog::Clear()
 {
-    // acquire the mutex while working
-    MutexLocker locker(&mutex);
-
-    // reset the read/write pointers
-    read = 0;
-    write = 0;
+    if (enable)
+    {
+        // acquire the mutex while working
+        MutexLocker locker(&mutex);
+        
+        // reset the read/write pointers
+        read = 0;
+        write = 0;
+    }
 }
 
 void Button::GPIOSource::EventLog::AddEvent(int type)
 {
-    // acquire the mutex while working
-    MutexLocker locker(&mutex);
-
-    // add the event at the write pointer
-    event[write].Init(type);
-
-    // bump the write pointer
-    if (++write >= MaxEvents)
-        write = 0;
-
-    // if the write pointer collided with the read pointer, bump the read
-    // pointer (deleting the oldest event)
-    if (write == read && ++read >= MaxEvents)
-        read = 0;
+    if (enable)
+    {
+        // acquire the mutex while working
+        MutexLocker locker(&mutex);
+        
+        // add the event at the write pointer
+        event[write].Init(type);
+        
+        // bump the write pointer
+        if (++write >= MaxEvents)
+            write = 0;
+        
+        // if the write pointer collided with the read pointer, bump the read
+        // pointer (deleting the oldest event)
+        if (write == read && ++read >= MaxEvents)
+            read = 0;
+    }
 }
 
 bool Button::GPIOSource::EventLog::GetEvent(Event &e)
 {
-    // acquire the mutex while working
-    MutexLocker locker(&mutex);
+    if (enable)
+    {
+        // acquire the mutex while working
+        MutexLocker locker(&mutex);
+        
+        // if the queue is empty, there's nothing to do
+        if (read == write)
+            return false;
+        
+        // load the latest event into the caller's buffer
+        e = event[read];
+        
+        // bump the read pointer
+        if (++read >= MaxEvents)
+            read = 0;
+        
+        // successfully read an event
+        return true;
+    }
 
-    // if the queue is empty, there's nothing to do
-    if (read == write)
-        return false;
-
-    // load the latest event into the caller's buffer
-    e = event[read];
-
-    // bump the read pointer
-    if (++read >= MaxEvents)
-        read = 0;
-
-    // successfully read an event
-    return true;
+    return false;
 }
 
 // ---------------------------------------------------------------------------

@@ -79,8 +79,27 @@ public:
     // set display modes
     void SetDisplayModes(bool timestamps, bool typeCodes, bool colors);
 
+    // get/set the filter mask
+    uint32_t GetFilterMask() const { return mask; }
+    void SetFilterMask(uint32_t mask) { this->mask = mask; }
+
     // configure the logger subsystem from JSON data
     void Configure(JSONParser &json);
+
+    // install the console command (done automatically in Configure;
+    // this is broken out for use in subprojects that don't use a
+    // JSON configuration)
+    void InstallConsoleCommand();
+
+    // Set the log buffer size.  This can only increase from the current
+    // size, so that we don't lose any information currently in the
+    // buffer.  The size is also limited to an arbitrary maximum, to
+    // avoid running out of memory due to bad configuration settings.
+    void SetBufferSize(int newSize);
+
+    // Set filters from a space-delimited list of filter names.  The
+    // string must be all lower-case.
+    void SetFilters(const char *filters);
 
     // Run logging tasks
     void Task();
@@ -227,6 +246,10 @@ protected:
     // Put a character to the buffer
     void Put(char c);
 
+    // console command
+    void Command_logger(const ConsoleCommandContext *ctx);
+    static void Command_loggerS(const ConsoleCommandContext *ctx) { logger.Command_logger(ctx); }
+
     // list of log devices
     std::list<Device*> devices;
 
@@ -251,7 +274,9 @@ protected:
     int col = 0;
 
     // default ring buffer size; this can be configured in the JSON settings
-    int bufSize = 8192;
+    static const int MinBufSize = 8192;
+    static const int MaxBufSize = 65536;
+    int bufSize = MinBufSize;
 
     // ring buffer
     std::vector<char> buf;

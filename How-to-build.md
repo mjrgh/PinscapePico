@@ -27,41 +27,42 @@ and run the installer, and follow the on-screen prompts.
 
 ### How to install SDK 2.1.0
 
-Raspberry Pi deprecated the Windows installer for 2.1.0, in favor of a
-Visual Studio Code extension.  In principle, that should be just as
-easy to set up, but it still seems to be a work in progress, so much
-so that I can't even get it to install on my machine.  What's more,
-the official 2.1.0 library has a couple of serious errors, one that
-will simply cause a compiler error when you try to build, and a
-second, more insidious error that will make the USB connection
-unstable when you deploy the firmware.
+Raspberry Pi moved to a Visual Studio extension for the 2.1.0 SDK,
+replacing the Windows command-line build environment used in 1.5.1.
+In principle, that should be just as easy to set up, but it still
+seems to be a work in progress, so much so that I can't get it to
+install on my machine.  In addition, the official 2.1.0 library has a
+couple of serious errors, one that will cause an obvious compiler
+error when you try to build, and a second, more insidious regression
+that will make the USB connection unstable when you deploy the
+firmware.
 
-So, to address the install glitches and library errors, I've created my
-own unofficial 2.1.0 Windows build environment, which includes all
-of the required tools and **corrected** versions of the library
-files.  This is for x64 Windows only - if you want to build on Linux
-or MacOS, you should go directly to the Raspberry Pi site and
-follow their instructions.  However, you should still get my modified
-snapshot of the pico-sdk/ (library source code) tree, and replace
-the one in the official version, so that you're including my
-library corrections.
+To address the install glitches and library errors, I've create my
+own unofficial release bundle of the 2.1.0 SDK for x64 Windows.  My
+version is for command-line builds, same as the official 1.5.1 SDK,
+and comes with pre-built Windows x64 binaries for all of the required
+tools, and **corrected** versions of the library files.  Download it
+from https://github.com/mjrgh/pico-sdk-2.1.0.  It's a snapshot of my
+environment, with no installer needed.  Simply copy the whole directory
+tree into a folder on your hard disk.  You can either `git clone` it
+or download it as a ZIP file.
 
-My 2.1.0 snapshot is available at https://github.com/mjrgh/pico-sdk-2.1.0.
-Unlike the official 1.5.1 installer, this is just a snapshot of my
-environment, so there's nothing to "install"; you just copy the whole
-directory tree into a folder on your hard disk.  You can `git clone`
-the repository if you have git set up, or you can just download the
-repository as a ZIP file and unpack it into a local folder.
+My 2.1.0 SDK bundle is for x64 Windows only.  If you want to build on
+Linux or MacOS, go directly to the Raspberry Pi site and follow their
+instructions.  However, you'll still need my corrected library files,
+because the official ones contain the errors I mentioned.  You should
+set up the official SDK environment per Raspberry Pi's instructions,
+then replace the pico-sdk/ subtree with the one from my release.
 
 ### NMAKE
 
 For any version of the SDK on Windows, you'll also need to install
 Microsoft's NMAKE build tool.  That's not included in any of the
 pre-built snapshots (mine or the official Raspberry Pi releases)
-because it's proprietary Microsoft software.  But Microsoft makes it
-freely available, even though they don't let anyone else distribute
-it.  The easiest way to get that is to install the free Visual Studio
-Community Edition.
+because it's proprietary Microsoft software.  That comes with Visual
+Studio, which you'll also need to build the Windows portion of the
+Pinscape project.  The free Community Edition of Visual Studio is
+available at https://visualstudio.microsoft.com/vs/community/.
 
 ### Pico SDK documentation 
 
@@ -85,7 +86,7 @@ command-line build process (as opposed to VS Code or some other IDE).
 * Type `c:\pico-sdk-2.1.0\pico-env.cmd` (replacing the path with the actual
 location where you installed the Pico SDK files, if it's different)
 
-* `del CMakeCache.txt` and `rmdir /s CMakeFiles` if those exist from previous builds
+* `del CMakeCache.txt` and `rmdir /s CMakeFiles` (only needed if those exist from previous builds)
 
 * Type `cmake -S . -G "NMake Makefiles"` (**exactly** as shown, including capitalization and quotes)
 
@@ -98,13 +99,19 @@ all bearing good news (no warnings or errors), and ultimately finishing with:
 
 You should now see a file in the working folder called `PinscapePico.uf2`.  That's
 the compiled firmware program, ready for installation onto your Pico.  Install
-this on the Pico using the standard procedure for all Pico firmware installs:
+it on the Pico using the standard procedure for all Pico firmware installs:
 
 * Unplug the Pico from USB (and all other power sources)
 
 * Press **and hold** the button on top of the Pico while plugging in the Pico's USB cable, then release the button
 
 * Copy the UF2 file onto the Pico's Boot Loader virtual thumb drive
+
+If you're already installed Pinscape on the Pico in question, you can
+alternatively install the UF2 file through the GUI Config Tool, via
+the Update Firmware button on the Device Overview page.  That lets
+you skip the BOOTSEL/USB cable maneuvering.
+
 
 ## Building the PWM Worker firmware
 

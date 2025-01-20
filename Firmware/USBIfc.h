@@ -385,6 +385,19 @@ public:
     // configure the USB interface
     void Configure(JSONParser &json);
 
+    // Enable/disable the SOF interrupt.  By default, TinyUSB disables
+    // the SOF interrupt whenever it doesn't need it internally, to
+    // reduce CPU load from unnecessary interrupts.  If the client needs
+    // the interrupt for its own purposes, it can explicitly enable it
+    // here.  The client ID is an arbitrary integer (0 to 31)
+    // identifying the calling subsystem, so that multiple subsystems
+    // can register their interest individually; we'll enable the
+    // interrupt whenever ANY client wants to enable the interrupt, and
+    // leave it up to TinyUSB otherwise.  Clients should add their ID
+    // number in the list below.
+    void EnableSOFInterrupt(int clientID, bool enable);
+    static const int SOFClientClockSync = 0;   // SynchronizeClocks() API (USB vendor interface)
+
     // has the device EVER been mounted (since the last reset)?
     bool WasEverMounted() const { return everMounted; }
 
@@ -1314,6 +1327,13 @@ protected:
     // device VID and PID
     uint16_t vid = 0;
     uint16_t pid = 0;
+
+    // SOF interrupt client bits.  This is a bit vector, with each bit
+    // representing the 'enable' status for one client, with clients
+    // arbitrarily numbered 0 to 31.  A '1' bit means that the client
+    // has enabled the SOF interrrupt via EnableSOFInterrupt().  If
+    // any bits are set, we'll enable the interrupt in TinyUSB.
+    uint32_t sofInterruptClientEnable = 0;
 
     // is the device mounted?
     bool mounted = false;

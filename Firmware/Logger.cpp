@@ -20,8 +20,6 @@
 #include "Utils.h"
 #include "Logger.h"
 #include "JSON.h"
-#include "USBIfc.h"
-#include "PicoLED.h"
 #include "USBCDC.h"
 #include "TimeOfDay.h"
 #include "Watchdog.h"
@@ -135,6 +133,11 @@ bool Logger::CheckFilter(int type)
 // common configuration
 void Logger::Configure(JSONParser &json)
 {
+    // set defaults - enable timestamps and message type prefixes, disable colors
+    showTimestamps = true;
+    showTypeCodes = true;
+    showColors = false;
+
     // Set the buffer size first, so that we have a place to capture
     // error messages while we're parsing the configuration.  The size
     // limits are arbitrary; the minimum ensures that we don't shrink
@@ -142,24 +145,79 @@ void Logger::Configure(JSONParser &json)
     // dealing with the resize, and the maximum is just a sanity check
     // to prevent the user from accidentally using up all available RAM
     // and crashing the Pico during initialization.
-    int configuredBufSize = bufSize;
-    const int MinBufSize = bufSize, MaxBufSize = 64*1024;
     if (auto *sizeVal = json.Get("logging.bufSize") ; !sizeVal->IsUndefined())
     {
-        // validate the size
-        configuredBufSize = sizeVal->Int();
-        if (configuredBufSize >= MinBufSize && configuredBufSize <= MaxBufSize)
-            bufSize = configuredBufSize;
+        // set the size
+        int newSize = sizeVal->Int();
+        SetBufferSize(newSize);
+
+        // log an error if the requested size was forced into range
+        if (bufSize != newSize)
+            Log(LOG_ERROR, "logging.bufSize is invalid; must be %d to %d\n", MinBufSize, MaxBufSize);
     }
+
+    // get the logging key
+    if (auto *val = json.Get("logging") ; !val->IsUndefined())
+    {
+        // get the message type filter
+        if (auto *maskVal = val->Get("filter"); !maskVal->IsUndefined())
+        {
+            // get the string, and convert to lower-case for case insensitivity
+            std::string s = maskVal->String();
+            std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+            // set the filters
+            SetFilters(s.c_str());
+        }
+
+        // set the display format
+        showTimestamps = val->Get("timestamps")->Bool(true);
+        showTypeCodes = val->Get("typeCodes")->Bool(true);
+        showColors = val->Get("colors")->Bool(false);
+    }
+
+    // install our console command
+    InstallConsoleCommand();
+}
+
+// Install the console command
+void Logger::InstallConsoleCommand()
+{
+    CommandConsole::AddCommand(
+        "logger", "set and view logger options",
+        "logger [options]\n"
+        "options:\n"
+        "  -s, --status        show settings and status\n"
+        "  -f <filters>        enable/disable filters; use +name to enable, -name to disable;\n"
+        "                      use commas to set multiple filters; list filters with --status\n"
+        "  --filter <filters>  same as -f\n"
+        "  --colors            enable colors (ANSI color escape codes) in log messages\n"
+        "  --timestamps        enable timestamps\n"
+        "  --typecodes         enable type codes\n"
+        "  --no-color          disable colors\n"
+        "  --no-timestamps     disable timestamps\n"
+        "  --no-typecodes      disable type codes\n",
+        Command_loggerS);
+}
+
+// Set the buffer size
+void Logger::SetBufferSize(int newSize)
+{
+    // limit the new size to the current size at minimum, and an arbitrary maxmimum
+    if (newSize < bufSize)
+        newSize = bufSize;
+    else if (newSize > MaxBufSize)
+        newSize = MaxBufSize;
 
     // resize the buffer if necessary (note that we only allow it
     // to expand from the initial default, enforced above)
-    if (buf.size() != bufSize)
+    if (buf.size() != newSize)
     {
         // remember the old buffer size
         size_t oldSize = buf.size();
-        
+
         // expand the buffer (we don't allow it to shrink)
+        bufSize = newSize;
         buf.resize(bufSize);
 
         // Move everything after the write pointer to the end of the
@@ -174,93 +232,69 @@ void Logger::Configure(JSONParser &json)
         for (auto &d : devices)
             d->OnExpandBuf(expandedBy);
     }
+}
 
-    // set defaults - enable timestamps and message type prefixes, disable colors
-    showTimestamps = true;
-    showTypeCodes = true;
-    showColors = false;
-
-    // log an error on the buffer size if we rejected it
-    if (bufSize != configuredBufSize)
-        Log(LOG_ERROR, "logging.bufSize is invalid; must be %d to %d\n", MinBufSize, MaxBufSize);
-
-    // get the logging key
-    if (auto *val = json.Get("logging") ; !val->IsUndefined())
+// Set filters.  The mask string must be in lower-case.
+void Logger::SetFilters(const char *p)
+{
+    // start with an empty mask
+    uint32_t newMask = 0;
+    
+    // skip spaces
+    for ( ; isspace(*p) ; ++p) ;
+    
+    // If the first character is '~', it's an inverted mask.  If
+    // it's '*', it's a simple "everything" mask.
+    bool invert = false;
+    if (*p == '~')
     {
-
-        // get the message type filter
-        if (auto *maskVal = val->Get("filter"); !maskVal->IsUndefined())
+        // note that it's an inverted mask
+        invert = true;
+        ++p;
+    }
+    else if (*p == '*')
+    {
+        // it's an "everything" mask - ignore the rest
+        newMask = ~0;
+        p += strlen(p);
+    }
+    
+    // parse elements
+    while (*p != 0)
+    {
+        // skip spaces
+        for ( ; isspace(*p) ; ++p) ;
+        
+        // scan the token
+        const char *tok = p;
+        for ( ; *p != 0 && !isspace(*p) ; ++p) ;
+        
+        // find the name
+        if (p != tok)
         {
-            // start with an empty mask
-            uint32_t newMask = 0;
-            
-            // get the string, and convert to lower-case for case insensitivity
-            std::string s = maskVal->String();
-            std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-            const char *p = s.c_str();
-
-            // skip spaces
-            for ( ; isspace(*p) ; ++p) ;
-
-            // If the first character is '~', it's an inverted mask.  If
-            // it's '*', it's a simple "everything" mask.
-            bool invert = false;
-            if (*p == '~')
+            // search for a match
+            int len = p - tok;
+            auto *t = &logTypeName[0];
+            bool found = false;
+            for (int i = 0, bit = 1 ; i < _countof(logTypeName) ; ++i, ++t, bit <<= 1)
             {
-                // note that it's an inverted mask
-                invert = true;
-                ++p;
-            }
-            else if (*p == '*')
-            {
-                // it's an "everything" mask - ignore the rest
-                newMask = ~0;
-                p += strlen(p);
-            }
-
-            // parse elements
-            while (*p != 0)
-            {
-                // skip spaces
-                for ( ; isspace(*p) ; ++p) ;
-
-                // scan the token
-                const char *tok = p;
-                for ( ; *p != 0 && !isspace(*p) ; ++p) ;
-
-                // find the name
-                if (p != tok)
+                if (strlen(t->configName) == len && memcmp(t->configName, tok, len) == 0)
                 {
-                    // search for a match
-                    int len = p - tok;
-                    auto *t = &logTypeName[0];
-                    bool found = false;
-                    for (int i = 0, bit = 1 ; i < _countof(logTypeName) ; ++i, ++t, bit <<= 1)
-                    {
-                        if (strlen(t->configName) == len && memcmp(t->configName, tok, len) == 0)
-                        {
-                            // it's a match
-                            newMask |= bit;
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    // complain if not found
-                    if (!found)
-                        Log(LOG_ERROR, "logging.filter: unrecognized type code \"%.*s\"\n", len, tok);
+                    // it's a match
+                    newMask |= bit;
+                    found = true;
+                    break;
                 }
             }
-
-            // save the new mask
-            mask = (invert ? ~newMask : newMask);
+            
+            // complain if not found
+            if (!found)
+                Log(LOG_ERROR, "logging.filter: unrecognized type code \"%.*s\"\n", len, tok);
         }
-
-        // set the display format
-        showTimestamps = val->Get("timestamps")->Bool(true);
-        showTypeCodes = val->Get("typeCodes")->Bool(true);
-        showColors = val->Get("colors")->Bool(false);
     }
+    
+    // save the new mask
+    mask = (invert ? ~newMask : newMask);
 }
 
 // Periodic logging tasks
@@ -270,7 +304,6 @@ void Logger::Task()
     uartLogger.Task();
     usbCdcLogger.Task();
 }
-
 
 // Put a string to the buffer; translates '\n' to CR-LF
 void Logger::Puts(int typeCode, const char *s)
@@ -369,6 +402,120 @@ void Logger::Put(char c)
     // character if the buffer is now full from their perspective
     for (auto d : devices)
         d->OnPut();
+}
+
+// --------------------------------------------------------------------------
+//
+// Logger control console command
+//
+void Logger::Command_logger(const ConsoleCommandContext *c)
+{
+    if (c->argc <= 1)
+        return c->Usage();
+
+    for (int i = 1 ; i < c->argc ; ++i)
+    {
+        const char *a = c->argv[i];
+        if (strcmp(a, "-s") == 0 || strcmp(a, "--status") == 0)
+        {
+            c->Printf(
+                "Logger status:\n"
+                "  Buffer size: %u bytes\n"
+                "  Colors:      %s\n"
+                "  Type codes:  %s\n"
+                "  Timestamps:  %s\n"
+                "  Filters:     ",
+                bufSize,
+                showColors ? "Enabled" : "Disabled",
+                showTypeCodes ? "Enabled" : "Disabled",
+                showTimestamps ? "Enabled" : "Disabled");
+
+            const auto *t = &logTypeName[0];
+            bool found = false;
+            for (int ti = 0 ; ti < _countof(logTypeName) ; ++ti, ++t)
+            {
+                if (t->configName[0] != 0)
+                    c->Printf("%c%s ", (mask & (1UL << ti)) != 0 ? '+' : '-', t->configName);
+            }
+            c->Printf("\n");
+        }
+        else if (strcmp(a, "-f") == 0 || strcmp(a, "--filter") == 0)
+        {
+            if (++i >= c->argc)
+                return c->Printf("Missing argument for \"%s\"\n", a);
+
+            for (const char *p = c->argv[i] ; *p != 0 ; )
+            {
+                bool enable = *p == '+';
+                if (*p != '+' && *p != '-')
+                    return c->Printf("logger %s: Expected \"+filter_name\" or \"-filter_name\", found \"%s\"\n", a, p);
+
+                const char *start = ++p;
+                for ( ; *p != ',' && *p != 0 ; ++p);
+                size_t len = p - start;
+
+                const auto *t = &logTypeName[0];
+                bool found = false;
+                for (int ti = 0 ; ti < _countof(logTypeName) ; ++ti, ++t)
+                {
+                    if (t->configName[0] != 0
+                        && strlen(t->configName) == len
+                        && strncmp(t->configName, start, len) == 0)
+                    {
+                        uint32_t maskBit = 1UL << ti;
+                        if (enable)
+                            mask |= maskBit;
+                        else
+                            mask &= ~maskBit;
+
+                        c->Printf("Logger: %s filter %sabled\n", t->configName, enable ? "en" : "dis");
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    return c->Printf("logger %s: Invalid filter name \"%.*s\"\n", a, static_cast<int>(len), start);
+
+                if (*p == ',')
+                    ++p;
+            }
+        }
+        else if (strcmp(a, "--colors") == 0)
+        {
+            showColors = true;
+            c->Printf("Logger: colors enabled\n");
+        }
+        else if (strcmp(a, "--no-colors") == 0)
+        {
+            showColors = false;
+            c->Printf("Logger: colors disabled\n");
+        }
+        else if (strcmp(a, "--timestamps") == 0)
+        {
+            showTimestamps = true;
+            c->Printf("Logger: timestamps enabled\n");
+        }
+        else if (strcmp(a, "--no-timestamps") == 0)
+        {
+            showTimestamps = false;
+            c->Printf("Logger: timestamps disabled\n");
+        }
+        else if (strcmp(a, "--typecodes") == 0)
+        {
+            showTypeCodes = true;
+            c->Printf("Logger: message type code display enabled\n");
+        }
+        else if (strcmp(a, "--no-typecodes") == 0)
+        {
+            showTypeCodes = false;
+            c->Printf("Logger: message type code display disabled\n");
+        }
+        else
+        {
+            return c->Printf("logger: invalid option \"%s\"\n", a);
+        }
+    }
 }
 
 // --------------------------------------------------------------------------
@@ -729,7 +876,7 @@ void Logger::USBCDCLogger::Configure(JSONParser &json)
 
 void Logger::USBCDCLogger::Configure(bool loggingEnabled, bool consoleEnabled, int consoleBufSize, int consoleHistSize)
 {
-    loggingEnabled = true;
+    this->loggingEnabled = loggingEnabled;
     if (consoleEnabled)
         console.Configure("USB CDC", consoleEnabled, consoleBufSize, consoleHistSize);
 }

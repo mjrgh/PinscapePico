@@ -4518,7 +4518,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="HEIGHT" value="11.049mm" x="96.3" y="95.9" size="1" layer="27" display="off"/>
 <attribute name="DESCRIPTION" value="6 way friction lock header,3.96mm pitch" x="96.3" y="95.9" size="1" layer="27" display="off"/>
 <attribute name="NAME" x="85.585" y="93.334" size="1.27" layer="25" rot="R270" align="center"/>
-<attribute name="VALUE" x="96.473" y="93.487" size="0.9" layer="27" rot="R180" align="center"/>
+<attribute name="VALUE" x="105.773" y="98.187" size="0.9" layer="27" rot="R180" align="center"/>
 </element>
 </elements>
 <signals>

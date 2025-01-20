@@ -18,7 +18,6 @@
 #include "Utils.h"
 #include "Pinscape.h"
 #include "Main.h"
-#include "USBIfc.h"
 #include "Logger.h"
 #include "USBCDC.h"
 
@@ -36,9 +35,14 @@ void USBCDC::Configure(const JSONParser::Value *val)
     // of the port, which means that we include the CDC interface in the
     // collection of USB interfaces we report to the host during
     // connection setup.
-    configured = true;
+    Configure();
 }
 
+void USBCDC::Configure()
+{
+    // mark the interface as configured
+    configured = true;
+}
 
 // Handle output CDC data (host-to-device).  (The term "output" is a
 // little confusing, because it's incoming data on our side - but the

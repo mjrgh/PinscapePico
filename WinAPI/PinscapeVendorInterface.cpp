@@ -83,19 +83,8 @@ std::string DeviceID::FriendlyBoardName() const
 // Destruction
 VendorInterface::~VendorInterface()
 {
-	// close the WinUSB handle
-	if (winusbHandle != NULL)
-	{
-		WinUsb_Free(winusbHandle);
-		winusbHandle = NULL;
-	}
-
-	// close the file handle
-	if (hDevice != NULL && hDevice != INVALID_HANDLE_VALUE)
-	{
-		CloseHandle(hDevice);
-		hDevice = NULL;
-	}
+	// close the device handle
+	CloseDeviceHandle();
 }
 
 // Vendor Interface error code strings.  These correspond to the 
@@ -477,40 +466,6 @@ bool VendorInterfaceDesc::GetCDCPort(TSTRING &name) const
 // device.
 const GUID VendorInterface::devIfcGUID {
 	0xD3057FB3, 0x8F4C, 0x4AF9, 0x94, 0x40, 0xB2, 0x20, 0xC3, 0xB2, 0xBA, 0x23 };
-
-// Generic WinUSB device interface.  This is the class GUID that's generally
-// assigned to WinUSB devices that are installed manually rather than through
-// device-side MS OS descriptors.  Zadig and libwdi use this for a manual
-// WinUSB install, so this is the GUID that will generally be assigned to the
-// Pico ROM Boot Loader on any system where the user has intentionally used
-// Zadig to enable WinUSB for the Pico RP2 Boot device.  Note that the RP2
-// Boot device *isn't* assigned this interface automatically!  Out of the box,
-// RP2 Boot just exposes a naked vendor interface that NOTHING on the Windows
-// side will be able to connect to.  The vendor interface can be used with
-// WinUSB only if the user manually associates WinUSB with the device, using
-// Zadig or some similar Windows-driver-installer tool.  It's also possible
-// for someone to associate a different, custom GUID with the RP2 vendor
-// interface, by manually entering a custom GUID when setting up the device
-// association via Zadig or whatever else, but you'd have to go far out of
-// your way to make that happen, and have some really unusual use case to
-// even want to, so I think we can rule it out for all practical purposes.
-DEFINE_GUID(GUID_DEVINTERFACE_WINUSB,
-	0xdee824ef, 0x729b, 0x4a0e, 0x9c, 0x14, 0xb7, 0x11, 0x7d, 0x33, 0xa8, 0x17);
-
-// Generic USB device GUID.  This can be used to enumerate all devices that
-// are *potentially* accessible via WinUSB, whether or not they've been set
-// up with WinUSB driver associations.  This can be used to enumerate Picos
-// that are connected while in RP2 Boot device mode even if they haven't
-// been set up for WinUSB access yet.  The Pico's RP2 Boot mode exposes a
-// generic vendor interface that's capable of connecting through WinUSB,
-// but actually doing so requires WinUSB setup via Zadig, libwdi, or some
-// other Windows device driver installer.  The Pico unfortunately does not
-// expose the USB MS OS descriptors that would allow that driver setup to
-// happen automatically, so manual setup is required if it's desired; that's
-// required, for example, if you want to use the Raspberry-supplied PicoTool
-// program.
-DEFINE_GUID(GUID_DEVINTERFACE_USB_DEVICE,
-	0xA5DCBF10, 0x6530, 0x11D2, 0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED);
 
 // Enumerate available WinUSB devices
 HRESULT VendorInterface::EnumerateDevices(std::list<VendorInterfaceDesc> &devices)
@@ -1114,6 +1069,81 @@ int VendorInterface::QueryStats(PinscapePico::Statistics *stats, size_t sizeofSt
 
 	// success
 	return PinscapeResponse::OK;
+}
+
+int VendorInterface::EnableClockSync(bool enable)
+{
+	// enable/disable time tracking on the client
+	VendorRequest::Args::TimeSync args;
+	args.hostClockAtSof = 0;
+	args.usbFrameNumber = enable ? args.ENABLE_FRAME_TRACKING : args.DISABLE_FRAME_TRACKING;
+	if (int stat = SendRequestWithArgs(VendorRequest::CMD_SYNC_CLOCKS, args); stat != VendorResponse::OK)
+		return stat;
+
+	// enable/disable time tracking in the WinUsb driver
+	if (enable && timeTrackingHandle == NULL)
+	{
+		// set up time tracking
+		USB_START_TRACKING_FOR_TIME_SYNC_INFORMATION syncInfo{ NULL, TRUE };
+		if (!WinUsb_StartTrackingForTimeSync(winusbHandle, &syncInfo) || syncInfo.TimeTrackingHandle == NULL)
+			return VendorResponse::ERR_FAILED;
+
+		// save the tracking handle
+		timeTrackingHandle = syncInfo.TimeTrackingHandle;
+	}
+	else if (!enable && timeTrackingHandle != NULL)
+	{
+		// stop time tracking
+		USB_STOP_TRACKING_FOR_TIME_SYNC_INFORMATION syncInfo{ timeTrackingHandle };
+		WinUsb_StopTrackingForTimeSync(winusbHandle, &syncInfo);
+		timeTrackingHandle = NULL;
+	}
+
+	// success
+	return VendorResponse::OK;
+}
+
+int VendorInterface::SynchronizeClocks(int64_t &picoClockOffset)
+{
+	// if time tracking isn't enabled on the Windows side, we can't proceed
+	if (timeTrackingHandle == NULL)
+		return VendorResponse::ERR_NOT_READY;
+
+	// get the current USB hardware frame counter and SOF time
+	USB_FRAME_NUMBER_AND_QPC_FOR_TIME_SYNC_INFORMATION qpcInfo{ timeTrackingHandle };
+	if (!WinUsb_GetCurrentFrameNumberAndQpc(winusbHandle, &qpcInfo))
+		return VendorResponse::ERR_FAILED;
+
+	// convert the QPC time from "ticks" since the QPC epoch to microseconds since the QPC epoch
+	uint64_t tMicroframe = static_cast<uint64_t>(
+		static_cast<double>(qpcInfo.CurrentQueryPerformanceCounter.QuadPart)
+		* (1.0e6 / static_cast<double>(qpcInfo.QueryPerformanceCounterFrequency.QuadPart)));
+
+	// Figure the time at the SOF, at microframe 0.  The current time in the 
+	// qpcInfo struct is the time at the start of the current hardware *microframe*,
+	// not the overall frame.  Each microframe is 125us, so deduct 125us times the
+	// microframe number to get the SOF time.
+	uint64_t tSOF = tMicroframe - qpcInfo.CurrentHardwareMicroFrameNumber*125;
+
+	// Get the frame index
+	uint16_t frameIndex = static_cast<uint16_t>(qpcInfo.CurrentHardwareFrameNumber);
+
+	// fill in command arguments
+	VendorRequest::Args::TimeSync args;
+	args.hostClockAtSof = tSOF;
+	args.usbFrameNumber = frameIndex;
+
+	// send the request
+	VendorResponse resp;
+	int stat = SendRequestWithArgs(VendorRequest::CMD_SYNC_CLOCKS, args, resp);
+
+	// On success, calculate the Pico clock offset, such that
+	//  T[Pico] = T[Windows] + picoClockOffset
+	if (stat == VendorResponse::OK)
+		picoClockOffset = static_cast<int64_t>(resp.args.timeSync.picoClockAtSof - tSOF);
+
+	// return the result
+	return stat;
 }
 
 int VendorInterface::QueryPicoSystemClock(int64_t &w1, int64_t &w2, uint64_t &p1, uint64_t &p2)
@@ -2583,6 +2613,14 @@ void VendorInterface::FlushWrite()
 
 void VendorInterface::CloseDeviceHandle()
 {
+	// close the time-tracking handle
+	if (timeTrackingHandle != NULL)
+	{
+		USB_STOP_TRACKING_FOR_TIME_SYNC_INFORMATION sti{ timeTrackingHandle };
+		WinUsb_StopTrackingForTimeSync(winusbHandle, &sti);
+		timeTrackingHandle = NULL;
+	}
+
 	// close the WinUSB handle
 	if (winusbHandle != NULL)
 	{

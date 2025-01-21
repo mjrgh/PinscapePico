@@ -244,7 +244,7 @@ configuration, mapping the following elements:
 
 The full structure of the button mapping looks like this:
 
-<tt><i></b><i>button-name</i><b>:</b><i>gpio-number</i></tt>
+<tt><i>button-name</i><b>:</b><i>gpio-number</i></tt>
 
 For example, if the button is mapped on the subject device to generate
 virtual "Escape" key presses on the keyboard, and the Pico connection

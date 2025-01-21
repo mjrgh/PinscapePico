@@ -236,59 +236,28 @@ Once your test bench is set up as shown, run the ButtonLatencyTester2.exe progra
 on the Windows PC host.  On the command line, you must specify the button
 configuration, mapping the following elements:
 
-* Windows event input API type (see below)
-
-* Windows event input button name or number (depends on the API type)
+* Windows event input button name
 
 * BLT-II Pico GPIO port number
 
-The "Windows event input API" is one of the following:
-
-* `rawkey`: Raw Input keyboard.  Used to read input that the subject
-device provides as simulated keyboard key presses, using the Windows
-Raw Input API.  The button name identifies the keyboard key, from the
-list below.
-
-* `dikey`: DirectInput keyboard.  Used to read input that the subject
-device provides as simulated keyboard key presses, using the Windows
-DirectInput API.  The button name comes from the list below.
-
-* `rawjs`: HID joystick or gamepad button input, using the Raw Input
-API.  The button name is a number from 1 to 32 giving the joystick/gamepad
-button number mapped on the subject device.
-
-* `dijs`: HID joystick or gamepad input, using the DirectInput API.
-The button name is a number from 1 to 32 giving the joystick/gamepad
-button number mapped on the subject device.
-
-* `opd`: Open Pinball Device HID input.  This can only be used if
-the subject device supports the Open Pinball Device interface, and
-the button on the device is mapped to an OPD button.  OPD provides
-two sets of button mappings: "generic" buttons, which are numbered
-1 to 32 just like gamepad/joystick buttons; and "pinball" buttons,
-which are named for specific pinball functions.  For generic buttons,
-identify the button by its button number, 1 to 32.  For pinball function
-buttons, identify it by name from the list below.
+* BLT-II Pico device ID (only required if you have more than one BLT-II Pico connected)
 
 The full structure of the button mapping looks like this:
 
-<tt><i>api-type</i><b>:</b><i>button-name</i><b>:</b><i>gpio-number</i></tt>
+<tt><i></b><i>button-name</i><b>:</b><i>gpio-number</i></tt>
 
 For example, if the button is mapped on the subject device to generate
 virtual "Escape" key presses on the keyboard, and the Pico connection
 is to GP0, you'd enter a command line like this:
 
-`rawkey:esc:0`
-
-Or, to select DirectInput instead of Raw Input:
-
-`dikey:esc:0`
+`esc:0`
 
 If the button on the subject is mapped to joystick button #3, and it's
 connected to GPIO 12 on the BLT-II Pico:
 
-`rawjs:3:12`
+`js3:12`
 
+For a full list of accepted button names, run the program with the `--buttons` option.
 
 ### Raw Input vs DirectInput
 
@@ -297,8 +266,10 @@ and joystick/gamepad input through two APIs: Raw Input and DirectInput.
 This is purely a choice on the Windows side, and has nothing at all to
 do with the subject device, which only thinks in terms of keyboard
 or joystick/gamepad input at the USB level.  If the device provides
-keyboard input, you can use `rawkey` or `dikey` interchangeably,
-and likewise for `rawjs` or `dijs` for joystick/gamepad input.
+keyboard input, you can use RawInput or DirectInput interchangeably.
+
+Raw Input is always selected by default.  To use DirectInput instead,
+specify `--api directinput` on the command line.
 
 The reason that the host program offers both options is that *applications*
 can use either API.  Choosing the same API that your target application
@@ -309,167 +280,6 @@ latency that you'll see in practice using that application.
 The choice of APIs is also meant to be useful to application
 developers to compare the latency impact of different API choices.
 
-
-### Keyboard key names for `rawkey` and `dikey`
-
-| Name | Description |
-| ---- | ----------- |
-| esc | Escape      |
-| 1 | Top row number 1/! |
-| 2 | 2/@         |
-| 3 | 3/#         |
-| 4 | 4/$         |
-| 5 | 5/%         |
-| 6 | 6/^         |
-| 7 | 7/&         |
-| 8 | 8/*         |
-| 9 | 9/(         |
-| 0 | 0/)         |
-| - | -/_         |
-| = | =/+         |
-| backspace | Backspace   |
-| tab | Tab         |
-| q |             |
-| w |             |
-| e |             |
-| r |             |
-| t |             |
-| y |             |
-| u |             |
-| i |             |
-| o |             |
-| p |             |
-| [ |             |
-| ] |             |
-| enter | Enter       |
-| lctrl | Left Ctrl   |
-| a |             |
-| s |             |
-| d |             |
-| f |             |
-| g |             |
-| h |             |
-| j |             |
-| k |             |
-| l |             |
-| ; |             |
-| ' |             |
-| ` |             |
-| lshift | Left Shift  |
-| \| |             |
-| z |             |
-| x |             |
-| c |             |
-| v |             |
-| b |             |
-| n |             |
-| m |             |
-| , |             |
-| . |             |
-| / |             |
-| rshift | Right Shift |
-| kp* | Keypad *    |
-| lalt | Left Alt    |
-| space | Space bar   |
-| capslock | Caps Lock   |
-| f1 |             |
-| f2 |             |
-| f3 |             |
-| f4 |             |
-| f5 |             |
-| f6 |             |
-| f7 |             |
-| f8 |             |
-| f9 |             |
-| f10 |             |
-| f11 |             |
-| f12 |             |
-| f13 |             |
-| f14 |             |
-| f15 |             |
-| f16 |             |
-| f17 |             |
-| f18 |             |
-| f19 |             |
-| f20 |             |
-| f21 |             |
-| f22 |             |
-| f23 |             |
-| f24 |             |
-| pause |             |
-| scrlock | Scroll Lock |
-| kp0 | Keypad 0    |
-| kp1 | Keypad 1    |
-| kp2 | Keypad 2    |
-| kp3 | Keypad 3    |
-| kp4 | Keypad 4    |
-| kp5 | Keypad 5    |
-| kp6 | Keypad 6    |
-| kp7 | Keypad 7    |
-| kp8 | Keypad 8    |
-| kp9 | Keypad 9    |
-| kp- | Keypad -    |
-| kp+ | Keypad +    |
-| kp. | Keypad .    |
-| kp= | Keypad =    |
-| kp/ | Keypad /    |
-| kp-enter | Keypad Enter |
-| prev-track | Media Previous Track |
-| next-track | Media Next Track |
-| rctrl | Right Ctrl  |
-| mute | Media Mute  |
-| play | Media Play  |
-| stop | Media Stop  |
-| vol-down | Volume Down |
-| vol-up | Volume Up   |
-| prtscr | Print Screen |
-| ralt | Right Alt   |
-| numlock | Num Lock    |
-| home |             |
-| up | Up Arrow    |
-| left | Left Arrow  |
-| right | Right Arrow |
-| down | Down Arrow  |
-| pgup | Page Up     |
-| end |             |
-| pgdn | Page Down   |
-| ins | Insert      |
-| del | Delete      |
-| lwin | Left Windows key |
-| rwin | Right Windows key |
-| application | Application key |
-
-### Open Pinball Device pinball function key names
-
-| Name | Description |
-| ---- | ----------- |
-| start | Start |
-| exit | Exit |
-| extra-ball | Extra Ball |
-| coin1 | Coin slot 1 |
-| coin2 | Coin slot 2 |
-| coin3 | Coin slot 3 |
-| coin4 | Coin slot 4/dollar bill |
-| launch | Launch Ball |
-| fire | Lockbar Fire button |
-| lflipper | Left flipper button |
-| rflipper | Right flipper button |
-| lflipper2 | Left flipper second contact (for stacked double switches) |
-| rflipper2 | Right flipper second contact (for stacked double switches) |
-| lmagna | Left MagnaSave |
-| rmagna | Right MagnaSave |
-| tilt | Tilt bob |
-| slam-tilt | Slam tilt switch |
-| coin-door | Coin door position switch |
-| service-cancel | Service panel Cancel/Escape |
-| service-down | Service panel Down/- |
-| service-up | Service panel Up/+ |
-| service-enter | Service panel Enter/Select |
-| lnudge | Left nudge |
-| cnudge | Center nudge |
-| rnudge | Right nudge |
-| volup | Volume Up |
-| voldown | Volume Down |
 
 ## End-to-end latency measurement
 

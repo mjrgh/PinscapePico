@@ -1,6 +1,6 @@
 # Pinscape Pico - KL25Z adapter boards
 
-This board lets you plug a Pico into your original-edition Pinscape
+These boards let you plug a Pico into your original-edition Pinscape
 Expansion Boards for the KL25Z, with the Pico taking the place of the
 KL25Z.  If you have a set of KL25Z expansion boards, this lets you
 upgrade to the new Pinscape Pico software without changing all of your
@@ -17,10 +17,14 @@ Pico's capabilities:
 * GPIO expanders (PCA9555 or 74HC165, depending on the board version) to make
 up the difference between the KL25Z's 50+ GPIO ports and the Pico's 26
 
+* A high-quality 16-bit ADC (ADS1115), to supplement the Pico's low-resolution
+on-board ADC (for smoother animation and better precision when using a
+potentiometer-based plunger)
+
 
 ## Caveats
 
-A ew of warnings about using this board:
+A few warnings about using the adapter boards:
 
 * The adapter board **only** works with the original Pinscape KL25Z
 expansion boards.  It **doesn't** turn the Pico into a general-purpose

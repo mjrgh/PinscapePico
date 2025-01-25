@@ -180,7 +180,7 @@ namespace PinscapePico
         uint32_t token;
 
         // Checksum.  This is a simple integrity check on the packet,
-        // to help ensure that the device doesn't attempt ot execute
+        // to help ensure that the device doesn't attempt to execute
         // ill-formed commands coming from unrelated applications.  Since
         // we use the generic WinUSB driver on Windows, any user-mode
         // application can send raw data over our endpoints.  (That's

@@ -4,6 +4,12 @@
 // This file defines the protocol for the button latency tester's USB Vendor
 // Interface, which provides the application interface to the device.
 //
+// A high-level C++ API is available for Windows - see BLTVendorInterface.h
+// in the WinHost/ subfolder.  That's much easier to use than programming
+// directly to the USB interface, so Windows C++ programmers should start
+// there.  You don't have to know anything about the USB protocol to use
+// the C++ API.
+//
 // A USB Vendor Interface is a custom application-specific protocol not
 // based on any of the pre-defined USB interface classes, thus requiring
 // a custom host-side driver.  We rely on the "generic" drivers provided
@@ -53,7 +59,7 @@ namespace ButtonLatencyTester2
         uint32_t token;
 
         // Checksum.  This is a simple integrity check on the packet,
-        // to help ensure that the device doesn't attempt ot execute
+        // to help ensure that the device doesn't attempt to execute
         // ill-formed commands coming from unrelated applications.  Since
         // we use the generic WinUSB driver on Windows, any user-mode
         // application can send raw data over our endpoints.  (That's
@@ -94,11 +100,11 @@ namespace ButtonLatencyTester2
         // information via the args.version field.
         static const uint8_t CMD_QUERY_VERSION = 0x02;
 
-        // Query the device's ID information.  No arguments.
-        //
-        // The extra transfer data consists of a series of null-terminated
-        // strings, composed of single-byte characters, appended
-        // back-to-back (so that the next string starts immediately after
+        // Query the device's ID information.  No arguments.  The reply
+        // reports basic ID information in args.ids.  In addition, the
+        // extra transfer data contains a series of null-terminated
+        // strings, composed of single-byte characters, appended back-
+        // to-back (so that the next string starts immediately after
         // the terminating null byte of the prior string):
         //
         // - Target board ID: the name string used in the Pico SDK to
@@ -254,20 +260,21 @@ namespace ButtonLatencyTester2
         // button can be considered ON or OFF, and thus limits the
         // frequency at which the button can switch states.  This isn't
         // much of a limitation in practice, because switches physically
-        // can't cycle faster than their "bounce" time.  A fast
+        // can't cycle faster than their "bounce" time anyway.  A fast
         // microswitch tends to bounce for at least 1-2 ms, so it's
         // simply not meaningful to try to measure switch state
-        // transitions on a shorter time scale - you just can't
-        // distinguish anything shorter from switch bounce.
+        // transitions on a shorter time scale than that; you can't
+        // distinguish shorter true switch transitions from bounce.
         //
-        // The Pico GPIO inputs are reasonably immune to physical noise
-        // due to their use of Schmitt trigger inputs.  So it's not
-        // generally necessary to also filter for false edges.  That's
-        // why we can get away with this zero-latency algorithm, where
-        // we interpret the first edge we see as an actual physical
-        // transition.  If we had to filter for noise as well, we'd have
-        // to apply a low-pass filter to the input signal, which would
-        // add latency of the filter's characteristic time.
+        // The Pico GPIO inputs, when properly configured, are reasonably
+        // immune to electronic noise, since they use Schmitt trigger
+        // inputs and internal pull-up resistors.  So it's not generally
+        // necessary to also filter for false edges.  That's why we can
+        // get away with this zero-latency algorithm, where we interpret
+        // the first edge we see as an actual physical transition.  If we
+        // had to filter for noise as well, we'd have to apply a low-pass
+        // filter to the input signal, which would add latency that scales
+        // with the filter's settling time.
         //
         // SUBCMD_DEBOUNCE_TIME_GET
         //   Retrieve the current debounce time in microseconds, encoded

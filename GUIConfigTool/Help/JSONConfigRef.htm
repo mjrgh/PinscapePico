@@ -9390,7 +9390,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   XBox buttons, and which Pico analog devices map to the joystick axes
   on the XBox unit.  Pinscape only sets up the virtual XBox controller if you tell it
   to via this object.  The virtual XBox unit can be combined with any of the other
-  virtual USB devices (keyboard, gamepadr) - Pinscape can emulate
+  virtual USB devices (keyboard, gamepad) - Pinscape can emulate
   all of these devices at once.
   </p><p>
   <b>IMPORTANT:</b>  When you configure a virtual XBox controller input, you
@@ -9404,20 +9404,22 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   <li>Select the <b>Driver</b> tab and click <b>Update Driver</b>
   <li>Click <b>Browse my computer for drivers</b>
   <li>Click <b>Let me pick from a list of available drivers on my computer</b>
-  <li>Find the <b>XBox 360 Peripherals" section, and select <b>XBox 360 Controller for Windows</b>
-  <li>Click through the warning (this appears because Windows can tell from the USB IDs this isn't really an XBox controller,
-  but in this case that's okay because the device speaks the XBox protocol and thus will work with the driver despite
-  the difference in ID codes)
+  <li>Find the <b>XBox 360 Peripherals</b> section, and select <b>XBox 360 Controller for Windows</b>
+  <li>Click through the warning (this appears because Windows can tell from the USB IDs this isn't really an XBox controller)
   </ul>
-  This is required because the Windows device driver for XBox controllers only installs
+  This manual procedure is required because the Windows device driver for XBox controllers only installs
   automatically when it recognizes a device matching the USB VID/PID codes that Microsoft
   uses for its <i>real</i> XBox controller devices.  Pinscape Pico doesn't use those codes,
   so the driver doesn't find it automatically.  If Pinscape <i>did</i> use those codes,
-  this manual driver step wouldn't be necessary, but this really isn't a good idea because
-  it might have undesirable side effects with other software that looks for the same codes
-  and might not work correctly with a device like Pinscape that has other USB functions
-  besides the XBox interfaces.  It's an annoying extra step you have to go through, but
-  you should only have to do it during initial setup.
+  this manual driver step wouldn't be necessary, but this probably isn't a good idea,
+  since we don't want any other software operating at the USB hardware level to mistake
+  Pinscape for an actual XBox controller.
+  </p><p>
+  You should only have to complete this procedure during initial setup, although you
+  might have to repeat it if you change the device configuration to add or remove
+  USB interfaces (such as enabling or disabling keyboard or gamepad input).  If you're
+  unsure, just check Device Manager for a PinscapePicoXInput device flagged with a
+  warning or error icon, and repeat the procedure above if you find one.
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{

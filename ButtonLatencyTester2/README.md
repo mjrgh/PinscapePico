@@ -194,7 +194,9 @@ plan, but this isn't always possible.  This works as long as the device's button
 input ports are voltage-sensitive and high-impedance (low current), which is true
 for most microcontrollers.  If your subject device doesn't use active-low wiring, or
 you're not sure that an optocoupler is a valid substitution for a physical switch for
-its button wiring, check with the device's manufacturer or designer.
+its button wiring, check with the device's manufacturer or designer.  (Please also
+let me know about it, so that I can list the specific cases people have come across
+that don't fit the basic "active low" pattern.)
 
 <b>REGARDLESS</b> of the subject device's wiring configuration, the BLT-II Pico portion
 is **always** connected as shown in the diagram.  That's another reason to use the
@@ -490,45 +492,46 @@ the respective Windows and Pico reboot times are related - that part
 of the equation adds an unpredictable (and probably large) number
 to the total that we have no idea how to eliminate.
 
-Fortunately, there *is* a way to get the two timestamps on an even
-footing so that we can compute a meaningful elapsed time.  The way to
-do that is to reformulate the timestamps so that they're both relative
-to some agreed-on **common reference point in real time** that both
-machines can precisely measure on their internal clocks.  This might
-seem easily solved: just have the devices exchange clock times by
-USB.  Yes, that would work, but it would add a lot of uncertainty
-to the time calculation, because the USB connection operates on
-a 125us "microframe" cycle.  If the Pico sends a message to the
-PC, it will go out on the next microframe cycle, which could be
-right now, or it could be 125us from now.  That degree of
-uncertainty isn't great when we're trying to measure latencies
-that are on the other of a millisecond.
+There *is* a way to get the two timestamps on an even footing, so that
+we can compute a meaningful elapsed time.  The way to do that is to
+reformulate the timestamps so that they're both relative to some
+agreed-on **common reference point in real time** that both machines
+can precisely measure on their internal clocks.  This might seem
+easily solved: just have the devices exchange clock times by USB.
+Yes, that would work, but it would add a lot of uncertainty to the
+time calculation, because the USB connection operates on a 125us
+"microframe" cycle.  If the Pico sends a message to the PC, it will go
+out on the next microframe cycle, which could be right now, or it
+could be 125us from now.  That degree of uncertainty isn't great when
+we're trying to measure latencies that are on the other of a
+millisecond.
 
 Fortunately, USB does give us a way to synchronize the two clocks to a
 much higher degree of precision - down to almost the microsecond
 level.  The key is the SOF (Start of Frame) packet.  Every 1ms exactly
-(plus or minus 500 *nanoseconds*), the USB hardware on the PC sends an
-SOF packet to the device.  This happens in the USB adapter hardware,
-so it's not affected by how busy Windows is.  The hardware clock
-relentlessly ticks along no matter how loaded the CPU is or how
-saturated the PCI bus is, and the SOF goes out on that precise 1ms
-cycle.  What's more, at this nuts-and-bolts level, there's nothing
-like "buffering" that could add more time uncertainty.  The SOF packet
-is literally a series of voltage signals on the wire, and the Pico
-physically receives those voltage signals at exactly the same time
-that the PC USB adapter generates them.  There's nothing in between
-except for a short run of wire, so we're talking speed-of-light
-timing, in the nanosecond range.  So there's virtually no time
-uncertainty.  On the Pico, the reception of an SOF packet triggers a
-hardware interrupt from the USB adapter, so the CPU is looped in on
-the SOF event within a few hundred nanoseconds.  The BLT-II firmware
-intercepts this interrupt, and records the time of the SOF on the
-Pico's microsecond clock.  The result is accurate to about +/- 2
-microseconds after taking into consideration the CPU's response time
-dispatching a hardware interrupt.  On the PC side, the USB hardware
-provides similar timing information, at a similar level of accuracy,
-to the Windows USB device drivers.  The WinUsb driver that the BLT-II
-host software uses to communicate with the Pico provides
+(plus or minus 500 *nanoseconds*, if the hardware adapter complies
+with the USB specifications for Full Speed devices), the USB hardware
+on the PC sends an SOF packet to the device.  This happens in the USB
+adapter hardware, so it's not affected by how busy Windows is.  The
+hardware clock relentlessly ticks along no matter how loaded the CPU
+is or how saturated the PCI bus is, and the SOF goes out on that
+precise 1ms cycle.  What's more, at this nuts-and-bolts level, there's
+nothing like "buffering" that could add more time uncertainty.  The
+SOF packet is literally a series of voltage signals on the wire, and
+the Pico physically receives those voltage signals at exactly the same
+time that the PC USB adapter generates them.  There's nothing in
+between except for a short run of wire, so we're talking
+speed-of-light timing, in the nanosecond range.  So there's virtually
+no time uncertainty.  On the Pico, the reception of an SOF packet
+triggers a hardware interrupt from the USB adapter, so the CPU is
+looped in on the SOF event within a few hundred nanoseconds.  The
+BLT-II firmware intercepts this interrupt, and records the time of the
+SOF on the Pico's microsecond clock.  The result is accurate to about
++/- 2 microseconds after taking into consideration the CPU's response
+time dispatching a hardware interrupt.  On the PC side, the USB
+hardware provides similar timing information, with a similar degree of
+accuracy, to the Windows USB device drivers.  The WinUsb driver that
+the BLT-II host software uses to communicate with the Pico provides
 application-level access to the SOF timing information.  So we have
 our common reference point: the PC and the Pico can both agree on
 exactly when the last SOF signal occurred.  What's more, the SOF
@@ -563,4 +566,5 @@ a human time scale, but it's a significant error term if you're trying
 to measure elapsed times in the milliseconds.  A time snapshot made
 within the course of typical HID input time of a few milliseconds
 will be accurate to about 0.1 microseconds, which is much smaller than
-the uncertainty in the SOF time measurement itself.
+the uncertainty in the SOF time measurement itself, making it a
+negligible contribution to the error term.

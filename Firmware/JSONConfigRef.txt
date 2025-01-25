@@ -81,6 +81,34 @@ buttons [object] optional
   you assign multiple meanings to other buttons, analogous to the keys
   like SHIFT, CTRL, and ALT on a PC keyboard.
 
+  Buttons are defined using two main abstractions:
+  <ul>
+    <li><b>Sources,</b> which define the physical input that controls
+    the button.  This is usually a literal button, such as a flipper
+    button or Start button, but it can also be a physical input that's
+    not quite a plain switch, such as a command code on the IR receiver,
+    or a the plunger or accelerometer readings crossing a threshold.
+    <li><b>Actions,</b> which define what happens when the button is
+    activated.  For most buttons, this will be a simple input to the
+    PC via one of the virtual HID devices, such as a simulated press on
+    a keyboard key or a joystick button.  But, like sources, actions
+    can have other effects as well, such as sending an IR command or
+    executing a series of steps (a "macro").
+  </ul>
+
+  Each <tt>buttons[]</tt> entry's main job is to connect a source and
+  an action.  When the source records an activation (pressing the
+  physical button, receiving the IR command, crossing an accelerometer
+  threshold), the action is carried out.
+
+  The same source can be used more than once (that is, in 
+  more than one <tt>buttons[]</tt> array entry).  This lets you map
+  a single physical input to multiple actions to be carried out, such
+  as sending both a keyboard key press and a joystick button press to
+  the PC whenever the button is pressed.  Macros can also be used to
+  carry out multiple effects for each button press, with the additional
+  feature that macros can control the timing of the sub-actions.
+
 buttons[].source object required
   Specifies the physical device port or data source that serves as the
   input for the logical button state.  For a physical button, this is a
@@ -1385,7 +1413,7 @@ xInput object optional
   XBox buttons, and which Pico analog devices map to the joystick axes
   on the XBox unit.  Pinscape only sets up the virtual XBox controller if you tell it
   to via this object.  The virtual XBox unit can be combined with any of the other
-  virtual USB devices (keyboard, gamepadr) - Pinscape can emulate
+  virtual USB devices (keyboard, gamepad) - Pinscape can emulate
   all of these devices at once.
 
   <b>IMPORTANT:</b>  When you configure a virtual XBox controller input, you
@@ -1399,20 +1427,22 @@ xInput object optional
     <li>Select the <b>Driver</b> tab and click <b>Update Driver</b>
     <li>Click <b>Browse my computer for drivers</b>
     <li>Click <b>Let me pick from a list of available drivers on my computer</b>
-    <li>Find the <b>XBox 360 Peripherals" section, and select <b>XBox 360 Controller for Windows</b>
-    <li>Click through the warning (this appears because Windows can tell from the USB IDs this isn't really an XBox controller,
-       but in this case that's okay because the device speaks the XBox protocol and thus will work with the driver despite
-       the difference in ID codes)
+    <li>Find the <b>XBox 360 Peripherals</b> section, and select <b>XBox 360 Controller for Windows</b>
+    <li>Click through the warning (this appears because Windows can tell from the USB IDs this isn't really an XBox controller)
   </ul>
-  This is required because the Windows device driver for XBox controllers only installs
+  This manual procedure is required because the Windows device driver for XBox controllers only installs
   automatically when it recognizes a device matching the USB VID/PID codes that Microsoft
   uses for its <i>real</i> XBox controller devices.  Pinscape Pico doesn't use those codes,
   so the driver doesn't find it automatically.  If Pinscape <i>did</i> use those codes,
-  this manual driver step wouldn't be necessary, but this really isn't a good idea because
-  it might have undesirable side effects with other software that looks for the same codes
-  and might not work correctly with a device like Pinscape that has other USB functions
-  besides the XBox interfaces.  It's an annoying extra step you have to go through, but
-  you should only have to do it during initial setup.
+  this manual driver step wouldn't be necessary, but this probably isn't a good idea,
+  since we don't want any other software operating at the USB hardware level to mistake
+  Pinscape for an actual XBox controller.
+
+  You should only have to complete this procedure during initial setup, although you
+  might have to repeat it if you change the device configuration to add or remove
+  USB interfaces (such as enabling or disabling keyboard or gamepad input).  If you're
+  unsure, just check Device Manager for a PinscapePicoXInput device flagged with a
+  warning or error icon, and repeat the procedure above if you find one.
 
 xInput.enable bool optional
   Enable the virtual XBox controller interface.  False by default.
@@ -2738,7 +2768,7 @@ usb object optional
   by accidentally choosing a VID/PID that some other device in your system
   is already using.  How would you know if you have a conflict?  You
   probably have a conflict if plugging in Pinscape Pico makes some other
-  device stop working, or if it awakes some non-Pinscape program on your
+  device stop working, or if it awakens some non-Pinscape program on your
   system that mistakes the Pico for some entirely different kind of device.
   In either of those cases, changing the VID/PID codes on the Pinscape unit
   should resolve it.

@@ -59,8 +59,8 @@ echo ^>^>^> Building Windows tools (Release^|x64)
 msbuild PinscapePico.sln -t:Build -p:Configuration=Release;Platform=x64 -v:q -nologo
 if errorlevel 1 goto abort
 
-rem  Run the release ZIP builder
-call .\build-release-zip.bat
+rem  Create the ZIP files
+call .\populate-release-zip.bat
 if errorlevel 1 goto abort
 
 echo.

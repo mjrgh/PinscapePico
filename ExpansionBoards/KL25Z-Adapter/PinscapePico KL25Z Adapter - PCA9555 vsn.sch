@@ -8536,7 +8536,6 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="GND33" library="supply1" deviceset="GND" device=""/>
 <part name="C2" library="rcl" deviceset="C-US" device="C1206" value="0.1uF"/>
 <part name="GND34" library="supply1" deviceset="GND" device=""/>
-<part name="GND35" library="supply1" deviceset="GND" device=""/>
 <part name="GND36" library="supply1" deviceset="GND" device=""/>
 <part name="GND37" library="supply1" deviceset="GND" device=""/>
 <part name="C3" library="rcl" deviceset="C-US" device="C1206" value="0.1uF"/>
@@ -8551,6 +8550,8 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="GND27" library="supply1" deviceset="GND" device=""/>
 <part name="R4" library="resistor" deviceset="R-US_" device="R1206" value="10K"/>
 <part name="R5" library="resistor" deviceset="R-US_" device="R1206" value="10K"/>
+<part name="R6" library="resistor" deviceset="R-US_" device="R1206" value="4K"/>
+<part name="R7" library="resistor" deviceset="R-US_" device="R1206" value="4K"/>
 </parts>
 <sheets>
 <sheet>
@@ -8565,30 +8566,41 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <text x="246.634" y="96.52" size="1.778" layer="91" rot="R180" align="center-right">NC</text>
 <text x="259.334" y="81.28" size="1.27" layer="91" align="center-left">Button 29=TV SWITCH OUT</text>
 <text x="257.81" y="43.18" size="1.27" layer="91" align="center-left">30 = KNOCKER TRIGGER</text>
-<text x="93.98" y="116.84" size="2.54" layer="91" align="center">Pico Hard Reset</text>
+<text x="48.26" y="137.16" size="2.54" layer="91" align="center">Pico Hard Reset</text>
+<text x="96.52" y="134.62" size="2.54" layer="91" align="center">I2C Pull-ups</text>
+<text x="193.04" y="121.92" size="2.54" layer="91" align="center">KL25Z Header Connectors
+Install 0.1" pin sockets on BOTTOM of board</text>
 </plain>
 <instances>
 <instance part="RASPBERRY_PI_PICO" gate="G$1" x="50.8" y="40.64"/>
 <instance part="FRDM1" gate="G$1" x="190.5" y="60.96"/>
-<instance part="R3" gate="G$1" x="50.8" y="104.14" smashed="yes" rot="R180">
-<attribute name="NAME" x="46.228" y="101.0666" size="1.778" layer="95"/>
-<attribute name="VALUE" x="52.324" y="101.092" size="1.778" layer="96"/>
+<instance part="R3" gate="G$1" x="48.26" y="93.98" smashed="yes" rot="R180">
+<attribute name="NAME" x="43.688" y="90.9066" size="1.778" layer="95"/>
+<attribute name="VALUE" x="49.784" y="90.932" size="1.778" layer="96"/>
 </instance>
-<instance part="R1" gate="G$1" x="50.8" y="96.52" smashed="yes" rot="R180">
-<attribute name="NAME" x="46.482" y="93.4466" size="1.778" layer="95"/>
-<attribute name="VALUE" x="52.324" y="93.472" size="1.778" layer="96"/>
+<instance part="R1" gate="G$1" x="48.26" y="86.36" smashed="yes" rot="R180">
+<attribute name="NAME" x="43.942" y="83.2866" size="1.778" layer="95"/>
+<attribute name="VALUE" x="49.784" y="83.312" size="1.778" layer="96"/>
 </instance>
-<instance part="R2" gate="G$1" x="50.8" y="111.76" smashed="yes" rot="R180">
-<attribute name="NAME" x="46.228" y="108.6866" size="1.778" layer="95"/>
-<attribute name="VALUE" x="52.07" y="108.712" size="1.778" layer="96"/>
+<instance part="R2" gate="G$1" x="48.26" y="101.6" smashed="yes" rot="R180">
+<attribute name="NAME" x="43.688" y="98.5266" size="1.778" layer="95"/>
+<attribute name="VALUE" x="49.53" y="98.552" size="1.778" layer="96"/>
 </instance>
-<instance part="LED1" gate="G$1" x="40.64" y="104.14" smashed="yes">
-<attribute name="NAME" x="40.64" y="118.11" size="1.778" layer="95" align="center"/>
-<attribute name="VALUE" x="40.64" y="115.57" size="1.778" layer="95" align="center"/>
+<instance part="LED1" gate="G$1" x="38.1" y="93.98" smashed="yes">
+<attribute name="NAME" x="38.1" y="107.95" size="1.778" layer="95" align="center"/>
+<attribute name="VALUE" x="38.1" y="105.41" size="1.778" layer="95" align="center"/>
 </instance>
-<instance part="SW1" gate="G$1" x="93.98" y="106.68" smashed="yes">
-<attribute name="NAME" x="99.568" y="106.934" size="1.27" layer="95"/>
-<attribute name="VALUE" x="99.314" y="105.41" size="1.27" layer="96"/>
+<instance part="SW1" gate="G$1" x="48.26" y="127" smashed="yes">
+<attribute name="NAME" x="53.848" y="127.254" size="1.27" layer="95"/>
+<attribute name="VALUE" x="53.594" y="125.73" size="1.27" layer="96"/>
+</instance>
+<instance part="R6" gate="G$1" x="96.52" y="127" smashed="yes" rot="R180">
+<attribute name="NAME" x="93.726" y="128.2446" size="1.778" layer="95"/>
+<attribute name="VALUE" x="98.806" y="128.27" size="1.778" layer="96"/>
+</instance>
+<instance part="R7" gate="G$1" x="96.52" y="121.92" smashed="yes" rot="R180">
+<attribute name="NAME" x="93.726" y="123.1646" size="1.778" layer="95"/>
+<attribute name="VALUE" x="98.806" y="123.19" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -8611,9 +8623,19 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <pinref part="FRDM1" gate="G$1" pin="IOREF/3V3"/>
 </segment>
 <segment>
-<label x="33.02" y="104.14" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="30.48" y="93.98" size="1.27" layer="95" rot="R180" xref="yes"/>
 <pinref part="LED1" gate="G$1" pin="1"/>
-<wire x1="35.56" y1="104.14" x2="33.02" y2="104.14" width="0.1524" layer="91"/>
+<wire x1="33.02" y1="93.98" x2="30.48" y2="93.98" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="R6" gate="G$1" pin="1"/>
+<wire x1="101.6" y1="127" x2="104.14" y2="127" width="0.1524" layer="91"/>
+<wire x1="104.14" y1="127" x2="104.14" y2="121.92" width="0.1524" layer="91"/>
+<pinref part="R7" gate="G$1" pin="1"/>
+<wire x1="104.14" y1="121.92" x2="101.6" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="104.14" y1="127" x2="106.68" y2="127" width="0.1524" layer="91"/>
+<junction x="104.14" y="127"/>
+<label x="106.68" y="127" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -8639,14 +8661,14 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 </segment>
 <segment>
 <pinref part="SW1" gate="G$1" pin="C"/>
-<wire x1="88.9" y1="104.14" x2="88.9" y2="101.6" width="0.1524" layer="91"/>
-<wire x1="88.9" y1="101.6" x2="93.98" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="124.46" x2="43.18" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="121.92" x2="48.26" y2="121.92" width="0.1524" layer="91"/>
 <pinref part="SW1" gate="G$1" pin="D"/>
-<wire x1="93.98" y1="101.6" x2="99.06" y2="101.6" width="0.1524" layer="91"/>
-<wire x1="99.06" y1="101.6" x2="99.06" y2="104.14" width="0.1524" layer="91"/>
-<wire x1="93.98" y1="101.6" x2="93.98" y2="99.06" width="0.1524" layer="91"/>
-<junction x="93.98" y="101.6"/>
-<label x="93.98" y="99.06" size="1.27" layer="95" rot="R270" xref="yes"/>
+<wire x1="48.26" y1="121.92" x2="53.34" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="53.34" y1="121.92" x2="53.34" y2="124.46" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="121.92" x2="48.26" y2="119.38" width="0.1524" layer="91"/>
+<junction x="48.26" y="121.92"/>
+<label x="48.26" y="119.38" size="1.27" layer="95" rot="R270" xref="yes"/>
 </segment>
 </net>
 <net name="5V_PICO" class="0">
@@ -8951,12 +8973,22 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <wire x1="30.48" y1="53.34" x2="27.94" y2="53.34" width="0.1524" layer="91"/>
 <label x="27.94" y="53.34" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
+<segment>
+<pinref part="R6" gate="G$1" pin="2"/>
+<wire x1="88.9" y1="127" x2="91.44" y2="127" width="0.1524" layer="91"/>
+<label x="88.9" y="127" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
 </net>
 <net name="SCL" class="0">
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP5"/>
 <wire x1="30.48" y1="50.8" x2="27.94" y2="50.8" width="0.1524" layer="91"/>
 <label x="27.94" y="50.8" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="R7" gate="G$1" pin="2"/>
+<wire x1="88.9" y1="121.92" x2="91.44" y2="121.92" width="0.1524" layer="91"/>
+<label x="88.9" y="121.92" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="PWM_XLAT" class="0">
@@ -9122,28 +9154,28 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <segment>
 <pinref part="R3" gate="G$1" pin="2"/>
 <pinref part="LED1" gate="G$1" pin="3"/>
-<wire x1="43.18" y1="104.14" x2="45.72" y2="104.14" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="93.98" x2="43.18" y2="93.98" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$10" class="0">
 <segment>
 <pinref part="R1" gate="G$1" pin="2"/>
 <pinref part="LED1" gate="G$1" pin="2"/>
-<wire x1="43.18" y1="96.52" x2="45.72" y2="96.52" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="86.36" x2="43.18" y2="86.36" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$13" class="0">
 <segment>
 <pinref part="R2" gate="G$1" pin="2"/>
 <pinref part="LED1" gate="G$1" pin="4"/>
-<wire x1="43.18" y1="111.76" x2="45.72" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="101.6" x2="43.18" y2="101.6" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="LED_R" class="0">
 <segment>
 <pinref part="R3" gate="G$1" pin="1"/>
-<wire x1="58.42" y1="104.14" x2="55.88" y2="104.14" width="0.1524" layer="91"/>
-<label x="58.42" y="104.14" size="1.27" layer="95" xref="yes"/>
+<wire x1="55.88" y1="93.98" x2="53.34" y2="93.98" width="0.1524" layer="91"/>
+<label x="55.88" y="93.98" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP27_A1"/>
@@ -9154,8 +9186,8 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <net name="LED_B" class="0">
 <segment>
 <pinref part="R1" gate="G$1" pin="1"/>
-<wire x1="58.42" y1="96.52" x2="55.88" y2="96.52" width="0.1524" layer="91"/>
-<label x="58.42" y="96.52" size="1.27" layer="95" xref="yes"/>
+<wire x1="55.88" y1="86.36" x2="53.34" y2="86.36" width="0.1524" layer="91"/>
+<label x="55.88" y="86.36" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP22"/>
@@ -9166,8 +9198,8 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <net name="LED_G" class="0">
 <segment>
 <pinref part="R2" gate="G$1" pin="1"/>
-<wire x1="58.42" y1="111.76" x2="55.88" y2="111.76" width="0.1524" layer="91"/>
-<label x="58.42" y="111.76" size="1.27" layer="95" xref="yes"/>
+<wire x1="55.88" y1="101.6" x2="53.34" y2="101.6" width="0.1524" layer="91"/>
+<label x="55.88" y="101.6" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP26_A0"/>
@@ -9178,13 +9210,13 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <net name="PICO_RUN" class="0">
 <segment>
 <pinref part="SW1" gate="G$1" pin="A"/>
-<wire x1="88.9" y1="109.22" x2="88.9" y2="111.76" width="0.1524" layer="91"/>
-<wire x1="88.9" y1="111.76" x2="99.06" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="129.54" x2="43.18" y2="132.08" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="132.08" x2="53.34" y2="132.08" width="0.1524" layer="91"/>
 <pinref part="SW1" gate="G$1" pin="B"/>
-<wire x1="99.06" y1="111.76" x2="99.06" y2="109.22" width="0.1524" layer="91"/>
-<wire x1="88.9" y1="111.76" x2="86.36" y2="111.76" width="0.1524" layer="91"/>
-<junction x="88.9" y="111.76"/>
-<label x="86.36" y="111.76" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="53.34" y1="132.08" x2="53.34" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="132.08" x2="40.64" y2="132.08" width="0.1524" layer="91"/>
+<junction x="43.18" y="132.08"/>
+<label x="40.64" y="132.08" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="RUN"/>
@@ -9216,10 +9248,10 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 </nets>
 </sheet>
 <sheet>
-<description>PCA9555</description>
+<description>Buttons</description>
 <plain>
-<text x="6.35" y="109.474" size="1.778" layer="91" align="center-left">I2C Address 0100000x ($20)</text>
-<text x="8.89" y="48.514" size="1.778" layer="91" align="center-left">I2C Address 0100001x ($21)</text>
+<text x="6.35" y="109.474" size="1.778" layer="91" align="center-left">I2C Address 0x20 (010 0000)</text>
+<text x="8.89" y="48.514" size="1.778" layer="91" align="center-left">I2C Address 0x21 (010 0001)</text>
 <text x="68.58" y="63.5" size="2.032" layer="91" align="center-left">All buttons are individual grounded inputs.
 Configure PCA9555 ports as inputs with
 internal pull-up resistors.  A button input
@@ -9239,17 +9271,16 @@ GND).</text>
 </instance>
 <instance part="GND11" gate="1" x="20.32" y="7.62"/>
 <instance part="GND12" gate="1" x="20.32" y="71.12"/>
-<instance part="C1" gate="G$1" x="53.34" y="109.22" smashed="yes" rot="R180">
-<attribute name="NAME" x="56.388" y="109.22" size="1.778" layer="95" rot="R180" align="center-right"/>
-<attribute name="VALUE" x="56.388" y="111.252" size="1.778" layer="96" rot="R180" align="center-right"/>
+<instance part="C1" gate="G$1" x="81.28" y="99.06" smashed="yes">
+<attribute name="NAME" x="85.598" y="98.806" size="1.778" layer="95" rot="R180" align="center-right"/>
+<attribute name="VALUE" x="85.598" y="96.52" size="1.778" layer="96" rot="R180" align="center-right"/>
 </instance>
-<instance part="GND33" gate="1" x="53.34" y="119.38" rot="R180"/>
-<instance part="C2" gate="G$1" x="55.88" y="45.72" smashed="yes" rot="R180">
-<attribute name="NAME" x="58.928" y="45.72" size="1.778" layer="95" rot="R180" align="center-right"/>
-<attribute name="VALUE" x="58.928" y="47.752" size="1.778" layer="96" rot="R180" align="center-right"/>
+<instance part="GND33" gate="1" x="81.28" y="88.9"/>
+<instance part="C2" gate="G$1" x="81.28" y="35.56" smashed="yes">
+<attribute name="NAME" x="85.344" y="35.56" size="1.778" layer="95" rot="R180" align="center-right"/>
+<attribute name="VALUE" x="85.344" y="33.02" size="1.778" layer="96" rot="R180" align="center-right"/>
 </instance>
-<instance part="GND34" gate="1" x="55.88" y="55.88" rot="R180"/>
-<instance part="GND35" gate="1" x="78.74" y="96.52" rot="R90"/>
+<instance part="GND34" gate="1" x="81.28" y="25.4"/>
 <instance part="GND36" gate="1" x="2.54" y="101.6" rot="R270"/>
 <instance part="GND37" gate="1" x="5.08" y="38.1" rot="R270"/>
 </instances>
@@ -9283,21 +9314,21 @@ GND).</text>
 <net name="3V3_PICO" class="0">
 <segment>
 <pinref part="IC2" gate="G$1" pin="VDD"/>
-<wire x1="53.34" y1="40.64" x2="55.88" y2="40.64" width="0.1524" layer="91"/>
-<label x="58.42" y="40.64" size="1.27" layer="95" xref="yes"/>
+<wire x1="53.34" y1="40.64" x2="81.28" y2="40.64" width="0.1524" layer="91"/>
+<label x="86.36" y="40.64" size="1.27" layer="95" xref="yes"/>
 <pinref part="C2" gate="G$1" pin="1"/>
-<wire x1="55.88" y1="40.64" x2="58.42" y2="40.64" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="43.18" x2="55.88" y2="40.64" width="0.1524" layer="91"/>
-<junction x="55.88" y="40.64"/>
+<wire x1="81.28" y1="40.64" x2="86.36" y2="40.64" width="0.1524" layer="91"/>
+<wire x1="81.28" y1="38.1" x2="81.28" y2="40.64" width="0.1524" layer="91"/>
+<junction x="81.28" y="40.64"/>
 </segment>
 <segment>
 <pinref part="IC1" gate="G$1" pin="VDD"/>
-<wire x1="50.8" y1="104.14" x2="53.34" y2="104.14" width="0.1524" layer="91"/>
-<label x="55.88" y="104.14" size="1.27" layer="95" xref="yes"/>
+<wire x1="50.8" y1="104.14" x2="81.28" y2="104.14" width="0.1524" layer="91"/>
+<label x="83.82" y="104.14" size="1.27" layer="95" xref="yes"/>
 <pinref part="C1" gate="G$1" pin="1"/>
-<wire x1="53.34" y1="104.14" x2="55.88" y2="104.14" width="0.1524" layer="91"/>
-<wire x1="53.34" y1="106.68" x2="53.34" y2="104.14" width="0.1524" layer="91"/>
-<junction x="53.34" y="104.14"/>
+<wire x1="81.28" y1="104.14" x2="83.82" y2="104.14" width="0.1524" layer="91"/>
+<wire x1="81.28" y1="101.6" x2="81.28" y2="104.14" width="0.1524" layer="91"/>
+<junction x="81.28" y="104.14"/>
 </segment>
 <segment>
 <pinref part="IC2" gate="G$1" pin="A0"/>
@@ -9320,12 +9351,12 @@ GND).</text>
 </segment>
 <segment>
 <pinref part="C1" gate="G$1" pin="2"/>
-<wire x1="53.34" y1="114.3" x2="53.34" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="81.28" y1="93.98" x2="81.28" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="GND33" gate="1" pin="GND"/>
 </segment>
 <segment>
 <pinref part="C2" gate="G$1" pin="2"/>
-<wire x1="55.88" y1="50.8" x2="55.88" y2="53.34" width="0.1524" layer="91"/>
+<wire x1="81.28" y1="30.48" x2="81.28" y2="27.94" width="0.1524" layer="91"/>
 <pinref part="GND34" gate="1" pin="GND"/>
 </segment>
 <segment>
@@ -9350,8 +9381,8 @@ GND).</text>
 </segment>
 <segment>
 <pinref part="IC1" gate="G$1" pin="A0"/>
-<pinref part="GND35" gate="1" pin="GND"/>
-<wire x1="50.8" y1="96.52" x2="76.2" y2="96.52" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="96.52" x2="53.34" y2="96.52" width="0.1524" layer="91"/>
+<label x="53.34" y="96.52" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON5" class="0">
@@ -9589,7 +9620,7 @@ GND).</text>
 <description>Accelerometer</description>
 <plain>
 <text x="7.62" y="73.66" size="2.54" layer="91">Accelerometer
-I2C address 0x18</text>
+I2C address 0x18 (001 1000)</text>
 <text x="67.31" y="2.54" size="1.778" layer="91" align="center-left">SDO/SA0 sets I2C address:
 GND = 0x18, VDD = 0x19</text>
 <text x="80.264" y="12.954" size="1.778" layer="91" align="center-left">CS = VDD -&gt; I2C mode</text>
@@ -9689,7 +9720,7 @@ GND = 0x18, VDD = 0x19</text>
 <sheet>
 <description>ADC</description>
 <plain>
-<text x="26.416" y="34.798" size="1.778" layer="91">I2C Bus Address $48 (1001000x)</text>
+<text x="26.416" y="34.798" size="1.778" layer="91">I2C Bus Address 0x48 (100 1000)</text>
 <text x="5.08" y="45.72" size="1.778" layer="91">Plunger ADC
 The Pico has an on-board ADC, but its resolution is fairly
 coarse (effectively 8 bits), and it has some well-known

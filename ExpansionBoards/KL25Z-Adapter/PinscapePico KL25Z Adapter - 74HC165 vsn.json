@@ -1,8 +1,10 @@
 // Pinscape Pico Configuration Starter File
-// KL25Z Expansion Board Adapter Board Edition
+// KL25Z Expansion Board Adapter Board - 74HC165 Edition
 //
 // This is a starter template for a Pinscape Pico config file, with
 // settings customized for the KL25Z Expansion Board Adapter Board.
+// Note that there are two versions of this board - this file is for
+// the 74HC165 version.
 //
 // The Adapter Board is designed to let you plug a Pico running Pinscape
 // into a set of original Pinscape KL25Z Expansion Boards.  The Adapter
@@ -397,6 +399,17 @@
     // physical button input ports and the actions that the buttons
     // invoke.
     //
+    // All of the buttons on the adapter board are connected to
+    // 74HC165 shift register chips.  (The ordering of the button
+    // numbers vs 74HC165 ports might look a little random.  This is
+    // because the ports are ordered to make the trace layout on the
+    // boards more efficient, which requires arranging the traces in
+    // an order that matches the physical pin layout on the 74HC165
+    // chips.  So there's a method to the madness, and ultimately the
+    // software doesn't care that the order makes any sense, since it
+    // doesn't even know how things are laid on the board; it only
+    // knows what order it sees when reading the 74HC165 ports.)
+    //
     // You map a physical button connection to a PC input via an entry
     // in the 'buttons' array below.  Each entry has a 'source', which
     // specifies the physical input, and an 'action', which specifies
@@ -441,123 +454,132 @@
     //
     buttons: [
         {
-            source: { type: "gpio", gp: 8 },             // Button header input pin #1 -> GP8
+            source: { type: "74hc165", chip: 0, port: "A" },             // Button header input pin #1
             action: { type: "key", key: "left shift" },  // left flipper button in most pinball simulators
         },
     
         {
-            source: { type: "gpio", gp: 9 },             // Button header input pin #2 -> GP9
+            source: { type: "74hc165", chip: 0, port: "G" },             // Button header input pin #2
             action: { type: "key", key: "right shift" }, // right flipper button in most pinball simulators
         },
     
         {
-            source: { type: "gpio", gp: 21 },            // Button header input pin #3 -> GP21
+            source: { type: "74hc165", chip: 0, port: "B" },            // Button header input pin #3
             action: { type: "key", key: "left windows" }, // left second (stacked) flipper switch in Visual Pinball
         },
     
         {
-            source: { type: "gpio", gp: 20 },            // Button header input pin #4 -> GP20
+            source: { type: "74hc165", chip: 0, port: "F" },            // Button header input pin #4
             action: { type: "key", key: "right alt" },   // right second (stacked) flipper switch in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO1_3" },  // Button header input pin #5 -> PCA9555 #0 port IO1_3
+            source: { type: "74hc165", chip: 0, port: "H" },  // Button header input pin #5
             action: { type: "key", key: "left ctrl" },   // left Magna Save button in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO1_2" },  // Button header input pin #6 -> PCA9555 #0 port IO1_2
+            source: { type: "74hc165", chip: 0, port: "D" },  // Button header input pin #6
             action: { type: "key", key: "right ctrl" },  // right Magna Save button in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO1_1" },  // Button header input pin #7 -> PCA9555 #0 port IO1_1
+            source: { type: "74hc165", chip: 0, port: "C" },  // Button header input pin #7
             action: { type: "key", key: "left alt" },    // lockbar Fire button in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO1_0" },  // Button header input pin #8 -> PCA9555 #0 port IO1_0
+            source: { type: "74hc165", chip: 0, port: "E" },  // Button header input pin #8
             action: { type: "key", key: "1" },           // "Start" button in most simulators
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO0_7" },  // Button header input pin #9 -> PCA9555 #0 port IO0_7
+            source: { type: "74hc165", chip: 1, port: "H" },  // Button header input pin #9
             action: { type: "key", key: "2" },           // "Extra Ball" button in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO0_6" },  // Button header input pin #10 -> PCA9555 #0 port IO0_6
+            source: { type: "74hc165", chip: 1, port: "A" },  // Button header input pin #10
             action: { type: "key", key: "enter" },       // Launch Ball/plunger button in most simulators
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO0_5" },  // Button header input pin #11 -> PCA9555 #0 port IO0_5
+            source: { type: "74hc165", chip: 1, port: "B" },  // Button header input pin #11
             action: { type: "key", key: "3" },           // Left Coin chute in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO0_4" },  // Button header input pin #12 -> PCA9555 #0 port IO0_4
+            source: { type: "74hc165", chip: 1, port: "C" },  // Button header input pin #12
             action: { type: "key", key: "4" },           // Middle Coin chute in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO0_3" },  // Button header input pin #13 -> PCA9555 #0 port IO0_3
+            source: { type: "74hc165", chip: 1, port: "F" },  // Button header input pin #13
             action: { type: "key", key: "5" },           // Right Coin Chute in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO0_2" },  // Button header input pin #14 -> PCA9555 #0 port IO0_2
+            source: { type: "74hc165", chip: 1, port: "G" },  // Button header input pin #14
             action: { type: "key", key: "6" },          // Fourth Coin Chute/Dollar bill acceptor in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO0_1" },  // Button header input pin #15 -> PCA9555 #0 port IO0_1
+            source: { type: "74hc165", chip: 1, port: "D" },  // Button header input pin #15
             action: { type: "key", key: "7" },          // Service Cancel/Exit (coin door operator control panel)
         },
 
         {
-            source: { type: "pca9555", chip: 0, port: "IO0_0" },  // Button header input pin #16 -> PCA9555 #0 port IO0_0
+            source: { type: "74hc165", chip: 1, port: "E" },  // Button header input pin #16
             action: { type: "key", key: "8" },          // Service Down/- (coin door operator control panel)
         },
 
         {
-            source: { type: "pca9555", chip: 1, port: "IO1_0" },  // Button header input pin #17 -> PCA9555 #1 port IO1_0
+            source: { type: "74hc165", chip: 2, port: "A" },  // Button header input pin #17
             action: { type: "key", key: "9" },          // Service Up/+ (coin door operator control panel)
         },
 
         {
-            source: { type: "pca9555", chip: 1, port: "IO1_1" },  // Button header input pin #18 -> PCA9555 #1 port IO1_1
+            source: { type: "74hc165", chip: 2, port: "B" },  // Button header input pin #18
             action: { type: "key", key: "0" },          // Service Select/Enter (coin door operator control panel)
         },
 
         {
-            source: { type: "pca9555", chip: 1, port: "IO1_2" },  // Button header input pin #19 -> PCA9555 #1 port IO1_2
+            source: { type: "74hc165", chip: 2, port: "C" },  // Button header input pin #19
             action: { type: "key", key: "end" },        // coin door position switch in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 1, port: "IO1_3" },  // Button header input pin #20 -> PCA9555 #1 port IO1_3
+            source: { type: "74hc165", chip: 2, port: "D" },  // Button header input pin #20
             action: { type: "key", key: "T" },         // tilt bob in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 1, port: "IO1_4" },  // Button header input pin #21 -> PCA9555 #1 port IO1_4
+            source: { type: "74hc165", chip: 2, port: "E" },  // Button header input pin #21
             action: { type: "key", key: "home" },      // slam tilt switch in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 1, port: "IO1_5" },  // Button header input pin #22 -> PCA9555 #1 port IO1_5
+            source: { type: "74hc165", chip: 2, port: "F" },  // Button header input pin #22
             action: { type: "key", key: "=" },         // Volume Up key in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 1, port: "IO1_6" },  // Button header input pin #23 -> PCA9555 #1 port IO1_6
+            source: { type: "74hc165", chip: 2, port: "G" },  // Button header input pin #23
             action: { type: "key", key: "+" },         // Volume Down key in Visual Pinball
         },
 
         {
-            source: { type: "pca9555", chip: 1, port: "IO1_7" },  // Button header input pin #24 -> PCA9555 #1 port IO1_7
+            source: { type: "74hc165", chip: 2, port: "H" },  // Button header input pin #24
             action: { type: "key", key: "esc" },       // Exit key in most front-end menu systems
+        },
+
+        // --------- SPECIAL BUTTONS -----------
+        
+        // Plunger calibration button.  Holding this button for a few seconds
+        // activates plunger calibration mode.
+        {
+            source: { type: "pca9555", chip: 0, port: "IO1_2" },  // PCA9555 #1 port IO1_2
+            action: { type: "plungercal" },            // activate plunger calibration when pressed
         },
     ],
 
@@ -671,7 +693,7 @@
         //
 
         // DOF port #17 - Knocker, JP9 pin 1
-        { device: { type: "pca9555", chip: 1, port: "IO0_2" }, },
+        { device: { type: "pca9555", chip: 0, port: "IO0_5" }, },
         
      
         //
@@ -869,6 +891,18 @@
         // DOF port #73 - Chime Board output JP9 pin 8
         { device: { type: "74hc595", chip: 0, port: "QH" }, },
 
+        // -------------- COMPUTED PORTS --------------
+        //
+        // The ports below use computed values to drive physical ports.
+        // DOF doesn't need to write to these ports, so keep them at
+        // the end of the list, since their numbering isn't important
+        // to DOF.
+        //
+
+        // Plunger calibration button lamp.  This blinks the light when
+        // the button is being held down to activate calibration, and turns
+        // it on steadily when calibration is in progress.
+        { device: { type: "pca9555", chip: 0, port: "IO1_1" }, source: "plungercal(255, blink(500, 500), 0)" }
     ],
 
 
@@ -1015,13 +1049,13 @@
         // power sensing circuit - the Expansion Board circuit's ports
         // are wired to the Adapter Board PCA9555 IC1
         powerDetect: {
-            sense: { type: "pca9555", chip: 0, port: "IO1_7" },
-            set:   { type: "pca9555", chip: 0, port: "IO1_6" },
+            sense: { type: "gpio", gp: 20 },
+            set:   { type: "gpio", gp: 21 },
         },
 
         // TV ON switch relay port
         relay: {
-            port: { type: "pca9555", chip: 1, port: "IO0_3" },
+            port: { type: "pca9555", chip: 0, port: "IO0_7" },
             pulseTime: 250,         // pulse time in milliseconds
             mode: "pulse",          // or "switch" (stays on whenever system power is on),
                                     // or "manual" (manual operation through config tool only)
@@ -1085,8 +1119,8 @@
     // I2C-based sensors such as VCNL4010 or VL6180X.
     //
     i2c1: {
-        sda: 18,
-        scl: 19,
+        sda: 10,
+        scl: 11,
         speed: 400000,    // I2C bit rate, bits/second
 
         // We'll only enable this bus if one of the I2C plunger
@@ -1096,9 +1130,22 @@
         enable: "on-demand",
     },
 
-    // PCA9555 GPIO extender.  The Adapter Board has two of these
-    // chips, which it uses for button inputs and internal control
-    // signal outputs.
+    // 74HC165 input shift register.  The adapter board uses three of
+    // these chips to implement the 24 button inputs.
+    "74hc165": {
+        nChips: 3,                // three chips in the daisy chain
+        load: 8,                  // SH/LD on GP8
+        shift: 9,                 // CLK on GP9
+        data: 12,                 // QH on GP12
+        shiftClockFreq: 6000000,  // shift clock frequency 6 MHz
+    },
+
+    // PCA9555 GPIO extender.  This adapter board has one chip that is
+    // uses for additional internal input/output ports, since the Pico
+    // doesn't have enough native GPIO ports for all of the KL25Z
+    // expansion board functions.  Note that these aren't used for any
+    // button inputs in this board - all of the buttons are connected
+    // to 74HC165 ports instead.
     pca9555: [
         // IC1 on Adapter Board
         {
@@ -1107,15 +1154,8 @@
             interrupt: 12,
 
             // Set initial outputs for peripheral control lines:
-            //   IO1_5 -> 74HC595 /ENABLE -> hold HIGH during initialization
-            initialOut: 0x2000,
-        },
-
-        // IC2 on Adapter Board
-        {
-            i2c: 0,
-            addr: 0x21,
-            interrupt: 12,
+            //   IO0_3 -> 74HC595 /ENABLE -> hold HIGH during initialization
+            initialOut: 0x0008,
         },
     ],
 
@@ -1163,6 +1203,6 @@
         shift: 1,
         latch: 2,
         data: 3,
-        enable: { type: "pca9555", chip: 0, port: "IO1_5" },
+        enable: { type: "pca9555", chip: 0, port: "IO0_3" },
     },
 }

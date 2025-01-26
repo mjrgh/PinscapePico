@@ -9419,12 +9419,22 @@ Install 0.1" pin sockets on BOTTOM of board</text>
 <wire x1="243.84" y1="101.6" x2="246.38" y2="101.6" width="0.1524" layer="91"/>
 <label x="246.38" y="101.6" size="1.27" layer="95" xref="yes"/>
 </segment>
+<segment>
+<pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP21"/>
+<wire x1="73.66" y1="33.02" x2="71.12" y2="33.02" width="0.1524" layer="91"/>
+<label x="73.66" y="33.02" size="1.27" layer="95" xref="yes"/>
+</segment>
 </net>
 <net name="PSU2_STATUS_SENSE" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D11/PTD2"/>
 <wire x1="243.84" y1="76.2" x2="246.38" y2="76.2" width="0.1524" layer="91"/>
 <label x="246.38" y="76.2" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP20"/>
+<wire x1="73.66" y1="30.48" x2="71.12" y2="30.48" width="0.1524" layer="91"/>
+<label x="73.66" y="30.48" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="IR_IN" class="0">
@@ -10282,20 +10292,6 @@ Install 0.1" pin sockets on BOTTOM of board</text>
 <pinref part="IC6" gate="G$1" pin="P1_2"/>
 </segment>
 </net>
-<net name="PSU2_STATUS_SENSE" class="0">
-<segment>
-<pinref part="IC6" gate="G$1" pin="P0_6"/>
-<wire x1="30.48" y1="10.16" x2="27.94" y2="10.16" width="0.1524" layer="91"/>
-<label x="27.94" y="10.16" size="1.27" layer="95" rot="R180" xref="yes"/>
-</segment>
-</net>
-<net name="PSU2_STATUS_SET" class="0">
-<segment>
-<wire x1="58.42" y1="20.32" x2="60.96" y2="20.32" width="0.1524" layer="91"/>
-<label x="60.96" y="20.32" size="1.27" layer="95" xref="yes"/>
-<pinref part="IC6" gate="G$1" pin="P1_6"/>
-</segment>
-</net>
 <net name="CHIME_ENA" class="0">
 <segment>
 <wire x1="30.48" y1="17.78" x2="27.94" y2="17.78" width="0.1524" layer="91"/>
@@ -10338,8 +10334,8 @@ Install 0.1" pin sockets on BOTTOM of board</text>
 </segment>
 <segment>
 <pinref part="IC6" gate="G$1" pin="VSS"/>
-<wire x1="25.4" y1="5.08" x2="30.48" y2="5.08" width="0.1524" layer="91"/>
-<label x="25.4" y="5.08" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="27.94" y1="5.08" x2="30.48" y2="5.08" width="0.1524" layer="91"/>
+<label x="27.94" y="5.08" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="IC6" gate="G$1" pin="A0"/>

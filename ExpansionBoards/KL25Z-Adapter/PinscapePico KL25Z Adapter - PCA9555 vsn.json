@@ -1,8 +1,10 @@
 // Pinscape Pico Configuration Starter File
-// KL25Z Expansion Board Adapter Board Edition
+// KL25Z Expansion Board Adapter Board - PCA9555 Edition
 //
 // This is a starter template for a Pinscape Pico config file, with
 // settings customized for the KL25Z Expansion Board Adapter Board.
+// Note that there are two versions of the adapter - this file is for
+// the PCA9555 version.
 //
 // The Adapter Board is designed to let you plug a Pico running Pinscape
 // into a set of original Pinscape KL25Z Expansion Boards.  The Adapter
@@ -184,7 +186,7 @@
             logging: true,       // enable logging on this port
             console: {
                 enable: true,    // enable the interactive command line on this port
-                bufSize: 8192,   // buffer size for console output
+                bufSize: 16384,  // buffer size for console output
             },
         },
     },
@@ -559,6 +561,15 @@
             source: { type: "pca9555", chip: 1, port: "IO1_7" },  // Button header input pin #24 -> PCA9555 #1 port IO1_7
             action: { type: "key", key: "esc" },       // Exit key in most front-end menu systems
         },
+
+        // --------- SPECIAL BUTTONS -----------
+        
+        // Plunger calibration button.  Holding this button for a few seconds
+        // activates plunger calibration mode.
+        {
+            source: { type: "pca9555", chip: 1, port: "IO0_0" },  // PCA9555 #1 port IO0_0
+            action: { type: "plungercal" },            // activate plunger calibration when pressed
+        },
     ],
 
 
@@ -599,6 +610,8 @@
     //   chime board, increasing the "chip:" number by one in each new
     //   copy.
     //
+    // The ORDER OF THE LIST determines the DOF numbering.  The first
+    // list entry is DOF port #1, the second is DOF port #2, etc.
     // You can rearrange the order of the ports into any order you
     // prefer.  You can delete the port entries for any physical
     // ports that you didn't actually populate with parts on the
@@ -869,6 +882,19 @@
         // DOF port #73 - Chime Board output JP9 pin 8
         { device: { type: "74hc595", chip: 0, port: "QH" }, },
 
+
+        // -------------- COMPUTED PORTS --------------
+        //
+        // The ports below use computed values to drive physical ports.
+        // DOF doesn't need to write to these ports, so keep them at
+        // the end of the list, since their numbering isn't important
+        // to DOF.
+        //
+
+        // Plunger calibration button lamp.  This blinks the light when
+        // the button is being held down to activate calibration, and turns
+        // it on steadily when calibration is in progress.
+        { device: { type: "pca9555", chip: 1, port: "IO0_1" }, source: "plungercal(255, blink(500, 500), 0)" }
     ],
 
 
@@ -1085,8 +1111,8 @@
     // I2C-based sensors such as VCNL4010 or VL6180X.
     //
     i2c1: {
-        sda: 18,
-        scl: 19,
+        sda: 10,
+        scl: 11,
         speed: 400000,    // I2C bit rate, bits/second
 
         // We'll only enable this bus if one of the I2C plunger

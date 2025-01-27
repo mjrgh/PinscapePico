@@ -117,7 +117,7 @@ remain competitive.
 ## Status
 
 This design is currently a prototype, on paper only.  I haven't
-built a physical version of the whole board, although I've 
+built a physical version of the whole board, although I've
 physically build and tested all of the main sub subsystems to
 verify that the electronic designs are sound.
 
@@ -223,37 +223,30 @@ reserve about 16 ports for its own purposes.  That leaves only 8 ports
 that could be assigned as button inputs, which clearly is too few.  We
 therefore need additional hardware for the button connections.
 
-The new board uses what's known as a GPIO expander chip for this
-purpose.  GPIO expanders are chips that provide additional GPIO-like
-ports that a microcontroller can access through a small number of its
-own ports using a serial protocol like I2C or SPI.  The chip I chose,
-PCA9555, uses I2C, which only requires two ports on the RP2040.  Up to
-8 of these chips can be combined onto a single I2C bus, so these chips
-can be used to access 128 ports using only two RP2040 ports.  The new
-board only uses two of the chips, since 32 button inputs is ample for
-a virtual pin cab.  And since the board already has an I2C bus that it
-uses to access other peripheral chips (the accelerometer and PWM
-controllers), we effectively get all of these added button input ports
-"for free".
+The extra hardware used on this board is a set of four 74HC165 shift
+register chips.  Each chip provides 8 input ports, so this gives us 32
+button inputs total.  These chips work well for button inputs because
+the Pico can scan them at extremely high speeds - it can scan the
+whole set of inputs every 10 to 20 microseconds, for practically zero
+latency reading the inputs.
 
-Note that the canonical approach that most similar boards use to solve
-the same problem is to use a parallel-to-serial shift register chip,
-typically 74HC165.  I chose the GPIO expander instead because it
-reduces the part count and consumes fewer RP2040 ports.  The selected
-GPIO expander has 16 ports per chip, so we only need two of these
-chips to provide 32 button inputs (the original Pinscape board only
-had 24).  Furthermore, the GPIO expander can be configured to provide
-its own internal pull-up resistors on the input ports, so we don't
-need to add a discrete resistor per port as we would with a simple
-shifter chip.  I2C only consumes two GPIO ports on the RP2040, and
-since we'd need an I2C bus anyway for the other peripherals, adding
-the PCA9555 to the mix effectively consumes zero additional ports.
-(It actually does use one additional port in the implementation, for
-an interrupt signal from the PCA9555; this isn't strictly necessary,
-as the software could just poll the chips, but it gives the software
-more flexibility.)  The shift-register chips typically require three
-additional ports, which can't be shared on a general-purpose bus like
-I2C.
+An earlier version of this board used PCA9555 GPIO expander chips
+instead of the shift registers.  The PCA9555's have a couple of nice
+features compared to the shift registers: they have pull-up resistors
+built in, so they don't need the 32 external resistors required in the
+shift register version; and they connect to the Pico via the shared
+I2C bus, so they only require one extra GPIO on the Pico (for the
+PCA9555 interrupt signal line), whereas the shift register chips
+require three dedicated GPIO ports.  But the PCA9555's also have a
+major disadvantage, which is that I2C is quite slow.  The button scan
+time with the PCA9555's is about one millisecond.  That's fast enough
+for most purposes, but for a gaming device like this, it's a negative.
+That's why the PCA9555 version of the board also wired four of the
+button ports directly to GPIOs, so that you could at least have enough
+fast ports to cover the flipper button switches.  But I think it's
+nicer to have super fast scanning on all of the input ports, so that
+you don't have to worry about which ports go with which buttons, thus
+the change to all shift register inputs on this version of the board.
 
 
 ### ADC(Analog-to-Digital Converter)
@@ -340,7 +333,7 @@ Board builders can choose MOSFETs based largely on price; just filter
 by your minimum Vds and Id needs.
 
 The gate driver chips have the additional benefit that they're
-designed for glitch-free startup, which should prevent the annoying 
+designed for glitch-free startup, which should prevent the annoying
 random solenoid firing that sometimes happened with the original
 Pinscape boards.
 
@@ -561,7 +554,7 @@ improvement over the constant-current ports on the original Pinscape
 boards, since it's much easier to use with a heterogeneous set of
 LEDs.  The constant-current sink on the original boards was convenient
 in that you didn't need to include current-limiting resistors, but the
-requirement to choose a fixed current level was too inflexible. 
+requirement to choose a fixed current level was too inflexible.
 
 ### IR Remote
 
@@ -611,7 +604,7 @@ This board uses a redesigned power-sensing circuit.  It serves the
 same function as the power-sensing circuit on the original Pinscape
 boards, and has a similar theory of operation, but I revamped the
 electronic design using a couple of special-purpose IC chips rather
-than the discrete component design of the original boards.  
+than the discrete component design of the original boards.
 
 The original circuit is essentially a flip-flop that resets to a logic
 '0' state each time the secondary power supply (PSU2) powers up.  The

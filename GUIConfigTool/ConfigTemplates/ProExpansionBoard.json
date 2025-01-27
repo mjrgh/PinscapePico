@@ -2,9 +2,35 @@
 // Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 // This is an example of the typical hardware configuration for the
-// Pinscape Pico Expansion Board.  This reflects the fixed wiring on
-// the Expansion Board between Pico GPIO and the peripherals built
+// Pinscape Pico "Pro" Expansion Board.  This reflects the fixed wiring 
+// on the Expansion Board between Pico GPIO and the peripherals built
 // into the board.
+//
+// The "Pro" board is an all-in-one expansion board for virtual pinball
+// cabinet builders, designed to handle all of the I/O needs for a high-
+// end pin cab equipped with just about all of the popular feedback
+// devices.  It has 28 high-power MOSFET outputs for solenoids and motors;
+// 16 medium-power outputs for RGB flashers; 8 medium-power outputs for
+// button lamps; 16 low-power outputs for small LEDs; 32 button inputs;
+// IR transmitter and receiver; an on-board accelerometer; a universal
+// Pinscape plunger connector with support for all of the Pinscape
+// plunger sensor types; and an on-board real-time clock chip with
+// battery backup.  About the only I/O feature this board doesn't
+// "smart" light strip support, since that's not a Pinscape feature;
+// you need a separate dedicated controller for that.
+//
+// This file defines all of the hardware configuration settings needed
+// for the Pro board.  Some things you might want to customize:
+//
+// - Button mappings, in the "buttons:" section.  This lets you assign
+//   the PC input that each physical button generates.
+//
+// - Output port order, in the "outputs:" section.  You can rearrange
+//   the ports to customize the nominal DOF port numbering.
+//
+// - Gamepad, joystick, and xinput.  You can select which virtual
+//   input devices are enabled, and how their analog axis inputs are
+//   mapped to the plunger and accelerometer sensors.
 
 {
     // Unit identification
@@ -407,11 +433,15 @@
     // -------------------------------------------------------------------
     //
     // Button inputs.  The expansion board has 32 button input ports, 
-    // wired through two PCA9555 chips.  The definitions below set up the
-    // hardware sources for those 32 input ports.  The buttons are arranged
-    // in the order of the pins on the button headers on the board.  (Note
-    // that this doesn't exactly follow the order of the port labeling on
-    // the PCA9555 chips.)
+    // wired through four 74HC165 chips.  The definitions below set up
+    // the hardware sources for those 32 input ports.  The buttons are
+    // numbered in the order of the pins on the button headers on the
+    // board.
+    //
+    // The 74HC165 ports are extremely low-latency; the Pinscape software
+    // scans all of the ports about once every 10 to 20 microseconds.
+    // All of the ports are equivalent, so you can connect any button to
+    // any port.
     //
     // For the boilerplate below, we've given each button a keyboard key
     // assignment, using the basic set of keys that Visual Pinball uses
@@ -423,23 +453,6 @@
     // meanings in VP, but you can assign them functions in the VP setup
     // dialogs, or perhaps you could find uses for them in other games.
     //
-    // The first four buttons are special in that they're wired through
-    // GPIO ports, which makes them ideal for assigning to the flipper
-    // buttons.  The key thing about GPIO-wired switches is that the
-    // Pico can read GPIO ports faster than PCA9555 ports.  The time
-    // difference is tiny, only about a millisecond, but the flipper
-    // buttons are so critical to pinball play that even a small speed
-    // difference might have an effect on the flipper feel.  The
-    // flippers are the only buttons in a pinball simulation where this
-    // small speed difference even remotely matters.  The expansion
-    // board provides four direct GPIO switch inputs to accommodate the
-    // double-stacked leaf switches used on some real pinball games that
-    // have double flippers.  If you're using ordinary single-contact
-    // leaf switches for your flipper buttons, you can use the extra
-    // two GPIO ports for any other button inputs you wish - other than
-    // the ultra-fast scan time, they behave just like the other button
-    // inputs.
-    //
     // Basic action formats:
     //
     //    action: { type: "key", key: "enter" },   // keyboard Enter key
@@ -447,208 +460,207 @@
     //    action: { type: "xInput", button: "a" }, // "A" button on XBox controller
     //
     buttons: [
-        // Button #0
+        // Button #1
         { 
-            source: { type: "gpio", gp: 27 },
+            source: { type: "74hc165", chip: 0, port: "D" },  // Button header input pin #1
             action: { type: "key", key: "left shift" },  // Left Shift = left flipper button
         },
 
-        // Button #1
-        { 
-            source: { type: "gpio", gp: 26 },
-            action: { type: "key", key: "right shift" }, // Right Shift = right flipper button
-        },
-
-
         // Button #2
         { 
-            source: { type: "gpio", gp: 22 },
-            action: { type: "key", key: "left windows" }, // Left Windows key = left 2nd flipper switch (for double-leaf switches)
+            source: { type: "74hc165", chip: 0, port: "C" },  // Button header input pin #2
+            action: { type: "key", key: "right shift" }, // Right Shift = right flipper button
         },
 
         // Button #3
         { 
-            source: { type: "gpio", gp: 21 },
-            action: { type: "key", key: "right alt" }, // Right Alt key = right 2nd flipper switch (for double-leaf switches)
+            source: { type: "74hc165", chip: 0, port: "B" },  // Button header input pin #3
+            action: { type: "key", key: "left windows" }, // Left Windows key = left 2nd flipper switch (for double-leaf switches)
         },
-
 
         // Button #4
         { 
-            source: { type: "pca9555", chip: 0, port: "IO1_3" },
-            action: { type: "key", key: "left ctrl" }, // Left Ctrl = left MagnaSave button
+            source: { type: "74hc165", chip: 0, port: "A" },  // Button header input pin #4
+            action: { type: "key", key: "right alt" }, // Right Alt key = right 2nd flipper switch (for double-leaf switches)
         },
 
 
         // Button #5
         { 
-            source: { type: "pca9555", chip: 0, port: "IO1_2" },
-            action: { type: "key", key: "right ctrl" }, // Right Ctrl = right MagnaSave button
+            source: { type: "74hc165", chip: 0, port: "H" },  // Button header input pin #5
+            action: { type: "key", key: "left ctrl" }, // Left Ctrl = left MagnaSave button
         },
+
 
         // Button #6
         { 
-            source: { type: "pca9555", chip: 0, port: "IO1_1" },
-            action: { type: "key", key: "1" },     // "1" = Start button
+            source: { type: "74hc165", chip: 0, port: "G" },  // Button header input pin #6
+            action: { type: "key", key: "right ctrl" }, // Right Ctrl = right MagnaSave button
         },
-
 
         // Button #7
         { 
-            source: { type: "pca9555", chip: 0, port: "IO1_0" },
-            action: { type: "key", key: "esc" },   // "Esc" = Exit button
+            source: { type: "74hc165", chip: 0, port: "F" },  // Button header input pin #7
+            action: { type: "key", key: "1" },     // "1" = Start button
         },
 
 
         // Button #8
         { 
-            source: { type: "pca9555", chip: 0, port: "IO0_7" },
-            action: { type: "key", key: "3" },     // "3" = left coin chute switch
+            source: { type: "74hc165", chip: 0, port: "E" },  // Button header input pin #8
+            action: { type: "key", key: "esc" },   // "Esc" = Exit button
         },
 
 
         // Button #9
         { 
-            source: { type: "pca9555", chip: 0, port: "IO0_6" },
-            action: { type: "key", key: "4" },     // "4" = middle coin chute switch
+            source: { type: "74hc165", chip: 1, port: "D" },  // Button header input pin #9
+            action: { type: "key", key: "3" },     // "3" = left coin chute switch
         },
 
 
         // Button #10
         { 
-            source: { type: "pca9555", chip: 0, port: "IO0_5" },
-            action: { type: "key", key: "5" },     // "5" = right coin chute switch
+            source: { type: "74hc165", chip: 1, port: "C" },  // Button header input pin #10
+            action: { type: "key", key: "4" },     // "4" = middle coin chute switch
         },
 
 
         // Button #11
         { 
-            source: { type: "pca9555", chip: 0, port: "IO0_4" },
-            action: { type: "key", key: "6" },     // "6" = fourth coin chute/dollar bill acceptor switch
+            source: { type: "74hc165", chip: 1, port: "B" },  // Button header input pin #11
+            action: { type: "key", key: "5" },     // "5" = right coin chute switch
         },
 
 
         // Button #12
         { 
-            source: { type: "pca9555", chip: 0, port: "IO0_3" },
-            action: { type: "key", key: "enter" }, // Enter = Launch Ball
+            source: { type: "74hc165", chip: 1, port: "A" },  // Button header input pin #12
+            action: { type: "key", key: "6" },     // "6" = fourth coin chute/dollar bill acceptor switch
         },
 
 
         // Button #13
         { 
-            source: { type: "pca9555", chip: 0, port: "IO0_2" },
-            action: { type: "key", key: "0" },     // "0" = operator control panel enter/select
+            source: { type: "74hc165", chip: 1, port: "E" },  // Button header input pin #13
+            action: { type: "key", key: "enter" }, // Enter = Launch Ball
         },
 
 
         // Button #14
         { 
-            source: { type: "pca9555", chip: 0, port: "IO0_1" },
-            action: { type: "key", key: "9" },     // "9" = operator control panel next/up
+            source: { type: "74hc165", chip: 1, port: "F" },  // Button header input pin #14
+            action: { type: "key", key: "0" },     // "0" = operator control panel enter/select
         },
 
 
         // Button #15
         { 
-            source: { type: "pca9555", chip: 0, port: "IO0_0" },
-            action: { type: "key", key: "8" },     // "8" = operator control panel previous/down
+            source: { type: "74hc165", chip: 1, port: "G" },  // Button header input pin #15
+            action: { type: "key", key: "9" },     // "9" = operator control panel next/up
         },
+
 
         // Button #16
         { 
-            source: { type: "pca9555", chip: 1, port: "IO1_0" },
-            action: { type: "key", key: "7" },     // "7" = operator control panel cancel/exit
+            source: { type: "74hc165", chip: 1, port: "H" },  // Button header input pin #16
+            action: { type: "key", key: "8" },     // "8" = operator control panel previous/down
         },
 
         // Button #17
         { 
-            source: { type: "pca9555", chip: 1, port: "IO1_1" },
-            action: { type: "key", key: "end" },   // End = coin door open/closed switch
+            source: { type: "74hc165", chip: 2, port: "D" },  // Button header input pin #17
+            action: { type: "key", key: "7" },     // "7" = operator control panel cancel/exit
         },
 
         // Button #18
         { 
-            source: { type: "pca9555", chip: 1, port: "IO1_2" },
-            action: { type: "key", key: "2" },     // "2" = Extra Ball/Buy-In Button
+            source: { type: "74hc165", chip: 2, port: "C" },  // Button header input pin #18
+            action: { type: "key", key: "end" },   // End = coin door open/closed switch
         },
 
         // Button #19
         { 
-            source: { type: "pca9555", chip: 1, port: "IO1_3" },
-            action: { type: "key", key: "T" },     // "T" = tilt bot
+            source: { type: "74hc165", chip: 2, port: "B" },  // Button header input pin #19
+            action: { type: "key", key: "2" },     // "2" = Extra Ball/Buy-In Button
         },
 
         // Button #20
         { 
-            source: { type: "pca9555", chip: 1, port: "IO1_4" },
-            action: { type: "key", key: "home" },  // Home = slam tilt switch
+            source: { type: "74hc165", chip: 2, port: "A" },  // Button header input pin #20
+            action: { type: "key", key: "T" },     // "T" = tilt bot
         },
 
         // Button #21
         { 
-            source: { type: "pca9555", chip: 1, port: "IO1_5" },
-            action: { type: "key", key: "+" },     // VP Volume Up
+            source: { type: "74hc165", chip: 2, port: "E" },  // Button header input pin #21
+            action: { type: "key", key: "home" },  // Home = slam tilt switch
         },
 
         // Button #22
         { 
-            source: { type: "pca9555", chip: 1, port: "IO1_6" },
-            action: { type: "key", key: "-" },     // VP Volume Down
+            source: { type: "74hc165", chip: 2, port: "F" },  // Button header input pin #22
+            action: { type: "key", key: "+" },     // VP Volume Up
         },
 
         // Button #23
         { 
-            source: { type: "pca9555", chip: 1, port: "IO1_7" },
-            action: { type: "gamepad", button: 1 }, // gamepad button 1 (no pre-assigned meaning)
+            source: { type: "74hc165", chip: 2, port: "G" },  // Button header input pin #23
+            action: { type: "key", key: "-" },     // VP Volume Down
         },
 
         // Button #24
         { 
-            source: { type: "pca9555", chip: 1, port: "IO0_7" },
-            action: { type: "gamepad", button: 2 }, // gamepad button 2 (no pre-assigned meaning)
+            source: { type: "74hc165", chip: 2, port: "H" },  // Button header input pin #24
+            action: { type: "gamepad", button: 1 }, // gamepad button 1 (no pre-assigned meaning)
         },
 
         // Button #25
         { 
-            source: { type: "pca9555", chip: 1, port: "IO0_6" },
-            action: { type: "gamepad", button: 3 }, // gamepad button 3 (no pre-assigned meaning)
+            source: { type: "74hc165", chip: 3, port: "A" },  // Button header input pin #25
+            action: { type: "gamepad", button: 2 }, // gamepad button 2 (no pre-assigned meaning)
         },
 
         // Button #26
         { 
-            source: { type: "pca9555", chip: 1, port: "IO0_5" },
-            action: { type: "gamepad", button: 4 }, // gamepad button 4 (no pre-assigned meaning)
+            source: { type: "74hc165", chip: 3, port: "B" },  // Button header input pin #26
+            action: { type: "gamepad", button: 3 }, // gamepad button 3 (no pre-assigned meaning)
         },
 
         // Button #27
         { 
-            source: { type: "pca9555", chip: 1, port: "IO0_4" },
-            action: { type: "gamepad", button: 5 }, // gamepad button 5 (no pre-assigned meaning)
+            source: { type: "74hc165", chip: 3, port: "C" },  // Button header input pin #27
+            action: { type: "gamepad", button: 4 }, // gamepad button 4 (no pre-assigned meaning)
         },
 
         // Button #28
         { 
-            source: { type: "pca9555", chip: 1, port: "IO0_3" },
-            action: { type: "gamepad", button: 6 }, // gamepad button 6 (no pre-assigned meaning)
+            source: { type: "74hc165", chip: 3, port: "D" },  // Button header input pin #28
+            action: { type: "gamepad", button: 5 }, // gamepad button 5 (no pre-assigned meaning)
         },
 
         // Button #29
         { 
-            source: { type: "pca9555", chip: 1, port: "IO0_2" },
-            action: { type: "gamepad", button: 7 }, // gamepad button 7 (no pre-assigned meaning)
+            source: { type: "74hc165", chip: 3, port: "H" },  // Button header input pin #29
+            action: { type: "gamepad", button: 6 }, // gamepad button 6 (no pre-assigned meaning)
         },
 
         // Button #30
         { 
-            source: { type: "pca9555", chip: 1, port: "IO0_1" },
-            action: { type: "gamepad", button: 8 }, // gamepad button 8 (no pre-assigned meaning)
+            source: { type: "74hc165", chip: 3, port: "G" },  // Button header input pin #30
+            action: { type: "gamepad", button: 7 }, // gamepad button 7 (no pre-assigned meaning)
         },
 
         // Button #31
         { 
-            source: { type: "pca9555", chip: 1, port: "IO0_0" },
-            action: { type: "gamepad", button: 9 }, // gamepad button 9 (no pre-assigned meaning)
+            source: { type: "74hc165", chip: 3, port: "F" },  // Button header input pin #31
+            action: { type: "gamepad", button: 8 }, // gamepad button 8 (no pre-assigned meaning)
+        },
+
+        // Button #32
+        { 
+            source: { type: "74hc165", chip: 3, port: "E" },  // Button header input pin #32
+            action: { type: "plungercal" },         // start plunger calibration mode
         },
     ],
 
@@ -1348,20 +1360,15 @@
         enable: "on-demand",
     },
 
-    // PCA9555 GPIO extender.  The expansion board features two of
-    // these chips, for 32 button inputs.
-    pca9555: [
-        {
-            i2c: 0,          // I2C 0
-            addr: 0x20,      // I2C address 0x20
-            interrupt: 19,   // shared interrupt on GP19
-        },
-        {
-            i2c: 0,          // I2C 0
-            addr: 0x21,      // I2C address 0x21
-            interrupt: 19,   // shared interrupt on GP19
-        },
-    ],
+    // 74HC165 shift register inputs.  The Pro board uses four of these
+    // chips for 32 button inputs.
+    "74hc165": {
+        nChips: 4,                // four chips in the chain
+        load: 22,                 // shift/load selector (SH/LD)
+        data: 26,                 // input data (QH)
+        shift: 21,                // shift clock (CLK)
+        shiftClockFreq: 6000000,  // shift clock frequency in Hz
+    },
 
     // TLC59116 PWM controller.  The expansion board features four
     // of these chips (at I2C addresses 0x60, 0x61, 0x62, 0x63),

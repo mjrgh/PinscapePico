@@ -27,12 +27,20 @@ potentiometer-based plunger)
 A few warnings about using the adapter boards:
 
 * The adapter board **only** works with the original Pinscape KL25Z
-expansion boards.  It **doesn't** turn the Pico into a general-purpose
-replacement for the KL25Z, and it won't work in any **other**
-expansion boards - even other boards designed for Pinscape KL25Z.  The
-adapter physically wires all of the KL25Z pins to specific Pico
-functions that can't be configured in software the way they can on an
-actual KL25Z, so it only works in this one very specific setup.
+expansion boards - and I'm talking very specifically about **my original three-board set**,
+the one that's documented in the Pinscape Build Guide, with the 10x10cm
+Main, Power, and Chime modules.  The adapter **doesn't**
+turn the Pico into a general-purpose KL25Z emulator, and it probably
+won't work with any third-party Pinscape boards (such as those from Oak
+Micros or Arnoz), **unless** they use identical KL25Z pin assignments.
+The obstacle to using the adapter with any other expansion boards or
+add-on boards is that the adapter is completely inflexible about the KL25Z
+pin assignments.  You can only use the adapter with an expansion board
+that has exactly the same pin assignments as my original three-board set.
+With a **real** KL25Z, it's possible to reconfigure the GPIO ports in 
+many different ways, which allowed people to design different expansion
+board layouts.  The adapter board doesn't have that flexibility, so it
+only works in the unique expansion board environment it was designed for.
 
 * If you don't already have a set of the Pinscape KL25Z boards, you
 should look at the new Pinscape Pico expansion boards instead.  Those
@@ -110,7 +118,7 @@ feature (they all do!).
 My original plan was to make the 74HC165 version the final, official
 version of the board, replacing the PCA9555 version.  However, I
 changed my mind after finishing the 74HC165 design, and decided to
-keep **both** versions in the project.  The reason to keep both is
+keep both versions in the project.  The reason to keep both is
 that each has some advantages.  The 74HC165 version is technically
 better, I think, because of the uniform high-speed button ports.  The
 trade-off is that it has more parts than the PCA9555 version, so it'll

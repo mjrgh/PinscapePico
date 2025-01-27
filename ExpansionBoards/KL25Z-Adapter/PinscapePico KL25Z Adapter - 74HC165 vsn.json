@@ -454,22 +454,22 @@
     //
     buttons: [
         {
-            source: { type: "74hc165", chip: 0, port: "A" },             // Button header input pin #1
+            source: { type: "74hc165", chip: 0, port: "A" },  // Button header input pin #1
             action: { type: "key", key: "left shift" },  // left flipper button in most pinball simulators
         },
     
         {
-            source: { type: "74hc165", chip: 0, port: "G" },             // Button header input pin #2
+            source: { type: "74hc165", chip: 0, port: "G" },  // Button header input pin #2
             action: { type: "key", key: "right shift" }, // right flipper button in most pinball simulators
         },
     
         {
-            source: { type: "74hc165", chip: 0, port: "B" },            // Button header input pin #3
+            source: { type: "74hc165", chip: 0, port: "B" },  // Button header input pin #3
             action: { type: "key", key: "left windows" }, // left second (stacked) flipper switch in Visual Pinball
         },
     
         {
-            source: { type: "74hc165", chip: 0, port: "F" },            // Button header input pin #4
+            source: { type: "74hc165", chip: 0, port: "F" },  // Button header input pin #4
             action: { type: "key", key: "right alt" },   // right second (stacked) flipper switch in Visual Pinball
         },
 

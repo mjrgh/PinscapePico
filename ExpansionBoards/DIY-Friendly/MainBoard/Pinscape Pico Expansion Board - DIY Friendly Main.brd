@@ -4301,10 +4301,10 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="94.2934" y="18.2684" size="0.9906" layer="25" ratio="10" align="center-right"/>
 <attribute name="VALUE" x="97.4664" y="17.8886" size="0.8" layer="27" ratio="10"/>
 </element>
-<element name="R22" library="resistor" package="0204/7" value="10K" x="117.6" y="20.2" smashed="yes" rot="R90">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="117.6" y="20.2" size="0.6" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="116.6316" y="18.9934" size="0.9906" layer="25" ratio="10" rot="R90"/>
-<attribute name="VALUE" x="118.1114" y="19.0664" size="0.9906" layer="27" ratio="10" rot="R90"/>
+<element name="R22" library="resistor" package="0204/7" value="10K" x="117.6" y="21" smashed="yes" rot="R90">
+<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="117.6" y="21" size="0.6" layer="27" rot="R90" display="off"/>
+<attribute name="NAME" x="116.6316" y="19.7934" size="0.9906" layer="25" ratio="10" rot="R90"/>
+<attribute name="VALUE" x="118.1114" y="19.8664" size="0.9906" layer="27" ratio="10" rot="R90"/>
 </element>
 <element name="J13" library="SamacSys_Parts" package="SHDR2W117P0X396_1X2_792X762X11" value="640445-2" x="155.7" y="50.6" smashed="yes" rot="R270">
 <attribute name="DESCRIPTION" value="2 way friction lock header,3.96mm pitch TE Connectivity MTA-156 Series, 3.96mm Pitch 2 Way 1 Row Straight PCB Header, Through Hole, Solder Termination" x="155.7" y="50.6" size="0.8" layer="27" rot="R270" display="off"/>
@@ -4441,11 +4441,6 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="107.64" y="41.655" size="1.27" layer="25" align="center"/>
 <attribute name="VALUE" x="107.44" y="46.555" size="0.8" layer="27" align="center"/>
 </element>
-<element name="R32" library="resistor" package="0204/7" value="10K" x="113.1" y="43.3" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="113.1" y="43.3" size="0.75" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="111" y="43.4" size="0.9906" layer="25" ratio="10" rot="R270"/>
-<attribute name="VALUE" x="112.5886" y="44.6336" size="0.9906" layer="27" ratio="10" rot="R270"/>
-</element>
 <element name="R33" library="resistor" package="0204/7" value="2.2k" x="115.8" y="43.3" smashed="yes" rot="R270">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="115.8" y="43.3" size="0.75" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="116.5684" y="40.9066" size="0.9906" layer="25" ratio="10" rot="R270"/>
@@ -4499,16 +4494,16 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="105.4" y="11.693" size="1.27" layer="25" rot="R180" align="center"/>
 <attribute name="VALUE" x="105.9" y="16.493" size="0.7" layer="27" rot="R180" align="center"/>
 </element>
-<element name="D3" library="diode" package="DO35-7" value="1N4148" x="115.9" y="11.7" smashed="yes" rot="R180">
-<attribute name="NAME" x="121.314" y="11.27" size="1" layer="25" ratio="10"/>
+<element name="D3" library="diode" package="DO35-7" value="1N4148" x="115.5" y="11.7" smashed="yes" rot="R180">
+<attribute name="NAME" x="120.914" y="11.27" size="1" layer="25" ratio="10"/>
 </element>
-<element name="D4" library="diode" package="DO35-7" value="1N4148" x="115.9" y="14.1" smashed="yes" rot="R180">
-<attribute name="NAME" x="121.314" y="13.57" size="1" layer="25" ratio="10"/>
+<element name="D4" library="diode" package="DO35-7" value="1N4148" x="115.5" y="14.1" smashed="yes" rot="R180">
+<attribute name="NAME" x="120.914" y="13.57" size="1" layer="25" ratio="10"/>
 </element>
-<element name="R31" library="resistor" package="0204/7" value="2R5" x="115.9" y="9.2" smashed="yes" rot="R180">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="115.9" y="9.2" size="0.6" layer="27" rot="R180" display="off"/>
-<attribute name="NAME" x="120.56" y="8.6954" size="1" layer="25" ratio="10"/>
-<attribute name="VALUE" x="117.5256" y="9.6826" size="0.9906" layer="27" ratio="10" rot="R180"/>
+<element name="R31" library="resistor" package="0204/7" value="2R5" x="115.5" y="9.2" smashed="yes" rot="R180">
+<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="115.5" y="9.2" size="0.6" layer="27" rot="R180" display="off"/>
+<attribute name="NAME" x="120.16" y="8.6954" size="1" layer="25" ratio="10"/>
+<attribute name="VALUE" x="117.1256" y="9.6826" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
 <element name="J2" library="SamacSys_Parts" package="SHDR6W183P0X396_1X6_2377X762X1" value="640445-6" x="96.3" y="95.9" smashed="yes">
 <attribute name="MANUFACTURER_PART_NUMBER" value="640445-6" x="96.3" y="95.9" size="1" layer="27" display="off"/>
@@ -4519,6 +4514,11 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="DESCRIPTION" value="6 way friction lock header,3.96mm pitch" x="96.3" y="95.9" size="1" layer="27" display="off"/>
 <attribute name="NAME" x="85.585" y="93.334" size="1.27" layer="25" rot="R270" align="center"/>
 <attribute name="VALUE" x="105.773" y="98.187" size="0.9" layer="27" rot="R180" align="center"/>
+</element>
+<element name="R32" library="resistor" package="0204/7" value="2.2K" x="113" y="43.3" smashed="yes" rot="R270">
+<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="113" y="43.3" size="1.2" layer="27" rot="R270" display="off"/>
+<attribute name="NAME" x="111.1954" y="40.84" size="0.9906" layer="25" ratio="10" rot="R270"/>
+<attribute name="VALUE" x="112.5174" y="44.9256" size="0.9906" layer="27" ratio="10" rot="R270"/>
 </element>
 </elements>
 <signals>
@@ -4743,8 +4743,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="140.6" y1="25.5" x2="147.47" y2="32.37" width="0.4" layer="16"/>
 <wire x1="155.49" y1="32.37" x2="147.47" y2="32.37" width="0.4" layer="16"/>
 <wire x1="125.075" y1="25.53" x2="120.73" y2="25.53" width="0.4" layer="1"/>
-<wire x1="120.73" y1="25.53" x2="119.2" y2="24" width="0.4" layer="1"/>
-<via x="119.2" y="24" extent="1-16" drill="0.45"/>
+<wire x1="120.73" y1="25.53" x2="119.2" y2="24" width="0.4" layer="16"/>
 <wire x1="119.2" y1="24" x2="119.2" y2="21.2" width="0.4" layer="16"/>
 <wire x1="119.2" y1="21.2" x2="115" y2="17" width="0.4" layer="16"/>
 <contactref element="QWIIC1" pad="3"/>
@@ -4768,6 +4767,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <via x="60.5" y="9.5" extent="1-16" drill="0.5"/>
 <wire x1="60.6" y1="5.714" x2="60.6" y2="9.4" width="0.4" layer="1"/>
 <wire x1="60.6" y1="9.4" x2="60.5" y2="9.5" width="0.4" layer="1"/>
+<via x="120.73" y="25.53" extent="1-16" drill="0.45"/>
 </signal>
 <signal name="SCL">
 <contactref element="JP2" pad="4"/>
@@ -4784,9 +4784,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="42.63" y1="18.1" x2="42.63" y2="16.37" width="0.4" layer="1"/>
 <wire x1="42.63" y1="16.37" x2="45" y2="14" width="0.4" layer="1"/>
 <contactref element="PICO2" pad="GP27_A1"/>
-<via x="122.8" y="22.9" extent="1-16" drill="0.45"/>
 <wire x1="125.075" y1="22.99" x2="122.89" y2="22.99" width="0.4" layer="1"/>
-<wire x1="122.89" y1="22.99" x2="122.8" y2="22.9" width="0.4" layer="1"/>
 <wire x1="125.075" y1="22.99" x2="127.59" y2="22.99" width="0.4" layer="1"/>
 <wire x1="127.59" y1="22.99" x2="127.6" y2="23" width="0.4" layer="1"/>
 <via x="127.6" y="23" extent="1-16" drill="0.45"/>
@@ -4803,8 +4801,6 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="80.7" y1="11.4" x2="80.7" y2="22.4" width="0.4" layer="1"/>
 <wire x1="66.2" y1="10.5" x2="79.8" y2="10.5" width="0.4" layer="16"/>
 <wire x1="79.8" y1="10.5" x2="108" y2="10.5" width="0.4" layer="16"/>
-<wire x1="122.2" y1="8.6" x2="122.2" y2="22.3" width="0.4" layer="16"/>
-<wire x1="122.2" y1="22.3" x2="122.8" y2="22.9" width="0.4" layer="16"/>
 <wire x1="79.8" y1="10.5" x2="80.7" y2="11.4" width="0.4" layer="16"/>
 <wire x1="85.575" y1="25.4" x2="83.7" y2="25.4" width="0.4" layer="1"/>
 <wire x1="83.7" y1="25.4" x2="80.7" y2="22.4" width="0.4" layer="1"/>
@@ -4814,8 +4810,13 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="66.2" y1="10.5" x2="65.6" y2="10.5" width="0.4" layer="16"/>
 <wire x1="65.6" y1="10.5" x2="62.4" y2="7.3" width="0.4" layer="16"/>
 <wire x1="108" y1="10.5" x2="110.8" y2="7.7" width="0.4" layer="16"/>
-<wire x1="110.8" y1="7.7" x2="121.3" y2="7.7" width="0.4" layer="16"/>
-<wire x1="121.3" y1="7.7" x2="122.2" y2="8.6" width="0.4" layer="16"/>
+<wire x1="110.8" y1="7.7" x2="114.4" y2="7.7" width="0.4" layer="16"/>
+<wire x1="114.4" y1="7.7" x2="115.4" y2="9.1" width="0.4" layer="16"/>
+<wire x1="115.4" y1="9.1" x2="115.4" y2="13" width="0.4" layer="16"/>
+<wire x1="115.4" y1="13" x2="119" y2="16.2" width="0.4" layer="16"/>
+<wire x1="119" y1="16.2" x2="119" y2="19.1" width="0.4" layer="16"/>
+<wire x1="119" y1="19.1" x2="122.89" y2="22.99" width="0.4" layer="16"/>
+<via x="122.89" y="22.99" extent="1-16" drill="0.45"/>
 </signal>
 <signal name="PLUNGER_ADC">
 <contactref element="PICO1" pad="GP28_A2"/>
@@ -5115,11 +5116,10 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="97.9" y1="20.3" x2="93.6" y2="24.6" width="1" layer="1"/>
 <wire x1="93.6" y1="24.6" x2="93.6" y2="37.9" width="1" layer="1"/>
 <via x="93.6" y="37.9" extent="1-16" drill="1.25"/>
-<contactref element="R32" pad="2"/>
-<wire x1="109.4" y1="20.1" x2="109.4" y2="38.2" width="0.5" layer="1"/>
+<wire x1="109.4" y1="20.1" x2="109.4" y2="40" width="0.5" layer="1"/>
 <contactref element="R28" pad="2"/>
 <wire x1="44.64" y1="6.64" x2="44.64" y2="9.46" width="1" layer="1"/>
-<wire x1="117.2" y1="43.8" x2="117.2" y2="48.3" width="0.5" layer="1"/>
+<wire x1="117.2" y1="45.2" x2="117.2" y2="48.3" width="0.5" layer="1"/>
 <wire x1="117.2" y1="48.3" x2="116.738" y2="48.762" width="0.5" layer="1"/>
 <wire x1="116.738" y1="51.6" x2="116.738" y2="48.762" width="0.5" layer="1"/>
 <wire x1="44.64" y1="9.46" x2="41.4" y2="12.7" width="1" layer="1"/>
@@ -5130,8 +5130,6 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="69" y1="12.7" x2="72.7" y2="9" width="1" layer="1"/>
 <via x="72.7" y="9" extent="1-16" drill="1.25"/>
 <contactref element="Q15" pad="1"/>
-<wire x1="113.1" y1="39.49" x2="110.69" y2="39.49" width="0.5" layer="1"/>
-<wire x1="110.69" y1="39.49" x2="109.4" y2="38.2" width="0.5" layer="1"/>
 <wire x1="93.6" y1="37.9" x2="93.6" y2="45.5" width="1" layer="16"/>
 <wire x1="93.6" y1="45.5" x2="93.6" y2="45.69" width="1" layer="16"/>
 <wire x1="93.6" y1="45.69" x2="92.89" y2="46.5" width="1" layer="16"/>
@@ -5140,8 +5138,9 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="95.3" y1="50.4" x2="95.3" y2="47.2" width="1" layer="16"/>
 <wire x1="95.3" y1="47.2" x2="93.6" y2="45.5" width="1" layer="16"/>
 <wire x1="93.538" y1="52.9" x2="93.6" y2="52.838" width="1" layer="16"/>
-<wire x1="113.1" y1="39.49" x2="113.1" y2="39.7" width="0.5" layer="1"/>
-<wire x1="113.1" y1="39.7" x2="117.2" y2="43.8" width="0.5" layer="1"/>
+<wire x1="109.4" y1="40" x2="112" y2="42.6" width="0.5" layer="1"/>
+<wire x1="112" y1="42.6" x2="114.6" y2="42.6" width="0.5" layer="1"/>
+<wire x1="114.6" y1="42.6" x2="117.2" y2="45.2" width="0.5" layer="1"/>
 </signal>
 <signal name="BUTTON4">
 <contactref element="J8" pad="5"/>
@@ -5595,7 +5594,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <contactref element="IC14" pad="8"/>
 <contactref element="IC15" pad="2"/>
 <contactref element="C15" pad="1"/>
-<wire x1="111.3" y1="16.3" x2="111.3" y2="24.4" width="0.4" layer="1"/>
+<wire x1="111.3" y1="16.6" x2="111.3" y2="24.4" width="0.4" layer="1"/>
 <wire x1="149.67" y1="91.63" x2="154.5" y2="86.8" width="1" layer="16"/>
 <via x="158.5" y="50.2" extent="1-16" drill="1.25"/>
 <wire x1="158.5" y1="50.2" x2="158.5" y2="55.1" width="1" layer="1"/>
@@ -5630,12 +5629,12 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="106.97" y1="4.8" x2="110.7" y2="4.8" width="1" layer="16"/>
 <wire x1="110.7" y1="4.8" x2="111.47" y2="4.03" width="1" layer="16"/>
 <wire x1="113.4" y1="4.03" x2="111.47" y2="4.03" width="1" layer="16"/>
-<wire x1="111.3" y1="16.3" x2="109.9" y2="14.9" width="0.4" layer="1"/>
-<wire x1="109.9" y1="14.9" x2="109.9" y2="7.73" width="0.4" layer="1"/>
-<wire x1="109.9" y1="7.73" x2="106.97" y2="4.8" width="0.4" layer="1"/>
+<wire x1="109.6" y1="14.9" x2="109.6" y2="7.43" width="0.4" layer="1"/>
 <wire x1="143.7" y1="97.6" x2="149.67" y2="91.63" width="1" layer="16"/>
 <contactref element="J2" pad="6"/>
 <wire x1="117.8" y1="97.6" x2="116.1" y2="95.9" width="1" layer="16"/>
+<wire x1="111.3" y1="16.6" x2="109.6" y2="14.9" width="0.4" layer="1"/>
+<wire x1="109.6" y1="7.43" x2="106.97" y2="4.8" width="0.4" layer="1"/>
 </signal>
 <signal name="SDA1">
 </signal>
@@ -6096,10 +6095,9 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <contactref element="PICO2" pad="VSYS"/>
 <contactref element="D1" pad="1"/>
 <wire x1="125.075" y1="5.21" x2="123.1" y2="5.21" width="1" layer="1"/>
-<wire x1="120.6" y1="16.6" x2="120.8" y2="16.6" width="1" layer="1"/>
-<wire x1="120.8" y1="16.6" x2="122.2" y2="15.2" width="1" layer="1"/>
-<wire x1="122.2" y1="15.2" x2="122.2" y2="6.11" width="1" layer="1"/>
-<wire x1="122.2" y1="6.11" x2="123.1" y2="5.21" width="1" layer="1"/>
+<wire x1="121.6" y1="6.71" x2="123.1" y2="5.21" width="1" layer="1"/>
+<wire x1="120.6" y1="16.6" x2="121.6" y2="15.6" width="1" layer="1"/>
+<wire x1="121.6" y1="15.6" x2="121.6" y2="6.71" width="1" layer="1"/>
 </signal>
 <signal name="N$18">
 <contactref element="R9" pad="2"/>
@@ -6764,7 +6762,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="105.7" y1="13.7" x2="106.5" y2="12.9" width="0.5" layer="16"/>
 <wire x1="106.5" y1="12.9" x2="108.7" y2="12.9" width="0.5" layer="16"/>
 <wire x1="108.7" y1="12.9" x2="109.9" y2="11.7" width="0.5" layer="16"/>
-<wire x1="112.09" y1="11.7" x2="109.9" y2="11.7" width="0.5" layer="16"/>
+<wire x1="111.69" y1="11.7" x2="109.9" y2="11.7" width="0.5" layer="16"/>
 </signal>
 <signal name="N$63">
 <contactref element="IC15" pad="1"/>
@@ -6784,8 +6782,8 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <contactref element="R22" pad="2"/>
 <wire x1="90.3" y1="29.7" x2="93.5" y2="32.9" width="0.4" layer="16"/>
 <via x="114.7" y="32.9" extent="1-16" drill="0.45"/>
-<wire x1="116" y1="31.6" x2="116" y2="23.5" width="0.4" layer="1"/>
-<wire x1="116" y1="23.5" x2="116" y2="20.32" width="0.4" layer="1"/>
+<wire x1="116" y1="31.6" x2="116" y2="24" width="0.4" layer="1"/>
+<wire x1="116" y1="24" x2="116" y2="20.32" width="0.4" layer="1"/>
 <wire x1="116" y1="20.32" x2="115.57" y2="19.89" width="0.4" layer="1"/>
 <wire x1="115.57" y1="19.89" x2="115.57" y2="19.83" width="0.4" layer="1"/>
 <contactref element="PICO1" pad="GP26_A0"/>
@@ -6798,8 +6796,8 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="113.41" y1="18.89" x2="114.57" y2="18.89" width="0.4" layer="1"/>
 <wire x1="114.57" y1="18.89" x2="115.57" y2="19.89" width="0.4" layer="1"/>
 <wire x1="114.7" y1="32.9" x2="93.5" y2="32.9" width="0.4" layer="16"/>
-<wire x1="117.6" y1="24.01" x2="116.51" y2="24.01" width="0.4" layer="1"/>
-<wire x1="116.51" y1="24.01" x2="116" y2="23.5" width="0.4" layer="1"/>
+<wire x1="117.6" y1="24.81" x2="116.81" y2="24.81" width="0.4" layer="1"/>
+<wire x1="116.81" y1="24.81" x2="116" y2="24" width="0.4" layer="1"/>
 </signal>
 <signal name="N$65">
 <contactref element="IC14" pad="4"/>
@@ -7078,17 +7076,15 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="126.87" y1="28.07" x2="127.5" y2="28.7" width="0.4" layer="1"/>
 <via x="127.5" y="28.7" extent="1-16" drill="0.5"/>
 <wire x1="127.5" y1="28.7" x2="133.3" y2="34.5" width="0.4" layer="16"/>
-<contactref element="R32" pad="1"/>
 <contactref element="Q16" pad="3"/>
 <contactref element="D2" pad="2"/>
-<wire x1="109.98" y1="43.7" x2="110.78" y2="44.12" width="0.4" layer="16"/>
-<wire x1="110.78" y1="44.12" x2="113.1" y2="47.11" width="0.4" layer="16"/>
 <wire x1="118.5" y1="47.96" x2="119.74" y2="47.96" width="0.4" layer="16"/>
-<wire x1="113.1" y1="47.11" x2="113.6" y2="46.5" width="0.4" layer="16"/>
-<wire x1="113.6" y1="46.5" x2="114.8" y2="45.3" width="0.4" layer="16"/>
-<wire x1="114.8" y1="45.3" x2="117.4" y2="45.3" width="0.4" layer="16"/>
-<wire x1="117.4" y1="45.3" x2="118.5" y2="46.4" width="0.4" layer="16"/>
+<wire x1="109.98" y1="43.7" x2="115.8" y2="43.7" width="0.4" layer="16"/>
+<wire x1="115.8" y1="43.7" x2="118.5" y2="46.4" width="0.4" layer="16"/>
 <wire x1="118.5" y1="47.96" x2="118.5" y2="46.4" width="0.4" layer="16"/>
+<contactref element="R32" pad="1"/>
+<wire x1="113" y1="47.11" x2="113" y2="46.72" width="0.5" layer="16"/>
+<wire x1="113" y1="46.72" x2="109.98" y2="43.7" width="0.5" layer="16"/>
 </signal>
 <signal name="N$31">
 <contactref element="R33" pad="2"/>
@@ -7106,14 +7102,31 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="103.1" y1="13.6" x2="105" y2="11.7" width="1" layer="16"/>
 <wire x1="105" y1="11.7" x2="108.4" y2="11.7" width="1" layer="16"/>
 <wire x1="108.4" y1="11.7" x2="110.9" y2="9.2" width="1" layer="16"/>
-<wire x1="112.09" y1="9.2" x2="110.9" y2="9.2" width="1" layer="16"/>
+<wire x1="111.69" y1="9.2" x2="110.9" y2="9.2" width="1" layer="16"/>
 </signal>
 <signal name="N$32">
 <contactref element="D3" pad="C"/>
 <contactref element="D4" pad="A"/>
-<wire x1="112.09" y1="14.1" x2="113.5" y2="14.1" width="0.5" layer="16"/>
-<wire x1="119.71" y1="11.7" x2="115.9" y2="11.7" width="0.5" layer="16"/>
-<wire x1="115.9" y1="11.7" x2="113.5" y2="14.1" width="0.5" layer="16"/>
+<wire x1="111.69" y1="14.1" x2="113.5" y2="14.1" width="0.5" layer="1"/>
+<wire x1="119.31" y1="11.7" x2="115.5" y2="11.7" width="0.5" layer="1"/>
+<wire x1="115.5" y1="11.7" x2="113.5" y2="14.1" width="0.5" layer="1"/>
+</signal>
+<signal name="N$34">
+<contactref element="PICO2" pad="3V3"/>
+<contactref element="R32" pad="2"/>
+<wire x1="113" y1="39.49" x2="113" y2="39.6" width="0.4" layer="1"/>
+<wire x1="113" y1="39.6" x2="114.9" y2="41.5" width="0.4" layer="1"/>
+<wire x1="114.9" y1="41.5" x2="119" y2="41.5" width="0.4" layer="1"/>
+<wire x1="119" y1="41.5" x2="119.9" y2="40.6" width="0.4" layer="1"/>
+<wire x1="119.9" y1="40.6" x2="119.9" y2="38.3" width="0.4" layer="1"/>
+<wire x1="119.9" y1="38.3" x2="118.9" y2="37.3" width="0.4" layer="1"/>
+<wire x1="118.9" y1="37.3" x2="118.9" y2="26.1" width="0.4" layer="1"/>
+<wire x1="118.9" y1="26.1" x2="121.5" y2="23.5" width="0.4" layer="1"/>
+<wire x1="121.5" y1="23.5" x2="121.5" y2="19.3" width="0.4" layer="1"/>
+<wire x1="121.5" y1="19.3" x2="122.7" y2="18.1" width="0.4" layer="1"/>
+<wire x1="122.7" y1="18.1" x2="122.7" y2="13.3" width="0.4" layer="1"/>
+<wire x1="125.075" y1="12.83" x2="123.17" y2="12.83" width="0.4" layer="1"/>
+<wire x1="123.17" y1="12.83" x2="122.7" y2="13.3" width="0.4" layer="1"/>
 </signal>
 </signals>
 </board>

@@ -423,13 +423,13 @@ void Logger::Command_logger(const ConsoleCommandContext *c)
                 "  Buffer size: %u bytes\n"
                 "  Colors:      %s\n"
                 "  Type codes:  %s\n"
-                "  Timestamps:  %s\n"
-                "  Filters:     ",
+                "  Timestamps:  %s\n",
                 bufSize,
                 showColors ? "Enabled" : "Disabled",
                 showTypeCodes ? "Enabled" : "Disabled",
                 showTimestamps ? "Enabled" : "Disabled");
 
+            c->Printf("  Filters:     ");
             const auto *t = &logTypeName[0];
             bool found = false;
             for (int ti = 0 ; ti < _countof(logTypeName) ; ++ti, ++t)
@@ -438,6 +438,10 @@ void Logger::Command_logger(const ConsoleCommandContext *c)
                     c->Printf("%c%s ", (mask & (1UL << ti)) != 0 ? '+' : '-', t->configName);
             }
             c->Printf("\n");
+
+            uartLogger.PrintStatus(c);
+            usbCdcLogger.PrintStatus(c);
+            vendorInterfaceLogger.PrintStatus(c);
         }
         else if (strcmp(a, "-f") == 0 || strcmp(a, "--filter") == 0)
         {
@@ -590,6 +594,20 @@ int Logger::Device::Get(char *dst, size_t n)
         // return the total size read
         return static_cast<int>(n1 + n2);
     }
+}
+
+void Logger::Device::PrintStatus(const ConsoleCommandContext *c)
+{
+    c->Printf(
+        "%s logger:\n"
+        "  Enabled:     %s\n"
+        "  Dev Ready:   %s\n"
+        "  Pending txt: %u bytes (read=%u, write=%u)\n",
+        Name(),
+        loggingEnabled ? "Yes" : "No",
+        IsReady() ? "Yes" : "No",
+        read <= logger.write ? logger.write - read : logger.write + logger.bufSize - read,
+        read, logger.write);
 }
 
 // --------------------------------------------------------------------------
@@ -753,6 +771,17 @@ void Logger::UARTLogger::FlushForDebugging()
     }
 }
 
+void Logger::UARTLogger::PrintStatus(const ConsoleCommandContext *c)
+{
+    Logger::Device::PrintStatus(c);
+    c->Printf(
+        "  DMA channel: %d, %s\n"
+        "  Console:     %s mode, %u bytes buffered\n",
+        dmaChannel, dmaChannel >= 0 ? (dma_channel_is_busy(dmaChannel) ? "Busy" : "Idle") : "N/A",
+        console.IsForegroundMode() ? "Foreground" : "Background",
+        console.OutputAvailable());
+}
+
 // Periodic task.  The UART is quite slow, so we limit the amount we
 // send on each pass, to avoid blocking the main loop for too long.
 void Logger::UARTLogger::Task()
@@ -872,6 +901,8 @@ void Logger::USBCDCLogger::Configure(JSONParser &json)
         // configure the console
         console.Configure("USB CDC", uc->Get("console"));
     }
+
+    ConfigureFIFO();
 }
 
 void Logger::USBCDCLogger::Configure(bool loggingEnabled, bool consoleEnabled, int consoleBufSize, int consoleHistSize)
@@ -879,66 +910,120 @@ void Logger::USBCDCLogger::Configure(bool loggingEnabled, bool consoleEnabled, i
     this->loggingEnabled = loggingEnabled;
     if (consoleEnabled)
         console.Configure("USB CDC", consoleEnabled, consoleBufSize, consoleHistSize);
+
+    ConfigureFIFO();
+}
+
+void Logger::USBCDCLogger::ConfigureFIFO()
+{
+    // retain the FIFO contents across bus resets
+    tud_cdc_configure_fifo_t cfg;
+    cfg.tx_persistent = true;
+    cfg.rx_persistent = true;
+    tud_cdc_configure_fifo(&cfg);
+}
+
+void Logger::USBCDCLogger::PrintStatus(const ConsoleCommandContext *c)
+{
+    Logger::Device::PrintStatus(c);
+    c->Printf(
+        "  Connected:   %s\n"
+        "  Out avail:   %u\n"
+        "  Console:     %s mode, %u bytes buffered\n",
+        tud_cdc_n_connected(0) ? "Yes" : "No",
+        tud_cdc_n_write_available(0),
+        console.IsForegroundMode() ? "Foreground" : "Background",
+        console.OutputAvailable());
 }
 
 void Logger::USBCDCLogger::Task()
 {
     // if there isn't a terminal connected, do nothing; this will preserve
     // as much buffered text as we can until a terminal is connected
-    bool connected = tud_cdc_n_connected(0);
+    bool connected = tud_cdc_n_ready(0) && usbcdc.IsTerminalConnected();
     console.SetConnected(connected);
     if (!connected)
+    {
+        // don't monitor the FIFO time until the connection resumes
+        tWriteAvailable = 0;
+
+        // stop here
         return;
+    }
+
+    // flush any pending output
+    tud_cdc_n_write_flush(0);
 
     // get the output space available
     int outAvail = tud_cdc_n_write_available(0);
-    if (outAvail > 0)
+    if (outAvail == 0)
     {
-        // Switch the command console to foreground/background mode,
-        // according to the log buffer.  Console editing goes into the
-        // background when there are logging messages to send, since
-        // log messages can be generated asynchronously and therefore
-        // must be able to interrupt an editing session in progress.
-        console.SetForegroundMode(!loggingEnabled || read == logger.write);
-
-        // send output from the command console first
-        if (int conAvail = console.OutputAvailable(); conAvail != 0)
+        // The TinyUSB TX FIFO is full.  Check to see if it's been full for
+        // an extended period, as measured by the last time we successfully
+        // added anything to the FIFO.
+        const int tMaxSeconds = 5;
+        if (tWriteAvailable != 0 && time_us_64() > tWriteAvailable + tMaxSeconds*1000000)
         {
-            // copy as much as we have space for
-            int copy = std::min(conAvail, outAvail);
-            int actual = console.CopyOutput([](const uint8_t *p, int n){ tud_cdc_n_write(0, p, n); return n; }, copy);
-            outAvail -= actual;
+            // The FIFO seems to be stuck
+            Log(LOG_DEBUG, "CDC TX FIFO full for %d seconds; IN endpoint might be stalled\n", tMaxSeconds);
 
-            // flush output
-            tud_cdc_n_write_flush(0);
-
-            // stop here if we didn't exhaust the console output
-            if (actual < copy)
-                return;
+            // stop monitoring until the next successful write (by zeroing the
+            // timestamp), so that we only do this once
+            tWriteAvailable = 0;
         }
 
-        // if logging is enabled, add the logger output
-        if (loggingEnabled)
+        // stop here
+        return;
+    }
+
+    // the output FIFO isn't full - note the time
+    tWriteAvailable = time_us_64();
+    
+
+    // Switch the command console to foreground/background mode,
+    // according to the log buffer.  Console editing goes into the
+    // background when there are logging messages to send, since
+    // log messages can be generated asynchronously and therefore
+    // must be able to interrupt an editing session in progress.
+    console.SetForegroundMode(!loggingEnabled || read == logger.write);
+    
+    // send output from the command console first
+    if (int conAvail = console.OutputAvailable(); conAvail != 0)
+    {
+        // copy as much as we have space for
+        int copy = std::min(conAvail, outAvail);
+        int actual = console.CopyOutput([](const uint8_t *p, int n){ tud_cdc_n_write(0, p, n); return n; }, copy);
+        outAvail -= actual;
+        
+        // flush output
+        tud_cdc_n_write_flush(0);
+        
+        // stop here if we didn't exhaust the console output
+        if (actual < copy)
+            return;
+    }
+    
+    // if logging is enabled, add the logger output
+    if (loggingEnabled)
+    {
+        // if read > write, the first chunk is from read to end of buffer
+        if (read > logger.write && outAvail > 0)
         {
-            // if read > write, the first chunk is from read to end of buffer
-            if (read > logger.write && outAvail > 0)
-            {
-                // copy the chunk from read to end of buffer, up to the output space
-                int inAvail = logger.bufSize - read;
-                int copy = std::min(inAvail, outAvail);
-                tud_cdc_n_write(0, &logger.buf.data()[logger.PostInc(read, copy)], copy);
-                outAvail -= copy;
-            }
-            
-            // if read < write, the next chunk is from read to write
-            if (read < logger.write && outAvail > 0)
-            {
-                // copy the chunk from read to write, up to the output space
-                int inAvail = logger.write - read;
-                int copy = std::min(inAvail, outAvail);
-                tud_cdc_n_write(0, &logger.buf.data()[logger.PostInc(read, copy)], copy);
-                outAvail -= copy;
-            }
+            // copy the chunk from read to end of buffer, up to the output space
+            int inAvail = logger.bufSize - read;
+            int copy = std::min(inAvail, outAvail);
+            tud_cdc_n_write(0, &logger.buf.data()[logger.PostInc(read, copy)], copy);
+            outAvail -= copy;
+        }
+        
+        // if read < write, the next chunk is from read to write
+        if (read < logger.write && outAvail > 0)
+        {
+            // copy the chunk from read to write, up to the output space
+            int inAvail = logger.write - read;
+            int copy = std::min(inAvail, outAvail);
+            tud_cdc_n_write(0, &logger.buf.data()[logger.PostInc(read, copy)], copy);
+            outAvail -= copy;
         }
     }
 }

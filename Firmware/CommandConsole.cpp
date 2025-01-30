@@ -1107,6 +1107,14 @@ void CommandConsole::ProcessCommand()
         if (*src == 0)
             break;
 
+        // if the first token starts with '#', the whole line is a comment
+        if (*src == '#' && argc == 0)
+        {
+            // skip to the end of the line and stop parsing
+            for ( ; *src != 0 ; ++src) ;
+            break;
+        }
+
         // start a new token
         argv[argc++] = src;
 
@@ -1299,7 +1307,7 @@ void CommandConsole::SetConnected(bool f)
     // set the new status
     connected = f;
 
-    // if disconnecting, reset our console session
+    // if reconnecting after being disconnected, reset our console session
     if (connected)
     {
         foregroundMode = false;
@@ -1378,7 +1386,9 @@ void CommandConsole::Command_help(const ConsoleCommandContext *c)
         // Show the command summary.  Note that the commands are stored in
         // a sorted map with the command names as keys, so we get a nice
         // alphabetically sorted list just by iterating over the keys.
-        c->Printf("Command summary:\n\n");
+        c->Printf(
+            "Command summary:\n\n"
+            "   # <comment>       ignored; a line starting with '#' is a comment\n");
         for (auto &ele : t)
             c->Printf("   %-16s  %s\n", ele.second.name, ele.second.desc);
         c->Print("\n");

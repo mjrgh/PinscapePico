@@ -40,8 +40,37 @@ public:
     // is the USB CDC port configured?
     bool IsConfigured() const { return configured; }
 
+    // Is a terminal connected?  This returns true if TinyUSB indicates
+    // that the host has set the virtual DTR (Data Terminal Ready) signal,
+    // which host CDC drivers generally do when a client program is
+    // connected to the virtual COM port.
+    //
+    // Note that we can query this directly from TinyUSB, since it also
+    // tracks this state internally.  However, TinyUSB's conception of
+    // it can get out of sync with the host's if a USB bus reset occurs,
+    // because TinyUSB internally clears its memory of the state, while
+    // the host's connection can continue across the reset without
+    // interruption.  The host doesn't re-send the line state in this
+    // case, so OUR version of the line state can more accurately reflect
+    // the host's notion of the line state than TinyUSB's internal state
+    // does.
+    bool IsTerminalConnected() { return lineState.dtr; }
+
+    // handle bus suspend/resume
+    void OnSuspendResume(bool suspend);
+
+    // Handle line state change notifications from TinyUSB
+    void OnLineStateChange(bool dtr, bool rts);
+
 protected:
     // USB CDC port configured
     bool configured = false;
-};
 
+    // Last line state sent from TinyUSB.
+    struct LineState
+    {
+        bool dtr = false;       // Data Terminal Ready
+        bool rts = false;       // Request To Send
+    };
+    LineState lineState;
+};

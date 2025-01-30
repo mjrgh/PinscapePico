@@ -84,9 +84,6 @@ public:
     // configure; returns true if enabled
     bool Configure(JSONParser &json);
 
-    // initialize the USB connection
-    bool Init(uint8_t rhport);
-
     // periodic task processing
     void Task();
 

@@ -122,6 +122,9 @@ public:
     // configure from preloaded data
     bool Configure(const char *descName, bool enable, int bufSize, int histSize);
 
+    // is the console enabled?
+    bool IsEnabled() const { return enabled; }
+
     // Set foreground/background mode.  A console typically shares a
     // host connection with a logger.  The logger can generate output
     // asynchronously, which can interrupt the command line editing in
@@ -137,6 +140,7 @@ public:
     // explicitly enable foreground mode when appropriate (as defined by
     // the parent's design).
     void SetForegroundMode(bool fg);
+    bool IsForegroundMode() const { return foregroundMode; }
 
     // Set connected mode.  This lets us know if the underlying
     // connection layer (CDC, UART) senses the presence of a remote

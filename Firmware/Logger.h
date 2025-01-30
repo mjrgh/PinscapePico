@@ -119,6 +119,9 @@ public:
         friend class Logger;
 
     public:
+        // is this logger enabled?
+        bool IsEnabled() const { return loggingEnabled; }
+        
         // number of characters available in our view of the ring buffer
         int Available() const;
 
@@ -128,6 +131,10 @@ public:
         // get a block of characters from our view of the ring buffer; returns the
         // number actually read, which might be less than the request
         int Get(char *dst, size_t n);
+
+        // show status
+        virtual void PrintStatus(const ConsoleCommandContext *c);
+        virtual const char *Name() const = 0;
 
     protected:
         // periodic task - write buffered characters to the underlying
@@ -168,6 +175,7 @@ public:
     {
     public:
         VendorInterfaceLogger();
+        const char *Name() const { return "VendorIfc"; }
 
         // configure
         void Configure(JSONParser &json);
@@ -187,6 +195,9 @@ public:
         
     public:
         UARTLogger();
+        const char *Name() const { return "UART"; }
+        virtual void PrintStatus(const ConsoleCommandContext *c) override;
+            
         void Configure(JSONParser &json);
 
         // command console
@@ -230,6 +241,9 @@ public:
 
     public:
         USBCDCLogger();
+        const char *Name() const { return "USB CDC"; }
+        virtual void PrintStatus(const ConsoleCommandContext *c) override;
+        
         void Configure(JSONParser &json);
         void Configure(bool loggingEnabled, bool consoleEnabled, int consoleBufSize, int consoleHistSize);
 
@@ -237,9 +251,27 @@ public:
         CommandConsole console;
 
     protected:
+        void ConfigureFIFO();
         virtual bool IsReady() override;
         virtual void Write(char c) override;
-        virtual void Task() override;;
+        virtual void Task() override;
+
+        // Last time the TX FIFO was observed to have space available.
+        // This is meant to detect an inactive IN (device-to-host)
+        // endpoint, which could indicate that the host terminal
+        // application has exited without sending a disconnect notice to
+        // the device (in the form of a line state change clearing the DTR
+        // flag).  The Windows CDC driver reportedly has a known,
+        // long-standing bug where it'll stop reading from the IN endpoint
+        // if a bus reset occurs while an application session is open,
+        // without giving any indication to the application that anything
+        // has gone wrong.  Detecting this on the device side might under
+        // some conditions let us notify the host app via the "notify"
+        // endpoint.  We can't directly detect the problem, but we can
+        // infer it, by noticing that the IN endpoint FIFO has stopped
+        // accepting data for an extended time while the DTR line state
+        // flag is still set.
+        uint64_t tWriteAvailable = 0;
     };
     
 protected:

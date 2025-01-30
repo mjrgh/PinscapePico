@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stdio.h>
 #include <hardware/sync.h>
 #include <hardware/dma.h>
 #include <pico/mutex.h>
@@ -140,6 +141,57 @@ inline void Sleep160ns()
     __asm volatile ("nop");
     __asm volatile ("nop");
 }
+
+// ---------------------------------------------------------------------------
+//
+// Number formatter.  This pretty-prints integers and floats by inserting
+// commas into long numbers.  The formatter uses a caller-supplied buffer
+// to store the text, which allows it to be used more conveniently in
+// printf-style argument lists to format multiple arguments without having
+// to declare separater buffers for each.  The template subclass declares
+// an internal buffer, so that the formatter and buffer can be allocated on
+// the stack as a unit, as a further convenience.
+class NumberFormatterBase
+{
+public:
+    NumberFormatterBase(char *buf, int bufLen) : buf(buf), bufLen(bufLen) { }
+
+    // Format a number, using the given printf format code.  This
+    // formats the number into the buffer, inserts commas, and returns
+    // a pointer to the start of the number in the buffer.
+    template<typename T> const char *Format(const char *format, T value)
+    {
+        // if there's no room, return an empty string
+        if (used >= bufLen)
+            return "";
+
+        // format the text into the buffer
+        char *str = &buf[used];
+        snprintf(str, bufLen - used, format, value);
+
+        // insert commas
+        return InsertCommas(str);
+    }
+
+protected:
+    // insert commas into a string within the buffer; returns a pointer
+    // to the start of the string
+    const char *InsertCommas(char *str);
+    
+    char *buf;      // caller-provided buffer
+    int bufLen;     // size in characters of caller-provided buffer
+    int used = 0;   // characters used in the buffer so far
+};
+
+template<int bufferSize> class NumberFormatter : public NumberFormatterBase
+{
+public:
+    NumberFormatter() : NumberFormatterBase(buf, bufferSize) { }
+
+protected:
+    // internal buffer
+    char buf[bufferSize];
+};
 
 // ---------------------------------------------------------------------------
 //

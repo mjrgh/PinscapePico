@@ -548,7 +548,7 @@ const uint8_t *USBIfc::GetConfigurationDescriptor(int /*index*/)
 
         // Add the CDC interface descriptor, if configured
         // Interface number, string index, EP notification in address, EP notification size, EP data address out, EP data address in, EP data size
-        const uint8_t cdc[] = { TUD_CDC_DESCRIPTOR(IFCNUM_CDC, STRDESC_CDCIFC, EndpointNotifyCDC, 8, EndpointOutCDC, EndpointInCDC, CFG_TUD_CDC_EP_BUFSIZE) };
+        const uint8_t cdc[] = { TUD_CDC_DESCRIPTOR(IFCNUM_CDC, STRDESC_CDCIFC, EndpointNotifyCDC, 10, EndpointOutCDC, EndpointInCDC, CFG_TUD_CDC_EP_BUFSIZE) };
         static_assert(sizeof(cdc) == TUD_CDC_DESC_LEN);
         if (usbcdc.IsConfigured())
             Append(p, cdc, sizeof(cdc));
@@ -831,6 +831,9 @@ void USBIfc::OnBusSuspended(bool remoteWakeEnabled)
     suspended = true;
     this->remoteWakeEnabled = remoteWakeEnabled;
 
+    // update the CDC COM port
+    usbcdc.OnSuspendResume(true);
+
     // handle the state change
     OnDeviceStateChanged();
 }
@@ -842,6 +845,9 @@ void USBIfc::OnBusResumed()
     suspended = false;
     remoteWakeEnabled = true;
 
+    // update the CDC COM port
+    usbcdc.OnSuspendResume(false);
+
     // handle the state change
     OnDeviceStateChanged();
 }
@@ -851,7 +857,7 @@ void USBIfc::OnDeviceStateChanged()
     // if dismounted and/or suspended, turn off all output ports
     if (!mounted || suspended)
         OutputManager::AllOff();
-    
+
     // update the diagnostic LEDs
     picoLED.SetUSBStatus(mounted, suspended);
 }

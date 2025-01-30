@@ -24,6 +24,9 @@
 #include <hardware/uart.h>
 #include <hardware/timer.h>
 #include <hardware/watchdog.h>
+#include <device/usbd_pvt.h>
+#include <hardware/structs/usb.h>
+#include <hardware/structs/usb_dpram.h>
 
 // local project headers
 #include "Pinscape.h"
@@ -100,6 +103,7 @@ static void Command_memory(const ConsoleCommandContext *c);
 static void Command_loopstats(const ConsoleCommandContext *c);
 static void Command_reset(const ConsoleCommandContext *ctx);
 static void Command_version(const ConsoleCommandContext *ctx);
+static void Command_whoami(const ConsoleCommandContext *ctx);
 static void Command_devtest(const ConsoleCommandContext *ctx);
 
 // ---------------------------------------------------------------------------
@@ -166,10 +170,16 @@ int main()
         Command_version);
 
     CommandConsole::AddCommand(
+        "whoami", "show device identification",
+        "whoami (no arguments)",
+        Command_whoami);
+
+    CommandConsole::AddCommand(
         "devtest", "special development testing functions",
         "devtest [options]\n"
         "  --block-irq <t>            block IRQs for <t> milliseconds\n"
-        "  --config-put-timeout <t>   simulate config write delay of <t> milliseconds\n",
+        "  --config-put-timeout <t>   simulate config write delay of <t> milliseconds\n"
+        "  --cdc-hw-stat              show USB hardware register status for CDC endpoints\n",
         Command_devtest);
 
     // Set the boot mode to apply to the NEXT hardwaer reset, in case a
@@ -815,25 +825,31 @@ static void Command_loopstats(const ConsoleCommandContext *c)
         int hh = timeOfDay / 3600;
         int mm = (timeOfDay - hh*3600) / 60;
         int ss = timeOfDay % 60;
+        NumberFormatter<128> nf;
         c->Printf(
             "Main loop statistics:\n"
-            "  Uptime:       %llu us (%d days, %d:%02d:%02d)\n"
-            "  Primary core: %llu iterations (since startup)\n"
-            "  Second core:  %llu iterations (since startup)\n"
+            "  Uptime:       %s us (%d days, %d:%02d:%02d)\n"
+            "  Primary core: %s iterations (since startup)\n"
+            "  Second core:  %s iterations (since startup)\n"
             "\n"
             "Recent main loop counters:\n"
-            "  Iterations:   %llu (since last stats reset)\n"
+            "  Iterations:   %s (since last stats reset)\n"
             "  Average time: %llu us\n"
             "  Max time:     %lu us\n"
             "\n"
             "Recent second-core loop counters:\n"
-            "  Iterations:   %llu (since last stats reset)\n"
+            "  Iterations:   %s (since last stats reset)\n"
             "  Average time: %llu us\n"
             "  Max time:     %lu us\n",
-            now, days, hh, mm, ss,
-            s.nLoopsEver, s2.nLoopsEver,
-            s.nLoops, s.totalTime / s.nLoops, s.maxTime,
-            s2.nLoops, s2.totalTime / s2.nLoops, s2.maxTime);
+            nf.Format("%llu", now), days, hh, mm, ss,
+            nf.Format("%llu", s.nLoopsEver),
+            nf.Format("%llu", s2.nLoopsEver),
+            nf.Format("%llu", s.nLoops),
+            s.totalTime / s.nLoops,
+            s.maxTime,
+            nf.Format("%llu", s2.nLoops),
+            s2.totalTime / s2.nLoops,
+            s2.maxTime);
     };
 
     // with no arguments, just show the stats
@@ -859,6 +875,46 @@ static void Command_loopstats(const ConsoleCommandContext *c)
             return c->Usage();
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+//
+// Console command - device identification
+//
+static void Command_whoami(const ConsoleCommandContext *c)
+{
+    if (c->argc != 1)
+        return c->Usage();
+
+    pico_unique_board_id_t id;
+    pico_get_unique_board_id(&id);
+
+    c->Printf(
+        "Pinscape Pico unit: %d\n"
+        "Unit name:          %s\n",
+        unitID.unitNum,
+        unitID.unitName.c_str());
+
+    c->Printf("LedWiz unit(s):     %s", unitID.ledWizUnitMask == 0 ? "N/A" : "");
+    const char *sep = "";
+    for (int i = 1, bit = 0x0001, nOut = OutputManager::GetNumPorts() ; i <= 16 ; ++i, bit <<= 1)
+    {
+        if ((unitID.ledWizUnitMask & bit) != 0)
+        {
+            c->Printf("%s%d", sep, i);
+            nOut -= 32;
+            sep = ", ";
+            if (nOut <= 0)
+                break;
+        }
+    }
+    c->Printf(
+        "\n"
+        "USB VID/PID:        %04X/%04X\n"
+        "Pico hardware ID:   %02X%02X%02X%02X%02X%02X%02X%02X\n",
+        usbIfc.GetVID(), usbIfc.GetPID(),
+        id.id[0], id.id[1], id.id[2], id.id[3],
+        id.id[4], id.id[5], id.id[6], id.id[7]);
 }
 
 // ---------------------------------------------------------------------------
@@ -980,6 +1036,38 @@ void Command_devtest(const ConsoleCommandContext *c)
                 c->Printf("PutConfig delay simulation ended\n");
             else
                 c->Printf("PutConfig delay simulation now in effect, delay %u ms; set to 0 to end simulation\n", delay_ms);
+        }
+        else if (strcmp(arg, "--cdc-hw-stat") == 0)
+        {
+            // CDC endpoints: data = 0x01 OUT/0x81 IN, notify = 0x82 IN
+            c->Printf(
+                "USB controller status:\n"
+                "MAIN_CTRL:         %08lX\n"
+                "SIE_CTRL:          %08lX\n"
+                "SIE_STATUS:        %08lX\n"
+                "INT_EP_CTRL:       %08lX\n"
+                "BUF_STATUS:        %08lX\n"
+                "BUF_CPU_SHLD_HDL:  %08lX\n"
+                "EP_NAK_STALL_STAT: %08lX\n"
+                "INTR:              %08lX\n"
+                "INTE:              %08lX\n"
+                "EP1 CTRL IN:       %08lX (CDC data device to host)\n"
+                "EP1 CTRL OUT:      %08lX (CDC data host to device)\n"
+                "EP1 BUF CTRL IN:   %08lx\n"
+                "EP1 BUF CTRL OUT:  %08lX\n",
+                usb_hw->main_ctrl,
+                usb_hw->sie_ctrl,
+                usb_hw->sie_status,
+                usb_hw->int_ep_ctrl,
+                usb_hw->buf_status,
+                usb_hw->buf_cpu_should_handle,
+                usb_hw->ep_nak_stall_status,
+                usb_hw->intr,
+                usb_hw->inte,
+                usb_dpram->ep_ctrl[0].in,
+                usb_dpram->ep_ctrl[0].out,
+                usb_dpram->ep_buf_ctrl[1].in,
+                usb_dpram->ep_buf_ctrl[1].out);
         }
         else
         {

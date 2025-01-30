@@ -152,7 +152,6 @@ void XInput::Task()
             // claim the endpoint and start the transfer
             usbd_edpt_claim(0, USBIfc::EndpointInXInput);
             usbd_edpt_xfer(0, USBIfc::EndpointInXInput, reinterpret_cast<uint8_t*>(&report), sizeof(report));
-            usbd_edpt_release(0, USBIfc::EndpointInXInput);
         }
     }
 
@@ -174,12 +173,6 @@ void XInput::OnLEDReport(const LEDReport *report)
 {
     Log(LOG_XINPUT, "XInput LED: animation #%d\n", report->led);
     SetAnimation(static_cast<Animation>(report->led));
-}
-
-// Initialize
-bool XInput::Init(uint8_t rhport)
-{
-    return usbd_edpt_xfer(rhport, USBIfc::EndpointOutXInput, epOutBuf, sizeof(epOutBuf));
 }
 
 // Handle a transfer completion event
@@ -235,7 +228,7 @@ bool XInput::OnXfer(uint8_t rhport, uint8_t epAddr, xfer_result_t result, uint32
         }
 
         // set up the next transfer
-        if (!usbd_edpt_xfer(rhport, epAddr, epOutBuf, sizeof(epOutBuf)))
+        if (!usbd_edpt_claim(rhport, epAddr) || !usbd_edpt_xfer(rhport, epAddr, epOutBuf, sizeof(epOutBuf)))
             return false;
     }
 
@@ -459,12 +452,13 @@ uint16_t XInput::Driver::Open(uint8_t rhport, const tusb_desc_interface_t *itfDe
         // log it for debugging
         Log(LOG_XINPUT, "XInput class driver claiming USB interface %d\n", itfDesc->bInterfaceNumber);
 
-        // scan for endpoints
+        // scan descriptors between the XInput interface descriptor and the next one,
+        // looking for endpoints to open
         const uint8_t *startp = reinterpret_cast<const uint8_t*>(itfDesc);
-        const uint8_t *p = startp;
-        for (const uint8_t *endp = p + maxLen ; p < endp ; p = tu_desc_next(p))
+        const uint8_t *p = tu_desc_next(startp);
+        for (const uint8_t *endp = startp + maxLen ; p < endp && tu_desc_type(p) != TUSB_DESC_INTERFACE ; p = tu_desc_next(p))
         {
-            // filter for endpoint descriptors
+            // look for endpoint descriptors
             if (tu_desc_type(p) == TUSB_DESC_ENDPOINT)
             {
                 // it's an endpoint descriptor - open the endpoint
@@ -472,13 +466,11 @@ uint16_t XInput::Driver::Open(uint8_t rhport, const tusb_desc_interface_t *itfDe
                 usbd_edpt_open(rhport, ep);
 
                 // if it's the OUT endpoint, set up the initial transfer
-                if (ep->bEndpointAddress == USBIfc::EndpointOutXInput)
+                if (ep->bEndpointAddress == USBIfc::EndpointOutXInput
+                    && !usbd_edpt_busy(rhport, ep->bEndpointAddress)
+                    && usbd_edpt_claim(rhport, ep->bEndpointAddress))
                     usbd_edpt_xfer(rhport, ep->bEndpointAddress, xInput.epOutBuf, sizeof(xInput.epOutBuf));
             }
-
-            // stop if we hit a new interface descriptor
-            if (p != startp && tu_desc_type(p) == TUSB_DESC_INTERFACE)
-                break;
         }
 
         // return the size (in bytes) of the XInput descriptor group

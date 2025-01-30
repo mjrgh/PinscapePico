@@ -1467,15 +1467,18 @@ void FlashStorage::Command_fsck(const ConsoleCommandContext *c)
         for (const auto *dir = flashStorage.centralDirectory ; dir < dirEnd && dir->IsAssigned() ; ++dir, ++nFiles) ;
 
         // show the statistics
+        NumberFormatter<80> nf;
         c->Printf(
             "Flash file system status:\n"
             "  Mounted:                      Yes\n"
             "  Number of files:              %u\n"
-            "  Total space allocated:        %lu bytes\n"
-            "  Free space above boot image:  %lu bytes\n",
+            "  Total space allocated:        %s bytes\n"
+            "  Boot image size:              %s bytes\n"
+            "  Free space above boot image:  %s bytes\n",
             nFiles,
-            DIRECTORY_BASE - XIP_BASE - flashStorage.minAllocOffset,
-            flashStorage.minAllocOffset - PROGRAM_IMAGE_END_OFFSET);
+            nf.Format("%lu", DIRECTORY_BASE - XIP_BASE - flashStorage.minAllocOffset),
+            nf.Format("%lu", PROGRAM_IMAGE_END_OFFSET),
+            nf.Format("%lu", flashStorage.minAllocOffset - PROGRAM_IMAGE_END_OFFSET));
     }
     else
     {

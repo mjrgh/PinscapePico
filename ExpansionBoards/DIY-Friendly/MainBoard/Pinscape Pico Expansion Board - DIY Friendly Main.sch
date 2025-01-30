@@ -1287,8 +1287,8 @@
 </description>
 <pad name="1" x="0" y="0" drill="1.05" diameter="1.575" shape="square"/>
 <pad name="2" x="14.1" y="0" drill="1.05" diameter="1.575"/>
-<text x="0" y="0" size="1.27" layer="25" align="center">&gt;NAME</text>
-<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<text x="6.985" y="2.54" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="7.62" y="0" size="0.635" layer="27" align="center">&gt;VALUE</text>
 <wire x1="-1.038" y1="1.53" x2="15.137" y2="1.53" width="0.05" layer="51"/>
 <wire x1="15.137" y1="1.53" x2="15.137" y2="-1.53" width="0.05" layer="51"/>
 <wire x1="15.137" y1="-1.53" x2="-1.038" y2="-1.53" width="0.05" layer="51"/>
@@ -1297,16 +1297,16 @@
 <wire x1="9.367" y1="1.18" x2="9.367" y2="-1.18" width="0.1" layer="51"/>
 <wire x1="9.367" y1="-1.18" x2="4.732" y2="-1.18" width="0.1" layer="51"/>
 <wire x1="4.732" y1="-1.18" x2="4.732" y2="1.18" width="0.1" layer="51"/>
-<wire x1="4.732" y1="0" x2="5.912" y2="1.18" width="0.1" layer="51"/>
 <wire x1="0" y1="0" x2="4.732" y2="0" width="0.1" layer="51"/>
 <wire x1="9.368" y1="0" x2="14.1" y2="0" width="0.1" layer="51"/>
 <wire x1="4.732" y1="1.18" x2="9.368" y2="1.18" width="0.2" layer="21"/>
 <wire x1="9.368" y1="1.18" x2="9.368" y2="-1.18" width="0.2" layer="21"/>
 <wire x1="9.368" y1="-1.18" x2="4.732" y2="-1.18" width="0.2" layer="21"/>
-<wire x1="4.732" y1="-1.18" x2="4.732" y2="1.18" width="0.2" layer="21"/>
-<wire x1="4.732" y1="0" x2="5.912" y2="1.18" width="0.2" layer="21"/>
+<wire x1="4.732" y1="-1.18" x2="4.732" y2="0" width="0.2" layer="21"/>
+<wire x1="4.732" y1="0" x2="4.732" y2="1.18" width="0.2" layer="21"/>
 <wire x1="1.138" y1="0" x2="4.732" y2="0" width="0.2" layer="21"/>
 <wire x1="9.368" y1="0" x2="12.962" y2="0" width="0.2" layer="21"/>
+<rectangle x1="5.08" y1="-1.143" x2="5.715" y2="1.143" layer="21"/>
 </package>
 <package name="5218559F">
 <description>&lt;b&gt;521-8559F-2&lt;/b&gt;&lt;br&gt;
@@ -10376,19 +10376,19 @@ high speed (Philips)</description>
 <part name="R23" library="SamacSys_Parts - backup" deviceset="4609X-101-122LF" device="" value="4609X-101-103F"/>
 <part name="R24" library="SamacSys_Parts - backup" deviceset="4609X-101-122LF" device="" value="4609X-101-103F"/>
 <part name="R25" library="SamacSys_Parts - backup" deviceset="4609X-101-122LF" device="" value="4609X-101-103F"/>
-<part name="R26" library="resistor" deviceset="R-US_" device="0204/5" value="1K">
+<part name="R26" library="resistor" deviceset="R-US_" device="0204/7" value="1K">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
-<part name="R28" library="resistor" deviceset="R-US_" device="0204/5" value="22K">
+<part name="R28" library="resistor" deviceset="R-US_" device="0204/7" value="22K">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="Q16" library="SamacSys_Parts" deviceset="2N2222A" device=""/>
-<part name="R32" library="resistor" deviceset="R-US_" device="0204/5" value="10K">
+<part name="R32" library="resistor" deviceset="R-US_" device="0204/7" value="10K">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
-<part name="R33" library="resistor" deviceset="R-US_" device="0204/5" value="2.2k">
+<part name="R33" library="resistor" deviceset="R-US_" device="0204/7" value="2.2k">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="D2" library="SamacSys_Parts" deviceset="1N5711" device=""/>

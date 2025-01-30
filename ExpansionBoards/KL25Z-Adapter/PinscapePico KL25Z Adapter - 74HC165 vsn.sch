@@ -9982,18 +9982,6 @@ Install 0.1" pin sockets on BOTTOM of board</text>
 </net>
 <net name="BUTTON13" class="0">
 <segment>
-<wire x1="53.34" y1="43.18" x2="50.8" y2="43.18" width="0.1524" layer="91"/>
-<label x="53.34" y="43.18" size="1.27" layer="95" xref="yes"/>
-<pinref part="RN2" gate="G$1" pin="4"/>
-</segment>
-<segment>
-<wire x1="99.06" y1="50.8" x2="96.52" y2="50.8" width="0.1524" layer="91"/>
-<label x="96.52" y="50.8" size="1.27" layer="95" rot="MR0" xref="yes"/>
-<pinref part="IC2" gate="G$1" pin="F"/>
-</segment>
-</net>
-<net name="BUTTON12" class="0">
-<segment>
 <wire x1="22.86" y1="43.18" x2="25.4" y2="43.18" width="0.1524" layer="91"/>
 <label x="22.86" y="43.18" size="1.27" layer="95" rot="R180" xref="yes"/>
 <pinref part="RN2" gate="G$1" pin="8"/>
@@ -10002,6 +9990,18 @@ Install 0.1" pin sockets on BOTTOM of board</text>
 <wire x1="134.62" y1="50.8" x2="137.16" y2="50.8" width="0.1524" layer="91"/>
 <label x="137.16" y="50.8" size="1.27" layer="95" rot="MR180" xref="yes"/>
 <pinref part="IC2" gate="G$1" pin="C"/>
+</segment>
+</net>
+<net name="BUTTON12" class="0">
+<segment>
+<wire x1="53.34" y1="43.18" x2="50.8" y2="43.18" width="0.1524" layer="91"/>
+<label x="53.34" y="43.18" size="1.27" layer="95" xref="yes"/>
+<pinref part="RN2" gate="G$1" pin="4"/>
+</segment>
+<segment>
+<wire x1="99.06" y1="50.8" x2="96.52" y2="50.8" width="0.1524" layer="91"/>
+<label x="96.52" y="50.8" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<pinref part="IC2" gate="G$1" pin="F"/>
 </segment>
 </net>
 <net name="BUTTON11" class="0">

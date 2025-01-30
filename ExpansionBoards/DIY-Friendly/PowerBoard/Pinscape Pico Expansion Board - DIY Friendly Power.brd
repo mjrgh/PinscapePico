@@ -3456,18 +3456,6 @@ ULN and UDN Series&lt;p&gt;
 <via x="105.9" y="27.1" extent="1-16" drill="0.45"/>
 <contactref element="J1" pad="3"/>
 <contactref element="J1" pad="4"/>
-<polygon width="0.3" layer="16" thermals="no">
-<vertex x="12" y="23.5"/>
-<vertex x="12" y="41.5"/>
-<vertex x="7.9" y="41.5"/>
-<vertex x="7.9" y="23.5"/>
-</polygon>
-<polygon width="0.3" layer="1" thermals="no">
-<vertex x="7.9" y="23.6"/>
-<vertex x="7.9" y="41.5"/>
-<vertex x="12" y="41.5"/>
-<vertex x="12" y="23.6"/>
-</polygon>
 <wire x1="105.8" y1="93.7" x2="105.8" y2="91.6" width="1.5" layer="1"/>
 <wire x1="109.76" y1="93.7" x2="109.76" y2="91.64" width="1.5" layer="1"/>
 <wire x1="113.72" y1="93.7" x2="113.72" y2="91.68" width="1.5" layer="1"/>
@@ -3476,6 +3464,16 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="109.76" y1="93.7" x2="109.76" y2="91.24" width="1.5" layer="16"/>
 <wire x1="113.72" y1="93.7" x2="113.72" y2="91.58" width="1.5" layer="16"/>
 <wire x1="117.68" y1="93.7" x2="117.68" y2="91.62" width="1.5" layer="16"/>
+<wire x1="9.9" y1="35.02" x2="7.8" y2="35.02" width="1.5" layer="16"/>
+<wire x1="9.9" y1="29.94" x2="7.8" y2="29.94" width="1.5" layer="16"/>
+<wire x1="9.9" y1="24.86" x2="7.9" y2="24.86" width="1.5" layer="16"/>
+<wire x1="9.9" y1="24.86" x2="8" y2="24.86" width="1.5" layer="1"/>
+<wire x1="9.9" y1="29.94" x2="7.8" y2="29.94" width="1.5" layer="1"/>
+<wire x1="9.9" y1="35.02" x2="7.7" y2="35.02" width="1.5" layer="1"/>
+<wire x1="9.9" y1="40.1" x2="9.5" y2="40.1" width="1.5" layer="1"/>
+<wire x1="9.5" y1="40.1" x2="7.9" y2="40.1" width="1.5" layer="1"/>
+<via x="9.5" y="40.1" extent="1-16" drill="0.45"/>
+<wire x1="9.5" y1="40.1" x2="7.9" y2="40.1" width="1.5" layer="16"/>
 </signal>
 <signal name="SDA">
 <contactref element="J15" pad="4"/>

@@ -509,12 +509,12 @@
         },
 
         {
-            source: { type: "74hc165", chip: 1, port: "C" },  // Button header input pin #12
+            source: { type: "74hc165", chip: 1, port: "F" },  // Button header input pin #12
             action: { type: "key", key: "4" },           // Middle Coin chute in Visual Pinball
         },
 
         {
-            source: { type: "74hc165", chip: 1, port: "F" },  // Button header input pin #13
+            source: { type: "74hc165", chip: 1, port: "C" },  // Button header input pin #13
             action: { type: "key", key: "5" },           // Right Coin Chute in Visual Pinball
         },
 

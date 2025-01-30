@@ -793,20 +793,21 @@ static void Command_memory(const ConsoleCommandContext *c)
     struct mallinfo mi = mallinfo();
 
     // display on the console
+    NumberFormatter<100> nf;
     c->Printf(
         "Memory stats:\n"
-        "  Heap size (bytes):  %lu\n"
-        "  Heap unused:        %lu\n"
-        "  Malloc arena size:  %lu\n"
-        "  Arena in use:       %lu\n"
-        "  Arena free:         %lu\n"
-        "  Total free space:   %lu\n",
-        static_cast<uint32_t>(totalHeap),
-        static_cast<uint32_t>(totalHeap - mi.arena),
-        mi.arena,
-        mi.uordblks,
-        mi.fordblks,
-        static_cast<uint32_t>(totalHeap - mi.arena) + mi.fordblks);
+        "  Heap size (bytes):  %s\n"
+        "  Heap unused:        %s\n"
+        "  Malloc arena size:  %s\n"
+        "  Arena in use:       %s\n"
+        "  Arena free:         %s\n"
+        "  Total free space:   %s\n",
+        nf.Format("%lu", static_cast<uint32_t>(totalHeap)),
+        nf.Format("%lu", static_cast<uint32_t>(totalHeap - mi.arena)),
+        nf.Format("%lu", mi.arena),
+        nf.Format("%lu", mi.uordblks),
+        nf.Format("%lu", mi.fordblks),
+        nf.Format("%lu", static_cast<uint32_t>(totalHeap - mi.arena) + mi.fordblks));
 }
 
 // ---------------------------------------------------------------------------

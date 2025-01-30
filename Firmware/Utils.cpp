@@ -33,7 +33,7 @@ const char *NumberFormatterBase::InsertCommas(char *str)
     char *endOfStr = p;
 
     // count the used space, including the terminal null byte
-    used += endOfStr - str + 1;
+    used += (endOfStr - str) + 1;
 
     // figure out how much space is available
     int avail = bufLen - used;
@@ -50,12 +50,15 @@ const char *NumberFormatterBase::InsertCommas(char *str)
     // is still sensible (if less readable).
     if (nCommas > 0 && avail >= nCommas)
     {
+        // count the added space
+        used += nCommas;
+
         // Starting at the end of the string, work backwards, moving
         // each character over by enough to make room for the added
         // commas.  Insert a comma every third character once we're
         // in the whole part.
         int nGroup = 0;
-        for (char *src = endOfStr, *dst = endOfStr + nCommas ; src > str ; )
+        for (char *src = endOfStr, *dst = endOfStr + nCommas ; src >= str ; )
         {
             // if we're in the whole part, count a group character
             if (src < endOfWholePart && isdigit(*src))

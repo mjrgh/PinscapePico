@@ -33,7 +33,7 @@
 //
 // In either case, simply change the address of each PWMWorker that
 // conflicts with an existing device.  You can use any address in the
-// range 08 to F7.
+// range 0x08 to 0x77.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,11 +48,10 @@ static void UsageExit()
            "\n"
            "Example: SetPWMWorkerAddr 3F K:\n"
            "\n"
-           "<hex-address> is the new I2C slave address to assign to the Pico, as\n"
-           "a hexadecimal number from 08 to F7.  Each address sharing an I2C bus\n"
-           "must have a unique address, so you must select a different address\n"
-           "for each PWMWorker you attach, and they all must be different from\n"
-           "any other types of devices connected to the same bus.\n"
+           "<hex-address> is the new I2C slave address to assign to the Pico, in\n"
+           "hexadecimal, using the 7-bit I2C address notation.  Valid addresses\n"
+           "are from 08 to 77 inclusive.  Every device sharing an I2C bus must have\n"
+           "a unique address not used by any other device on the same bus.\n"
            "\n"
            "<drive> is the drive letter (with a colon) that Windows assigns to\n"
            "the Pico Boot Loader drive.  This lets you select a specific device\n"
@@ -81,10 +80,10 @@ int main(int argc, char **argv)
         ++p;
     else if (p[0] == '0' && tolower(p[1]) == 'x')
         p += 2;
-    int addr = static_cast<int>(p, nullptr, 16);
-    if (addr < 0x08 || addr > 0xF7)
+    int addr = static_cast<int>(strtol(p, nullptr, 16));
+    if (addr < 0x08 || addr > 0x77)
     {
-        printf("Invalid address - must be a hex number from 08 to F7\n");
+        printf("Invalid address - must be a hex number from 08 to 77\n");
         return 1;
     }
 

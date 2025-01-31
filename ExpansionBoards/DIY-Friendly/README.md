@@ -545,21 +545,21 @@ the total falls below the minimum 1K.
 The 3.3V power supply to the peripheral devices (ADS1115, LIS3DH) is
 provided through the Pico's 3.3V regulator, switched (high-side)
 through a PNP transistor.  The PNP switch is controlled by a GPIO line
-on the Pico, which is also wired to the RUN/RESET line of the
-auxiliary Picos through a logic inverter (implemented via an NPN).  On
-the schematic, this switched 3.3V power rail is labeled
-3V3_PERIPHERAL.
+on the Pico.  On the schematic, this switched 3.3V power rail is
+labeled 3V3_PERIPHERAL.
 
 The point of powering the peripherals through a switched connection to
 the main Pico 3.3V regulator is to allow the main Pico to power-cycle
 all of the peripherals under software control.  This is meant to
 improve overall robustness by allowing the Pico software to power
 cycle everything during a Pico software reset, to ensure that all of
-the external hardware is restored to initial power-on conditions.  The
-accelerometer and ADC are complex chips with their own internal
-firmware, and it's not unheard of for chips of this level of
-complexity to get themselves into error/fault states that can only be
-cleared with a power cycle.
+the external hardware is restored to initial power-on conditions.
+It's not unheard of for I2C chips to get into error/fault states that
+can only be cleared with a power cycle.  I haven't actually run into
+any such problems with any of the chips used on this board, but the
+reset capability still seems worth including as a fail-safe, since
+manually power cycling the whole board could be quite inconvenient in
+a pin cab setup where the board is installed inside the cabinet.
 
 The I2C pull-ups are connected to 3V3_PERIPHERAL rather than the main
 Pico 3.3V power.  This is intentional: it's to ensure that we don't
@@ -568,6 +568,26 @@ while their main supply power from 3V3_PERIPHERAL is at 0V, during one
 of our software-controlled power cycles.  Some chips can't tolerate
 voltage on logic pins above VDD, so it's safest to turn off the
 SDA/SCL pull-ups whenever the peripheral VDD is cut off.
+
+
+### Pico hard resets
+
+A RESET button is positioned adjacent to each Pico, to force the Pico
+to reboot.  This doesn't power-cycle the Pico; it just grounds the RUN
+pin, which initiates the equivalent of a power-on reset.
+
+Each auxiliary Pico's RUN pin is connected in parallel to an NPN
+switch that grounds RUN (resetting the Pico) when the
+/PERIPHERAL_POWER_ENABLE signal is HIGH.  This allows the main Pico to
+reset all of the auxiliary Picos under software control, at the same
+time that it resets all of its other peripherals via the peripheral
+power PNP switch.  This extends the software-controlled peripheral
+reset capability to the aux Picos even when they're getting power from
+their USB ports.  (It was also undesirable to power them through the
+3V3_PERIPHERAL network, since they have relatively high power draw
+that might have required a bigger PNP switch, and because their
+regulators are more efficient with 5V supplies.)
+
 
 
 ### Modules for accelerometer and ADC

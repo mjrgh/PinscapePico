@@ -62,6 +62,10 @@ public:
     // Handle line state change notifications from TinyUSB
     void OnLineStateChange(bool dtr, bool rts);
 
+    // get timestamp of last TX completion
+    uint64_t GetTimeTxCompleted() const { return tTxCompleted; }
+    void OnTxCompleted() { tTxCompleted = time_us_64(); }
+
 protected:
     // USB CDC port configured
     bool configured = false;
@@ -73,4 +77,7 @@ protected:
         bool rts = false;       // Request To Send
     };
     LineState lineState;
+
+    // timestamp (on Pico system clock) of last TX completion
+    uint64_t tTxCompleted = 0;
 };

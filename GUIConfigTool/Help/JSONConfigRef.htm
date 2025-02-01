@@ -1504,6 +1504,34 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   staying on only while being held down; and "shift" buttons, which let
   you assign multiple meanings to other buttons, analogous to the keys
   like SHIFT, CTRL, and ALT on a PC keyboard.
+  </p><p>
+  Buttons are defined using two main abstractions:
+  <ul>
+  <li><b>Sources,</b> which define the physical input that controls
+  the button.  This is usually a literal button, such as a flipper
+  button or Start button, but it can also be a physical input that's
+  not quite a plain switch, such as a command code on the IR receiver,
+  or a the plunger or accelerometer readings crossing a threshold.
+  <li><b>Actions,</b> which define what happens when the button is
+  activated.  For most buttons, this will be a simple input to the
+  PC via one of the virtual HID devices, such as a simulated press on
+  a keyboard key or a joystick button.  But, like sources, actions
+  can have other effects as well, such as sending an IR command or
+  executing a series of steps (a "macro").
+  </ul>
+  </p><p>
+  Each <tt>buttons[]</tt> entry's main job is to connect a source and
+  an action.  When the source records an activation (pressing the
+  physical button, receiving the IR command, crossing an accelerometer
+  threshold), the action is carried out.
+  </p><p>
+  The same source can be used more than once (that is, in 
+  more than one <tt>buttons[]</tt> array entry).  This lets you map
+  a single physical input to multiple actions to be carried out, such
+  as sending both a keyboard key press and a joystick button press to
+  the PC whenever the button is pressed.  Macros can also be used to
+  carry out multiple effects for each button press, with the additional
+  feature that macros can control the timing of the sub-actions.
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{
@@ -8978,7 +9006,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   by accidentally choosing a VID/PID that some other device in your system
   is already using.  How would you know if you have a conflict?  You
   probably have a conflict if plugging in Pinscape Pico makes some other
-  device stop working, or if it awakes some non-Pinscape program on your
+  device stop working, or if it awakens some non-Pinscape program on your
   system that mistakes the Pico for some entirely different kind of device.
   In either of those cases, changing the VID/PID codes on the Pinscape unit
   should resolve it.

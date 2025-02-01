@@ -1042,7 +1042,7 @@
 
     // -------------------------------------------------------------------
     //
-    // Nudging.  The Expansion Board has an MC3416 accelerometer on board.
+    // Nudging.  The Expansion Board has a LIS3DH accelerometer on board.
     //
 
     nudge: {
@@ -1051,9 +1051,9 @@
         z: "+Z",            // map the chip's Z axis to Pinscape's Z axis
     },
 
-    mc3416: {
+    lis3dh: {
         i2c: 0,             // bus = I2C0
-        addr: 0x4c,         // I2C address
+        addr: 0x18,         // I2C address
         interrupt: 18,      // GPIO port connected to interrupt pin
         gRange: 2,          // set the device's dynamic range to +/- 2g 
     },

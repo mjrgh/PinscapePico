@@ -1081,7 +1081,7 @@
 
     lis3dh: {
         i2c: 1,             // bus = I2C1
-        addr: 0x4c,         // I2C address
+        addr: 0x18,         // I2C address
         interrupt: 22,      // GPIO port connected to interrupt pin
         gRange: 2,          // set the device's dynamic range to +/- 2g 
     },

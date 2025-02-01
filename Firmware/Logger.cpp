@@ -20,6 +20,7 @@
 #include "Utils.h"
 #include "Logger.h"
 #include "JSON.h"
+#include "USBIfc.h"
 #include "USBCDC.h"
 #include "TimeOfDay.h"
 #include "Watchdog.h"
@@ -944,10 +945,8 @@ void Logger::USBCDCLogger::Task()
     console.SetConnected(connected);
     if (!connected)
     {
-        // don't monitor the FIFO time until the connection resumes
-        tWriteAvailable = 0;
-
-        // stop here
+        // mark the FIFO as inactive and stop here
+        fifoState = FifoState::Inactive;
         return;
     }
 
@@ -956,29 +955,139 @@ void Logger::USBCDCLogger::Task()
 
     // get the output space available
     int outAvail = tud_cdc_n_write_available(0);
-    if (outAvail == 0)
-    {
-        // The TinyUSB TX FIFO is full.  Check to see if it's been full for
-        // an extended period, as measured by the last time we successfully
-        // added anything to the FIFO.
-        const int tMaxSeconds = 5;
-        if (tWriteAvailable != 0 && time_us_64() > tWriteAvailable + tMaxSeconds*1000000)
-        {
-            // The FIFO seems to be stuck
-            Log(LOG_DEBUG, "CDC TX FIFO full for %d seconds; IN endpoint might be stalled\n", tMaxSeconds);
 
-            // stop monitoring until the next successful write (by zeroing the
-            // timestamp), so that we only do this once
-            tWriteAvailable = 0;
+    // Check for TX FIFO stalls.  If the FIFO has pending data, and the
+    // last TX completion is more than a few seconds ago, assume that
+    // the host has stopped polling for input.
+    //
+    // This check is an attempt to detect an error condition that occurs
+    // with the Windows CDC driver, by observing when the data we're
+    // putting in the FIFO isn't getting cleared out (by being
+    // transmitted to the host) for an extended period.
+    //
+    // The Windows CDC driver has a known, long-standing bug where it
+    // will stop polling the data IN endpoint (our TX endpoint) if a bus
+    // reset occurs while an application session is open.  The symptom
+    // you'll see on the Windows side when this occurs is that an open
+    // terminal program will stop receiving any data from the device,
+    // but it also won't see any error on the line - it thinks it has a
+    // good connection that just happens not to be sending any new data.
+    //
+    // The bug manifest swith a Pinscape device every time the device
+    // comes out of sleep mode, IF the XInput interface is enabled on
+    // the Pinscape side AND a terminal session (e.g., PuTTY) is open
+    // across the sleep/resume.  The reason that XInput is involved is
+    // that the Windows XInput driver apparently always performs a USB
+    // bus reset after coming out of sleep mode, presumably to allow it
+    // to re-enumerate attached controllers.  I haven't observed the bus
+    // reset from any other drivers on the Windows side, so to a first
+    // approximation, it only happens when XInput is enabled on the
+    // device side.  But XInput is only a sufficient condition, not a
+    // necessary one - the bug is really triggered by the bus reset, not
+    // by XInput per se, so it could just as well be triggered by any
+    // OTHER driver that initiates a bus reset.  I just haven't observed
+    // any other conditions (so far) where this happens.
+    //
+    // The bug reports on the Web claim that the only way to clear the
+    // error is to disconnect the device, either by physically
+    // unplugging it, or by forcing a USB disconnect in software on the
+    // device side.  Microsoft might have partially fixed in a more
+    // recent version, because on Windows 11 at least, restarting the
+    // application session (closing and relaunching Putty, for example)
+    // clears it.  But they didn't fix the underlying problem, so the
+    // terminal freeze-up will still occur until you close and relaunch
+    // the terminal program.
+    //
+    // The point of this FIFO tracker is to try to detect when the bug
+    // has occurred, by noticing when bytes are sitting in the TX FIFO
+    // without being transmitted to the host AND it looks like the host
+    // still has a terminal session open.  When a terminal session is
+    // open, the host SHOULD be regularly polling for data on its IN
+    // endpoint, which rapidly remove any data in our TX FIFO.  So if
+    // bytes just sit in the FIFO for an extended period, the host
+    // probably isn't polling.
+    //
+    // Unfortunately, there currently isn't anything that we can do to
+    // fix the bug when it occurs, so detection is actually kind of
+    // pointless.  I've tried a bunch of approaches without success, and
+    // all of the discussion of the bug on the Web agrees that the
+    // device is powerless to fix it.  But I'm hoping that someone will
+    // eventually come up with a clever solution that we can execute on
+    // the Pico side, which would make it worthwhile to know when the
+    // bug has occurred.  And detection is simple and low-impact.  We
+    // can at least log a report when we detect the bug.
+    if (outAvail < CFG_TUD_CDC_TX_BUFSIZE)
+    {
+        // FIFO contains data.  If we're transitioning from inactive
+        // or empty, note the time, since this is the starting point
+        // for clearing data.
+        uint64_t now = time_us_64();
+        if (fifoState != FifoState::Active)
+        {
+            fifoState = FifoState::Active;
+            tFifoActive = now;
         }
 
-        // stop here
-        return;
+        // If we haven't already reported a stall as of the last
+        // successful transmission, and nothing has moved out of the
+        // queue for a few seconds, consider it a stall.  Don't check
+        // until we've been active for a couple of seconds, since new
+        // data can't leave the FIFO until the next IN endpoint polling
+        // cycle, and we could make multiple checks here between those
+        // polling cycles.
+        uint64_t tLastTx = usbcdc.GetTimeTxCompleted();
+        const int tMaxFifoWaitInSeconds = 5;
+        if (tLastTx != tFifoStall
+            && now > tLastTx + tMaxFifoWaitInSeconds*1000000
+            && now > tFifoActive + 2000000)
+        {
+            // the FIFO seems to be stuck
+            Log(LOG_DEBUG, "CDC output stream data has been pending for %d seconds; "
+                "the IN endpoint might be stalled.  Try closing and re-launching "
+                "the terminal emulator program.\n",
+                tMaxFifoWaitInSeconds);
+
+            // NOTE:
+            // I haven't found anything we can do here to restore the
+            // connection.  I've tried all sorts of things without any
+            // luck: blocking output on the IN endpoint for a few seconds
+            // after a RESUME event so that nothing is in flight when
+            // the bus reset occurs; sending a BREAK signal via the
+            // notify endpoint; aborting the stuck transmission in the
+            // Pico USB controller and starting a new one; closing and
+            // re-opening the endpoint.  Nothing makes any difference.
+            //
+            // Reports on the Web say that the only thing a device can
+            // do to the clear the error is disconnect entirely, or just
+            // do a hardware reset, but I see no good reason to disrupt
+            // the other endpoints, since this isn't a USB problem or
+            // a device problem or even a Windows problem; it's only a
+            // problem in the Windows CDC driver specifically, and it
+            // can be cleared on the Windows side by closing PuTTY (or
+            // whatever terminal program you're using) and launching
+            // a new session.  The big annoyance is that the CDC driver
+            // doesn't even let the application know that there's a
+            // problem.  But it should be obvious enough to a user that
+            // the terminal has stopped working.
+
+            // Note the last transmit time as the stall time.  This
+            // ensures that we report this stall only once - we won't
+            // check again until a new transmission completes, which
+            // would indicate that the last jam was cleared.
+            tFifoStall = tLastTx;
+        }
+    }
+    else
+    {
+        // mark the FIFO empty
+        fifoState = FifoState::Empty;
     }
 
-    // the output FIFO isn't full - note the time
-    tWriteAvailable = time_us_64();
-    
+    // if there's no space available in the FIFO, don't try to send
+    // anything on this task iteration, since the FIFO can't accept
+    // any new data
+    if (outAvail == 0)
+        return;
 
     // Switch the command console to foreground/background mode,
     // according to the log buffer.  Console editing goes into the

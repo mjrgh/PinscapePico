@@ -39,7 +39,7 @@ input, feedback device control, IR remotes, TV ON power sensing), and
 has ample button and feedback device ports to wire a fully decked out
 pin cab
 
-* It's DIY-friendly: it includes only "through-hole" parts that can
+* It's DIY-friendly: it includes only through-hole parts that can
 be easily soldered by hand
 
 A third, lesser-but-still-important priority is to use common parts
@@ -84,7 +84,7 @@ analog input from a potentiometer-based plunger (improving on the Pico's
 rather poor built-in ADC)
 
 * 28 MOSFET outputs for high-current feedback devices, such as motors,
-solenoids, and "dumb" LED strips
+solenoids, and standard LED strips
 
 * 16 flasher/strobe ports for high-current LEDs, up to 1A per port,
 for driving the 3W RGB LEDs typically used for flasher panels plus
@@ -105,7 +105,7 @@ plunger port; just plug in your existing Pinscape plunger
 cabinet, so that they can be placed in a good line-of-sight location
 for the IR signals)
 
-* Power-sensing circuit for the Pinscape "TV ON" function (to help you
+* Power-sensing circuit for the Pinscape TV ON function (to help you
 implement seamless one-button startup of the whole pin cab, even when
 using TVs that don't remember their power state)
 
@@ -126,7 +126,7 @@ limits listed below.
 ### Combined active current level - main board
 
 The combined current level for all devices on the main board that are
-active **at the same time** must not exceed 44A.  
+active **at the same time** must not exceed 44A.
 
 This only applies to devices that are activated simultaneously.  THe
 total load of all devices *connected* can be higher, as long as you
@@ -144,7 +144,7 @@ devices activated **at the same time**, 44A, for the same reason.
 
 ### MOSFET outputs (main board and power board)
 
-Each individual MOSFET output must not exceed 11A, 80% of the 
+Each individual MOSFET output must not exceed 11A, 80% of the
 I<sub>D</sub>[Max] for the MOSFET selected (22A for FDPF085N10A).
 
 (Rationale: the 640445-x connector is rated for 14A maximum per pin,
@@ -193,8 +193,8 @@ There are two easy ways to install these boards:
 
 1. For permanent installation: you'll need four 6-pin, single-row,
 standard 0.1" pin headers.  Install these in the matching pads inside
-the "LIS3DH Module" and "ADS1115 Module" areas on the board, with the
-plastic base on the top side of the board, and the short ends of the
+the marked "LIS3DH Module" and "ADS1115 Module" areas on the board, with
+the plastic base on the top side of the board, and the short ends of the
 pins facing down, through the holes in the pads.  To make sure they're
 aligned properly, fit the module board over the top - you can leave
 it there while soldering to keep the alignment right.  Solder the pins
@@ -261,7 +261,7 @@ and the protection against reversed connections.
 
 These are two-row, 0.1" pitch headers, designed for use with IDC
 ribbon cable connectors.  The footprints on the board are sized to
-make space for "shrouded" headers, which include a plastic shell
+make space for shrouded headers, which include a plastic shell
 around the pin header.  The shroud has a keying slot that matches
 a tab on the IDC connector, so that you can only plug in the cable
 in the correct orientation.
@@ -325,12 +325,12 @@ part, you should recalculate the resistor sizes for the series
 resistors on the three channels, based on 10mA current per channel.
 
 SB140-T Schottky Diode: This was chosen to match the properties specified
-in the [Raspberry Pi Pico Data Sheet](https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf), 
+in the [Raspberry Pi Pico Data Sheet](https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf),
 under **Powering Pico**.  Any similar device can be substituted:
 If (forward current) at least 1A, Vf (forward voltage drop) at 1A
 less than 400mV.
 
-2N5195G: PNP switching transistor.  This switches 3.3V power to the 
+2N5195G: PNP switching transistor.  This switches 3.3V power to the
 accelerometer and ADC, allowing the Pico to fully reset those devices by
 power-cycling them.  Any PNP with gain of at least 50 and maximum
 collector current of at least 200mA should work.
@@ -382,8 +382,8 @@ manufacturers, so it's unlikely that you'll be able to find a drop-in
 substitute.  The one easy substitution you can make is that
 the S-808xxCLY family has many variations with different threshold
 voltages - that's what's encoded in the 'xx' part of the name, as
-the voltage times ten, so 33 means 3.3V, 30 means 3.0V, etc.  
-Any other S-808xxCLY family member with a threshold voltage between 
+the voltage times ten, so 33 means 3.3V, 30 means 3.0V, etc.
+Any other S-808xxCLY family member with a threshold voltage between
 3.0V and 4.0V should work find for this board.  If you can't find any
 other S-808xxCLY and have to substitute a different family altogether,
 the circuit will work as long as the new part has a PUSH-PULL ACTIVE-LOW
@@ -397,10 +397,10 @@ different pin layout.
 SN74HC74NE4: Dual flip-flop with asynchronous preset and reset.  The
 74xx74 series is one of those venerable basic logic chips that's been
 around for decades, and there are many variations with different
-letters.  Most chips with a 74xx74 name pattern should be compatible
-with this board; to evaluate a substitute, check that the pin layout
-matches the TI SN74HC74NE4, and that it's compatible with a 5V supply
-voltage.
+letters mixed into the part name string.  Most chips with a 74xx74
+name pattern should be compatible with this board; to evaluate a
+substitute, check that the pin layout matches the TI SN74HC74NE4, and
+that it's compatible with a 5V supply voltage.
 
 SN74HC165N: 8-bit parallel-load shift register. This is another
 long-running series with pin-compatible versions from multiple
@@ -411,23 +411,25 @@ long as it's compatible with a 3.3V supply.
 UCC27524P: Dual low-side MOSFET gate driver with positive logic (HIGH
 on the input translates to HIGH on the output).  This is another
 common chip type with pin-compatible chips made by several
-manufacturers.  This particular chip has two "enable" pins (ENA, ENB),
+manufacturers.  This particular chip has two Enable pins (ENA, ENB),
 while many variations with the same pin layout show the corresponding
 pins as Not Connected (NC).  This board doesn't use the Enable
 feature, so a substitute with NC pins in those positions is acceptable.
 However, UCC27524P has one important feature that's **not** common in
 this type of chip, which is that the inputs (INA, INB) have internal
-pull-down resistors that turn the output off (LOW) when the input is
-floating or disconnected.  This is a critical feature in this design
-because it guarantees that the outputs will remain off during startup,
+pull-down resistors that deterministically turn the output off (LOW) when
+the input is floating or disconnected.  This is a critical feature in this
+design because it guarantees that the outputs will remain off during startup,
 when the Pico's GPIO ports (which control the gate driver inputs) are
-in high-impedance state.  If you are unable to find a gate driver
-with internal pull-downs, it would be necessary to modify the
-board design to add equivalent *external* pull-downs (simply add a
-10K to ground on each INA/INB line).  I specified UCC27524P because it
-makes the extra pull-downs unnecessary, which reduces the part count
+in high-impedance state.  If you aren't able to find a gate driver
+with internal pull-downs, it would be necessary to modify the board design
+to add equivalent external pull-downs, by adding a 10K resistor to ground
+on each INA/INB line.  I specified UCC27524P because it makes the
+extra pull-downs unnecessary, which reduces the part count
 and saves space on the board.  The board is already pretty packed,
-but it might still be possible to get a resistor network in there.
+but it might still be possible to get the extra resistors in there,
+either as discrete resistors or as bussed network resistors similar
+to the ones used to pull up the button inputs.
 
 4609X-101-103F: 8-resistor network, bussed.  This is a common part
 made by many manufacturers.  The size of the resistors isn't very
@@ -477,7 +479,7 @@ fairly easy to find TO-220 MOSFETs with such high voltages.
 MOSFET gates with +12V.  Choose a part with Vgs[max] of at least 20V.
 Most power MOSFETs will qualify, but check carefully if you find
 one that's labeled as a "logic" MOSFETs.  Those are specially designed
-to be switched by lower gate voltages, and might have a Vgs limit 
+to be switched by lower gate voltages, and might have a Vgs limit
 of 10V or below, which isn't suitable for this board.
 
 
@@ -617,6 +619,26 @@ wrong, which is definitely non-zero with tiny SMD parts.  I think most
 people who want to assemble these boards by hand will find the small
 added cost well worth it for the savings in time and effort and
 uncertainty.
+
+### Shift register button inputs
+
+This board uses 74HC165 shift registers for the button inputs.  The
+Pico doesn't have enough native GPIO ports to allow connecting buttons
+directly to GPIOs, as the original Pinscape KL25Z expansion boards
+did, so we need some additional hardware to let the Pico read more
+digital inputs than it has GPIO ports.  The 74HC165 is a convenient
+way to do this.  Each 74HC165 has four input ports that the Pico
+can read serially through GPIO ports.  What's more, multiple 74HC165
+chips can be strung together in a daisy chain, without requiring any
+more GPIO ports on the Pico.
+
+There are other chips that can accomplish the same thing, including
+"GPIO expander" chips like PCA9555.  What makes 74HC165 particularly
+good at the job is that the Pico can read its inputs at extremely high
+speeds, clocking in serial bits in the megahertz range.  This allows
+the Pico to scan the full set of button ports every 10 to 20 microseconds,
+for essentially zero latency sampling on all button inputs.
+
 
 ### Picos as PWM controllers
 

@@ -86,7 +86,7 @@ void USBCDC::OnSuspendResume(bool suspend)
     // the future.
 }
 
-// TinyUSB CDC event callback for line state changes
+// TinyUSB CDC event callback - line state changes
 void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
 {
     usbcdc.OnLineStateChange(dtr, rts);
@@ -98,3 +98,11 @@ void USBCDC::OnLineStateChange(bool dtr, bool rts)
     lineState.dtr = dtr;
     lineState.rts = rts;
 }
+
+// TinyUSB CDC event callback - TX completion
+void tud_cdc_tx_complete_cb(uint8_t itf)
+{
+    // set the timestamp
+    usbcdc.OnTxCompleted();
+}
+

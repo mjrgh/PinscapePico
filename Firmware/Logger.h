@@ -256,24 +256,22 @@ public:
         virtual void Write(char c) override;
         virtual void Task() override;
 
-        // Last time the TX FIFO was observed to have space available.
-        // This is meant to detect an inactive IN (device-to-host)
-        // endpoint, which could indicate that the host terminal
-        // application has exited without sending a disconnect notice to
-        // the device (in the form of a line state change clearing the DTR
-        // flag).  The Windows CDC driver reportedly has a known,
-        // long-standing bug where it'll stop reading from the IN endpoint
-        // if a bus reset occurs while an application session is open,
-        // without giving any indication to the application that anything
-        // has gone wrong.  Detecting this on the device side might under
-        // some conditions let us notify the host app via the "notify"
-        // endpoint.  We can't directly detect the problem, but we can
-        // infer it, by noticing that the IN endpoint FIFO has stopped
-        // accepting data for an extended time while the DTR line state
-        // flag is still set.
-        uint64_t tWriteAvailable = 0;
+        // CDC TX completion timestamp at TX FIFO stall
+        uint64_t tFifoStall = 0;
+
+        // time the FIFO last changed from inactive/empty to active
+        uint64_t tFifoActive = 0;
+
+        // FIFO tracking state
+        enum class FifoState
+        {
+            Inactive,        // disconnected, bus suspend mode
+            Empty,           // bus active, FIFO empty
+            Active,          // FIFO contains data
+        };
+        FifoState fifoState = FifoState::Inactive;
     };
-    
+
 protected:
     // Put a character to the buffer
     void Put(char c);

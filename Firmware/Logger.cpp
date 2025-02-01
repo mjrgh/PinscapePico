@@ -189,6 +189,8 @@ void Logger::InstallConsoleCommand()
         "logger [options]\n"
         "options:\n"
         "  -s, --status        show settings and status\n"
+        "  --log <text>        log <txt> as an Info message (use quotes if <text> contains spaces)\n"
+        "  -l <text>           same as --log\n"
         "  -f <filters>        enable/disable filters; use +name to enable, -name to disable;\n"
         "                      use commas to set multiple filters; list filters with --status\n"
         "  --filter <filters>  same as -f\n"
@@ -443,6 +445,13 @@ void Logger::Command_logger(const ConsoleCommandContext *c)
             uartLogger.PrintStatus(c);
             usbCdcLogger.PrintStatus(c);
             vendorInterfaceLogger.PrintStatus(c);
+        }
+        else if (strcmp(a, "-l") == 0 || strcmp(a, "--log") == 0)
+        {
+            if (++i >= c->argc)
+                return c->Printf("Missing argument for \"%s\"\n", a);
+
+            Log(LOG_INFO, "%s\n", c->argv[i]);
         }
         else if (strcmp(a, "-f") == 0 || strcmp(a, "--filter") == 0)
         {
@@ -1150,10 +1159,20 @@ void Logger::USBCDCLogger::Write(char c)
 
 // --------------------------------------------------------------------------
 //
-// Tinyusb logging callback.  Tinyusb allows the application to define
+// TinyUSB logging callback.  TinyUSB allows the application to define
 // its own custom function to handle logging output.  We only need to
-// define this if Tinyusb logging is enabled at compile-time.
+// define this if TinyUSB logging is enabled at compile-time, which must
+// be done explicitly via the CFG_TUSB_DEBUG macro in ./tusb_config.h.
+// (That header is supplied by the application, not the library, despite
+// its name.)
 //
+// Note that TinyUSB's built-in logging is extremely voluminous, since
+// it's designed for debugging the library and all of its low-level code
+// that interfaces to the USB hardware.  It's rarely useful to enable it
+// unless you suspect a bug within TinyUSB, and even then it can be
+// difficult to interpret the deubg output simply because there's so
+// much of it.  In most cases, I've found it more helpful to selectively
+// add my own instrumentation via the logToPinscape() function below.
 #if defined(CFG_TUSB_DEBUG) && (CFG_TUSB_DEBUG > 0)
 extern "C" int tusbLogPrintf(const char *f, ...)
 {

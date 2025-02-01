@@ -22,6 +22,28 @@ on-board ADC (for smoother animation and better precision when using a
 potentiometer-based plunger)
 
 
+
+## Versions
+
+The 74HC165-based version of the board is the official release.
+
+The older PCA9555 version is also included for reference, but I'm not
+planning to maintain it as an official release.  See notes on the
+differences below.
+
+
+## Credits
+
+Thanks to Tengri (https://github.com/jueank) for the conversion to
+through-hole sockets for the Pico.  The original design required
+soldering the Pico directly to the board, which would make it nearly
+impossible to replace the Pico if it ever failed.  Tengri's improved
+design lets you use standard 20-position 0.1" socket headers, such as
+Wurth 61302011821, that mate with 0.1" pin headers soldered to the
+bottom of the Pico.  But you can also still solder the Pico directly
+to the board if you prefer.
+
+
 ## Caveats
 
 A few warnings about using the adapter boards:
@@ -37,7 +59,7 @@ The obstacle to using the adapter with any other expansion boards or
 add-on boards is that the adapter is completely inflexible about the KL25Z
 pin assignments.  You can only use the adapter with an expansion board
 that has exactly the same pin assignments as my original three-board set.
-With a **real** KL25Z, it's possible to reconfigure the GPIO ports in 
+With a **real** KL25Z, it's possible to reconfigure the GPIO ports in
 many different ways, which allowed people to design different expansion
 board layouts.  The adapter board doesn't have that flexibility, so it
 only works in the unique expansion board environment it was designed for.
@@ -75,60 +97,7 @@ by hand (and possibly cheaper, if you take into account the cost
 of extra parts you might need to order for practice or re-dos.)
 
 
-## Versions
-
-The repository has two versions of the board, both of which are
-"official" - the difference isn't newer vs older, but rather how they
-implement the button input hardware.  The Pico doesn't have enough
-GPIO ports to cover all of the button inputs in the original KL25Z
-boards, so the adapter requires some extra hardware to read more
-buttons than the Pico has GPIO ports.  The two board versions use
-different hardware designs to accomplish this:
-
-* <b>PCA9555 version:</b> The first version of the board I designed
-uses a GPIO expander chip called PCA9555 (actually, two of these
-chips) for the button inputs.  In addition, four special button ports
-(the ones labeled #1, #2, #3, and #4) are connected directly to Pico
-GPIO ports.  The reason for the four special GPIO-direct ports is that
-the Pico can scan them almost instantaneously, whereas the PCA9555
-chips are relatively slow at communicating with the Pico, allowing
-scans only about once per millisecond.  The 1ms scan cycle adds a
-small amount of latency reading the PCA9555 ports.  So I reserved a
-small set of GPIO-direct ports for super-low-latency button inputs.
-In a pin cab, which is how these boards are intended to be used, you
-should use the special fast input ports for the flipper buttons, since
-those are so crucial for game play.  It might seem terribly limiting
-to only have four of these fancy high-speed inputs, but you really
-only need them for the flippers; none of the other buttons in a pin
-cab particularly benefit from super low latency input.
-
-* <b>74HC165 version:</b> This version uses a shift register chip,
-74HC165, for all of the button inputs, replacing the PCA9555 in the
-original design.  (This board still has one PCA9555 as well, but it's
-not used for button inputs; it's just for internal functions.)  The
-reason for making this change is that the Pico can scan the shift
-register ports almost as fast as its own native GPIO ports, allowing a
-full scan every 10 to 20 microseconds.  This makes *all* of the ports
-essentially zero-latency, whereas the PCA9555 version of the board
-only has the four dedicated GPIO ports for high-speed button input.
-This makes it a little easier to wire the cabinet buttons, since you
-don't have to worry about which ports have the special high-speed
-feature (they all do!).
-
-My original plan was to make the 74HC165 version the final, official
-version of the board, replacing the PCA9555 version.  However, I
-changed my mind after finishing the 74HC165 design, and decided to
-keep both versions in the project.  The reason to keep both is
-that each has some advantages.  The 74HC165 version is technically
-better, I think, because of the uniform high-speed button ports.  The
-trade-off is that it has more parts than the PCA9555 version, so it'll
-be more expensive and require more assembly work.  I'm not sure it'll
-be worth the extra cost to most people to have the high-speed
-capability on all of the ports, when you really only need it on enough
-ports to cover the flipper buttons, which the PCA9555 version of the
-board accomplishes via its small set of GPIO-direct ports.
-
-## Pinscape Configuration
+## Pinscape Pico Configuration
 
 The project folder includes a JSON file for each adapter board layout
 with the basic Pinscape Pico configuration for that board.  The two
@@ -153,12 +122,11 @@ ports in any order.  It will make it easier to move your DOF configuration
 to the new system if you replicate the same output port numbering that
 you used in the KL25Z setup.
 
-
-
 ## DOF Setup
 
 Even though Pinscape Pico shares a "brand name" with the original
 KL25Z Pinscape, they're completely different systems.  That includes
+
 at the DOF level - DOF thinks about them as unrelated boards, requiring
 different communications protocols.  So you'll have to update your
 DOF Config Tool settings to select the new boards.
@@ -169,4 +137,48 @@ of DOF port numbers, so the first thing you should probably do in the
 Pinscape Pico Config Tool is go through the `outputs:` section and
 make sure that the ports are all listed in the same order as in your
 KL25Z setup.
+
+## 74HC165 vs PCA9555 versions
+
+The repository has two versions of the board: one based on the 74HC165
+shift register chip, and one based on the PCA9555 I2C GPIO expander chip.
+
+<b>The 74HC165 board is the official version.</b>  I don't plan to
+maintain the PCA9555 version, but it's included for reference.
+
+The difference between the two boards is the choice of chip used to
+physically connect the button inputs to the Pico.  The older version
+was based on the PCA9555 GPIO expander, which is designed to add
+digital in/out ports equivalent to a microcontroller's native GPIO
+ports, for applications such as this one where the microcontroller
+doesn't have enough native ports to meet the application's
+requirements.  In this case, we have a lot more button inputs than
+the Pico has GPIO ports.  The newer version of the board accomplishes
+the same thing using 74HC165 shift register chips.
+
+The main advantage of the PCA9555 over the 74HC165 is that the former
+has built-in pull-up resistors.  Each button port requires a pull-up
+resistor so that the port reads a deterministic logic level when the
+button **isn't** being pressed (so the button switch is open).  The
+74HC165 doesn't have its own built-in pull-ups, so a board based on
+this chip requires additional parts (one resistor per port).  That
+increases the parts cost and assembly work to build the board, so I
+started with the PCA9555 for the sake of economy.
+
+But the PCA9555 has a major disadvantage, which is that it's
+relatively slow: it can only sample the button inputs about once per
+millisecond.  For most applications, that would be fine, but it's a
+negative for a gaming device like this one, where users desire
+extremely low latency for control inputs.  The 74HC165 solves this; it
+can clock samples into the host microcontroller at megahertz speeds,
+allowing buttons to be sampled every 10 to 20 microseconds.  That's
+effectively zero latency.
+
+I'm keeping the PCA9555 board in the repository just in case anyone
+deems the reduced parts cost more important than the reduced latency
+of the 74HC165 version.  However, I haven't brought it up to date
+with the changes for the through-hole pin sockets for the Pico, and
+I don't plan to maintain it, since I think the 74HC165 version is
+the better choice for most people.
+
 

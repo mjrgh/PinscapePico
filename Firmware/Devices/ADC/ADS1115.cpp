@@ -126,7 +126,8 @@ void ADS1115::Configure(JSONParser &json)
             }
 
             // get the channel number or list
-            if (const auto *channelVal = value->Get("channel"); channelVal->IsNumber() || channelVal->IsArray())
+            if (const auto *channelVal = value->Get("channel");
+                channelVal->IsNumber() || channelVal->IsArray() || channelVal->IsString())
             {
                 // iterate over the channels
                 bool ok = true;

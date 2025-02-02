@@ -3812,6 +3812,7 @@ ads1115 object|[object] optional
     <li>A decoupling capacitor (0.1uF typical) should be connected between
     3.3V and GND, as close to the VDD pin as possible.
   </ul>
+
   
 ads1115.i2c number required
   The I2C bus number, 0 for I2C0 or 1 for I2C1, where the chip is connected.
@@ -3849,20 +3850,27 @@ ads1115.channel number|string|[number|string] optional
   is connected to AIN3, use <tt>channel: 3</tt> to set up a logical
   channel reading from pin AIN3.
 
+  <img src="ADS1115-single-ended.png" class="circuit-diagram">
+
   The ADS1115 also allows "double-ended" inputs, where you use
   two AINx pins to measure the voltage differential between two
-  signals.  This lets you use a voltage other than 0V as the
-  reference point, which can be useful if the voltage being
-  measured doesn't cover the whole range from 0V to VCC.
-  To set up a double-ended input physically, connect the (+) and 
-  (-) sides of the voltage source to a pair of AINx pins, and set
-  the <tt>channel</tt> property to a string in the format "A/B",
-  where A is the AINx pin number with the (+) connection, and
-  B is the AINx pin number with the (-) connection.  The ADS1115
-  only allows certain pre-determined pin combinations for
-  double-ended inputs, as listed below.
+  signals.  This lets you use a positive voltage as the reference
+  point, instead of GND.  This is especially useful if you have a
+  separate analog power supply with a more precise voltage regulator
+  than the digital 3.3V supply, or if the voltage being measured
+  only varies over a small portion of the 3.3V range.  The reference
+  Pinscape Pico expansion boards take advantage of the differential
+  capability by providing a voltage divider to create a 1.65V voltage
+  reference on AIN3, as shown in the diagram below.  This doesn't do
+  anything to improve the precision of the reference voltage itself,
+  since the voltage divider is supplied from the Pico's 3.3V regulator,
+  but it allows using a smaller amplifier range in the ADS1115 input
+  stage, effectively adding one more bit of resolution to the result.
 
-  Here are the valid channel settings:
+  <img src="ADS1115-double-ended.png" class="circuit-diagram">
+
+  The ADS1115 only allows double-ended inputs on certain channel
+  pairings, as shown below.
 
   <table>
     <tr><th>Value</th><th>Channel configuration</th></tr>

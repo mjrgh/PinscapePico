@@ -415,6 +415,8 @@
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)\Help</DestinationFolders>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)\Help</DestinationFolders>
     </CopyFileToFolders>
+    <Image Include="Help\ADS1115-single-ended.png" />
+    <Image Include="Help\ADS1115-double-ended.png" />
     <Image Include="resources\bitmap1.bmp" />
     <Image Include="resources\BootDriveIcon.png" />
     <Image Include="resources\BootselButton.bmp" />

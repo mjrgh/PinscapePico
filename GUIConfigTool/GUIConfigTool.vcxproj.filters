@@ -370,6 +370,12 @@
     <Image Include="resources\OpenPinDevButtons.bmp">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="Help\ADS1115-single-ended.png">
+      <Filter>Help Files</Filter>
+    </Image>
+    <Image Include="Help\ADS1115-double-ended.png">
+      <Filter>Help Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Help\PlungerCal.htm">

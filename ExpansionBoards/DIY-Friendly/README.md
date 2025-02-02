@@ -68,6 +68,56 @@ new toys before you run out of ports.  There are enough ports to cover
 every standard toy in the DOF database, with a few left over for
 your original ideas.
 
+## Files
+
+Each board set consists of two sub-boards, titled **Main** and **Power**.
+These two boards are designed to work together as a set.
+
+Each sub-board design is contained in a pair of EAGLE files: **.sch** is the schematic,
+and **.brd** is the physical board layout file.   If you want to have the
+board manufactured, you only need the **.brd** file, since this is the
+input to the EAGLE "CAM Processor", which generates the Gerber files
+that you upload to the fabricator.
+
+
+## Working towards a socketed Pico design
+
+My original design requires soldering the Pico directly to the board,
+using SMD-style pads that match up with the Pico's castellated pads
+along either side of the Pico.
+
+Most people would prefer **not** to solder the Pico directly to
+the board, because once done, it's essentially impossible to remove
+the Pico.  If the Pico ever breaks and needs to be replaced, it would
+probably require replacing the whole board.  It would be greatly
+preferable to install the Pico in sockets instead, so that it can
+be easily removed and replaced.
+
+The rationale original direct-soldered design wasn't that it had any
+particular benefit to users (although it does reduce the parts cost
+slightly be eliminating the need for sockets and pin headers), but
+rather that it made it easier to design the board.  The direct-solder
+SMD pads for the Pico take up much less space on the board than
+equivalent pads for through-hole sockets, leaving more space to
+route wires.
+
+I'm working on converting the board to use through-hole sockets for
+the Pico, but that will require substantial work, so it might take a
+while.  In the meantime, I've published a compromise version that uses
+SMD sockets.  These let you install the Pico in sockets, which is the
+ultimate goal, but the sockets themselves attach to the board with SMD
+pads rather than the DIY-friendly through-hole type. 
+
+You can identify the SMD-socketed variants of the boards by the suffix
+<b>SMD Sockets</b> in the filenames.  The sockets required are Harwin
+M20-7862042, which mate with common 0.1" pin headers that you can
+solder to the bottom of the Pico.  If you build these boards, I'd
+recommend installing the sockets onto a Pico **before** soldering them
+to the board, so that the Pico acts as a template to get the distance
+between the two rows exactly right.  Solder all of the pins on the
+outside first, which should lock the sockets in place well enough that
+you can remove the Pico and proceed to solder the pins on the inside.
+
 
 ## Features
 
@@ -590,6 +640,31 @@ their USB ports.  (It was also undesirable to power them through the
 that might have required a bigger PNP switch, and because their
 regulators are more efficient with 5V supplies.)
 
+
+### Pico AGND connected to GND
+
+The Pico AGND (analog ground) pin is connected directly to the main
+ground plane on the board.  The Pico data sheet allows that this is
+acceptable "if the ADC is not used or ADC performance is not
+critical", but it's conspicuously silent on what you should do instead
+if the ADC *is* used and you *do* care about its performance.  The
+authors probably felt that the subject is too complex to boil down to
+a one-size-fits-all wiring diagram, so they left it as an exercise.
+But I'm not an analog engineer, so in the absence of any such
+guidelines, I just went with the naive approach of connecting the AGND
+pin straight through to the main ground plane.
+
+Which I think will be fine for our purposes.  Pinscape does use the
+ADC - for plunger input, if the plunger sensor is one of the types
+with an analog output line.  But ADC performance isn't exactly
+"critical" for most of these.  The one plunger type where ADC
+performance is pretty important is the potentiometer-based plunger,
+but for that case, we don't have to use the Pico ADC at all since we
+have the superior ADS1115 instead.  That should yield better results
+than the Pico's on-board ADC can produce even under ideal conditions.
+
+If any analog engineers are reading this and want to weigh in on a
+better AGND wiring plan, I'd be interested in hearing any suggestions.
 
 
 ### Modules for accelerometer and ADC

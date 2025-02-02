@@ -9337,6 +9337,11 @@ It DOESN'T connect to an actual KL25Z.</text>
 <junction x="96.52" y="119.38"/>
 <label x="96.52" y="116.84" size="1.27" layer="95" rot="R270" xref="yes"/>
 </segment>
+<segment>
+<pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="AGND"/>
+<wire x1="71.12" y1="48.26" x2="73.66" y2="48.26" width="0.1524" layer="91"/>
+<label x="73.66" y="48.26" size="1.27" layer="95" xref="yes"/>
+</segment>
 </net>
 <net name="5V_PICO" class="0">
 <segment>

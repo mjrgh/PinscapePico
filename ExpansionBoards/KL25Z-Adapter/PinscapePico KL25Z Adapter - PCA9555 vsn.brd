@@ -3364,6 +3364,7 @@ for trimmer refence see : &lt;u&gt;www.electrospec-inc.com/cross_references/trim
 <via x="67.35" y="29.35" extent="1-16" drill="0.3"/>
 <via x="66.15" y="25.15" extent="1-16" drill="0.3"/>
 <contactref element="IC1" pad="21"/>
+<contactref element="RASPBERRY_PI_PICO" pad="AGND"/>
 </signal>
 <signal name="SDA">
 <contactref element="IC3" pad="6"/>

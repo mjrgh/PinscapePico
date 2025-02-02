@@ -3625,6 +3625,7 @@ Source: http://www.ctscorp.com/components/Datasheets/CTSChipArrayDs.pdf</descrip
 <via x="65.85" y="5.7" extent="1-16" drill="0.35"/>
 <via x="64.35" y="5.1" extent="1-16" drill="0.35"/>
 <via x="33.75" y="8.075" extent="1-16" drill="0.45"/>
+<contactref element="RASPBERRY_PI_PICO" pad="AGND"/>
 </signal>
 <signal name="SDA">
 <contactref element="IC4" pad="6"/>

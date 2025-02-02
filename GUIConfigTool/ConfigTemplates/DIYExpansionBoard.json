@@ -362,8 +362,8 @@
     //     // instead of the plunger input, you can connect the physical 
     //     // joystick axes to the USB gamepad RX and RY axes like so:
     //     //
-    //     // xLeft: "ads1115[0]",   // ADS1115 channel 0 - "AIN1/AIN3"
-    //     // yLeft: "ads1115[1]",   // ADS1115 channel 1 - "AIN2/AIN3"
+    //     // xLeft: "ads1115[0]",   // ADS1115 channel 0 - ["AIN1/AIN3"]
+    //     // yLeft: "ads1115[1]",   // ADS1115 channel 1 - ["AIN2/AIN3"]
     //     //
     //
     //     // As with the basic gamepad, button presses aren't configured
@@ -1107,7 +1107,7 @@
     // setting, which yields better resolution for our voltage input
     // than we'd get with the next wider ADS1115 range setting.  We
     // configure the differential reading by setting the input channel
-    // to "AIN0/AIN3", which means that AIN0 is measured relative to
+    // to ["AIN0/AIN3"], which means that AIN0 is measured relative to
     // the reference voltage on AIN3.
     //
     // The AIN1 and AIN2 inputs to the ADS1115 aren't accessible on
@@ -1122,7 +1122,7 @@
         i2c: 1,                 // I2C bus 1
         addr: 0x48,             // I2C address, set on the chip via pin inputs, 0x48 to 0x4B
         ready: 11,              // READY pin GPIO
-        channel: "AIN0/AIN3",   // plunger input = differential signal AIN0-AIN3
+        channel: ["AIN0/AIN3"],   // plunger input = differential signal AIN0-AIN3
         voltageRange: 2.048,    // voltage range +/- 2.048V from the +1.65V AIN3 reference
     },
 

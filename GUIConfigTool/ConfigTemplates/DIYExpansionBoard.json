@@ -310,8 +310,8 @@
         // instead of the plunger input, you can connect the physical 
         // joystick axes to the USB gamepad RX and RY axes like so:
         //
-        // rx: "ads1115[0]",   // ADS1115 channel 0 - "AIN1/AIN3"
-        // ry: "ads1115[1]",  // ADS1115 channel 1 - "AIN2/AIN3"
+        // rx: "ads1115[0]",   // ADS1115 channel 0 - ["AIN1/AIN3"]
+        // ry: "ads1115[1]",  // ADS1115 channel 1 - ["AIN2/AIN3"]
         //
 
         // Note that gamepad buttons aren't assigned here.  Instead,

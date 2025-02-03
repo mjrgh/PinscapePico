@@ -6,32 +6,33 @@ that turns a Pico into a highly customizable I/O controller for
 virtual pinball cabinets.
 
 My first Pinscape Pico expansion board design was an All-In-One board
-that packed everything you'd need for a pin cab into one 10x16 cm board.
-To achieve that kind of density, the design used tiny SMD (surface-mount)
-parts for just about everything, which made it extremely difficult to
-assemble by hand.  I sure don't want to try building it by hand, and I
-doubt anyone else would either.  It's really designed to be built by
-factory pick-and-place machines, which makes it practical to build only
-in fairly large production runs.
+that packed everything you'd need for a pin cab into one 10x16 cm
+board.  To achieve that kind of density, that design uses tiny SMD
+(surface-mount) parts for just about everything, which makes it
+difficult assemble by hand.  I sure don't want to try building it by
+hand, and I doubt anyone else would either.  It's really designed to
+be built in a factory by a pick-and-place machine.  That sort of
+production is usually only cost-effective if you're going to make
+at least 50 or 100 units, so I expect that the all-SMD board will
+only be of interest to our more entrepreneurial community members
+who might want to build the board and offer it for retail sale.
+That's why I've taken to referring to that design as the "Pro"
+expansion board.
 
-But Pinscape has always been an aggressively open-source, DIYer
-project.  My mission from the start has been to make it possible to
-build high-end pin cabs without depending on commercial devices, since
-we're such a niche hobby that it's hard to get any serious commercial
-vendor to notice us.  So I felt it was important to create a
-DIY-friendly expansion board for this new generation of Pinscape
-software, and I went back to the drawing board to see if I could come
-up with something equivalent that uses only hand-solderable parts.
+But Pinscape has always been for DIYers.  My mission from the start
+has been to make it possible to build high-end pin cabs without
+depending on commercial devices, since we're such a niche hobby that
+it's hard to get most commercial vendors to take us seriously as
+customers.  So I didn't like the idea of only having a "Pro" design; I
+also wanted to provide a DIY-friendly design that works with the new
+software.  That meant designing another board using only parts that
+are easy to solder by hand.
 
 The result is this two-board expansion set.  It outfits the Pico with
 a large set of physical input and output connections that let you
 connect just about everything you'd find in a top-of-the-line pin cab,
-from button inputs to feedback device outputs.
-
-The Pinscape Pico firmware is extremely configurable, so there isn't
-such a thing as "the" Expansion Board for this software.  This is just
-one possible expansion board design.  This particular board set has
-two main design goals:
+from button inputs to feedback device outputs.  It has two main
+design goals:
 
 * It's comprehensive: it provides the extra peripherals required for
 all of the Pinscape features (accelerometer, plunger input, button
@@ -43,13 +44,16 @@ pin cab
 be easily soldered by hand
 
 A third, lesser-but-still-important priority is to use common parts
-that are readily available and likely to remain in production for
+that are widely available and are likely to remain in production for
 many years.  The original Pinscape KL25Z boards are difficult
 to build today because they depend on a few specific parts that are no
 longer in production, most especially the KL25Z itself, but also the
 TLC5940NT PWM chips.  I tried to avoid those sorts of dependencies as
 much as possible in this design (and moving to the Pico as the
 microcontroller at the heart of it is a big step in that direction).
+The biggest unique-part dependency on these boards is the Pico itself,
+but that's not just a requirement for the boards, but for the whole
+software system.
 
 Unlike the original Pinscape KL25Z expansion boards, where you were
 encouraged to mix and match the Main, Power, and Chime boards in
@@ -67,6 +71,11 @@ you're almost certainly going to run out of space in your cabinet for
 new toys before you run out of ports.  There are enough ports to cover
 every standard toy in the DOF database, with a few left over for
 your original ideas.
+
+This is my "reference" expansion board, but I don't intend it to be
+the one-and-only expansion board for Pinscape Pico.  The new software
+is designed to work with lots of different hardware environments, so
+there's lots of room for alternative board designs. 
 
 ## Files
 
@@ -97,8 +106,9 @@ sockets, which are easier to solder to the board and easier to source.
 * <b>Soldered Pico:</b> The original version of the board, designed
 for the Pico to be directly soldered to the board.
 
-The **Socketed Pico** version should be considered the authoritative
-and official version of the board.  I don't plan to continue updating
+The **Socketed Pico** version should be considered the most up-to-date
+and authoritative version of the board.  As of this writing, they're
+all functionally equivalent, but I don't plan to continue updating
 the older designs, because I think almost everyone building the DIY
 boards will prefer the through-hole-sockets version.  Installing the
 Pico in sockets is a big advantage because it lets you easily remove
@@ -157,6 +167,31 @@ across Pico resets, even when the board is unpowered
 
 ## How to connect devices
 
+Connecting output devices works essentially the same way as with the
+original Pinscape KL25Z expansion boards, so you can refer to
+[Pinscape Outputs Setup](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=psOutputsExp)
+in my virtual pinball Build Guide for general wiring instructions,
+keeping in mind that these boards look a little different, and that
+the software setup procedure is different.  There's also some more specific
+advice about the different port types on this board in the subsections
+below.
+
+Some additional Build Guide chapters that might be helpful:
+
+* [LED Resistors](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=ledResistors)
+* [Coil Diodes](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=diodes)
+* [Button Lamps](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=buttonLamps)
+* [Flashers and Strobes](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=flashers)
+* [Beacons](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=beacons)
+* [Undercab Light Strips](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=lightStrips)
+* [Contactors for flippers and bumpers](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=contactors)
+* [Replay knockers](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=knockers)
+* [Shaker motor](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=shakers)
+* [Gear motor](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=gearMotors)
+* [Blower fan](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=blowers)
+* [Chimes and bells](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=chimes)
+
+
 ### Buttons
 
 The board will work with any standard arcade-style pushbutton,
@@ -205,7 +240,7 @@ special about it; it's just there as a convenience, to give you another
 place to connect to the 5V supply.  You don't have to use this terminal
 for any of the lamps, and more importantly, you don't have to use 5V
 for the lamps - each lamp can be connected to whatever voltage it
-requires, as long as that doesn't exceed 40V.  
+requires, as long as that doesn't exceed 40V.
 
 ### Flashers and strobe
 

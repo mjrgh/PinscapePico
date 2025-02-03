@@ -79,44 +79,36 @@ board manufactured, you only need the **.brd** file, since this is the
 input to the EAGLE "CAM Processor", which generates the Gerber files
 that you upload to the fabricator.
 
+## Versions
 
-## Working towards a socketed Pico design
+* <b>Socketed Pico:</b>  This is the latest version of the board,
+designed to install the Picos in 20-pin socket headers.  The sockets
+are generic parts available from multiple manufacturers; one example
+is Wurth 61302011821, but any generic 0.1" socket header will work.
+On Mouser or Digikey, search the Headers & Wire Housings category for
+2.54mm/0.1" pitch, 20 positions, 1 row, female, through-hole.)
 
-My original design requires soldering the Pico directly to the board,
-using SMD-style pads that match up with the Pico's castellated pads
-along either side of the Pico.
+* <b>SMD Sockets:</b> This is an intermediate design, with the
+original direct-soldered Pico layout changed to use Harwin M20-7862042
+sockets, which are surface-mounted (SMD) 20-pin sockets.  This design
+was meant to be a stopgap until I could finish converting to through-hole
+sockets, which are easier to solder to the board and easier to source.
 
-Most people would prefer **not** to solder the Pico directly to
-the board, because once done, it's essentially impossible to remove
-the Pico.  If the Pico ever breaks and needs to be replaced, it would
-probably require replacing the whole board.  It would be greatly
-preferable to install the Pico in sockets instead, so that it can
-be easily removed and replaced.
+* <b>Soldered Pico:</b> The original version of the board, designed
+for the Pico to be directly soldered to the board.
 
-The rationale original direct-soldered design wasn't that it had any
-particular benefit to users (although it does reduce the parts cost
-slightly be eliminating the need for sockets and pin headers), but
-rather that it made it easier to design the board.  The direct-solder
-SMD pads for the Pico take up much less space on the board than
-equivalent pads for through-hole sockets, leaving more space to
-route wires.
-
-I'm working on converting the board to use through-hole sockets for
-the Pico, but that will require substantial work, so it might take a
-while.  In the meantime, I've published a compromise version that uses
-SMD sockets.  These let you install the Pico in sockets, which is the
-ultimate goal, but the sockets themselves attach to the board with SMD
-pads rather than the DIY-friendly through-hole type. 
-
-You can identify the SMD-socketed variants of the boards by the suffix
-<b>SMD Sockets</b> in the filenames.  The sockets required are Harwin
-M20-7862042, which mate with common 0.1" pin headers that you can
-solder to the bottom of the Pico.  If you build these boards, I'd
-recommend installing the sockets onto a Pico **before** soldering them
-to the board, so that the Pico acts as a template to get the distance
-between the two rows exactly right.  Solder all of the pins on the
-outside first, which should lock the sockets in place well enough that
-you can remove the Pico and proceed to solder the pins on the inside.
+The **Socketed Pico** version should be considered the authoritative
+and official version of the board.  I don't plan to continue updating
+the older designs, because I think almost everyone building the DIY
+boards will prefer the through-hole-sockets version.  Installing the
+Pico in sockets is a big advantage because it lets you easily remove
+and replace the Pico if it ever breaks.  The SMD-sockets version of
+the board accomplishes that, too, but it violates the "through-hole
+parts only" mandate of this board set, plus the dependency on that
+unique Harwin part number might make it difficult to source parts in
+the future.  The through-hole sockets are generic commodity parts made
+by multiple manufacturers, so they should be easy to source
+indefinitely.
 
 
 ## Features
@@ -151,9 +143,10 @@ frequencies up to 65000 Hz
 * Plunger input port, pin-compatible with the original Pinscape KL25Z
 plunger port; just plug in your existing Pinscape plunger
 
-* IR transmitter and receiver (which can be positioned anywhere in the
-cabinet, so that they can be placed in a good line-of-sight location
-for the IR signals)
+* IR transmitter and receiver, with the sensor and transmitter on
+small separate boards (connected to the main board with cables), so
+that can be positioned anywhere in (or outside) the cabinet, to place
+them in line-of-sight with the devices they're communicating with
 
 * Power-sensing circuit for the Pinscape TV ON function (to help you
 implement seamless one-button startup of the whole pin cab, even when
@@ -162,30 +155,117 @@ using TVs that don't remember their power state)
 * Real-time clock/calendar chip with battery backup, for time-keeping
 across Pico resets, even when the board is unpowered
 
+## How to connect devices
+
+### Buttons
+
+The board will work with any standard arcade-style pushbutton,
+leaf-switch flipper button, microswitch, or just about any other sort
+of button with a mechanical "Normally Open" switch.  For a microswitch
+with three terminals, connect the Normally Open ("NO") and Common
+("C", "GND") terminals, and ignore the third terminal.  Connect one
+terminal to a button port on the expansion board, and connect the
+other terminal to ground.  You can wire all of the button grounds
+together in a daisy chain to save wire.  The order of the terminals on
+the buttons doesn't matter.
+
+Each button header includes a ground terminal.  This is purely for
+your convenience in finding places to connect the grounds.  All of
+the grounds are wired together, so none of them are "special" and
+none of them have to be connected to specific buttons.
+
+### Button lamps
+
+For pushbuttons that have built-in lamps, you should think of the
+lamp as a separate device from the button, and just wire it to one
+of the lamp ports as though it were a standalone lamp.
+
+### Lamps
+
+Connect the positive terminal of the lamp or LED to its positive supply voltage.
+(Incandescent lamps aren't polarized, so connect either terminal.  LEDs
+have a "+" and "-" side that must be observed.)  Connect the negative
+terminal to a lamp port on the board.
+
+For LEDs, you must also connect a current-limiting resistor in series
+with the LED.  Some LEDs have the necessary resistor built in.  See
+[LED resistors](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=ledResistors).
+
+The lamp ports are nominally for LEDs and incandescent lights, but you
+can actually use them with any kind of device as long as its current
+draw is below 500mA.  That's enough for most small relays and many
+contactors, for example.  Be sure to use a [flyback diode](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=diodes)
+for anything mechanical (relay, contactor, motor).  Diodes aren't
+needed for LEDs or incandescent bulbs.
+
+Each lamp port includes a 5V terminal, which can be used as the power
+supply for lamps and LEDs.  The 5V terminal just connects straight back
+to the secondary power supply 5V input to the board, so there's nothing
+special about it; it's just there as a convenience, to give you another
+place to connect to the 5V supply.  You don't have to use this terminal
+for any of the lamps, and more importantly, you don't have to use 5V
+for the lamps - each lamp can be connected to whatever voltage it
+requires, as long as that doesn't exceed 40V.  
+
+### Flashers and strobe
+
+The flasher ports are essentially the same as the lamp ports, except
+that they have double the current capacity, up to 800mA, to allow
+connecting larger LEDs (or to allow connecting two or three LEDs to
+each port in parallel).  The flasher port is designed to be pin-compatible
+with the flasher port on the original Pinscape KL25Z expansion boards,
+using a 16-pin ribbon cable connector.  Other than the connector type,
+it works exactly like the lamp ports.
+
+The Strobe port is just a 16th flasher port on a separate connector,
+with the same higher 800mA capacity.  Connect it the same way as any
+lamp port.
+
+
+### High-power outputs
+
+Connect the positive terminal of the device to its positive supply
+voltage.  Connect the negative terminal to a high-power port on the
+expansion board.  Most motors and solenoids aren't polarized, so you
+can connect the terminals in either order, but check each device to
+make sure.
+
+Motors, solenoids, contactors, relays, and anything else mechanical
+require [flyback diodes](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=diodes).
+Lamps and LEDs don't need them.
+
 
 ## Power limits
 
 All of the output ports have limits on how much power they can handle.
 The ports are all designed to have ample limits for the typical sorts
 of devices used in virtual pinball machines, with the goal that you
-shouldn't have to spend a lot of time with a calculator figuring out
-if you're within the limits.  But even so, you should do some rough
-calculations based on your devices to make sure you stay within the
-limits listed below.
+shouldn't have to think about it much.  But even so, you should check
+the points below to make sure that the devices you plan to connect are
+within the limits.
 
 ### Combined active current level - main board
 
 The combined current level for all devices on the main board that are
 active **at the same time** must not exceed 44A.
 
-This only applies to devices that are activated simultaneously.  THe
+This only applies to devices that are activated simultaneously.  The
 total load of all devices *connected* can be higher, as long as you
 don't attempt to run them all at the same time.
 
-(Rationale: all switched current ultimately flows through four pins on
-the 640445-x power supply connector, which are rated for 14A maximum
-per pin, yielding 56A total, or 44A after a 20% safety margin.)
+It's difficult to predict how devices will be activated while playing
+virtual pinball or other games, so I usually just make some
+conservative guesses, such as assuming the the maximum simultaneous
+load in practice will be around four or five of the highest-current
+devices.
 
+(Rationale: all of the switched feedback device current ultimately
+flows through the four ground pins on the 640445-x power supply
+connector, so the maximum current shouldn't exceed what those pins can
+safely handle.  Too much current can overheat the pins and damage the
+circuit board.  That connector type's "absolute maximum" rating is 14A
+per pin, so with four pins, that gives us a maximum of 56A.  If we
+apply a 20% safety margin, we get 44A.)
 
 ### Combined active current level - power board
 
@@ -194,16 +274,27 @@ devices activated **at the same time**, 44A, for the same reason.
 
 ### MOSFET outputs (main board and power board)
 
-Each individual MOSFET output must not exceed 11A, 80% of the
-I<sub>D</sub>[Max] for the MOSFET selected (22A for FDPF085N10A).
+Each individual MOSFET output must not exceed 11A, **or** 80% of the
+I<sub>D</sub>[Max] for the MOSFET selected (22A for FDPF085N10A),
+whichever is lower.
 
-(Rationale: the 640445-x connector is rated for 14A maximum per pin,
-or 11A after a 20% safety margin.)
+In addition, the power supply voltage for each device must be below
+the MOSFET's drain-to-source voltage limit (100V for FDPF085N10A).
+
+(Rationale: The current through these ports has to flow through both
+the connector pins and the MOSFET, so it can't exceed the safe limit
+for either part.  The 640445-x connector is rated for 14A maximum per
+pin, or 11A after a 20% safety margin.  The MOSFET limit depends on
+which type of MOSFET you use, but for the reference part, it's higher
+than pin limit, so the pin's maximum current is the limiting factor.)
 
 ### Flasher and strobe outputs (main board)
 
 Each individual flasher output must not exceed 800mA.  This is enough
 current to run two typical 3W RGB LED channels in parallel.
+
+In addition, the power supply voltage for the flashers shouldn't
+exceed 40V.
 
 (Rationale: the connector is rated for 1A per pin maximum, and the
 ULN2803A is rated for 500mA per channel maximum, with each pin connected
@@ -212,6 +303,8 @@ to two channels.  This yields 800mA maximum with a 20% safety margin.)
 ### Lamp outputs (power board)
 
 Each individual lamp output must not exceed 400mA.
+
+In addition, the supply voltage for each lamp shouldn't exceed 40V.
 
 (Rationale: each channel is driven by a single ULN2803A channel, which
 is rated at 500mA maximum, or 400mA after a 20% safety margin.)
@@ -229,13 +322,18 @@ known problems with linearity.  A potentiometer-based plunger benefits
 from a higher-quality ADC, in that it will yield smoother on-screen
 animation tracking the motion of the physical plunger.
 
-The ADS1115 is completely optional; you can simply omit it if you
-don't need it or want it.  If you're using some other kind of plunger
-sensor apart from a potentiometer, the ADS1115 won't be used, so you
-shouldn't bother with it.  You can even omit it if you *are* using a
-potentiometer plunger, since the Pico's ADC will work for that in a
+The ADS1115 is completely optional, even if you're using a
+potentiometer plunger.  You can simply omit it if you don't need it or
+want it.  If you're using some other kind of plunger sensor apart from
+a potentiometer, the ADS1115 won't even be used for the plunger, so
+you shouldn't bother with it.  You can even omit it if you *are* using
+a potentiometer plunger, since the Pico's ADC will work for that in a
 pinch, but the on-screen animation it produces might be a little
-coarse.
+coarse.  If you find it good enough with the Pico ADC, though, you can
+save a few dollars by not installing the ADS1115.  And you can always
+add in the ADS1115 later, since it's on a separate board that just
+plugs in.
+
 
 ## How to install the ADS1115 and LIS3DH modules
 
@@ -775,37 +873,21 @@ needed when you want to program them with new firmware, or if you want
 to access them from the host for monitoring or troubleshooting
 purposes.
 
-### Picos are soldered to the board
+### Picos - sockets vs soldered
 
-The design calls for the Picos to be soldered directly to the board
-via their castellated connectors.  There are no pin headers or sockets
-involved; you just solder the Pico right to the board.
+The original board design required the Picos to be soldered directly
+to the board.  This made it easier to design the board by making more
+room to route traces, but it had the major disadvantage that you
+couldn't replace a Pico if it ever broke.  The newer versions of the
+board are modified so that the Picos are installed in 0.1" socket
+headers.  The socket headers are generic parts available from several
+manufacturers; one example is Wurth part number 61302011821.
 
-Direct soldering has the obvious drawback that you can't easily
-replace the Pico.  You might be able to remove it via the same
-de-soldering techniques you'd use for any other part, but I always
-find that difficult even for small parts, so I'm not sure I'd have
-the patience to try to de-solder a whole Pico.
-
-One small benefit to the user of direct soldering is that it reduces
-the overall parts cost by a few dollars, by eliminating the pin
-headers and sockets that would otherwise be needed for the four Picos.
-
-But the main reason I went with this approach is that it makes the
-trace layout a lot more tractable.  The Picos take up a lot of board
-space, and if the pins are exposed as through-hole pads, the rows of
-pads create lengthy barriers across both PCB layers that you can't
-readily route across.  Most traces would have to go around the rows of
-pins, which creates bottlenecks and wastes a lot of board space.  In
-contrast, the direct SMD-style mounting leaves the whole bottom layer
-open for routing under the Picos, so the space within the Pico's
-footprint can be put to good use for trace routing, in turn leaving
-more space outside the Pico footprints available for components.
-
-I don't think there's any reason to think the Pico is more likely than
-any other part to need replacement over the board's service life, and
-obviously all of the other parts are designed for direct soldering.
-If the Pico were a $50 part, or even a $10 part, I might be more
-hesitant.  But as a $4 part, it's not all that different from
-soldering a MOSFET or a Darlington chip to the board, and we don't
-really think twice about that.
+Note that the socketed-Pico version of the board **requires** using
+the sockets.  You shouldn't attempt to directly solder the Picos, even
+though it might look like you can do that from the shape of the pads,
+because the USB connectors on the Picos are set in a little too far
+from the edge of the board in this version.  That's likely to get in
+the way of the USB cable for a direct-soldered Pico.  Using the
+sockets lifts the Pico vertically above the board enough that it
+leaves room for the USB cable.

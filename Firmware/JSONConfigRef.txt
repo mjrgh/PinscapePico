@@ -3861,11 +3861,12 @@ ads1115.channel number|string|[number|string] optional
   only varies over a small portion of the 3.3V range.  The reference
   Pinscape Pico expansion boards take advantage of the differential
   capability by providing a voltage divider to create a 1.65V voltage
-  reference on AIN3, as shown in the diagram below.  This doesn't do
-  anything to improve the precision of the reference voltage itself,
-  since the voltage divider is supplied from the Pico's 3.3V regulator,
-  but it allows using a smaller amplifier range in the ADS1115 input
-  stage, effectively adding one more bit of resolution to the result.
+  reference on AIN3, as shown in the diagram below; use <tt>channel: "AIN0/AIN3"</tt>
+  for this wiring arrangement.  The benefit of this setup is that
+  you can use a smaller amplifier range setting in the ADS1115 input
+  stage, since the potentiometer reading can only vary from -1.65V to
+  +1.65V relative to the 1.65V reference on the divider.  This
+  effectively adds one bit of resolution to the digitized result.
 
   <img src="ADS1115-double-ended.png" class="circuit-diagram">
 
@@ -3885,18 +3886,19 @@ ads1115.channel number|string|[number|string] optional
   </table>
 
   You can set up multiple logical channels, by using an array for
-  the <tt>channel</tt> property.  You can freely mix and match
-  single-ended and double-ended inputs: you wish: <tt>channel: ["0/1", 2]</tt>
-  sets up two logical channels: one that reads a double-ended input on
+  the <tt>channel</tt> property.  And you can freely mix and match
+  single-ended and double-ended inputs.  For example, <tt>channel: ["0/1", 2]</tt>
+  sets up two logical channels, one that reads a double-ended input on
   pins AIN0/AIN1, and a second that reads a single-ended input on AIN2.
+
   The ADS1115 can physically only sample one channel at a time, so
   if you configure multiple channels, the chip has to cycle through
-  them in a round-robin rotation.  This slows down the sampling
+  the channels in a round-robin rotation.  This slows down the sampling
   rate for each channel by a factor of <i>N</i> (the number of
   channels configured), because the chip has to complete an entire
   sampling period for each channel before moving on to the next.
   For time-critical devices like a plunger sensor, it's better
-  to devote the whole ADS1115 chip to the single input so that the
+  to devote the whole ADS1115 chip to a single input so that the
   chip doesn't have to divide its time among other inputs.  You
   can connect up to four ADS1115 chips to the Pico, so if you
   need multiple inputs <i>and</i> maximum speed per input, the
@@ -3939,6 +3941,13 @@ ads1115.voltageRange number optional
   regardless of the amplifier range setting.  A voltage that exceeds
   the amplifier range setting simply clips to the maximum digital
   readout value (+32767).
+
+  <b>Important:</b>  The <tt>voltageRange</tt> setting only sets
+  the <b>internal</b> range on the input amplifier stage within the chip.
+  It <b>doesn't</b> make it safe for the input voltage at the AINx pin
+  to exceed the 0 to 3.3V supply voltage range.  Never apply a voltage
+  below 0V or above 3.3V to an AINx pin. Refer to the <b>Absolute Maximum Ratings</b>
+  section in the ADS1115 data sheet for details on the safe operating ranges.
 
 ads1115.sampleRate number optional
   The sampling rate, in samples per second.  This determines the rate at

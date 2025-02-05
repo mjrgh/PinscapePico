@@ -742,22 +742,22 @@
         
         // Output #12 - high-power MOSFET output #12 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 23 },
+            device: { type: "workerPico", unit: 0, port: 23 },  // note: Worker Pico nominal port 23 = GP28
         },
         
         // Output #13 - high-power MOSFET output #13 (power board)
         {
-            device: { type: "workerPico", unit: 1, port: 23 },
+            device: { type: "workerPico", unit: 1, port: 23 },  // note: Worker Pico nominal port 23 = GP28
         },
         
         // Output #14 - high-power MOSFET output #14 (power board)
         {
-            device: { type: "workerPico", unit: 1, port: 1 },
+            device: { type: "workerPico", unit: 1, port: 0 },
         },
         
         // Output #15 - high-power MOSFET output #15 (power board)
         {
-            device: { type: "workerPico", unit: 1, port: 0 },
+            device: { type: "workerPico", unit: 1, port: 1 },
         },
         
         // Output #16 - high-power MOSFET output #16 (power board)
@@ -827,82 +827,82 @@
 
         // Output #29 - Flasher #1 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 15 },
+            device: { type: "workerPico", unit: 0, port: 3 },
         },
 
         // Output #30 -  Flasher #2 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 14 },
+            device: { type: "workerPico", unit: 0, port: 2 },
         },
 
         // Output #31 -  Flasher #3 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 13 },
+            device: { type: "workerPico", unit: 0, port: 1 },
         },
 
         // Output #32 -  Flasher #4 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 12 },
+            device: { type: "workerPico", unit: 0, port: 0 },
         },
 
         // Output #33 -  Flasher #5 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 11 },
+            device: { type: "workerPico", unit: 0, port: 4 },
         },
 
         // Output #34 -  Flasher #6 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 10 },
+            device: { type: "workerPico", unit: 0, port: 5 },
         },
 
         // Output #35 -  Flasher #7 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 9 },
+            device: { type: "workerPico", unit: 0, port: 6 },
         },
 
         // Output #36 -  Flasher #8 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 8 },
+            device: { type: "workerPico", unit: 0, port: 7 },
         },
 
         // Output #37 -  Flasher #9 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 7 },
+            device: { type: "workerPico", unit: 0, port: 8 },
         },
 
         // Output #38 -  Flasher #10 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 6 },
+            device: { type: "workerPico", unit: 0, port: 9 },
         },
 
         // Output #39 -  Flasher #11 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 5 },
+            device: { type: "workerPico", unit: 0, port: 10 },
         },
 
         // Output #40 -  Flasher #12 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 4 },
+            device: { type: "workerPico", unit: 0, port: 11 },
         },
 
         // Output #41 -  Flasher #13 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 3 },
+            device: { type: "workerPico", unit: 0, port: 14 },
         },
 
         // Output #42 -  Flasher #14 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 2 },
+            device: { type: "workerPico", unit: 0, port: 13 },
         },
 
         // Output #43 -  Flasher #15 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 1 },
+            device: { type: "workerPico", unit: 0, port: 12 },
         },
 
         // Output #44 -  Flasher #16 (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 0 },
+            device: { type: "workerPico", unit: 0, port: 11 },
         },
 
         // Output #45 - Lamp #1 (power board)
@@ -992,7 +992,7 @@
 
         // Output #62 - Lamp #18 (power board)
         {
-            device: { type: "workerPico", unit: 2, port: 23 },
+            device: { type: "workerPico", unit: 2, port: 23 },  // note: Worker Pico nominal port 23 = GP28
         },
 
         // Output #63 - Lamp #19 (power board)

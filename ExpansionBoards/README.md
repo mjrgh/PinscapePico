@@ -42,16 +42,15 @@ for a new expansion board set.  (It doesn't act as a true general-purpose
 KL25Z emulator, though, since it's very specifically wired for the original
 Pinscape boards.)
 
-* <b>Power Distribution:</b> A simple board designed to help tidy up
-your virtual pin cab power supply wiring.  It doesn't do much other
-than route power from one connector to another, but the idea is that
-it makes your wiring simpler and more structured.  It does have a few
-simple active features: it has a 6.3V regulator for powering #555
-lamps (the type commonly used in arcade pushbuttons); it provides main
-power switching for all of the secondary supplies based on the main PC
-power on/off status; and it features wiring for a coin door safety
-interlock switch for a high-voltage (48V) supply, so that the
-high-voltage power is automatically cut off whenever you open the coin
-door to do maintenance work inside the cabinet.  It also features
-connectors that match the power connectors on the DIY-Friendly and Pro
-expansion boards, again just to make the wiring tidier.
+* <b>Power Distribution:</b> A simple board designed to help tidy up your
+virtual pin cab power supply wiring.  It doesn't do much other than route
+power from one connector to another, but the idea is that it makes your
+wiring simpler and more structured.  It does have a few active features: it
+has a 6.3V regulator for powering #555 lamps (the type commonly used in
+arcade pushbuttons); it provides main power switching (through a relay) for
+all of the secondary supplies, based on the main PC power on/off status; and
+it includes wiring for a coin door safety interlock switch for a
+high-voltage (48V) supply, so that the high-voltage power is automatically
+cut off whenever you open the coin door to do maintenance work inside the
+cabinet.  It also features connectors that match the power connectors on the
+DIY-Friendly and Pro expansion boards, again just to make the wiring tidier.

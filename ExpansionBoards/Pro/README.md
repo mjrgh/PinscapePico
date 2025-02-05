@@ -1,117 +1,82 @@
-# Prototype Raspberry Pi Pico-Based Pinscape Expansion Board - JLCPCB Edition
+# Pinscape Pico "Pro" Expansion Board
 
-This is a set of EAGLE plans for a prototype second generation
-Pinscape Expansion Board, based on the Raspberry Pi Pico
-microcontroller in place of the FRDM-KL25Z used in the original
-Pinscape boards.
+This is a set of EAGLE plans for an all-in-one expansion board for
+Pinscape Pico.  It includes all of the I/O ports and on-board
+peripherals needed for a high-end virtual pinball cabinet, all in a
+single board.
 
-The main motivation for this project is that the original Pinscape
-boards require two components that have become extremely difficult to
-source: the KL25Z microcontroller, and the TLC5940NT PWM controller
-chips.  It's impossible to build the boards without those parts, and
-both have been scarce for several years.  TI officially declared the
-TLC5940NT to be obsolete, so those won't ever be coming back.  NXP
-still lists the KL25Z as an active part, so it's possible they'll do
-another production run someday, but it's not clear if or when that
-will happen.
-
-The new boards are based on the Raspberry Pi Pico.  The Pico is
-similar to the KL25Z, but uses newer tech with some nice incremental
-improvements (e.g., a faster CPU and a lot more RAM), but the biggest
-advantage is that the Pico is widely and amply available.  And it
-seems likely to remain widely and amply available, because it's become
-hugely popular, and it's made by a company whose whole mission is
-making hobbyist-friendly devices like this.
-
-The Pico does have a couple of disadvantages vs the KL25Z, the biggest
-being that it lacks an accelerometer (the KL25Z features an excellent
-built-in accelerometer).  The Pico also has a much smaller complement
-of GPIO ports (the externally exposed pins that allow the CPU to
-connect to peripheral devices like lights, buttons, and
-accelerometers).  These deficiencies make the Pico unsuitable for use
-as a standalone pin cab button-and-nudge device, which is one of the
-neat little tricks the KL25Z can do.  However, it's a great starting
-point for an expansion board system, since we can use the boards to
-add peripheral devices for all of the features the Pico lacks
-natively.
+I refer to this as the "Pro" board, because it uses small-pitch SMD
+parts that make it difficult to assemble by hand.  It's best suited
+for robotic assembly, which probably puts it out of reach for DIY
+builds.  Factory assembly of a large board like this is usually only
+cost-effective when you're making at least 50 to 100 units, so I think
+the only people who will want to build this board are our more
+entrepreneurially-minded community members who plan to stock a batch
+for retail sales.  There's a separate two-board "DIY-Friendly" set,
+based entirely on through-hole parts that are easy to solder by hand,
+that should be a lot more interesting if you're only planning to build
+one for your own use.
 
 
-## Factory assembly edition
+## Features
 
-This edition of the board is designed for factory assembly, rather
-than soldering the parts by hand.  I started off designing the board
-for hand-assembly, since that's more consistent with the DIY spirit of
-the project, but I decided to investigate factory assembly for two
-reasons.  The first is that there are simply no good options for the
-accelerometer chip that *aren't* in DIY-hostile packages - every
-option I could find was in a QFN package or something worse.  So no
-matter what I chose for all of the other parts, I couldn't avoid
-having that one part that would pose a big challenge for everyone
-trying to build the board by hand.  I figured that this would vastly
-reduce the number of people who would be willing to even attempt the
-project, and create a lot of frustration for a lot of people who did
-attempt it.  The second reason that I decided to look at factory
-assembly is that this board simply has a lot of parts.  I tried my
-best to minimize the part count by carefully choosing parts that could
-do most of the work with minimal supporting components, but I still
-ended up with over 120 components.  That's a lot of work just sourcing
-the parts, let alone soldering them.  So given the amount and of labor
-and degree of difficulty that would be involved in building the board
-by hand, I figured it was worth exploring if factory assembly would be
-economically feasible for DIYers.
+* 32 button inputs, using 74HC165 shift registers for extremely
+low latency
 
-The main difference between a "hand assembly" version of the board and
-a "factory assembly" version is that the factory version is free to
-use components that are difficult to solder by hand.  In particular,
-the factory version uses parts with smaller physical form factors
-(e.g., 0402 capacitors) and ICs with fine-pitched pins and pins hidden
-under the package (e.g., QFN).  These parts are extremely difficult to
-handle and solder manually, so I would very much try to avoid them in
-a design intended for hand-assembly.  But if we're going to assume
-that hand-assembly isn't a priority, then there are some nice benefits
-to using the smaller parts.  The big "customer" benefit is that we can
-pack more features into the available space, but the smaller parts
-also have some engineering advantages (e.g., smaller bypass capacitors
-can be placed closer to the power pins they're supplying, and circuit
-trace routing can be improved because the obstacles to route around -
-the SMD pads - are smaller), as well as price advantages (e.g., the
-QFN version of TLC59116F is for some reason about half the price of
-the SOIC version, which is actually a significant difference as this
-is a fairly expensive chip - as of this writing, using QFN instead of
-SOIC takes about $12 off the total component cost of each board).
+* 24 high-power MOSFET outputs with fixed-frequency (98kHz) PWM,
+for devices like solenoids, motors, and basic ("dumb") LED strips
 
-Even though I'm targeting the board for factory assembly, I'm
-determined to keep it a hobbyist project, not a commercial venture.
-In particular, I don't want anyone to have to contract with Foxconn to
-make 10,000 copies of the board and store them in a warehouse
-somewhere.  I want individual pin cab builders to be able to build
-boards on demand, with a small minimum order size, just like the
-original Pinscape boards.  Fortunately, this is actually possible
-these days!  There are a few online vendors that specialize in PCB
-assembly for hobbyists.  That means they have small minimum order
-sizes at reasonable prices.  I haven't found any vendors who will
-assembly just one copy of a PCB, but there are several who have
-minimum order sizes of only five to ten copies.  That's still more
-than most of us hobbyists need, since most of us hand-craft a single
-pin cab at a time and thus will only need one control board for it.
-But it's a small enough minimum that it's at least plausible that most
-of us can make something work with group orders.
+* 4 high-power MOSFET outputs with adjustable PWM frequency per port,
+for devices that need special PWM frequency settings
 
-I specifically selected one PCB assembly vendor as the target vendor
-for the project, so that I could test that the design was actually
-manufacturable by at least one company and so that I could get
-concrete price information.  I also tailored the component selections
-according the vendor's catalog, to help improve the chances that the
-parts on the board would be available.  The vendor I chose is JLCPCB.
-They offer small minimum order sizes (5 copies of the board) at
-reasonable prices, and they have a highly automated order entry system
-that requires very little manual data entry to place an order.  You
-absolutely do not have to choose this same vendor if you want to build
-the project!  The main point of targeting one vendor was to concretely
-test that the board was feasible to manufacture.  And if it's feasible
-at one vendor, it should also be feasible at most other vendors, since
-all of the PCB fabricators have to maintain similar capabilities to
-remain competitive.
+* 15 flasher ports, 1 Amp per port, for connecting up to two flasher panels
+(with 5 RGB LEDs each) in parallel, using the same ribbon cable connector
+as the original Pinscape KL25Z boards; plus a 16th 1A port for a strobe
+or other medium-power device
+
+* 8 lamp ports, 500mA per port, for pushbutton lamps or other medium-power devices
+
+* 16 small-LED ports, 120mA per port, for individual low-power LEDs
+
+* Plunger connector compatible with the original Pinscape KL25Z expansion board plunger header,
+with software support for all of the same sensors
+
+* IR receiver and transmitter connectors, for connecting a sensor and emitter that can
+be positioned anywhere inside or outside the cabinet, for line-of-sight contact
+with communicating devices
+
+* Analog input port for a two-axis potentiometer-based joystick or any other ad hoc analog inputs
+
+* UART port for logging and console connections to the Pinscape Pico firmware
+
+* Accelerometer (LIS3DH, but the design can be easily adapted to any other I2C accelerometer)
+
+* High-resolution ADC (ADS1115), for improved plunger sensor input
+
+* Real-time clock chip with con-cell battery backup, for timekeeping while the power is off
+
+* Pinscape TV-ON power detection circuit
+
+* Hard reset button for the Pico
+
+
+## JLCPCB edition
+
+This board is tailored to the parts catalog for JLCPCB, a Chinese PCB
+fabricator that sells direct to hobbyists.  I decided to design the
+board around JLCPCB's parts catalog so that I had a concrete vendor
+reference point to make sure the board was actually feasible to
+manufacture, with parts that could be sourced at the vendor.
+
+There's absolutely no hard dependency on JLCPCB as the manufacturer.
+Virtually every fabricator will accept the Gerber files that EAGLE can
+mechanically generate from the board layout, and most fabricators can
+source whatever parts you specify, one way or another.  It's just likely
+to cost more and take longer if your fabricator has to order parts
+separately.  If you do want to order the board from another fabricator,
+you might want to go through the parts list and substitute parts that
+your selected vendor keeps in stock wherever possible.  That might
+require some slight customization of the board layout, of course.
 
 
 ## Status
@@ -258,29 +223,6 @@ deficiencies.  The most popular plunger sensor type right now is
 probably the linear potentiometer, and those benefit greatly from
 high-resolution quantization, so I thought it was worth including a
 good ADC in the design.
-
-
-
-### Unused GPIOs
-
-The board design leaves several RP2040 GPIO ports unassigned.  I
-included a header, labeled "Expansion", that provides external access
-to all of the unused GPIOs and unused input ports on the ADC.  This
-can be used for future add-on boards or for custom user-added
-features.
-
-The expansion port also provides access to the Pico's 3.3V power rail,
-so that peripherals added via the expansion port get their power from
-the same source as the Pico.  Peripherals should usually be powered
-from the same rail as the MCU to avoid damage to either device, since
-the data pins on both devices might be intolerant of being driven to
-voltages above the respective device's current Vcc level.
-
-This is probably an unnecessary complication, in that I don't think
-anyone ever used the similar port that was provided on the original
-Pinscape boards.  But it was fairly easy to include in the design, and
-it only adds one fairly inexpensive part (a 2x8 0.1" pin header for
-the port) to the build cost.
 
 
 ### PWM chips and MOSFET gate drivers

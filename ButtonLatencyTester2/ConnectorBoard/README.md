@@ -15,7 +15,8 @@ to wire for temporary connections (fitting this board's mission as
 a testing tool).  Plus, many of popular key/button encoder boards use
 these same screw terminals, or something very much like them, so this
 should make it easy to move your existing wiring over from an encoder
-that's already installed in a pin cab.
+that's already installed in a pin cab (and then just as easily move
+it back when you're done with the testing).
 
 ## Connection diagram
 
@@ -33,13 +34,13 @@ Mouser or Digikey.)
 
 Install a mating set of 0.1" pin headers on the **bottom** of the
 Pico, so that you can install the Pico in the sockets face-up as
-shown.  Many people install pins on the bottom of the Pico so that
-they can use the Pico in a breadboard - the same thing works here.
+shown.  Installing pins on the bottom of the Pico is what most
+people usually do anyway, for use in a breadboard.
 
-Be sure that the Pico is installed in the correction direction,
-with the USB port oriented as shown.  To save space on the board
-(for lower cost), only one row of Pico pins connects to the board.
-The other row can just be left unconnected.
+Be sure that the Pico is installed in the correction orientation, with
+the USB port at the "top" of the board as shown.  To save space on the
+board (for lower cost), only one row of Pico pins connects to the
+board.  The other row can just be left unconnected.
 
 ## Button wiring
 
@@ -52,6 +53,21 @@ Each button terminal has four pins:
 * <b>Encoder Port:</b> Connect this to the button's input port on the subject device
 
 * <b>Encoder GND/Common:</b> Connect this to the subject device's Common or Ground/GND terminal
+
+You should only connect a normal mechanical switch, such as a
+microswitch or a flipper button leaf switch, to a button terminal.
+Standard Suzo-Happ arcade pushbuttons use microswitches, so they're
+fine.  The only kind of "button" commonly found in a pin cab that
+doesn't fit this description is the electronic pulse switches found in
+some fancy coin acceptors - don't connect those.
+
+The order of the button terminal connections doesn't matter, unless
+you're planning to daisy-chain the Ground/Common connection on the
+buttons.  In that case, connect the daisy-chained side to the
+"Button (GND)" terminals on the board.  All of the "Button (GND)"
+terminals connect to the Pico ground on the board, so you only have to
+connect one button on the daisy chain to a GND on the board.  You can
+leave the other "Button (GND)" terminals unconnected.
 
 When configuring the Windows-side button latency tester program, refer
 to the diagram for the Pico GPIO port assignments corresponding to the

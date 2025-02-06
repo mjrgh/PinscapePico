@@ -57,17 +57,24 @@ Each button terminal has four pins:
 You should only connect a normal mechanical switch, such as a
 microswitch or a flipper button leaf switch, to a button terminal.
 Standard Suzo-Happ arcade pushbuttons use microswitches, so they're
-fine.  The only kind of "button" commonly found in a pin cab that
-doesn't fit this description is the electronic pulse switches found in
-some fancy coin acceptors - don't connect those.
+fine.  The only kind of "buttons" commonly found in a pin cab that
+don't fit this description are the electronic 12V pulse switches
+found in some fancy multi-currency coin acceptors - don't connect
+those.  (But I doubt anyone is too interested in measuring latency
+for coin acceptor switches anyway.)
 
-The order of the button terminal connections doesn't matter, unless
-you're planning to daisy-chain the Ground/Common connection on the
-buttons.  In that case, connect the daisy-chained side to the
-"Button (GND)" terminals on the board.  All of the "Button (GND)"
-terminals connect to the Pico ground on the board, so you only have to
-connect one button on the daisy chain to a GND on the board.  You can
-leave the other "Button (GND)" terminals unconnected.
+The order of the terminals on button switch connections doesn't
+matter, unless you're planning to daisy-chain the Ground/Common
+connection on the buttons.  In that case, connect the daisy-chained
+side to the "Button (GND)" terminals on the board.  All of the "Button
+(GND)" terminals are wired together internally on the board, all
+connecting to the Pico ground, so if your buttons also have their
+grounds all connected together in a daisy chain, it's not necessary to
+separately connect each button's ground wire to the board.  You just
+have to connect any one of the button ground wires to any one "Button
+(GND)" terminal on the board, and the others will all be connected
+automatically through the daisy chain.  You can leave the rest of the
+"Button (GND)" terminals unconnected.
 
 When configuring the Windows-side button latency tester program, refer
 to the diagram for the Pico GPIO port assignments corresponding to the

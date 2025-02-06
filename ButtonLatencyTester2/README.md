@@ -68,7 +68,7 @@ reaches the human-perceptible latency range of around 30ms.
 To select DirectInput, add `--api directinput` to the command line when
 running the host program.
 
-### Initial finds about API effects
+### Initial findings about the APIs
 
 My own ad hoc testing indicates that applications should use Raw Input
 and Open Pinball Device whenever possible.  With Pinscape Pico devices

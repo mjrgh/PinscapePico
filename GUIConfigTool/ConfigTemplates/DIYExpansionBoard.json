@@ -1364,15 +1364,22 @@
     //
     // The Pico's internal pull-up resistors on the SDA/SCL GPIO ports
     // must be disabled, because the peripheral power supply can be
-    // disabled when the Pico has power, through a separate power
-    // regulator dedicated to the peripherals.  This allows the Pico
-    // to perform a hard reset on the peripherals under software control,
-    // so that peripherals can be reset to a working state in the event
-    // of any glitches without the need to unplug the whole board.  It's
-    // potentially harmful to some devices to apply power to their I2C
-    // pins when the chip's main power supply is off, so we don't want
-    // the Pico to pull the I2C lines to 3.3V via its internal power.
-    // We can prevent that by disabling the internal pull-ups.
+    // disabled when the Pico has power, through a separate 3.3V power
+    // switch dedicated to the peripherals.  This allows the Pico
+    // software to perform a hard reset on the peripherals by simulating
+    // a power cycle, so that the peripherals can be forced to their
+    // power-on reset condition in the event of any glitches, without
+    // making you manually unplug the whole board.  This separate
+    // peripheral power control means that the Pico can still be
+    // powered while the peripherals are not, so if we used the Pico's
+    // internal pull-ups, we could potentially connect the peripheral
+    // data pins to power through the Pico when their own power is
+    // turned off (during one of these simulated power cycles).  Some
+    // chips don't tolerate that, so it's best to keep the internal
+    // pull-ups turned off.  And they're unnecessary anyway, since
+    // the expansion board has its own external pull-ups on the I2C
+    // lines (and they're properly powered from the peripheral 3.3V
+    // supply, ensuring that they're only powered when the chips are).
     i2c1: {
         sda: 6,              // GPIO port of I2C0 SDA (serial data) connection
         scl: 7,              // GPIO port of I2C0 SCL (serial clock) connection
@@ -1385,9 +1392,10 @@
     // a non-I2C plunger sensor is used, so we don't want to force the
     // GPIOs into I2C mode unless I2C is actually needed.  We can
     // accomplish this with with "enable-on-demand" mode, which means
-    // that the bus is only actually activated if at least one device
-    // (namely, one of the I2C plunger sensors) is configured on the bus.
-    // Otherwise, the pins will be left available for other assignments.
+    // that the bus is only activated if at least one device is
+    // configured on the bus (in this case, one of the I2C plunger
+    // sensors).  If not, I2C0 won't claim the GPIO pins, so they'll be
+    // available for other assignments without complaint.
     i2c0: {
         sda: 12,
         scl: 13,

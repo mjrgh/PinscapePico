@@ -58,24 +58,94 @@ software system.
 Unlike the original Pinscape KL25Z expansion boards, where you were
 encouraged to mix and match the Main, Power, and Chime boards in
 different combinations to come up with a bespoke port layout, this
-board set is designed as a One-Size-Fits-All solution.  The two boards
-in the design are meant to work together as a set.  The second board
-isn't an optional add-on, but is meant to be there from the start.
-And the second board is meant to *complete* the set: there's no
-provision for adding on a third board or a fourth board.  What we lose
-in flexibility we gain in simplicity, in that you won't have to come
-up with a wholly custom configuration for a wholly custom set of
-boards.  And to make up for the loss in flexibility, the new board set
-is ridiculously complete all by itself: it has so many ports that
-you're almost certainly going to run out of space in your cabinet for
-new toys before you run out of ports.  There are enough ports to cover
-every standard toy in the DOF database, with a few left over for
-your original ideas.
+board set is designed as a One-Size-Fits-All solution.  There's no
+provision to add a second or third power board, and there aren't any
+optional add-on boards comparable to the Chime board.  The goal is
+that the two boards have enough general-purpose ports between them
+that no one would even want to add a third board - the two boards
+should cover just about everything in a full-featured pin cab.
 
-This is my "reference" expansion board, but I don't intend it to be
-the one-and-only expansion board for Pinscape Pico.  The new software
-is designed to work with lots of different hardware environments, so
-there's lots of room for alternative board designs. 
+You can, however, use the main board all by itself.  I tried to
+arrange things so that almost everything is on the main board, except
+for the bulk of the output ports.  And even then, the main board has a
+fair number of outputs.  If you use the main board on its own, you
+still get the 16 flasher/strobe ports and 12 of the high-current MOSFET
+outputs, plus all of the other I/O functions (buttons, accelerometer,
+plunger connections, IR remote, TV ON).  The second board just adds 16
+more high-current MOSFET outputs and the 32 mid-power lamp outputs,
+plus the real-time clock chip, which most people won't especially miss.
+If you don't need all of the extra output ports or the RTC, the main
+board makes a perfectly good stand-alone controller.
+
+My reason for using a less "modular" design than the old boards is
+that I think the modularity ended up being a net negative: it added
+flexibility, but at the cost of more complexity.  And I don't think
+very many people took advantage of the flexibility - I think
+practically everyone built one of the "standard" configurations,
+either the Main + Power board combo, or a Main + Power + Chime set.
+But everyone still had to go through the process of planning their
+setup and then customizing their configuration settings once it was
+built.  This time around, I figured that if everyone's going to build
+the standard configuration anyway, let's make the standard configuration
+so comprehensive that no one would really need other options.  It
+simplifies the design, and it simplifies everyone's planning and
+setup process.
+
+## No hardware chime timers
+
+The Pinscape KL25Z expansion boards included the Chime Board option,
+which had ports with hardware timers to protect against software
+faults that locked ports on, potentially damaging high-current coils
+of the sort used in replay knockers and chime units.  This board set
+doesn't have any such hardware-protected ports.  To make up for it,
+the Pinscape Pico software has equivalent timer protection that can be
+configured on a port-by-port basis.  In addition, the software and
+hardware both have fail-safe features that are designed to protect
+against faults at the Pinscape Pico firmware level, where the software
+timers are implemented:
+
+* The Pinscape Pico firmware programs the Pico's hardware "watchdog"
+unit to reset the Pico is the software ever stops functioning
+for more than a few milliseconds.  The watchdog is an independent
+hardware unit on the Pico that forces a hard reset if the software
+stops sending it messages saying "I'm not dead yet" for more than
+a programmed time limit, so it's very good at detecting software
+faults and forcing the Pico into a hard reset.
+
+* The expansion board hardware is designed so that all ports turn off
+instantly and deterministically when the Pico is in a hardware reset
+condition.
+
+These features work together as a backstop against failures in the
+Pinscape software that monitors the port time limiters.  As long as
+the software is functioning correctly, it should take care of applying
+the programmed time limits set by the flipper logic/chime logic
+configuration options in the output port setup.  If the software ever
+gets stuck in such a way that it can no longer apply the software time
+limiters, it will also be unable to send "not dead yet" messages to
+the watchdog hardware, so the watchdog will rapidly reset the Pico at
+the CPU level.  And once the Pico resets, the physical output port
+controllers on the board go into their default power-on condition,
+which turns off all of the output ports.
+
+Nothing is quite as perfectly predictable as a dedicated hardware
+timer like on the old Chime boards, but I've tried to carefully design
+the new system to be as close as possible.  The benefit is that
+omitting the hardware timers saves a lot of board space, parts cost,
+and assembly work.  The timer circuits required about ten additional
+components per output port, which is why I could only fit 8 output
+ports on each Chime board.  I think this new design comes very close
+to the same level of protection, at lower cost, and with greater
+flexibility (in that each port's protection parameters can be
+individually configured).
+
+
+
+## No support for smart light strips
+
+The one big virtual pin cab feature that these boards don't support is
+"smart" light strips, with individually addressable LEDs, such as
+WS2812B strips.  You still need a separate controller for that.
 
 ## Files
 

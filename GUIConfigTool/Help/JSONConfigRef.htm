@@ -5172,7 +5172,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 <a name="mc3416"></a>
 <div class="jsonSectTitle">MC3416 Accelerometer</div>
 <p>
-  Configures an MC3416 accelerometer chip.  
+  Configures an MC3416 accelerometer chip.
+  </p><p>
+  <img src="MC3416-wiring.png" class="circuit-diagram">
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{
@@ -5269,6 +5271,8 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 <div class="jsonSectTitle">MXC6655XA Accelerometer</div>
 <p>
   Configures an MXC6655XA accelerometer chip.  
+  </p><p>
+  <img src="MXC6655XA-wiring.png" class="circuit-diagram">
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{
@@ -6661,13 +6665,28 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   used to add PWM output ports to the Pico.  This property is given as an
   array of objects, with each object specifying the configuration for one chip.
   </p><p>
-  When designing hardware for the PCA9685, keep in mind that the chip powers
-  up with all of its output port driven LOW.  This means that whatever the
-  chip's output ports control must be wired active-HIGH, if you wish to avoid
-  glitches during startup.  An active-LOW device driven by the chip will always
-  be triggered momentarily (at least) during startup, since each output port is
-  always LOW after a hardware reset.  If glitch-free startup isn't required,
-  the outputs can be used in active-LOW mode, 
+  <img src="PCA9685-wiring.png" class="circuit-diagram">
+  Wiring notes:
+  <ul>
+  <li>The /OE pin can be connected to a Pico GPIO to allow the
+  software to control the output port enabled/disabled status.
+  A pull-up resistor to 3.3V on this line ensures that ports remain
+  disabled during software initialization, until the Pinscape software
+  configures the Enable GPIO port.  /OE must be connected directly to
+  ground if software control isn't needed.
+  Multiple PCA9685 chips can be connected to the same Pico GPIO to control
+  all chip outputs together.
+  <li>The LED output shown in the diagram assumes the open-drain output
+  port configuration, where the PCA9685 port acts as a low-side (ground)
+  switch for the LED.  Ports can also be configured in totem-pole mode,
+  where the chip drives the output high (3.3V) or low (0V).  See the
+  data sheet for wiring examples.
+  <li>All output ports are set at power-up to logic 0 (GND).  If you're
+  using the chip to drive outputs through an amplifier/booster circuit,
+  you can achieve glitch-free startup by designing the booster to use an
+  active-high trigger (so that the power-up logic 0 level on the PCA9685
+  ports corresponds to an OFF condition on the booster outputs).
+  </ul>
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{
@@ -8796,7 +8815,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     on, so this lets you insert some delay time as needed.
     </p><p>
     Command strings are given in the Pinscape universal IR code format.
-    Theeasiest way to determine the command string for a particular remote 
+    The easiest way to determine the command string for a particular remote 
     control button is via the Config Tool's IR & TV ON window, which shows 
     command codes that are received on the IR sensor as they come in.  Open
     the IR window, then point your remote control at the Pinscape receiver
@@ -8926,15 +8945,13 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         <span class="jsonPropType">string</span><span class="jsonPropOptional">Optional</span>
       </div>
       <div class="jsonPropDesc">
-    <div class="jsonEnumVals">
-       One of: <span class="jsonEnumVal">"manual"</span>, <span class="jsonEnumVal">"pulse"</span>, <span class="jsonEnumVal">"switch"</span>
-    </div>
     <p>
       Sets the relay mode.  If not set, the default is "pulse".  The valid modes are:
       </p><p>
       <table>
       <tr><th>Mode</th><th>Description</th></tr>
-      <tr><td>"pulse"</td>
+      <tr>
+      <td>"pulse"</td>
       <td>
       The default setting.  Pulse the relay at system power-up (after the initial delay timer), for the time
       set in the pulseTime property.  This mode is designed for TVs with ON/OFF toggle buttons, where you want
@@ -8942,7 +8959,8 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       starts up, thereby turning on the TV.
       </td>
       </tr>
-      <tr><td>"switch"</td>
+      <tr>
+      <td>"switch"</td>
       <td>
       Switch the relay on at system startup (after the initial delay timer), and leave it on as long as
       system power is on.  This is designed for setup where the relay directly controls power to the TV,
@@ -8952,7 +8970,8 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       power strip.
       </td>
       </tr>
-      <tr><td>"manual"</td>
+      <tr>
+      <td>"manual"</td>
       <td>
       The relay is controlled only through commands sent from the host (via the Config Tool, or via
       custom software using the Pinscape Pico API).  No automatic relay action occurs at power-on.
@@ -8961,7 +8980,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       system starts up.
       </td>
       </tr>
-      <table>
+      </table>
     </p>
       </div>
     </div>

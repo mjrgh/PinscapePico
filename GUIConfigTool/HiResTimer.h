@@ -56,7 +56,7 @@ protected:
 	// convert from ticks to seconds.
 	double tickTime_sec;
 
-	// Performance counter clock period in microseconds.  Multiply
+	// Performance counter clock period in microsec onds.  Multiply
 	// an interval by this factor to convert to microseconds.
 	double tickTime_us;
 

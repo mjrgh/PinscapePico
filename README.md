@@ -145,6 +145,23 @@ for troubleshooting problems that don't easily yield to other means
 * GUI configuration and testing tool, with detailed visualizations of hardware
 and software status for button inputs, feedback device outputs, plunger sensor, and IR features
 
+### No smart light strip support
+
+Pinscape Pico (like its KL25Z predecessor) doesn't have any support
+for smart light strips with individually addressable LEDs, such as
+WS2812B strips.  You still need a separate controller for that.
+
+The Pico hardware is powerful enough to handle the WS2812B protocol
+concurrently with the other Pinscape functions, so I might look into
+adding this at some point.  However, the Pico is also quite limited on
+GPIO ports, so I'm not sure anyone would really be all that happy
+trying to cram both functions into a single Pico, when they consider
+how severely it would constrain the available GPIO ports for each
+function.  I think everyone might end up happiest with the current
+situation, where you just use a separate, dedicated controller for the
+your smart LED strips.
+
+
 ## Documentation
 
 The main documentation right now is the Config Tool help.  That has extensive
@@ -226,7 +243,7 @@ why we also added `--reset` at the end.
 
 You can update the firmware using the same procedure as the initial
 install, by forcing the Pico into Boot Loader mode via the BOOTSEL
-button and manually copying the new UF2 file. 
+button and manually copying the new UF2 file.
 
 But there's also an easier way.  Once Pinscape is installed, the
 Config Tool can install firmware updates for you with a couple of
@@ -317,7 +334,7 @@ EAGLE layouts in the [ExpansionBoards](ExpansionBoards) folder.
   set of features to the DIY-friendly set, just with everything
   packed into a single board, thanks to the higher density made possible
   by fine-pitch SMD parts.  I call it the "Pro" board not because
-  it's any better than the DIY board, but just because it's not the 
+  it's any better than the DIY board, but just because it's not the
   sort of thing most people would *want* to build by hand, thanks
   to the use of small SMD parts.  It's really only practical to assemble
   robotically, and that probably means that it will only be economical
@@ -338,8 +355,8 @@ EAGLE layouts in the [ExpansionBoards](ExpansionBoards) folder.
 
 But Pinscape Pico isn't limited to *my* expansion board designs.
 The software was designed from the ground up to be fully configurable,
-and has support for numerous peripheral options.  It doesn't make any 
-assumptions about which peripheral devices are present.  It'll work 
+and has support for numerous peripheral options.  It doesn't make any
+assumptions about which peripheral devices are present.  It'll work
 just as well with other people's expansion board designs as with my
 board designs.
 

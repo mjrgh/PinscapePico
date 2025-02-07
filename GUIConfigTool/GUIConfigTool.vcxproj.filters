@@ -370,15 +370,6 @@
     <Image Include="resources\OpenPinDevButtons.bmp">
       <Filter>Resources</Filter>
     </Image>
-    <Image Include="Help\ADS1115-single-ended.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\ADS1115-double-ended.png">
-      <Filter>Help Files</Filter>
-    </Image>
-    <Image Include="Help\TLC59116-wiring.png">
-      <Filter>Help Files</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Help\PlungerCal.htm">
@@ -493,6 +484,24 @@
       <Filter>Help Files</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Help\TLC5940-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\TLC59116-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\ADS1115-double-ended.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\ADS1115-single-ended.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\MC3416-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\MXC6655XA-wiring.png">
+      <Filter>Help Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Help\PCA9685-wiring.png">
       <Filter>Help Files</Filter>
     </CopyFileToFolders>
   </ItemGroup>

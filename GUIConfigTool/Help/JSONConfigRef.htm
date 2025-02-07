@@ -8147,6 +8147,31 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   Despite those hardware differences, the variants all have the same software
   interface, so the Pinscape configuration uses the <tt>tlc59116</tt>
   property no matter which variant of the chip you're using.
+  </p><p>
+  <img src="TLC59116-wiring.png" class="circuit-diagram">
+  Wiring notes:
+  <ul>
+  <li>The resistor on the REXT pin sets the current limit for all OUT
+  ports.  See the data sheet for the formula relating the resistor size
+  to the output current limit.  The TLC59116F variant of the chip has
+  simple open-drain outputs (with no current limitation), so REXT is
+  not connected.
+  <li>Pins A0-A3 set the I2C bus address for the chip.  Connect each
+  pin to GND or 3.3V.  See the data sheet for details on how the address
+  is formed.  Note that addresses 0x68 and 0x6B are reserved, so you
+  must not use those patterns (A3-A0 = 1000 and 1011).
+  <li>Each output port in a TLC59116 is limited to the maximum current
+  set by the REXT resistor, so LEDs can be connected directly, without
+  the need for a current-limiting resistor on each LED.  The TLC59116F
+  variant of the chip has simple open-drain outputs with no internal
+  current limiter, so a resistor is required per LED.
+  <li>The /RESET pin can be optionally connected to a GPIO port on the
+  Pico, to allow the Pico to perform a hard reset on the TLC59116 under
+  software control.  For deterministic behavior during a Pico reset,
+  also connect the line to ground through a 10K resistor.  The Pico
+  GPIO connection is optional; if not used, you must instead connect /RESET
+  to 3.3V through a 10K resistor.
+  </ul>
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{

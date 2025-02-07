@@ -417,6 +417,7 @@
     </CopyFileToFolders>
     <Image Include="Help\ADS1115-single-ended.png" />
     <Image Include="Help\ADS1115-double-ended.png" />
+    <Image Include="Help\TLC59116-wiring.png" />
     <Image Include="resources\bitmap1.bmp" />
     <Image Include="resources\BootDriveIcon.png" />
     <Image Include="resources\BootselButton.bmp" />

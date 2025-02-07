@@ -4199,7 +4199,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="91.241" y="4.217" size="1.27" layer="25" rot="R90" align="center"/>
 <attribute name="VALUE" x="98.017" y="3.255" size="0.6" layer="27" align="center"/>
 </element>
-<element name="R19" library="resistor" package="0204/7" value="1.8K" x="97.3" y="14.7" smashed="yes">
+<element name="R19" library="resistor" package="0204/7" value="540R" x="97.3" y="14.7" smashed="yes">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="97.3" y="14.7" size="0.6" layer="27" display="off"/>
 <attribute name="NAME" x="96.16" y="15.6954" size="0.9906" layer="25" ratio="10"/>
 <attribute name="VALUE" x="95.6744" y="14.2174" size="0.9906" layer="27" ratio="10"/>

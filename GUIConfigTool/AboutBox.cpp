@@ -118,7 +118,7 @@ void AboutBox::PaintOffScreen(HDC hdc0)
     int x = 16;
     int y = szLogo.cy + 16;
     y += hdc.DrawText(x, y, 1, titleFont, HRGB(0x800080), "Pinscape Pico Config Tool").cy + 4;
-    y += hdc.DrawTextF(x, y, 1, boldFont, HRGB(0x000000), "Version %s | Build %s", gVersionString, GetBuildTimestamp()).cy + 8;
+    y += hdc.DrawTextF(x, y, 1, boldFont, HRGB(0x000000), "Version %s | Build %s", gVersionSt ring, GetBuildTimestamp()).cy + 8;
     y += hdc.DrawText(x, y, 1, mainFont, HRGB(0x000000), "Copyright 2024, 2025 Michael Roberts").cy;
     y += hdc.DrawText(x, y, 1, mainFont, HRGB(0x000000), "Released under an open source license (BSD-3-Clause) | NO WARRANTY").cy;
 

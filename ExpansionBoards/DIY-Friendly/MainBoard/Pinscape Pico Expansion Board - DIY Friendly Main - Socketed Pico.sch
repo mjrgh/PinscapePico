@@ -9943,7 +9943,7 @@ high speed (Philips)</description>
 <part name="GND38" library="supply1" deviceset="GND" device=""/>
 <part name="J11" library="SamacSys_Parts" deviceset="640454-2" device=""/>
 <part name="J10" library="SamacSys_Parts" deviceset="215079-4" device=""/>
-<part name="R19" library="resistor" deviceset="R-US_" device="0204/7" value="1.8K">
+<part name="R19" library="resistor" deviceset="R-US_" device="0204/7" value="540R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="GND6" library="supply1" deviceset="GND" device=""/>
@@ -13336,13 +13336,14 @@ Pinscape v1 board compatible connector</text>
 <description>IR Remote</description>
 <plain>
 <text x="12.7" y="76.2" size="1.778" layer="91">IR REMOTE CONTROL TRANSMITTER
-Use with TSAL6400 IRED or equivalent, with a
-peak wavelength around 940nm.  Set the
+Use with TSAL6400 IRED or equivalent, with
+a peak wavelength around 940nm.  Set the
 current-sense resistor according to the
 desired forward current on the IR LED.
 
-The IR LED should be connected directly to
-the header (no external resistor is needed).
+No external current-limiting resistor is
+needed.
+
 Two IR LEDs can be connected in series
 provided that Vf is less than about 1.9V.</text>
 <text x="106.68" y="78.74" size="1.778" layer="91">IR REMOTE RECEIVER CONNECTOR
@@ -13354,11 +13355,12 @@ supply filter circuit (220R + 150nF) shown in the data sheet.</text>
 <text x="44.45" y="66.04" size="1.778" layer="91" align="center-left">===&gt; IRED Anode (+)</text>
 <text x="129.54" y="58.42" size="1.27" layer="91" align="top-left">Note: TE Connectivity Micro-Match 215079-4 base pairs
 with 215083-4 on-cable IDC connector.</text>
-<text x="53.34" y="17.78" size="1.778" layer="91" align="center-left">Resistor sets current to I(LED) = 0.5V/R
+<text x="53.34" y="17.78" size="1.778" layer="91" align="center-left">CURRENT-SENSE RESISTOR
+Resistor sets current to I(LED) = 0.5V/R
 R=2.5 ohms -&gt; 200mA current</text>
 <text x="60.96" y="33.02" size="1.778" layer="91" align="center-left">NPN substitutes: choose any medium-power NPN
 with Hfe around 100</text>
-<text x="63.5" y="106.68" size="1.778" layer="91">IR EMITTER / IR RECEIVER
+<text x="63.5" y="111.76" size="1.778" layer="91">IR EMITTER / IR RECEIVER
 The emitter and receiver are designed to be
 installed remotely to allow placing them in
 suitable line-of-sight locations.</text>

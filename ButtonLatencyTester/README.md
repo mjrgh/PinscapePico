@@ -1,6 +1,6 @@
 # Button Latency Tester
 
-This Pinscape Pico sub-project is a Windows program program that
+This Pinscape Pico sub-project is a Windows program that
 measures the latency of button presses on the Pico.  It's not part of
 the official distribution, since I only developed it for my own
 testing purposes: hence it's not documented, and it only covers the

@@ -800,6 +800,13 @@ void PinscapeVendorIfc::ProcessRequest()
                 resp.status = Response::ERR_FAILED;
             break;
 
+        case Request::SUBCMD_OUTPUT_QUERY_LOGICAL_PORT_NAME:
+            // query logical port name
+            pXferOut = xferOut.data;
+            if ((resp.xferBytes = OutputManager::QueryLogicalPortName(xferOut.data, sizeof(xferOut.data), curRequest.args.argBytes[1])) == 0)
+                resp.status = Response::ERR_FAILED;
+            break;
+
         case Request::SUBCMD_OUTPUT_QUERY_DEVICES:
             // query physical output device descriptors
             pXferOut = xferOut.data;

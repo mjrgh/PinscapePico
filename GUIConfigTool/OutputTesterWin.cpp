@@ -78,14 +78,38 @@ void OutputTesterWin::QueryDeviceInfo()
 
         // query the initial port level list
         device->device->QueryLogicalOutputLevels(testMode, portLevels);
+
+        // retrieve the port names
+        portNames.clear();
+        portNames.resize(portDescs.size());
+        int idx = 0;
+        havePortNames = false;
+        for (const auto &desc : portDescs)
+        {
+            // Retrieve the name if present (which we can tell from the flags).
+            // Note that the API takes the DOF port number, which starts at #1
+            // for our vector index [0].
+            if ((desc.flags & desc.F_NAMED) != 0)
+            {
+                // get the name
+                if (device->device->QueryLogicalOutputPortName(idx + 1, portNames[idx]) == PinscapeResponse::OK)
+                {
+                    // note if we have any ports with names
+                    if (portNames[idx].size() != 0)
+                        havePortNames = true;
+                }
+            }
+
+            // advance the vector index
+            ++idx;
+        }
     }
 
     // Count TLC5940 and 74HC595 chains.  If there's only one chain
-    // of a given type, as is typical, we can elide the chain number
-    // when referring to these chips.  That looks cleaner and avoids
-    // creating confusion for the user for the common case where
-    // there's only one chain.  While we're at it, count up the
-    // device ports.
+    // of a given type, as is typical, elide the chain number, since
+    // there's no ambiguity.  That looks cleaner and avoids creating
+    // confusion for the user for the common case where there's only
+    // one chain.  While we're at it, count up the device ports.
     int numDevPorts = 0;
     for (auto &dev : deviceDescs)
     {
@@ -404,7 +428,8 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
 
             // metrics
             const int xPortCol = crc.left + xMargin;
-            const int xDevCol = xPortCol + szBoldFont.cx*3;
+            const int xNameCol = xPortCol + szBoldFont.cx*3;
+            const int xDevCol = xNameCol + (havePortNames ? szMainFont.cx*16 : 0);
             const int xAttrCol = xDevCol + szBoldFont.cx*12;
             const int xLevelCol = xAttrCol + cxAttrIcons*5 + 24;
             const int cxLevelBox = 32;
@@ -433,6 +458,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             // draw the column headers
             y = hrc.bottom - szBoldFont.cy - 4;
             hdc.DrawText(xPortCol, y, 1, boldFont, RGB(0, 0, 0), "Port");
+            if (havePortNames) hdc.DrawText(xNameCol, y, 1, boldFont, RGB(0, 0, 0), "Name");
             hdc.DrawText(xDevCol, y, 1, boldFont, RGB(0, 0, 0), "Device Port");
             hdc.DrawText(xAttrCol, y, 1, boldFont, RGB(0, 0, 0), "Attributes");
             hdc.DrawText(xLevelCol, y, 1, boldFont, RGB(0, 0, 0), "Host");
@@ -477,8 +503,16 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                 // start at left, with margins
                 int yTxt = (portrc.top + portrc.bottom - szBoldFont.cy)/2;
 
-                // draw the port number label
+                // draw the port number label and name
                 hdc.DrawTextF(xPortCol, yTxt, 1, boldFont, RGB(0, 0, 0), "#%d", i+1);
+                if (i < portNames.size())
+                {
+                    const char *name = portNames[i].c_str();
+                    if (strlen(name) > 14)
+                        hdc.DrawTextF(xNameCol, yTxt, 1, mainFont, RGB(0, 0, 0), "%-14.14s...", name);
+                    else
+                        hdc.DrawTextF(xNameCol, yTxt, 1, mainFont, RGB(0, 0, 0), "%s", name);
+                }
 
                 // draw the device information
                 char devDesc[40];

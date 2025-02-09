@@ -255,6 +255,14 @@ public:
     // data on success, zero on error.
     static size_t QueryLogicalPortDescs(uint8_t *buf, size_t bufSize);
 
+    // Query a logical port's name.  This populates the buffer with a
+    // null-terminated string (of single-byte characters) giving the
+    // name assigned to the port in the JSON configuration.  Returns
+    // the populated buffer size, including the terminal null byte.
+    // If the port is unnamed, an empty null-terminated string is
+    // returned.  Returns 0 on error.
+    static size_t QueryLogicalPortName(uint8_t *buf, size_t bufSize, int portNum);
+
     // Query physical output device descriptors, for the USB vendor
     // interface.  Populates the buffer with the structures described in
     // VendorIfcProtocol.h, providing descriptions of the configured
@@ -684,6 +692,9 @@ public:
         // create a port given the physical device
         Port(Device *device) : device(device) { }
 
+        // get the port name
+        const char *GetName() const { return portName; }
+
         // get the device
         Device *GetDevice() const { return device; }
 
@@ -751,6 +762,12 @@ public:
         // output level change: nominal level, flipper logic activation,
         // night mode activation.
         void Apply();
+
+        // Port name assigned in the configuration, if any.  This points
+        // to the port name in the portsByName map (to save space by
+        // just referencing the copy of the string we have to save there
+        // anyway), or null if the port doesn't have an assigned name.
+        const char *portName = nullptr;
 
         // The concrete device that this port is connected to
         Device *device;

@@ -992,7 +992,23 @@ namespace PinscapePico
 		// programs such as DOF can access via the USB Feedback
 		// Controller interface.  The JSON configuration defines the
 		// mapping between logical ports and physical devices.
+		//
+		// The vector is arranged in order of port numbers.  Note that
+		// the output ports are numbered following the DOF convention
+		// of starting at port #1, so the first port in the vector, at
+		// index [0], is nominally port #1.
 		int QueryLogicalOutputPortConfig(std::vector<PinscapePico::OutputPortDesc> &ports);
+
+		// Query a logical output port name.  This retrieves the
+		// user-assigned name for the port, set in the JSON
+		// configuration.  The name is an arbitrary label that
+		// can be used for configuration cross-references, and
+		// for easier port identification in UI port listings.
+		// Unnamed ports return an empty string.
+		//
+		// The port number is expressed in terms of the nominal
+		// DOF port numbering, starting at 1 for the first port.
+		int QueryLogicalOutputPortName(int portNum, std::string &name);
 
 		// Query the output device configuration.  Populates a
 		// vector of output device descriptors, providing the list

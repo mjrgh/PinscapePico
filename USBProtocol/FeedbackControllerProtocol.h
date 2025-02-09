@@ -83,8 +83,8 @@
 //
 // INTERFACE DISCOVERY
 //
-// On Windows, HID devices can be enumerated through the Setup API (the
-// Windows API documentation has examples).  However, since we use the
+// On Windows, HID devices can be enumerated through the Setup API; the
+// Windows API documentation has examples.  However, since we use the
 // generic "undefined" usage to describe the interface as a special-
 // purpose device with a custom report structure, it's possible that a
 // system-wide enumeration would find other, unrelated devices that

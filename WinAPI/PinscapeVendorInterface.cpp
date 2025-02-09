@@ -1973,6 +1973,32 @@ int VendorInterface::QueryLogicalOutputPortConfig(std::vector<PinscapePico::Outp
 	return PinscapeResponse::OK;
 }
 
+int VendorInterface::QueryLogicalOutputPortName(int portNum, std::string &name)
+{
+	// make sure the port number is in range
+	if (portNum < 1 || portNum > 255)
+		return PinscapeResponse::ERR_BAD_PARAMS;
+
+	// send the request
+	PinscapeResponse resp;
+	std::vector<BYTE> xferIn;
+	uint8_t args[2]{ PinscapeRequest::SUBCMD_OUTPUT_QUERY_LOGICAL_PORT_NAME, static_cast<uint8_t>(portNum) };
+	int result = SendRequestWithArgs(PinscapeRequest::CMD_OUTPUTS, args, resp, nullptr, 0, &xferIn);
+	if (result != PinscapeResponse::OK)
+		return result;
+
+	// the string is given as a null-terminated single-byte string at the
+	// start of the extra transfer data
+	const char *start = reinterpret_cast<const char*>(xferIn.data());
+	const char *p = start;
+	size_t rem = xferIn.size();
+	for (; rem != 0 && *p != 0 ; ++p, --rem);
+
+	// assign the name
+	name.assign(start, p - start);
+	return PinscapeResponse::OK;
+}
+
 int VendorInterface::QueryOutputDeviceConfig(std::vector<PinscapePico::OutputDevDesc> &devices)
 {
 	// send the request

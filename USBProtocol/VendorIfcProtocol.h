@@ -1009,6 +1009,23 @@ namespace PinscapePico
         //   followed in the same transfer by an array of OutputPortDesc
         //   structs that describe the individual logical output ports.
         //
+        // SUBCMD_OUTPUT_QUERY_LOGICAL_PORT_NAME
+        //   Retrieves the name of a logical port, if any.  The second
+        //   byte of the request arguments (after the subcommand byte)
+        //   specifies a logical port number.  On reply, the extra transfer
+        //   data contains the name of the port as a null-terminated string
+        //   of single-byte characters.  A port with no name returns an
+        //   empty string.
+        //
+        //   The port names are deliberately returned in a separate request
+        //   from QUERY_LOGICAL_PORTS, with only a single port per request,
+        //   to allow for arbitrarily long port names.  The extra transfer
+        //   data size is limited, so returning all port names in one
+        //   request would impose a limit on the aggregate name lengths.
+        //   Returning one per request avoids this.  A client can avoid
+        //   asking for names for unnamed ports by checking the port name
+        //   flag in the QUERY_LOGICAL_PORTS descriptor.
+        //
         // SUBCMD_OUTPUT_QUERY_DEVICES
         //   Retrieve a list of the output controller devices.  These are
         //   the physical peripheral devices that control wired outputs:
@@ -1065,6 +1082,7 @@ namespace PinscapePico
         static const uint8_t SUBCMD_OUTPUT_QUERY_DEVICE_PORTS = 0x83;
         static const uint8_t SUBCMD_OUTPUT_QUERY_LOGICAL_PORT_LEVELS = 0x84;
         static const uint8_t SUBCMD_OUTPUT_QUERY_DEVICE_PORT_LEVELS = 0x85;
+        static const uint8_t SUBCMD_OUTPUT_QUERY_LOGICAL_PORT_NAME = 0x86;
 
         // Ping.  This can be used to test that the connection is working
         // and the device is responsive.  This takes no arguments, and
@@ -2274,10 +2292,15 @@ namespace PinscapePico
         uint8_t reserved0[7];
     } __PackedEnd;
 
-    // Logical Output port list, for CMD_OUTPUTS + SUBCMD_OUTPUT_QUERY_PORTS.
-    // The reply transfer data starts with an OutputPortList struct as a list
-    // header.  This is followed in the transfer by zero or more OutputPortDesc
-    // structs describing the individual ports.
+    // Logical Output port list, for CMD_OUTPUTS + SUBCMD_OUTPUT_QUERY_LOGICAL_PORTS.
+    // The reply transfer data starts with an OutputPortList struct, which
+    // serves as a list header.  This is followed in the transfer by zero or
+    // more OutputPortDesc structs describing the individual ports.  The overall
+    // report buffer looks like so:
+    //
+    //    OutputPortList             struct, OutputPortList::cb bytes
+    //    OutputPortDesc[]           array of struct, OutputPortList::numDescs elements x OutputPortList::cbDesc bytes
+    //
     struct __PackedBegin OutputPortList
     {
         // size in bytes of the OutputPortList struct
@@ -2302,6 +2325,7 @@ namespace PinscapePico
         static const uint8_t F_INVERTED     = 0x04;   // use inverted logic for the port
         static const uint8_t F_FLIPPERLOGIC = 0x08;   // flipper/chime logic enabled for the port
         static const uint8_t F_COMPUTED     = 0x10;   // the port has a computed data source instead of direct host control
+        static const uint8_t F_NAMED        = 0x20;   // the port has a user-assigned name string
 
         // Device identification.  For all of the physical device types, this is the
         // configuration index of the chip.  Unused for other types.

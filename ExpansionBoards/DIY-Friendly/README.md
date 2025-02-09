@@ -105,7 +105,7 @@ against faults at the Pinscape Pico firmware level, where the software
 timers are implemented:
 
 * The Pinscape Pico firmware programs the Pico's hardware "watchdog"
-unit to reset the Pico is the software ever stops functioning
+unit to reset the Pico in the event the software ever stops functioning
 for more than a few milliseconds.  The watchdog is an independent
 hardware unit on the Pico that forces a hard reset if the software
 stops sending it messages saying "I'm not dead yet" for more than
@@ -127,6 +127,16 @@ the watchdog hardware, so the watchdog will rapidly reset the Pico at
 the CPU level.  And once the Pico resets, the physical output port
 controllers on the board go into their default power-on condition,
 which turns off all of the output ports.
+
+The secondary "PWM Worker" Picos on these boards add yet another layer
+of protection, which is that they *also* have their own software
+timers that they apply to every port.  The main Pico sends the PWM
+Worker Picos its settings for the flipper logic/chime logic timers,
+so that the secondary Picos can apply their own time limitation to
+the ports.  So even if the main Pico stops working and all of the
+other fail-safe measures somehow don't kick in, the ports controlled
+by the secondary Picos are still protected by their own independent
+timers.
 
 Nothing is quite as perfectly predictable as a dedicated hardware
 timer like on the old Chime boards, but I've tried to carefully design

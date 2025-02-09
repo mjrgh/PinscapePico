@@ -334,9 +334,15 @@ void OutputManager::Configure(JSONParser &json)
         port.flipperLogic.dtCooling = value->Get("coolingTime")->UInt32(0) * 1000;
         port.flipperLogic.reducedPowerLevel = value->Get("powerLimit")->UInt8(0);
 
-        // if the port is named, add it to the name map
+        // check for a port name
         if (auto *nameVal = value->Get("name") ; !nameVal->IsUndefined())
-            portsByName.emplace(nameVal->String(), &port);
+        {
+            // add to the by-name port map
+            auto it = portsByName.emplace(nameVal->String(), &port);
+
+            // remember the port name internally
+            port.portName = it.first->first.c_str();
+        }
         
         // mark flipper logic as enabled if there's a non-zero time limit
         port.flipperLogic.enabled = (port.flipperLogic.dtHighPowerMax != 0);
@@ -916,6 +922,7 @@ size_t OutputManager::QueryLogicalPortDescs(uint8_t *buf, size_t bufSize)
         if (port.device->inverted) pp->flags |= PortDesc::F_INVERTED;
         if (port.flipperLogic.enabled) pp->flags |= PortDesc::F_FLIPPERLOGIC;
         if (port.source != nullptr) pp->flags |= PortDesc::F_COMPUTED;
+        if (port.portName != nullptr) pp->flags |= PortDesc::F_NAMED;
 
         // set the device information
         port.device->Populate(pp);
@@ -927,6 +934,29 @@ size_t OutputManager::QueryLogicalPortDescs(uint8_t *buf, size_t bufSize)
     // success - return the populated size
     return replySize;
 }
+
+size_t OutputManager::QueryLogicalPortName(uint8_t *buf, size_t bufSize, int portNum)
+{
+    // get the port; if the port number is invalid, return 0 to indicate an error
+    Port *port = Get(portNum);
+    if (port == nullptr)
+        return 0;
+
+    // get the required size, including the terminating null byte
+    const char *name = port->portName != nullptr ? port->portName : "";
+    size_t replySize = strlen(name) + 1;
+
+    // make sure there's room; if not, return 0 to indicate an error
+    if (replySize > bufSize)
+        return 0;
+
+    // copy the name, including the null byte
+    memcpy(buf, name, replySize);
+
+    // success - return the reply size
+    return replySize;
+}
+
 
 // Visit all of the physical device types, calling a static function on each
 #define DoForEachDeviceType(func, method, binop, ...) \

@@ -119,8 +119,12 @@ namespace PinscapePico
 		// output port configuration data
 		int descErrorCode = PinscapeResponse::OK;
 		std::vector<PinscapePico::OutputPortDesc> portDescs;
+		std::vector<std::string> portNames;
 		std::vector<PinscapePico::OutputDevDesc> deviceDescs;
 		std::vector<PinscapePico::OutputDevPortDesc> devicePortDescs;
+
+		// do any ports have non-empty names?
+		bool havePortNames = false;
 
 		// Number of daisy chains for TLC5940 and 74HC595.  We use
 		// the count to determine if we need to bother mentioning

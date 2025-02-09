@@ -150,7 +150,7 @@ void USBIfc::Configure(JSONParser &json)
 {
     // get the VID and PID from the configuration
     vid = json.Get("usb.vid")->UInt16(0x1209);  // pid.codes open-source VID
-    pid = json.Get("usb.pid")->UInt16(0xEAEB);  // prospective pid.codes assignment for Pinscape Pico // $$$ TO DO - request formal assignment of PID
+    pid = json.Get("usb.pid")->UInt16(0xEAEB);  // pid.codes assignment for Pinscape Pico
 }
 
 // Initialize the USB interface.  This completes initialization of our

@@ -3659,7 +3659,8 @@ void ConfigEditorWin::CheckSchemaProp(const JSONParser::Value &val,
                 // array is valid
                 matched = true;
 
-                // match the element types
+                // match the element typse
+                int idx = 0;
                 for (auto &eleVal : *val.array)
                 {
                     for (auto &subtype : t.subtypes)
@@ -3669,9 +3670,11 @@ void ConfigEditorWin::CheckSchemaProp(const JSONParser::Value &val,
                             // Match against the property's sub-object.  When an
                             // array of objects is allowed, the object subtype
                             // is simply encoded in the property.
-                            CheckSchemaObj(*eleVal, subObj, path);
+                            CheckSchemaObj(*eleVal, subObj, StrPrintf("%s[%d]", path, idx).c_str());
                         }
                     }
+
+                    ++idx;
                 }
             }
         }

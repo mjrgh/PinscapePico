@@ -311,9 +311,12 @@ void OutputManager::Configure(JSONParser &json)
         // can operate in digital or PWM mode.
         char jsonLocus[32];
         snprintf(jsonLocus, sizeof(jsonLocus), "outputs[%d]", index);
-        const char *pinoutLabel = Format("Output #%d", index + 1);
+        auto *nameVal = value->Get("name");
         auto *devSpec = value->Get("device");
         auto *devType = devSpec->Get("type");
+        const char *pinoutLabel = nameVal->IsUndefined() ?
+            Format("Output #%d", index + 1) :
+            Format("Output #%d (%s)", index + 1, nameVal->String().c_str());
         Device *device = ParseDevice(jsonLocus, pinoutLabel, json, devSpec, true, false);
 
         // If we didn't manage to create a device, create a null device
@@ -335,7 +338,7 @@ void OutputManager::Configure(JSONParser &json)
         port.flipperLogic.reducedPowerLevel = value->Get("powerLimit")->UInt8(0);
 
         // check for a port name
-        if (auto *nameVal = value->Get("name") ; !nameVal->IsUndefined())
+        if (!nameVal->IsUndefined())
         {
             // add to the by-name port map
             auto it = portsByName.emplace(nameVal->String(), &port);
@@ -4139,7 +4142,7 @@ void OutputManager::Command_out(const ConsoleCommandContext *c)
         if (strcmp(a, "-l") == 0 || strcmp(a, "--list") == 0)
         {
             // list ports
-            c->Print("Port  Device      Source     Setting  Output\n");
+            c->Print("Port  Name              Device      Source     Setting  Output\n");
             int portNum = 1;
             for (auto &port : portList)
             {
@@ -4152,8 +4155,8 @@ void OutputManager::Command_out(const ConsoleCommandContext *c)
 
                 // display the line
                 c->Printf(
-                    " %3d  %-10.10s  %-8s   %-8s    %3d\n",
-                    portNum++, port.GetDevice()->Name(),
+                    " %3d  %-16.16s  %-10.10s  %-8s   %-8s    %3d\n",
+                    portNum++, port.GetName(), port.GetDevice()->Name(),
                     port.GetDataSource() != nullptr ? "Computed" : port.IsLedWizMode() ? "LedWiz" : "Host",
                     setting, port.Get());
             }

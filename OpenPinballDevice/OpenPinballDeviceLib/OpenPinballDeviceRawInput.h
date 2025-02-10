@@ -60,7 +60,7 @@
 // messages.
 // 
 //   { HID_USAGE_PAGE_GAME, HID_USAGE_GAME_PINBALL_DEVICE, 
-//     RIDEV_INPUTSINK | RIDEV_DEVNOTIFY, hwnd };
+//     RIDEV_INPUTSINK | RIDEV_DEVNOTIFY, hwnd }
 // 
 // We leave it up to the application to do this registration,
 // because the Win32 documentation discourages library developers

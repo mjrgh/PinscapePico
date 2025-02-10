@@ -1,15 +1,25 @@
 # <img src="logo-text.png">
 
-Pinscape Pico is a sequel to the original Pinscape virtual pinball
-controller, redesigned for the Raspberry Pi Pico.
+Pinscape Pico is a comprehensive I/O controller for virtual pinball
+cabinets, designed for the Raspberry Pi Pico RP2040.  It handles nearly
+all of the common input and output devices in a virtual pin cab:
+buttons and switches, accelerometer, mechanical plunger, and feedback
+devices such as lights, motors, and solenoids.  It can be used on a
+standalone Pico, and also with a wide range of peripheral devices
+that expand the Pico's hardware capabilities: accelerometers,
+PWM/LED driver chips, shift registers, GPIO expanders, ADCs, and
+clock/calendar chips.  The project includes hardware designs for a
+number of expansion boards that implement particular collections of
+peripherals selected to meet the needs of most pin cab builders.
 
-This is a new project, not a port of the KL25Z Pinscape software.  The
-Pico is a more powerful platform than the KL25Z, so I wanted to make a
-fresh start to take advantage of the Pico's expanded capabilities.
-Pinscape Pico has all (I'm pretty sure) of the features of the
-original KL25Z Pinscape, plus some neat new tricks.  It's also a
-little more "technical" than the KL25Z system, especially at this
-early stage in its development.
+This project is a sequel to the original [Pinscape KL25Z controller](https://github.com/mjrgh/Pinscape_Controller),
+but it's all new code, not a port of the KL25Z software.  The Pico is
+a more powerful platform than the KL25Z, so I wanted to make a fresh
+start to take advantage of the Pico's expanded capabilities.  Pinscape
+Pico has all (I'm pretty sure) of the features of the original KL25Z
+Pinscape, plus some neat new tricks.  It's also a little more
+"technical" than the KL25Z system, but also more powerful and flexible.
+
 
 <a href="ScreenShots/ConfigToolMain.png"><img src="ScreenShots/ConfigToolMain-Thumb.png"></a>
 <a href="ScreenShots/ConfigToolEditor.png"><img src="ScreenShots/ConfigToolEditor-Thumb.png"></a>

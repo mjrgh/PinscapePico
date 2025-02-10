@@ -173,11 +173,13 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">hidapi;hidapi\windows</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="OpenPinballDeviceLib.cpp" />
+    <ClCompile Include="OpenPinballDeviceRawInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hid-report-parser\hid_report_parser.h" />
     <ClInclude Include="hidapi\hidapi.h" />
     <ClInclude Include="OpenPinballDeviceLib.h" />
+    <ClInclude Include="OpenPinballDeviceRawInput.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

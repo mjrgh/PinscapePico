@@ -73,10 +73,11 @@ running the host program.
 My own ad hoc testing indicates that applications should use Raw Input
 and Open Pinball Device whenever possible.  With Pinscape Pico devices
 (which are designed to yield the minimum possible HID-level latency),
-Raw Input and Open Pinball Device provide a median latency around 2ms,
+Raw Input and Open Pinball Device provide a median latency slightly under 2ms,
 with excellent consistency (standard deviation in the 0.3ms range, and
-maximum latencies around 3ms).  That means that RawInput is adding
-practically no overhead, as Microsoft claims.
+maximum latencies around 3ms).  That's nearly as fast as HID can deliver
+input directly at the hardware level, which means that Raw Input is adding
+practically no overhead of its own, as Microsoft claims.
 
 DirectInput 8 is by far the worst API, with median latency around 9ms,
 and extremely wide variation, up to 30ms latency for some inputs.
@@ -268,7 +269,7 @@ and joystick/gamepad input through two APIs: Raw Input and DirectInput.
 This is purely a choice on the Windows side, and has nothing at all to
 do with the subject device, which only thinks in terms of keyboard
 or joystick/gamepad input at the USB level.  If the device provides
-keyboard input, you can use RawInput or DirectInput interchangeably.
+keyboard input, you can use Raw Input or DirectInput interchangeably.
 
 Raw Input is always selected by default.  To use DirectInput instead,
 specify `--api directinput` on the command line.
@@ -568,3 +569,14 @@ within the course of typical HID input time of a few milliseconds
 will be accurate to about 0.1 microseconds, which is much smaller than
 the uncertainty in the SOF time measurement itself, making it a
 negligible contribution to the error term.
+
+## Orthographical notes on the Microsoft APIs mentioned
+
+For the spelling hair-splitters, which I count myself among, Microsoft's
+documentation is reasonably consistent about rendering **Raw Input** as
+two words, and **DirectInput** as one in camel-case.  I've tried to strictly
+follow both conventions in this documentation, since these are after all
+proper names, but I find myself even so having to fix frequent lapses
+into "RawInput" and "Direct Input".  Apologies to the respective Microsoft
+program managers for any mix-ups that remain uncorrected.
+

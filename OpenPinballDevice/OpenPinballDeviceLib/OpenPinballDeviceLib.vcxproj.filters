@@ -30,6 +30,9 @@
     <ClCompile Include="hid-report-parser\hid_report_parser.cpp">
       <Filter>hid-report-parser</Filter>
     </ClCompile>
+    <ClCompile Include="OpenPinballDeviceRawInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenPinballDeviceLib.h">
@@ -40,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="hid-report-parser\hid_report_parser.h">
       <Filter>hid-report-parser</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenPinballDeviceRawInput.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

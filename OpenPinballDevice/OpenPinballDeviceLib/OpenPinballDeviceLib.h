@@ -1,7 +1,23 @@
-// Open Pinball Device Library for Windows
+// Open Pinball Device Library
 // Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 // Provides high-level access to Open Pinball Device controllers.
+// HID access is based on the portable hidapi library.
+//
+// This library is designed for applications that periodically
+// poll for input.  This is suitable for many video game-type
+// applications that are based on a central physical-and-rendering
+// loop, which provides a natural place for input polling.
+//
+// Windows applications that use event-based input might prefer to
+// use the alternative Raw Input interface, which is defined in the
+// separate header OpenPinballDeviceRawInput.h.  (It's in a separate
+// set of files so that it can be easily detached when porting the
+// library to a non-Windows platform, since the Raw Input API is
+// inherently Win32-specific.)  Raw Input should be a much better
+// fit for programs that already use window-event-based input, both
+// in terms of ease of implementation and performance.
+
 
 #pragma once
 #include <string.h>
@@ -21,15 +37,27 @@ namespace OpenPinballDevice
 	class Reader;
 	struct DeviceDesc;
 
-	// Combined reader.  This is a high-level interface to the whole
-	// collection of connected Open Pinball Device controllers, combining
-	// reports from all devices into a single logical report state.  This
-	// interface is suitable for most pinball simulators and other programs
-	// that only need to use the OPD controller as a source of user input.
-	// (As opposed to applications that present the user with information
-	// on the devices themselves.  Those sorts of applications should use
-	// the enumeration function to retrieve device information, and then
-	// can create readers for individual devices.)
+	// Combined polling reader.  This is primarily for use by programs
+	// that poll periodically for input, rather than using Raw Input for
+	// event-based input.  This style of input is often a good fit for
+	// video game programs based on a central physical-and-video-rendering
+	// loop, which provides a natural place in the program's time cycle
+	// to poll for device input.
+	// 
+	// The Combined Reader class provides a single-object interface to
+	// all connected Open Pinball Device controllers.  It combines the
+	// states of the individual controllers into a single logical report
+	// state.  Applications shouldn't usually care about the details of
+	// which controllers are connected to which buttons and sensors;
+	// applications usually just want to know the current instantaneous
+	// state of each button and sensor.  This class accomplishes that,
+	// hiding the details of the physical device setup, and instead
+	// giving the application a simple view of the abstracted controls.
+	// 
+	// (If the application's goal is to present the user with information
+	// on the individual devices, rather than simply reading their state,
+	// it should use the device enumeration function and the single-device
+	// Reader class instead.)
 	// 
 	// Once the combined reader is created, its list of devices is static.
 	// The reader doesn't scan for new devices connected to the system

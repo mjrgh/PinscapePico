@@ -115,7 +115,7 @@
 #include <Xinput.h>
 #include <wbemidl.h>
 #include <oleauto.h>
-#include "../../OpenPinballDevice/OpenPinballDeviceLib/OpenPinballDeviceLib.h"
+#include "../../OpenPinballDevice/OpenPinballDeviceLib/OpenPinballDeviceRawInput.h"
 #include "HiResTimer.h"
 #include "RefPtr.h"
 #include "BLTVendorInterface.h"
@@ -756,8 +756,54 @@ static const std::unordered_map<std::string, OPDButtonDesc> opdButtonNames{
 	{ "voldown", { "Volume Down", 26 } },
 };
 
+// Custom Open Pinball Device Raw Input reader subclass, defining
+// our event handler callbacks
+class CustomOpenPinballDeviceReader : public OpenPinballDevice::RawInputReader 
+{
+public:
+	CustomOpenPinballDeviceReader(HWND hwnd) : RawInputReader(hwnd) { }
+
+	// process an input event at a given timestamp
+	bool ProcessInput(HRAWINPUT hRawInput, int64_t tEvent)
+	{
+		// remember the event time, for use in the button callbacks
+		this->tEvent = tEvent;
+
+		// process the event via the base class
+		return RawInputReader::ProcessInput(hRawInput);
+	}
+
+	// current event time
+	int64_t tEvent = 0;
+
+	// generic button event handler
+	virtual void OnGenericButton(int button, bool pressed)
+	{
+		if (button >= 0 && button <= 31)
+		{
+			// generic buttons are numbered 0..31 in the opdButtons[] array,
+			// so the nominal button number is also the opdButtons[] index
+			if (auto *bp = opdButtons[button]; bp != nullptr)
+				bp->OnInput(pressed, tEvent);
+		}
+	}
+
+	// pinball-function button event handler
+	virtual void OnPinballButton(int button, bool pressed)
+	{
+		if (button >= 0 && button <= 31)
+		{
+			// the pinball-function buttons are numbered 32..64 in the opdButtons[]
+			// array, so the array index is the nominal button number plus 32
+			if (auto *bp = opdButtons[button + 32]; bp != nullptr)
+				bp->OnInput(pressed, tEvent);
+		}
+	}
+};
+
+
 // reader object - instantiated in the monitor thread if required
-std::unique_ptr<OpenPinballDevice::CombinedReader> opdReader;
+std::unique_ptr<CustomOpenPinballDeviceReader> opdReader;
 
 // initialize
 void InitOpenPinballDevice(HWND hwnd)
@@ -765,7 +811,7 @@ void InitOpenPinballDevice(HWND hwnd)
 	if (opdUsed)
 	{
 		// create the Open Pinball Device reader
-		opdReader.reset(new OpenPinballDevice::CombinedReader());
+		opdReader.reset(new CustomOpenPinballDeviceReader(hwnd));
 	}
 }
 
@@ -773,89 +819,6 @@ void InitOpenPinballDevice(HWND hwnd)
 void TerminateOpenPinballDevice()
 {
 }
-
-// Raw input device list for Open Pinball Devices
-class RawInputOPD
-{
-public:
-	RawInputOPD(HANDLE hDevice, const WCHAR *prodName, const WCHAR *serial) : 
-		hDevice(hDevice), prodName(prodName), serial(serial) { }
-
-	// device handle
-	HANDLE hDevice;
-
-	// device identification, mostly for debugging
-	std::wstring prodName;
-	std::wstring serial;
-
-	// add a device
-	static void AddDevice(HANDLE hDevice, const RID_DEVICE_INFO_HID *info)
-	{
-		// if we already have an entry for this device, ignore it
-		if (devices.find(hDevice) != devices.end())
-			return;
-
-		// check if it's an Open Pinball Device
-		TCHAR devPath[512];
-		UINT sz = _countof(devPath);
-		GetRawInputDeviceInfo(hDevice, RIDI_DEVICENAME, &devPath, &sz);
-		HANDLE fp = CreateFile(
-			devPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
-			0, OPEN_EXISTING, 0, 0);
-		WCHAR prodName[128] = L"";
-		WCHAR serial[128] = L"";
-		if (fp != INVALID_HANDLE_VALUE)
-		{
-			// query the product name
-			if (!HidD_GetProductString(fp, prodName, _countof(prodName)))
-				prodName[0] = 0;
-
-			// query the serial number string
-			if (!HidD_GetSerialNumberString(fp, serial, _countof(serial)))
-				serial[0] = 0;
-
-			// get the preparsed data
-			PHIDP_PREPARSED_DATA ppd = NULL;
-			if (HidD_GetPreparsedData(fp, &ppd) && ppd != NULL)
-			{
-				// get the button caps, to get the usage string associated with the input report
-				HIDP_BUTTON_CAPS btnCaps;
-				USHORT nBtnCaps = 1;
-				if (HidP_GetButtonCaps(HidP_Input, &btnCaps, &nBtnCaps, ppd) == HIDP_STATUS_SUCCESS
-					&& btnCaps.NotRange.StringIndex != 0)
-				{
-					// get the usage string, and check against the OPD struct identifier
-					WCHAR str[128];
-					if (HidD_GetIndexedString(fp, btnCaps.NotRange.StringIndex, str, _countof(str))
-						&& wcsncmp(str, L"OpenPinballDeviceStruct/", 24) == 0)
-					{
-						// confirmed - it's an OPD interface
-						devices.emplace(std::piecewise_construct,
-							std::forward_as_tuple(hDevice),
-							std::forward_as_tuple(hDevice, prodName, serial));
-					}
-				}
-
-				// done with the preparsed data
-				HidD_FreePreparsedData(ppd);
-			}
-
-			// done with the HidD device object handle
-			CloseHandle(fp);
-		}
-	}
-
-	// remove a device
-	static void RemoveDevice(HANDLE hDevice)
-	{
-		// remove the device from our table
-		devices.erase(hDevice);
-	}
-
-	// discovered device list
-	static std::unordered_map<HANDLE, RawInputOPD> devices;
-};
-std::unordered_map<HANDLE, RawInputOPD> RawInputOPD::devices;
 
 
 // --------------------------------------------------------------------------
@@ -887,7 +850,7 @@ void InitRawInput(HWND hwnd)
 	// if Open Pinball Device is used, register for its input
 	if (opdUsed)
 	{
-		d[i++] = { HID_USAGE_PAGE_GAME, HID_USAGE_GAME_PINBALL_DEVICE, RIDEV_INPUTSINK, hwnd };
+		d[i++] = { HID_USAGE_PAGE_GAME, HID_USAGE_GAME_PINBALL_DEVICE, RIDEV_INPUTSINK | RIDEV_DEVNOTIFY, hwnd };
 	}
 
 	// If any Raw Input HID input is used, build the device list
@@ -921,15 +884,8 @@ void InitRawInput(HWND hwnd)
 								&& info.hid.usUsagePage == HID_USAGE_PAGE_GENERIC
 								&& (info.hid.usUsage == HID_USAGE_GENERIC_JOYSTICK || info.hid.usUsage == HID_USAGE_GENERIC_GAMEPAD))
 							{
-								// joystick
+								// joystick - add it to our joystick list
 								RawInputJoystick::AddDevice(r->hDevice, &info.hid);
-							}
-							else if (opdUsed
-								&& info.hid.usUsagePage == HID_USAGE_PAGE_GAME
-								&& info.hid.usUsage == HID_USAGE_GAME_PINBALL_DEVICE)
-							{
-								// pinball device
-								RawInputOPD::AddDevice(r->hDevice, &info.hid);
 							}
 							break;
 						}
@@ -1069,26 +1025,10 @@ void ProcessRawInput(HRAWINPUT hRawInput, int64_t tEvent)
 				}
 			}
 		}
-		else if (auto it = RawInputOPD::devices.find(ri.header.hDevice); it != RawInputOPD::devices.end())
+		else if (opdReader != nullptr && opdReader->ProcessInput(hRawInput, tEvent))
 		{
-			// OPD - read the combined OPD state
-			OpenPinballDeviceReport rpt;
-			if (opdReader->Read(rpt))
-			{
-				// update the generic button states
-				for (uint32_t i = 0, bit = 1 ; i < 32 ; ++i, bit <<= 1)
-				{
-					if (auto *bp = opdButtons[i]; bp != nullptr)
-						bp->OnInput((rpt.genericButtons & bit) != 0, tEvent);
-				}
-
-				// update the named buttons (slots 32-63 in the array)
-				for (uint32_t i = 32, bit = 1 ; i < 64 ; ++i, bit <<= 1)
-				{
-					if (auto *bp = opdButtons[i]; bp != nullptr)
-						bp->OnInput((rpt.pinballButtons & bit) != 0, tEvent);
-				}
-			}
+			// handled - the reader processed any button changes through our callbacks
+			// in the custom input handler
 		}
 	}
 }
@@ -1096,6 +1036,14 @@ void ProcessRawInput(HRAWINPUT hRawInput, int64_t tEvent)
 // process a Raw Input device change notification
 void ProcessRawInputDeviceChange(USHORT what, HANDLE hDevice)
 {
+	// if we have an Open Pinball Device reader, let it try handling the event
+	if (opdReader != nullptr && opdReader->ProcessDeviceChange(what, hDevice))
+	{
+		// handled - no further processing is required
+		return;
+	}
+
+	// check the event type
 	switch (what)
 	{
 	case GIDC_ARRIVAL:
@@ -1114,12 +1062,6 @@ void ProcessRawInputDeviceChange(USHORT what, HANDLE hDevice)
 						// joystick/gamepad
 						RawInputJoystick::AddDevice(hDevice, &info.hid);
 					}
-					else if (info.hid.usUsagePage == HID_USAGE_PAGE_GAME
-						&& info.hid.usUsage == HID_USAGE_GAME_PINBALL_DEVICE)
-					{
-						// pinball device - check for Open Pinball Device
-						RawInputOPD::AddDevice(hDevice, &info.hid);
-					}
 					break;
 				}
 			}
@@ -1129,7 +1071,6 @@ void ProcessRawInputDeviceChange(USHORT what, HANDLE hDevice)
 	case GIDC_REMOVAL:
 		// remove the device from the joystick and OPD lists
 		RawInputJoystick::RemoveDevice(hDevice);
-		RawInputOPD::RemoveDevice(hDevice);
 		break;
 	}
 }

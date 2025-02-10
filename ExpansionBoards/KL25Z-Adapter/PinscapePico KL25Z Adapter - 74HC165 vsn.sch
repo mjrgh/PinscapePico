@@ -9207,6 +9207,7 @@ Source: http://www.ctscorp.com/components/Datasheets/CTSChipArrayDs.pdf</descrip
 <part name="RN1" library="resistor-net" deviceset="CTS742C083" device=""/>
 <part name="RN2" library="resistor-net" deviceset="CTS742C083" device=""/>
 <part name="RN3" library="resistor-net" deviceset="CTS742C083" device=""/>
+<part name="GND5" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -10668,11 +10669,12 @@ It DOESN'T connect to an actual KL25Z.</text>
 <sheet>
 <description>Accelerometer</description>
 <plain>
-<text x="7.62" y="73.66" size="2.54" layer="91">Accelerometer
+<text x="7.62" y="86.36" size="2.54" layer="91">Accelerometer - LIS3DH
 I2C address 0x18 (001 1000)</text>
 <text x="67.31" y="2.54" size="1.778" layer="91" align="center-left">SDO/SA0 sets I2C address:
 GND = 0x18, VDD = 0x19</text>
 <text x="80.264" y="12.954" size="1.778" layer="91" align="center-left">CS = VDD -&gt; I2C mode</text>
+<text x="7.62" y="81.28" size="1.905" layer="91">Note: also pin-compatible with LIS3DSH (address 0x1E, 001 1110)</text>
 </plain>
 <instances>
 <instance part="IC4" gate="G$1" x="45.72" y="50.8" smashed="yes">
@@ -10688,8 +10690,8 @@ GND = 0x18, VDD = 0x19</text>
 <instance part="GND52" gate="1" x="86.36" y="43.18" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="88.9" y="45.72" size="1.778" layer="96" rot="MR270"/>
 </instance>
-<instance part="GND50" gate="1" x="86.36" y="48.26" smashed="yes" rot="MR270">
-<attribute name="VALUE" x="88.9" y="50.8" size="1.778" layer="96" rot="MR270"/>
+<instance part="GND50" gate="1" x="88.9" y="50.8" smashed="yes" rot="MR270">
+<attribute name="VALUE" x="91.44" y="53.34" size="1.778" layer="96" rot="MR270"/>
 </instance>
 <instance part="C4" gate="G$1" x="22.86" y="45.72" smashed="yes">
 <attribute name="NAME" x="19.812" y="45.72" size="1.778" layer="95" align="center-right"/>
@@ -10697,6 +10699,9 @@ GND = 0x18, VDD = 0x19</text>
 </instance>
 <instance part="GND1" gate="1" x="22.86" y="35.56" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="25.4" y="33.02" size="1.778" layer="96" rot="MR0"/>
+</instance>
+<instance part="GND5" gate="1" x="55.88" y="68.58" smashed="yes" rot="MR90">
+<attribute name="VALUE" x="53.34" y="66.04" size="1.778" layer="96" rot="MR90"/>
 </instance>
 </instances>
 <busses>
@@ -10722,11 +10727,26 @@ GND = 0x18, VDD = 0x19</text>
 <pinref part="IC4" gate="G$1" pin="GND_2"/>
 <wire x1="81.28" y1="48.26" x2="83.82" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="GND50" gate="1" pin="GND"/>
+<pinref part="IC4" gate="G$1" pin="ADC3"/>
+<wire x1="81.28" y1="50.8" x2="83.82" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="83.82" y1="50.8" x2="86.36" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="83.82" y1="50.8" x2="83.82" y2="48.26" width="0.1524" layer="91"/>
+<junction x="83.82" y="50.8"/>
 </segment>
 <segment>
 <pinref part="C4" gate="G$1" pin="2"/>
 <wire x1="22.86" y1="40.64" x2="22.86" y2="38.1" width="0.1524" layer="91"/>
 <pinref part="GND1" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="IC4" gate="G$1" pin="ADC2"/>
+<wire x1="63.5" y1="66.04" x2="63.5" y2="68.58" width="0.1524" layer="91"/>
+<wire x1="63.5" y1="68.58" x2="60.96" y2="68.58" width="0.1524" layer="91"/>
+<pinref part="IC4" gate="G$1" pin="ADC1"/>
+<wire x1="60.96" y1="68.58" x2="60.96" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="60.96" y1="68.58" x2="58.42" y2="68.58" width="0.1524" layer="91"/>
+<junction x="60.96" y="68.58"/>
+<pinref part="GND5" gate="1" pin="GND"/>
 </segment>
 </net>
 <net name="SDA" class="0">
@@ -10758,9 +10778,9 @@ GND = 0x18, VDD = 0x19</text>
 <pinref part="IC4" gate="G$1" pin="VDD"/>
 <wire x1="43.18" y1="50.8" x2="22.86" y2="50.8" width="0.1524" layer="91"/>
 <wire x1="22.86" y1="50.8" x2="20.32" y2="50.8" width="0.1524" layer="91"/>
-<wire x1="66.04" y1="66.04" x2="66.04" y2="68.58" width="0.1524" layer="91"/>
-<wire x1="66.04" y1="68.58" x2="43.18" y2="68.58" width="0.1524" layer="91"/>
-<wire x1="43.18" y1="68.58" x2="43.18" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="66.04" y1="66.04" x2="66.04" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="66.04" y1="71.12" x2="43.18" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="71.12" x2="43.18" y2="50.8" width="0.1524" layer="91"/>
 <junction x="43.18" y="50.8"/>
 <label x="20.32" y="50.8" size="1.27" layer="95" rot="R180" xref="yes"/>
 <pinref part="C4" gate="G$1" pin="1"/>

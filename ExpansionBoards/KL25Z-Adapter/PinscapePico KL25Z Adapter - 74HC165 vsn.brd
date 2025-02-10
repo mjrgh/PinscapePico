@@ -3318,7 +3318,7 @@ Source: http://www.ctscorp.com/components/Datasheets/CTSChipArrayDs.pdf</descrip
 <attribute name="MANUFACTURER_PART_NUMBER" value="LIS3DHTR" x="7.105" y="6.745" size="1.778" layer="27" display="off"/>
 <attribute name="MOUSER_PART_NUMBER" value="511-LIS3DHTR" x="7.105" y="6.745" size="1.778" layer="27" display="off"/>
 <attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/STMicroelectronics/LIS3DHTR?qs=6la6oa3D8xzhXYax3cEo4w%3D%3D" x="7.105" y="6.745" size="1.778" layer="27" display="off"/>
-<attribute name="NAME" x="8.394" y="9.035" size="0.8" layer="25" align="center"/>
+<attribute name="NAME" x="8.894" y="9.035" size="0.8" layer="25" align="center"/>
 <attribute name="VALUE" x="8.394" y="4.405" size="0.7" layer="27" align="center"/>
 </element>
 <element name="C1" library="rcl" package="C1206" value="0.1uF" x="79.3" y="16.75" smashed="yes" rot="R90">
@@ -3531,11 +3531,12 @@ Source: http://www.ctscorp.com/components/Datasheets/CTSChipArrayDs.pdf</descrip
 <wire x1="10.325" y1="7.595" x2="9.975" y2="7.245" width="0.3" layer="1"/>
 <wire x1="9.575" y1="7.245" x2="9.975" y2="7.245" width="0.3" layer="1"/>
 <wire x1="10.25" y1="9.15" x2="10.325" y2="9.075" width="0.3" layer="1"/>
-<wire x1="10.325" y1="9.075" x2="10.325" y2="7.595" width="0.3" layer="1"/>
+<wire x1="10.325" y1="9.075" x2="10.325" y2="8.05" width="0.3" layer="1"/>
 <via x="8.675" y="4.6" extent="1-16" drill="0.35"/>
 <via x="10.25" y="9.15" extent="1-16" drill="0.35"/>
 <via x="10.575" y="5.75" extent="1-16" drill="0.35"/>
 <contactref element="IC4" pad="7"/>
+<wire x1="10.325" y1="8.05" x2="10.325" y2="7.595" width="0.3" layer="1"/>
 <wire x1="8.375" y1="5.545" x2="8.375" y2="4.9" width="0.3" layer="1"/>
 <wire x1="8.675" y1="4.6" x2="8.375" y2="4.9" width="0.3" layer="1"/>
 <contactref element="IC5" pad="3"/>
@@ -3626,6 +3627,19 @@ Source: http://www.ctscorp.com/components/Datasheets/CTSChipArrayDs.pdf</descrip
 <via x="64.35" y="5.1" extent="1-16" drill="0.35"/>
 <via x="33.75" y="8.075" extent="1-16" drill="0.45"/>
 <contactref element="RASPBERRY_PI_PICO" pad="AGND"/>
+<contactref element="IC4" pad="13"/>
+<contactref element="IC4" pad="15"/>
+<contactref element="IC4" pad="16"/>
+<wire x1="9.575" y1="7.745" x2="10.02" y2="7.745" width="0.3" layer="1"/>
+<wire x1="10.02" y1="7.745" x2="10.325" y2="8.05" width="0.3" layer="1"/>
+<via x="7.6" y="8.875" extent="1-16" drill="0.35"/>
+<wire x1="7.875" y1="7.945" x2="7.875" y2="8.6" width="0.3" layer="1"/>
+<wire x1="7.875" y1="8.6" x2="7.827603125" y2="8.647396875" width="0.3" layer="1"/>
+<wire x1="7.827603125" y1="8.647396875" x2="7.6" y2="8.875" width="0.3" layer="1"/>
+<wire x1="7.875" y1="7.945" x2="8.375" y2="7.945" width="0.3" layer="1"/>
+<wire x1="8.375" y1="7.945" x2="8.375" y2="8.475" width="0.3" layer="1"/>
+<wire x1="8.375" y1="8.475" x2="8.202603125" y2="8.647396875" width="0.3" layer="1"/>
+<wire x1="7.827603125" y1="8.647396875" x2="8.202603125" y2="8.647396875" width="0.3" layer="1"/>
 </signal>
 <signal name="SDA">
 <contactref element="IC4" pad="6"/>

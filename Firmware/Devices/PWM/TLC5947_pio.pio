@@ -113,7 +113,8 @@ clockLoop:
     ; PWM cycle completed.  We can begin the blanking period.
     ; Note: 30 MHz PIO clock -> 33ns per PIO cycle
     set pins, 3        side 0      ; BLANK high, XLAT high
-    nop                side 0      ; hold -> 66ns (min BLANK/XLAT time is 30ns per data sheet)
+    nop                side 0      ; hold for an extra 33ns (min BLANK/XLAT pulse time is 30ns per the data sheet,
+                                   ; and our native 33ns per cycle might be cutting it a little close)
     set pins, 0        side 0      ; BLANK low, XLAT low
 
     ; Note 1: new PWM cycle starts in 4 internal 4MHz clocks = 1us = 30 PIO clocks

@@ -364,7 +364,7 @@ public:
             // apply gamma and inversion
             uint16_t l = gamma ? gamma_12bit[b] : Rescale12(b);
             if (inverted) l = 4095 - l;
-            return b;
+            return l;
         }
         inline float ToFloatPhys(uint8_t b)
         {

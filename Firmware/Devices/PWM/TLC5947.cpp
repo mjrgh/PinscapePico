@@ -655,7 +655,8 @@ void TLC5947::PopulateLevels(PinscapePico::OutputDevLevel* &levels)
     {
         if (chain != nullptr)
         {
-            for (int i = 0 ; i < chain->nPorts ; ++i)
+            // the level[i] array is in reverse order of port number
+            for (int i = chain->nPorts - 1 ; i >= 0 ; --i)
             {
                 // Pass back the nominal level, 0..4095.  The level[i] value
                 // is in the left-justified 16-bit PIO format, so we need
@@ -689,7 +690,7 @@ uint16_t TLC5947::Get(int port)
     {
         // the level[] array is in reverse order of port number, and
         // the entries are 12-bit numbers left-justified in 16-bit
-        // fields (so shift right 4 bits to get the 12-bit level)
+        // fields (so shift right 4 bits to recover the 12-bit level)
         return level[nPorts - 1- port] >> 4;
     }
 
@@ -736,7 +737,10 @@ void TLC5947::Set(int port, uint16_t newLevel)
         // Update the level in the live buffer.  Note that we store the
         // values in the PIO DMA format, with the 12 bits of the TLC5947
         // counter value left-justified in the 16-bit array slot by
-        // shifting left four bits.
+        // shifting left four bits.  (Note that we're not rescaling the
+        // value to 16 bits - we're just left-aligning a 12-bit value
+        // in a 16-bit container.  The low-order 4 bits of the 16-bit
+        // container aren't used.)
         uint16_t newStoredLevel = (newLevel << 4);
         level[index] = newStoredLevel;
         

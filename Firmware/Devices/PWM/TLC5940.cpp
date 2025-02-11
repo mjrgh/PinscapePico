@@ -308,28 +308,12 @@ TLC5940::TLC5940(int chainNum, int nChips, int gpSIN, int gpSClk, int gpGSClk, i
     level = new uint16_t[nPorts];
     memset(level, 0, nPorts * sizeof(level[0]));
 
-    // Allocate space for the double DMA buffers.  Each buffer
-    // consists of a two-element header followed by the brightness
-    // level array.  (We allocate the buffers as a contiguous block,
-    // and divvy it up manually by storing a pointer to the halfway
-    // point.)
-    int dmaBufCnt = (nPorts + 2) * 2;
+    // Allocate space for the double DMA buffers.  Each buffer has
+    // one element per output.
+    int dmaBufCnt = nPorts * 2;
     dmaBuf[0] = new uint16_t[dmaBufCnt];
-    dmaBuf[1] = &dmaBuf[0][nPorts + 2];
+    dmaBuf[1] = &dmaBuf[0][nPorts];
     memset(dmaBuf[0], 0, dmaBufCnt * sizeof(dmaBuf[0][0]));
-
-    // Set the DMA buffer header with the bit and cycle counts for the
-    // PIO program.  These are based on the chip count, so they never
-    // change through the session.
-    //
-    // These values must satisfy the peculiar rules of the PIO program
-    // input.  They're used as PIO do-while loop counters, so they have
-    // to be ONE LESS than the nominal value; and the PIO program only
-    // uses the high-order 12 bits, so they have to be left-shifted by 4
-    // bits.
-    int nBits = nPorts*12 - 1;
-    dmaBuf[0][0] = dmaBuf[1][0] = static_cast<uint16_t>(nBits << 4);
-    dmaBuf[0][1] = dmaBuf[1][1] = static_cast<uint16_t>((4096 - nBits) << 4);
 
     // success
     Log(LOG_CONFIG, "TLC5940[%d] configured, SIN(GP%d), SCLK(GP%d), GSCLK(GP%d), BLANK(GP%d), XLAT(GP%d), %d Hz\n",
@@ -578,6 +562,19 @@ bool TLC5940::Init(const uint8_t *dcData)
     sm_config_set_clkdiv(&piocfg, pioClockDiv);         // PIO clock divider (see above)
     pio_sm_init(pio, piosm, pioOffset, &piocfg);        // initialize with the configuration and starting program offset
 
+    // Pre-load the bit-shift loop count into ISR: 12 bits per port, minus 1 for do-while looping
+    pio_sm_put_blocking(pio, piosm, nPorts*12 - 1);
+    pio_sm_exec(pio, piosm, pio_encode_pull(false, true));     // PULL (if-empty no, blocking yes)
+    pio_sm_exec(pio, piosm, pio_encode_mov(pio_isr, pio_osr)); // MOV ISR, OSR
+    pio_sm_exec(pio, piosm, pio_encode_out(pio_null, 12));     // OUT NULL, 12 (empty OSR)
+
+    // Pre-load the post-data-transfer wait loop count into Y: 4096 - <bit-shift loop count> - 2
+    // (minus 1 for the do-while convention, minus 1 for an extra instruction pair in the PIO sequence)
+    pio_sm_put_blocking(pio, piosm, 4096 - nPorts*12 - 2);
+    pio_sm_exec(pio, piosm, pio_encode_pull(false, true));     // PULL (if-empty no, blocking yes)
+    pio_sm_exec(pio, piosm, pio_encode_mov(pio_y, pio_osr));   // MOV Y, OSR
+    pio_sm_exec(pio, piosm, pio_encode_out(pio_null, 12));     // OUT NULL, 12 (empty OSR)
+
     // set the PIO pin directions
     pio_sm_set_consecutive_pindirs(pio, piosm, gpSIN, 1, true);
     pio_sm_set_consecutive_pindirs(pio, piosm, gpBlank, 1, true);
@@ -689,7 +686,8 @@ void TLC5940::PIO_IRQ()
 // Start a DMA transmission from the current active send buffer
 void TLC5940::StartDMASend()
 {
-    dma_channel_configure(dmaChannelTx, &configTx, &pio->txf[piosm], dmaBuf[dmaCur], nPorts + 2, true);
+    // send the current buffer, one element per port
+    dma_channel_configure(dmaChannelTx, &configTx, &pio->txf[piosm], dmaBuf[dmaCur], nPorts, true);
 }
 
 // Populate vendor interface output device descriptors
@@ -836,7 +834,7 @@ void TLC5940::Set(int port, uint16_t newLevel)
                 // We've already started a 'next' buffer on this cycle
                 // with other changes, so just poke the new value into
                 // the pending buffer.
-                uint16_t *txLevel = &dmaBuf[dmaNxt][2];
+                uint16_t *txLevel = &dmaBuf[dmaNxt][0];
                 txLevel[index] = newStoredLevel;
             }
             else
@@ -860,7 +858,7 @@ void TLC5940::Set(int port, uint16_t newLevel)
                 // Make a snapshot of the live data into the new buffer.
                 // Note that the level buffer starts at the third element,
                 // after the two header elements.
-                uint16_t *txLevel = &dmaBuf[pendingDmaNxt][2];
+                uint16_t *txLevel = &dmaBuf[pendingDmaNxt][0];
                 memcpy(txLevel, level, nPorts * sizeof(txLevel[0]));
                 
                 // Now we can update the next pointer that the IRQ handler

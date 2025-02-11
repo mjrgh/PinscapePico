@@ -35,26 +35,42 @@
 ; CLOCK_DIVIDER = (125000000 / (PWMFREQ * 8192))
 ;
 ; The DMA buffer is constructed as follows.  All elements are 16-bit
-; half-words.
+; half-words, with the 12-bit grayscale value for each port aligned
+; in the HIGH-ORDER 12 bits of the 16-bit element (so: level << 4).
+; The elements are ordered "backwards" relative to the chain and
+; port order, so OUT15 of the LAST CHIP in the chain comes first,
+; and OUT0 of the first chip comes last.
 ;
-;    nBits      - number of bits of grayscale data minus one, equal to ((192 * number of chips in daisy chain) - 1) << 4
-;    nClocks    - number of clocks in grayscale cycle AFTER data bits minus one, equal to (4095 - nBits) << 4
-;    gs_N_15    - grayscale value for last chip, last output port (OUT15), as the 12-bit value << 4
-;    gs_N_14
+;    last chip OUT15    - grayscale value for last chip in the chain, last output port (OUT15), as the 12-bit value << 4
+;    last chip OUT14
 ;     ...
-;    gs_0_1
-;    gs_0_0
+;    last chip OUT0
+;     ...
+;    first chip OUT15   - OUT15 for the first chip in the chain
+;     ...
+;    first chip OUT0
 ;
 ; GPIO Mappings:
 ;
 ;    OUT
 ;      pin 0 = SIN    (OUT operand bit 0x01)
+;
 ;    SET
-;      pin 0 = BLANK  (SET operand bit 0x01)
-;      pin 1 = XLAT   (SET operand bit 0x02)
+;      pin 0 = BLANK  (SET operand bit 0x01)       } must be adjacent
+;      pin 1 = XLAT   (SET operand bit 0x02)       } GPIO numbers
+;
 ;    SIDE SET
-;      pin 0 = SCLK   (sideset bit 0x01)
-;      pin 1 = GSCLK  (sideset bit 0x02)
+;      pin 0 = SCLK   (sideset bit 0x01)           } must be adjacent
+;      pin 1 = GSCLK  (sideset bit 0x02)           } GPIO numbers
+;
+; Pre-load registers:
+;   ISR = main bit-shift loop count, 12*nPorts - 1
+;      (the minus one is for the PIO do-while convention)
+;
+;   Y = post-data-transfer wait loop count, 4096 - 12*nPorts - 2
+;      (minus one for the do-while convention, minus one for another
+;      instruction pair that happens to generate one more GSCLK
+;      pulse outside of the loop)
 ;
 ; PIO state machine clock divider configuration:
 ;   Set PIO SM clock divider = system_clock_Hz / (PWMFREQ*8192 + 8)
@@ -74,20 +90,10 @@
     ; sake of clarity.)
 .wrap_target
 
-    ; Initial setup.  Pull the data bit count and remaining grayscale clock
-    ; count out of the FIFO.  The caller is responsible for providing these
-    ; as a header to the grayscale data.  Load the counts into the scratch
-    ; registers, which we'll use as loop counters.  Keep both clock signals
-    ; low during this prolog.  Note that auto-pull will reload OSR on each
-    ; OUT instruction, since we're pulling the threshold 12 bits at a time.
-    ;
-    ; Pulse SCLK while we're doing the counter loads, to generate the extra
-    ; SCLK that the chip requires to start the grayscale data cycle.  (The
-    ; extra pulse is shown in the timing diagrams in the data sheet.  The
-    ; narrative text doesn't explain it, but it's clearly there in all of
-    ; the timing diagrams, so it seems to be important.)
-    out x, 12          side 0      ; store the bit count in X
-    out y, 12          side 1      ; store the grayscale clock count in Y, pulse SCLK
+    ; Set up the bit shift loop - get the loop counter into X, from the
+    ; pre-loaded value in ISR.  Pulse SCLK while we're at it, to generate
+    ; the extra SCLK tick the chip requires to start the grayscale cycle.
+    mov x, isr         side 1      ; load loop count into X, take SCLK high
 
     ; Data clocking loop.  The TLC5940 clocks data in on the rising edge
     ; of SCLK, so we need to write a data bit with SCLK low, and then
@@ -101,11 +107,12 @@
     ; when they two are in phase, the data signal seems to get garbled.
     ; The data sheet doesn't seem to indicate that running the two in
     ; phase would be a problem - everything in the data sheet suggests
-    ; that the two clocks are essentially unrelated.  So maybe it's an
-    ; artifact of my test rig wiring, or of the Pico.  But running the
-    ; two out of phase makes it rock-solid in my test setup, so I'm
-    ; going with that even though it doesn't seem to be a requirement
-    ; of the TLC5940 itself.
+    ; that the two clocks are essentially unrelated.  So it's probably
+    ; an artifact of my test rig, maybe cross-talk in the wiring or
+    ; excess current draw on the Pico from driving both pads at the same
+    ; time.  But running the two out of phase makes it rock-solid in my
+    ; test setup, so I'm going with that even though it doesn't seem to
+    ; be a stated requirement of the chip.
 dataLoop:
     out pins, 1        side 2      ; clock out a data bit from OSR to SIN, SCLK low, GSCLK high
     jmp x--, dataLoop  side 1      ; loop while (nDataBits--), SCLK high, GSCLK low
@@ -156,20 +163,20 @@ dataLoop:
     ;
     ; We send out the IRQ as a one-way signal, with no expectation
     ; or means of receiving a reply.
-    irq 0              side 0
+    irq 0              side 2      ; raise IRQ, GSCLK high
 
-    ; Grayscale clocking loop.  All data bits have been sent, so now we
-    ; just have to finish the 4096-clock grayscale cycle by clocking GSCLK
-    ; for the remaining number of cycles to reach 4096.  On this loop, we
-    ; ONLY pulse the grayscale clock, since we have no more data to send,
-    ; so the bits are in their correct positions in the shift register on
-    ; the TLC5940's.  If we continued to generate SCLK pulses, the shift
-    ; registers would repeatedly shift in the last bit we left on SIN,
-    ; so we'd lose all of the shift register data that we carefully set
-    ; up in the data loop above.
+    ; Fill out the remainder of the 4096-clock grayscale clocking loop.
+    ; All data bits have been sent, so now we just have to finish the
+    ; 4096-clock grayscale cycle by clocking GSCLK for the remaining
+    ; number of cycles to reach 4096.  On this loop, we ONLY pulse the
+    ; grayscale clock.  We DON'T clock SCLK, because all of the data
+    ; bits are already in their correct positions in the TLC5940 shift
+    ; register, awaiting latching via an XLAT pulse.  And XLAT has to
+    ; wait until the blanking period at the end of the grayscale cycle.
+    mov x, y           side 0      ; load loop counter from pre-loaded Y, GSLK low
 clockLoop:
     set pins, 0        side 2      ; SIN low, SCLK low, GSCLK high
-    jmp y--, clockLoop side 0      ; loop while (nGrayscaleCycles--), GSCLK low
+    jmp x--, clockLoop side 0      ; loop while (nGrayscaleCycles--), GSCLK low
 
     ; Grayscale cycle completed - we're in the blanking period.  Take
     ; GSCLK low, drive BLANK high to disable the outputs and clear the
@@ -177,7 +184,6 @@ clockLoop:
     ; bits from the TLC5940 shift registers to the active display
     ; counters, and finally take BLANK low to re-enable outputs and
     ; start the new grayscale cycle.
-    nop                side 0      ; drive SCLK and GSCLK low (they'll stay low throughout blanking)
     set pins, 1        side 0      ; drive BLANK high
     set pins, 3        side 0      ; hold BLANK high, pulse XLAT to latch the shift register bits
     set pins, 1        side 0      ; hold BLANK high, end XLAT pulse

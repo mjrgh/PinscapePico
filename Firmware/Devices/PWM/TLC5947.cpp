@@ -761,7 +761,7 @@ void TLC5947::Set(int port, uint16_t newLevel)
                 // We've already started a 'next' buffer on this cycle
                 // with other changes, so just poke the new value into
                 // the pending buffer.
-                uint16_t *txLevel = &dmaBuf[dmaNxt][2];
+                uint16_t *txLevel = &dmaBuf[dmaNxt][0];
                 txLevel[index] = newStoredLevel;
             }
             else

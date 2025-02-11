@@ -1,0 +1,123 @@
+; Pinscape Pico - TLC5947 PIO state machine program
+; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
+;
+; This is a Pico PIO program for driving a daisy chain of TLC5947 chips.
+; The program reads the grayscale data from the PIO FIFO, which can be fed
+; by DMA from a memory buffer, and generates TLC5947 SIN and SCLK signals
+; from the data.  At the end of the cycle, it generates BLANK and XLAT
+; signals to latch the new inputs and reset the chip's internal PWM
+; cycle counter.
+;
+; The main CPU program must initiate a new DMA transfer on each cycle.
+; We raise an interrupt to let the CPU program know when it's time.
+; Each PWM cycle is 1024 us long.  We transmit at a 15 MHz data clock
+; rate, so the transfer time is 19.2 us per chip on the chain.  Assuming
+; a four-chip chain, the transfer time is 76.8 us, leaving 947 us for
+; the CPU program to respond to the interrupt, which is quite ample.
+; The transfer can be started at any time when the DMA channel is idle,
+; as the DMA controller waits until the PIO starts asking for new data
+; at the start of the next cycle.
+;
+; Timing: In the clocking loops, the SCLK periods are exactly two PIO
+; cycles.  The effective data clock rate will therefore be 1/2 of the
+; PIO clock frequency.  The target SCLK speed is 15 MHz, so the PIO
+; frequency is 30 MHz.  The physical PIO clock is configured by setting
+; a divider for the system clock, which on the Pico is 125 MHz.  So:
+;
+; CLOCK_DIVIDER = (125000000 / 15000000) = 8.333
+;
+; After sending all of the shift register bits, we wish to wait for
+; the end of the PWM cycle, at which point we can send the BLANK to
+; synchronize the chip's free-running PWM cycle clock with our own
+; cycle timing.  The chip's fixed PWM cycle is 1024us (1/4e6 * 4096),
+; and each SCLK is 1/15e6 seconds = 1/15 us, so there are 15*1024
+; SCLK ticks per PWM cycle.  To synchronize with the end of the cycle,
+; then, we must wait (15*1024 - 288*nChips) SCLK cycles after sending
+; all data bits.
+;
+; The DMA buffer is constructed as follows.  All elements are 16-bit
+; half-words.
+;
+;    gs_N_23    - grayscale value for last chip, last output port (OUT23), as the 12-bit value << 4
+;    gs_N_22
+;     ...
+;    gs_0_1
+;    gs_0_0
+;
+; GPIO Mappings:
+;
+;    OUT
+;      pin 0 = SIN    (OUT operand bit 0x01)
+;
+;    SET
+;      pin 0 = BLANK  (SET operand bit 0x01)
+;      pin 1 = XLAT   (SET operand bit 0x02)
+;
+;    SIDE SET
+;      pin 0 = SCLK   (sideset bit 0x01)
+;
+; PIO state machine clock divider configuration:
+;   Set PIO SM clock divider = system_clock_Hz / (PWMFREQ*8192 + 8)
+;   where PWMFREQ = the desired PWM refresh frequency, 1Hz to 7324Hz
+;
+; PRE-LOAD:
+;
+;   ISR = 12*nPorts-1                  ; Number of bits in each shift register cycle, minus 1 for do-while looping
+;
+;   Y = 2*(15*1024 - 12*nPorts)+29     ; Number of PIO cycles to wait after completing data bit transmission.
+;                                      ; Bits are clocked out at 15 MHz -> 1/15 us per bit.
+;                                      ; PWM cycle is 4096 ticks of 4 MHz clock = 1024us = 15*1024 data bits.
+;                                      ; Data bits sent = 12*nPorts -> balance of PWM cycle after data bits is 15*1024 - 12*nPorts data bit clocks.
+;                                      ; Times two, because one SCLK clock equals 2 PIO cycles.
+;                                      ; The extra 29 PIO clocks is for the 1us (4 PWM clocks) hold time (on the chip)
+;                                      ; between BLANK going low and the new cycle starting, minus one PIO cycle for the
+;                                      ; extra opcode at the top of our main program before the data clocking loop.
+;
+; Other PIO state machine settings:
+;   AUTOPULL ON
+;   PULL(OUT) Shift Direction = LEFT (MSB first)
+;   PULL(OUT) Shift Threshold = 12 bits
+;
+.program TLC5947
+.side_set 1      ; SCLK
+
+    ; Top of outer loop
+    ; (This .wrap_target is superfluous, since the implied wrap target
+    ; is the start of the program, but we'll include it anyway for the
+    ; sake of clarity.)
+.wrap_target
+
+    ; Initial setup.  Get the shift loop counter from ISR (pre-loaded
+    ; by the host during PIO initialization).
+    mov x, isr         side 0      ; load loop counter into X
+
+    ; Data clocking loop.  The TLC5947 clocks data in on the rising edge
+    ; of SCLK, so we need to write a data bit with SCLK low, and then
+    ; raise the clock high on the next cycle.
+dataLoop:
+    out pins, 1        side 0      ; clock out a data bit from OSR to SIN, SCLK low
+    jmp x--, dataLoop  side 1      ; loop while (nDataBits--), SCLK high
+
+    ; Raise our IRQ, to let the main CPU program know that it's time to
+    ; start a new DMA transfer, with the next cycle's LED data.
+    irq 0              side 0
+
+    ; Wait until end of PWM cycle.  All data bits have been sent, so we
+    ; just have to sit and wait for the PWM cycle to complete.  We don't
+    ; have to generate any clock signals here; the chip has its own free-
+    ; running 4 MHz clock that runs the PWM cycle.
+    mov x, y           side 0      ; load wait time from preloaded Y
+clockLoop:
+    jmp x--, clockLoop side 0
+
+    ; PWM cycle completed.  We can begin the blanking period.
+    ; Note: 30 MHz PIO clock -> 33ns per PIO cycle
+    set pins, 3        side 0      ; BLANK high, XLAT high
+    nop                side 0      ; hold -> 66ns (min BLANK/XLAT time is 30ns per data sheet)
+    set pins, 0        side 0      ; BLANK low, XLAT low
+
+    ; Note 1: new PWM cycle starts in 4 internal 4MHz clocks = 1us = 30 PIO clocks
+    ; Note 2: T[su1] = XLAT up to SCLK up = 100ns = 3 PIO clocks, already satisfied
+
+    ; wrap to the top of the main loop, to carry out the next cycle
+    .wrap

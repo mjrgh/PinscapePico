@@ -979,9 +979,9 @@ namespace PinscapePico
 		// object.  For individually addressable chips (PCA9685, PCA9555,
 		// TLC59116), this is the output port number on the chip,
 		// starting with port 0.  For daisy-chained devices (TLC5940,
-		// 74HC595), this is the port number on the overall chain,
-		// starting at 0 for the first port on the first chip in the
-		// chain (the one directly connected to the Pico).  a
+		// TLC5947, 74HC595), this is the port number on the overall
+		// chain, starting at 0 for the first port on the first chip
+		// in the chain (the one directly connected to the Pico).
 		int SetPhysicalOutputPortLevel(
 			uint8_t deviceType, uint8_t configIndex,
 			uint8_t port, uint16_t pwmLevel);
@@ -1016,10 +1016,10 @@ namespace PinscapePico
 		// output ports.  The physical devices are the peripheral
 		// chips attached to the Pico that can be used to control
 		// external feedback devices: PWM controller chips (TLC5940,
-		// TLC59116, PCA9685), shift registers (74HC595), GPIO
-		// extenders (PCA9555).  Note that the logical output ports
-		// can also be mapped directly to Pico GPIO ports, but the
-		// device list returned here doesn't include an entry for
+		// TLC5947, TLC59116, PCA9685), shift registers (74HC595),
+		// GPIO extenders (PCA9555).  Note that the logical output
+		// ports can also be mapped directly to Pico GPIO ports, but
+		// the device list returned here doesn't include an entry for
 		// the GPIO ports, because those are a fixed feature of the
 		// Pico, so we normalize them out of the list.
 		int QueryOutputDeviceConfig(std::vector<PinscapePico::OutputDevDesc> &devices);

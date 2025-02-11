@@ -1,7 +1,7 @@
-// Pinscape Pico - TLC5940 device driver
+// Pinscape Pico - TLC5947 device driver
 // Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
-// The TI TLC5940 is a 16-channel PWM LED driver with an ad hoc
+// The TI TLC5947 is a 24-channel, 12-bit PWM LED driver with an ad hoc
 // serial interface.
 
 #pragma once
@@ -33,12 +33,12 @@ namespace PinscapePico {
 }
 
 
-// TLC5940 daisy chain object.  Each instance of this object represents
-// a daisy chain of TLC5940 chips connected to a common set of GPIOs.
-class TLC5940 : public PIOInterruptHandler
+// TLC5947 daisy chain object.  Each instance of this object represents
+// a daisy chain of TLC5947 chips connected to a common set of GPIOs.
+class TLC5947 : public PIOInterruptHandler
 {
 public:
-    // Configure TLC5940 units from JSON data
+    // Configure TLC5947 units from JSON data
     static void Configure(JSONParser &json);
 
     // Global instances, built from the configuration data.  Note that
@@ -48,25 +48,25 @@ public:
     // as many chips as most people would ever need in a virtual pinball
     // application, and since each chain consumes a rather large block
     // of GPIO ports (four).
-    static std::vector<std::unique_ptr<TLC5940>> chains;
+    static std::vector<std::unique_ptr<TLC5947>> chains;
 
     // get a daisy chain by config index
-    static TLC5940 *GetChain(int n);
+    static TLC5947 *GetChain(int n);
 
-    // Get the number of configured TLC5940 daisy chains
+    // Get the number of configured TLC5947 daisy chains
     static size_t CountConfigurations() { return std::count_if(chains.begin(), chains.end(),
-        [](const std::unique_ptr<TLC5940>& c){ return c != nullptr; }); }
+        [](const std::unique_ptr<TLC5947>& c){ return c != nullptr; }); }
 
     // count ports across all configured chains
     static size_t CountPorts() { return std::accumulate(chains.begin(), chains.end(), 0,
-        [](int acc, const std::unique_ptr<TLC5940>& c){ return c != nullptr ? c->nPorts : 0; }); }
+        [](int acc, const std::unique_ptr<TLC5947>& c){ return c != nullptr ? c->nPorts : 0; }); }
 
     // get my configuration index
     int GetConfigIndex() const { return chainNum; }
 
     // construction/destruction
-    TLC5940(int chainNum, int nChips, int gpSIN, int gpSClk, int gpGSClk, int gpBlank, int gpXlat, int gpDCPRG, int gpVPRG, int pwmFreq);
-    ~TLC5940();
+    TLC5947(int chainNum, int nChips, int gpSIN, int gpSClk, int gpBlank, int gpXlat);
+    ~TLC5947();
 
     // Get/Set an output level, port 0..(nPorts-1), level 0..4095
     uint16_t Get(int port);
@@ -92,7 +92,7 @@ public:
 
 protected:
     // Initialize.  Sets up the PIO program.
-    bool Init(const uint8_t *dcData);
+    bool Init();
 
     // start a DMA send to the PIO state machine from the current buffer
     void StartDMASend();
@@ -110,24 +110,15 @@ protected:
     // Number of chips on the daisy chain
     int nChips;
 
-    // Total number of ports.  Each chip has a fixed 16 ports, so this
-    // is alays nChips*16.
+    // Total number of ports.  Each chip has a fixed 24 ports, so this
+    // is alays nChips*24.
     int nPorts;
 
     // GPIO connections to the chip control lines
     int gpSClk;     // Serial Clock
     int gpSIN;      // Serial Data
-    int gpGSClk;    // Grayscale clock
     int gpBlank;    // BLANK
     int gpXlat;     // XLAT
-    int gpDCPRG;    // DCPRG (dot correct source select)
-    int gpVPRG;     // VPRG (dot correction data input mode)
-
-    // Desired PWM frequency, in Hz.  This is the inverse of the time it
-    // takes to complete one 4096-count grayscale cycle on the TLC5940.
-    // The grayscale clock therefore runs at 4096*pwmFreq.  The data
-    // clock runs at the same rate.
-    int pwmFreq;
 
     // DMA channel for PIO transmissions
     int dmaChannelTx = -1;

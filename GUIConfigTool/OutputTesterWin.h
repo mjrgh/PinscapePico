@@ -126,12 +126,13 @@ namespace PinscapePico
 		// do any ports have non-empty names?
 		bool havePortNames = false;
 
-		// Number of daisy chains for TLC5940 and 74HC595.  We use
-		// the count to determine if we need to bother mentioning
+		// Number of daisy chains for TLC5940, TLC5947, and 74HC595.
+		// We use the count to determine if we need to bother mentioning
 		// which chain a particular chip belongs to.  Most commonly,
 		// there's only one daisy chain per type, in which case it's
 		// better to omit any mention of the chain ID.
 		int numTLC5940 = 0;
+		int numTLC5947 = 0;
 		int num74HC595 = 0;
 
 		// Thread context object.  This object is shared between the 

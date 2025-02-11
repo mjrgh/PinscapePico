@@ -1328,6 +1328,7 @@ namespace PinscapePico
                 //  PWMWorker:  0-255
                 //  TLC59116:   0-255
                 //  TLC5940:    0-4095
+                //  TLC5947:    0-4095
                 //  PCA9685:    0-4095
                 //  74HC595:    0-1 (digital mode), 0-255 (PWM mode)
                 //  PCA9555:    0-1
@@ -2342,6 +2343,7 @@ namespace PinscapePico
         static const uint8_t DEV_74HC595 = 7;     // 74HC595 shift register port
         static const uint8_t DEV_ZBLAUNCH = 8;    // ZB Launch virtual port
         static const uint8_t DEV_PWMWORKER = 9;   // external Pico running PWMWorker firmware
+        static const uint8_t DEV_TLC5947 = 10;    // TLC5947 serial-interface PWM controller port
 
         // Device port.  For GPIO ports, this is the nominal Pico GP number of the
         // assigned port.  For all of the other physical devices, it's the nominal port
@@ -2389,16 +2391,17 @@ namespace PinscapePico
         // inferred from (numPorts / numPortsPerChip).
         uint16_t numPorts;
 
-        // Number of output ports PER CHIP.  For daisy chains (74HC595, TLC5940),
-        // this is the number of chips on each physical chip in the chain.  For
-        // individually configured chips, this is the same as numPorts.
+        // Number of output ports PER CHIP.  For daisy chains (74HC595, TLC5940,
+        // TLC5947), this is the number of chips on each physical chip in the
+        // chain.  For individually configured chips, this is the same as
+        // numPorts.
         uint16_t numPortsPerChip;
 
         // PWM resolution.  This is the number of discrete PWM duty cycle steps that the
         // device supports.  The range of PWM levels is 0 to pwmRes-1.  A digital on/off
         // output port (Pico GPIO in digital mode, shift register port, PCA9555 port)
         // reports 2 here.  An 8-bit PWM chip (TLC59116) reports 256; a 12-bit chip
-        // (TLC5940, PCA9685) reports 4096.
+        // (TLC5940, TLC5947, PCA9685) reports 4096.
         uint16_t pwmRes;
 
         // Device configuration index

@@ -50,6 +50,7 @@
 #include "Devices/GPIOExt/PCA9555.h"
 #include "Devices/PWM/TLC59116.h"
 #include "Devices/PWM/TLC5940.h"
+#include "Devices/PWM/TLC5947.h"
 #include "Devices/PWM/PCA9685.h"
 #include "Devices/PWM/PWMWorker.h"
 #include "Devices/ShiftReg/74HC595.h"
@@ -163,6 +164,11 @@ void OutputManager::SetLedWizPBA(int portNum, uint8_t profile)
 //     chain: <number>,               // chain number, as in an index (0..) in tlc5940[] configuration array; okay to omit if only one chain is defined
 //     chip: <number>,                // chip index on the chain, 0=first chip (the one connected directly to the Pico)
 //     port: <number>,                // port number on the chip, 0 to 15 for pins OUT0 to OUT15
+//  
+//   type: "tlc5947",                 // output through a port on a TLC5947 PWM controller daisy chain
+//     chain: <number>,               // chain number, as in an index (0..) in tlc5947[] configuration array; okay to omit if only one chain is defined
+//     chip: <number>,                // chip index on the chain, 0=first chip (the one connected directly to the Pico)
+//     port: <number>,                // port number on the chip, 0 to 23 for pins OUT0 to OUT23
 //  
 //   type: "pca9685",                 // output through a port on a PCA9685 PWM controller chip
 //     chip: <number>,                // chip number, as an index (0..) in pca9685[] configuration array
@@ -541,6 +547,42 @@ OutputManager::Device *OutputManager::ParseDevice(
         if (chain != nullptr && chain->IsValidPort(port))
             device = new TLC5940Dev(chain, port);
     }
+    else if (*devType == "tlc5947")
+    {
+        // TLC5947 port
+        int port = devSpec->Get("port")->Int(-1);
+        TLC5947 *chain = TLC5947::GetChain(devSpec->Get("chain")->Int(0));
+
+        // validate the chain
+        if (chain == nullptr)
+            Log(LOG_ERROR, "%s: No such TLC5947 chain\n", jsonLocus);
+
+        // if a chip index is provided, adjust the port to be chip-relative
+        if (const auto *chipVal = devSpec->Get("chip"); !chipVal->IsUndefined())
+        {
+            // validate the chip number
+            int chip = chipVal->Int(-1);
+            if (chip < 0 || (chain != nullptr && !chain->IsValidPort(chip*24 + 23)))
+                Log(LOG_ERROR, "%s: TLC5947 'chip' index %d is out of range for this chain\n", jsonLocus, chip);
+
+            // the port number has to be 0..13 when chip-relative
+            if (port < 0 || port > 23)
+                Log(LOG_ERROR, "%s: TLC5947 'port' %d is out of range; must be 0-23\n", jsonLocus, port);
+
+            // figure the port index
+            port += chip * 24;
+        }
+        else
+        {
+            // the port is chain-relative - validate it with the chain object
+            if (chain != nullptr && !chain->IsValidPort(port))
+                Log(LOG_ERROR, "%s: TLC5947 port %d is out of range\n", jsonLocus, port);
+        }
+
+        // if the chain and port are valid, create the device object
+        if (chain != nullptr && chain->IsValidPort(port))
+            device = new TLC5947Dev(chain, port);
+    }
     else if (*devType == "pca9685")
     {
         // PCA9685 port
@@ -872,6 +914,10 @@ void OutputManager::SetDevicePortLevel(int devType, int configIndex, int port, i
         TLC5940Dev::SetDevicePortLevel(configIndex, port, pwmLevel);
         break;
 
+    case PinscapePico::OutputPortDesc::DEV_TLC5947:
+        TLC5947Dev::SetDevicePortLevel(configIndex, port, pwmLevel);
+        break;
+
     case PinscapePico::OutputPortDesc::DEV_PCA9685:
         PCA9685Dev::SetDevicePortLevel(configIndex, port, pwmLevel);
         break;
@@ -966,6 +1012,7 @@ size_t OutputManager::QueryLogicalPortName(uint8_t *buf, size_t bufSize, int por
     func(GPIODev::method(__VA_ARGS__)) binop \
     func(TLC59116::method(__VA_ARGS__)) binop \
     func(TLC5940::method(__VA_ARGS__)) binop \
+    func(TLC5947::method(__VA_ARGS__)) binop \
     func(PCA9685::method(__VA_ARGS__)) binop \
     func(PCA9555::method(__VA_ARGS__)) binop \
     func(C74HC595::method(__VA_ARGS__)) binop \
@@ -2020,6 +2067,46 @@ void OutputManager::TLC5940Dev::SetDevicePortLevel(int configIndex, int port, in
 void OutputManager::TLC5940Dev::Populate(PinscapePico::OutputPortDesc *desc) const
 {
     desc->devType = PinscapePico::OutputPortDesc::DEV_TLC5940;
+    desc->devId = chain->GetConfigIndex();
+    desc->devPort = port;
+}
+
+// --------------------------------------------------------------------------
+//
+// TLC5947 device interface
+//
+
+const char *OutputManager::TLC5947Dev::FullName(char *buf, size_t buflen) const
+{
+    snprintf(buf, buflen, "TLC5947[%d] OUT%d", chain != nullptr ? chain->GetConfigIndex() : -1, port);
+    return buf;
+}
+
+void OutputManager::TLC5947Dev::Set(uint8_t level)
+{
+    // Set our output port on the chip.  The TLC5947 uses a 12-bit
+    // linear scale for the duty cycle, so we have to rescale our
+    // 8-bit value to 12 bits.
+    chain->Set(port, To12BitPhys(level));
+}
+
+uint8_t OutputManager::TLC5947Dev::Get() const
+{
+    // rescale from TLC5947 native 12-bit to DOF normalized 8-bit representation
+    return static_cast<uint8_t>(chain->Get(port) >> 4);
+}
+
+// direct device port access
+void OutputManager::TLC5947Dev::SetDevicePortLevel(int configIndex, int port, int pwmLevel)
+{
+    if (auto *chain = TLC5947::GetChain(configIndex) ; chain != nullptr && chain->IsValidPort(port))
+        chain->Set(port, static_cast<uint16_t>(std::min(pwmLevel, 4095)));
+}
+
+// populate a vendor interface port descriptor's device information
+void OutputManager::TLC5947Dev::Populate(PinscapePico::OutputPortDesc *desc) const
+{
+    desc->devType = PinscapePico::OutputPortDesc::DEV_TLC5947;
     desc->devId = chain->GetConfigIndex();
     desc->devPort = port;
 }

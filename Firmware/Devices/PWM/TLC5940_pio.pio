@@ -183,5 +183,5 @@ clockLoop:
     set pins, 1        side 0      ; hold BLANK high, end XLAT pulse
     set pins, 0        side 0      ; take BLANK low to end the blanking cycle
 
-    ; wrap to the top of the main loop, to carry out the enxt cycle
+    ; wrap to the top of the main loop, to carry out the next cycle
     .wrap

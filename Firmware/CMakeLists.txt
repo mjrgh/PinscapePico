@@ -148,6 +148,7 @@ add_executable(
     Devices/ProxSensor/VCNL4010.cpp
     Devices/PWM/TLC59116.cpp
     Devices/PWM/TLC5940.cpp
+    Devices/PWM/TLC5947.cpp
     Devices/PWM/PCA9685.cpp
     Devices/PWM/PWMWorker.cpp
     Devices/Quadrature/QuadratureEncoder.cpp
@@ -181,6 +182,7 @@ pico_generate_pio_header(PinscapePico Devices/LinearPhotoSensor/TCD1103_ICGneg.p
 pico_generate_pio_header(PinscapePico Devices/LinearPhotoSensor/TSL1410R_SI.pio)
 pico_generate_pio_header(PinscapePico Devices/LinearPhotoSensor/TSL1410R_CLK.pio)
 pico_generate_pio_header(PinscapePico Devices/PWM/TLC5940_pio.pio)
+pico_generate_pio_header(PinscapePico Devices/PWM/TLC5947_pio.pio)
 pico_generate_pio_header(PinscapePico Devices/ShiftReg/74HC165_pio.pio)
 pico_generate_pio_header(PinscapePico Devices/ShiftReg/74HC595_pwm_pio.pio)
 pico_generate_pio_header(PinscapePico Devices/ShiftReg/74HC595_dig_pio.pio)

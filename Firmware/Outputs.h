@@ -61,6 +61,7 @@
 class PWMWorker;
 class TLC59116;
 class TLC5940;
+class TLC5947;
 class PCA9685;
 class PCA9555;
 class C74HC595;
@@ -606,6 +607,24 @@ public:
 
         // daisy chain instance and port number
         TLC5940 *chain;
+        int port;
+    };
+
+    // TLC5947 output port device.  This represents a single port
+    // on a TLC5947 chip.
+    class TLC5947Dev : public Device
+    {
+    public:
+        TLC5947Dev(TLC5947 *chain, int port) : chain(chain), port(port) { }
+        virtual const char *Name() const { return "TLC5947"; }
+        virtual const char *FullName(char *buf, size_t buflen) const override;
+        virtual void Set(uint8_t level) override;
+        virtual uint8_t Get() const override;
+        static void SetDevicePortLevel(int configIndex, int port, int pwmLevel);
+        virtual void Populate(PinscapePico::OutputPortDesc *desc) const override;
+
+        // daisy chain instance and port number
+        TLC5947 *chain;
         int port;
     };
 

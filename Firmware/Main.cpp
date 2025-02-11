@@ -76,6 +76,7 @@
 #include "Devices/PWM/TLC59116.h"
 #include "Devices/PWM/PCA9685.h"
 #include "Devices/PWM/TLC5940.h"
+#include "Devices/PWM/TLC5947.h"
 #include "Devices/Quadrature/AEDR8300.h"
 #include "Devices/RTC/DS1307.h"
 #include "Devices/RTC/DS3231M.h"
@@ -447,6 +448,7 @@ static void Configure(PicoReset::BootMode bootMode)
     TLC59116::Configure(json);
     PCA9685::Configure(json);
     TLC5940::Configure(json);
+    TLC5947::Configure(json);
     C74HC595::Configure(json);
     PWMWorker::Configure(json);
 

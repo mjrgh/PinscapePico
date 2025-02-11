@@ -365,7 +365,7 @@ void TSL1410R::StartDMALoop()
     auto piocfg = TSL1410R_CLK_program_get_default_config(pioCLK.ofs);
     sm_config_set_sideset_pins(&piocfg, gpCLK);                   // one sideset pins: CLK
     sm_config_set_clkdiv_int_frac(&piocfg, 1, 0);                 // use the system clock with no division
-    sm_config_set_out_shift(&piocfg, true, true, 32);       // right shifts, autopull, autopull threshold = 32 bits
+    sm_config_set_out_shift(&piocfg, true, true, 32);             // right shifts, autopull, autopull threshold = 32 bits
     pio_sm_init(pioCLK.pio, pioCLK.sm, pioCLK.ofs, &piocfg);      // initialize with the configuration and starting program offset
     pio_sm_set_consecutive_pindirs(pioCLK.pio, pioCLK.sm, gpCLK, 1, true);
     pio_gpio_init(pioCLK.pio, gpCLK);

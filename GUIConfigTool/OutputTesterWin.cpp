@@ -105,11 +105,11 @@ void OutputTesterWin::QueryDeviceInfo()
         }
     }
 
-    // Count TLC5940 and 74HC595 chains.  If there's only one chain
-    // of a given type, as is typical, elide the chain number, since
-    // there's no ambiguity.  That looks cleaner and avoids creating
-    // confusion for the user for the common case where there's only
-    // one chain.  While we're at it, count up the device ports.
+    // Count TLC5940, TLC5947, and 74HC595 chains.  If there's only
+    // one chain of a given type, as is typical, elide the chain number,
+    // since there's no ambiguity.  That looks cleaner and avoids creating
+    // confusion for the user for the common case where there's only one
+    // chain.  While we're at it, count up the device ports.
     int numDevPorts = 0;
     for (auto &dev : deviceDescs)
     {
@@ -117,10 +117,20 @@ void OutputTesterWin::QueryDeviceInfo()
         numDevPorts += dev.numPorts;
 
         // if it's a daisy-chain type chip, count the chain
-        if (dev.devType == PinscapePico::OutputPortDesc::DEV_TLC5940)
+        switch (dev.devType)
+        {
+        case PinscapePico::OutputPortDesc::DEV_TLC5940:
             numTLC5940 += 1;
-        else if (dev.devType == PinscapePico::OutputPortDesc::DEV_74HC595)
+            break;
+
+        case PinscapePico::OutputPortDesc::DEV_TLC5947:
+            numTLC5947 += 1;
+            break;
+
+        case PinscapePico::OutputPortDesc::DEV_74HC595:
             num74HC595 += 1;
+            break;
+        }
     }
 
     // allocate sliders
@@ -276,7 +286,10 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
     // a daisy chain.  Returns the chip-relative port number.
     const auto GetDevName = [this](char *buf, size_t bufSize, int devType, int devId, int devPort)
     {
-        static const char *devName[] ={ "Invalid", "Virtual", "Pico GPIO", "TLC59116", "TLC5940", "PCA9685", "PCA9555", "74HC595", "ZBLaunch" };
+        static const char *devName[] ={ 
+            "Invalid", "Virtual", "Pico GPIO", "TLC59116", "TLC5940", "PCA9685", "PCA9555", "74HC595",
+            "ZBLaunch", "PWMWorker", "TLC5947" 
+        };
         using PortDesc = PinscapePico::OutputPortDesc;
         switch (devType)
         {
@@ -294,6 +307,14 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             else
                 sprintf_s(buf, bufSize, "TLC5940 #%d", devPort/16);
             return devPort % 16;
+
+        case PortDesc::DEV_TLC5947:
+            // show the chain (if there's more than one), chip, and port number relative to the chip
+            if (numTLC5947 > 1)
+                sprintf_s(buf, bufSize, "TLC5947 %c#%d", devId + 'A', devPort/24);
+            else
+                sprintf_s(buf, bufSize, "TLC5947 #%d", devPort/24);
+            return devPort % 24;
 
         case PortDesc::DEV_74HC595:
             // show the chain (if there's more than one), chip, and port number relative to the chip

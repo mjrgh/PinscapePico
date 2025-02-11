@@ -262,6 +262,9 @@ table.data td, table.data th {
 #outputSourceTable .rowGroup {
     background: #ffffe0;
 }
+#outputSourceTable > tbody > tr > td:nth-child(1) {
+    vertical-align: top;
+}
 
 overbar {
     text-decoration: underline;

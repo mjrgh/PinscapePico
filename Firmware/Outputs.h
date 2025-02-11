@@ -66,6 +66,7 @@ class PCA9555;
 class C74HC595;
 class Button;
 class ConsoleCommandContext;
+class DateTime;
 namespace PinscapePico {
     struct OutputPortDesc;
     struct OutputDevDesc;
@@ -1162,11 +1163,85 @@ public:
     class TimeRangeSource : public DataSource
     {
     public:
-        TimeRangeSource(DataSourceArgs &args);
+        static TimeRangeSource *ParseArgs(DataSourceArgs &args);
+        
+        TimeRangeSource(uint32_t tStart, uint32_t tEnd) : tStart(tStart), tEnd(tEnd) { }
         virtual SourceVal Calc() override;
         virtual void Traverse(TraverseFunc func) override{ func(sourceIn); func(sourceOut); }
-        DataSource *sourceIn, *sourceOut;
-        uint32_t tStart = 0, tEnd = 0;   // endpoints of time range, as seconds since midnight
+        DataSource *sourceIn = nullptr;
+        DataSource *sourceOut = nullptr;
+
+        // Endpoints of the time time-of-day range, as seconds since midnight.
+        // If tEnd < tStart, the range spans midnight, so it's from tStart on
+        // day N to tEnd on day N+1.
+        uint32_t tStart = 0, tEnd = 0;
+
+        // Calculate a "year day number".  This converts a date from mm/dd format
+        // to a high-radix integer representing the day of the year in non-contiguous
+        // ascending order.  (Non-continguous means that there are gaps between valid
+        // day numbers.)  This format places all dates over the year in a sortable
+        // order, where we can determine if one date is before or after another
+        // by simple integer comparison of the day number values.  It's also easy
+        // to recover the mm/dd date from a day number, although we don't need to
+        // do that for our purposes here.
+        static int YearDayNumber(int mm, int dd) { return (mm << 8) + dd; }
+    };
+
+    // Weekday time range source.  Selects inputs depending on
+    // whether the current time is within a specified range
+    // within the week.
+    class WeekdayTimeRangeSource : public TimeRangeSource
+    {
+    public:
+        WeekdayTimeRangeSource(int weekdayStart, int weekdayEnd, uint32_t tStart, uint32_t tEnd) :
+            TimeRangeSource(tStart, tEnd), weekdayStart(weekdayStart), weekdayEnd(weekdayEnd) { }
+
+        virtual SourceVal Calc() override;
+
+        // Endpoints of the weekday range, 0=Monday, 1=Tuesday, etc.  If
+        // weekdayStart < weekdayEnd, the range spans the start of the
+        // new week.
+        int weekdayStart;
+        int weekdayEnd;
+    };
+
+    // Weekday mask time range source.  Selects inputs according to
+    // the time of day on selected days of the week.
+    class WeekdayMaskTimeRangeSource : public TimeRangeSource
+    {
+    public:
+        WeekdayMaskTimeRangeSource(int weekdayMask, uint32_t tStart, uint32_t tEnd) :
+            TimeRangeSource(tStart, tEnd), weekdayMask(weekdayMask) { }
+
+        virtual SourceVal Calc() override;
+
+        // Weekday mask.  This encodes a set of days of the week as bits,
+        // with (1<<0)=Monday, (1<<1)=Tuesday, etc.  The time range is only
+        // valid for tStart within a day in the mask.
+        //
+        // For example, 0x15 selects Monday, Wednesday, and Friday, so if
+        // tStart is 13:00 and tEnd is 14:00, valid times are from 13:00
+        // to 14:00 on Mondays, Wednesdays, and Fridays.
+        //
+        // If tEnd < tStart, the time range spans midnight, and must START
+        // on a day in the mask.  Continuing our 0x15 M-W-F example, if the
+        // range is 23:00 to 01:00, the times span 23:00 Monday to 01:00 Tuesday,
+        // 23:00 Wednesday to 01:00 Thursday, and 23:00 Friday to 01:00 Saturday.
+        int weekdayMask = 0;
+    };
+
+    // Date-and-time range source.  Selects inputs according to the
+    // time of day within a span of calendar dates within a year.
+    class DateAndTimeRangeSource : public TimeRangeSource
+    {
+    public:
+        DateAndTimeRangeSource(int yearDayStart, int yearDayEnd, uint32_t tStart, uint32_t tEnd) :
+            TimeRangeSource(tStart, tEnd), dateStart(yearDayStart), dateEnd(yearDayEnd) { }
+
+        virtual SourceVal Calc() override;
+
+        // Date range, as a "year day number"
+        int dateStart = 0, dateEnd = 0;
     };
 
     // Plunger position source, normalized to 0..255 integer range with park position at 42

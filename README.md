@@ -168,7 +168,7 @@ GPIO ports, so I'm not sure anyone would really be all that happy
 trying to cram both functions into a single Pico, when they consider
 how severely it would constrain the available GPIO ports for each
 function.  I think everyone might end up happiest with the current
-situation, where you just use a separate, dedicated controller for the
+situation, where you just use a separate, dedicated controller for
 your smart LED strips.
 
 

@@ -2293,21 +2293,59 @@ OutputManager::SourceVal OutputManager::NightModeSource::Calc()
 
 // ---------------------------------------------------------------------------
 //
-// Time range source
+// Time range source - time("range")
+//
+// The "range" argument uses one of the following formats:
+//
+// "<time> - <time>"
+//    A daily clock time range.  The source is active when the wall clock
+//    time is between the start and end time.  The time can span midnight.
+//
+// "<weekday> <time> - <weekday> <time>"
+//    A span of time during a week, such as "Mon 9:00 - Wed 17:00" for
+//    Monday at 9 AM to Wednesday at 5 PM, including all day Tuesday.
+//    The range can span a week boundary, such as "Fri 17:00 - Mon 8:00".
+//    If the times are omitted, the range includes all day on the start
+//    and end days.
+//
+// "<weekday>/<weekday>/... <time> - <time>"
+//    A time range that applies to one or more days of the week, such as
+//    "Mon/Wed/Fri 12:00-13:00" for the lunch hour on Mondays, Wednesdays,
+//    and Fridays only.  The time range can be omitted to include all day
+//    on the selected days.
+//
+// "<date> <time> - <date> <time>"
+//    A portion of the calendar year, from the starting time on the starting
+//    date to the ending time on the ending date.  The times can be omitted
+//    to include all day on the endpoint dates.  The date can span the end
+//    of the year, as in "Dec 23 - Jan 2".
+//
+// <time> values use the format "mm:mm:ss am/pm".  The minutes and seconds are
+// optional.  If the am/pm marker is absent, the time is taken as a 24-hour
+// clock time.  The am/pm marker can also be written as am, pm, a, or p.
+//
+// <weekday> values are the literals Mon, Tue, Wed, Thu, Fri, Sat, Sun.
+//
+// <date> values are given as "month day", where month is Jan, Feb, Mar, Apr,
+// May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, and day is 1 to 31.
+//
+// All literals are case-insensitive.
 //
 
-OutputManager::TimeRangeSource::TimeRangeSource(DataSourceArgs &args)
+
+OutputManager::TimeRangeSource *OutputManager::TimeRangeSource::ParseArgs(DataSourceArgs &args)
 {
-    // parse the time range argument
+    // parse the time range string argument
     std::string s;
+    uint32_t tStart = 0, tEnd = 0;
+    TimeRangeSource *source = nullptr;
     if (args.TryGetString(s))
     {
-        // the string format is 'start - end', where each element can be a clock
-        // time value expressed as 'hh:mm:ss am/pm'.  The minutes and seconds are
-        // optional.  If the am/pm marker is absent, the time is taken as a 24-hour
-        // clock time.  The am/pm marker can also be written as am, pm, a, or p.
+        // start at the beginning of the string
         const char *p = s.c_str();
-        auto ParseEle = [&args, &p](uint32_t &tResult)
+
+        // Parse a time element
+        auto ParseTime = [&args, &p](uint32_t &tResult)
         {
             // skip leading spaces
             for ( ; isspace(*p) ; ++p) ;
@@ -2335,7 +2373,7 @@ OutputManager::TimeRangeSource::TimeRangeSource(DataSourceArgs &args)
             // it's an error if we didn't find at least one element
             if (nEle == 0)
             {
-                args.errors.emplace_back(args.argi - 1, "invalid time format; expected 'hh:mm:ss [am/pm]'");
+                args.errors.emplace_back(args.argi - 1, Format("invalid time format; expected 'hh:mm:ss [am/pm]', at %s", p));
                 return false;
             }
 
@@ -2365,10 +2403,13 @@ OutputManager::TimeRangeSource::TimeRangeSource(DataSourceArgs &args)
                     ++p;
             }
 
-            // range-check the elements
-            if (ele[0] > 23 || ele[1] > 59 || ele[2] > 59)
+            // Range-check the elements.  Allow the special value 24:00:00, which
+            // represents the start of the second just past the end of the day.
+            // 24:00:00 is necessary to include because our intervals are treated
+            // as exclusive of the ending time.
+            if ((ele[0] > 23 || ele[1] > 59 || ele[2] > 59) && !(ele[0] == 24 && ele[1] == 0 && ele[2] == 0))
             {
-                args.errors.emplace_back(args.argi - 1, "invalid time value; must be 00:00:00 to 23:59:59 (12:00:00AM to 11:59:59PM)");
+                args.errors.emplace_back(args.argi - 1, "invalid time value; must be 00:00:00 to 24:00:00");
                 return false;
             }
 
@@ -2381,17 +2422,267 @@ OutputManager::TimeRangeSource::TimeRangeSource(DataSourceArgs &args)
             // successfully parsed
             return true;
         };
-        if (ParseEle(tStart))
+
+        // Parse a weekday.  0=Monday, following the convention of our DateTime class.
+        // Returns true on a match, and advances the string pointer past the matched
+        // day name.  Returns false if no match, with no error messages; p is still
+        // moved, but only past any leading whitespace.
+        auto ParseWeekday = [&args, &p](int &dayResult)
+        {
+            // skip spaces
+            for ( ; isspace(*p) ; ++p) ;
+
+            // Check for a weekday
+            static const char weekdays[] = "montuewedthufrisatsun";
+            const char *w = weekdays;
+            for (int day = 0 ; *w != 0 ; w += 3, ++day)
+            {
+                // if the current day matches, and the token ends after the match
+                // (that is, the next character isn't another alphabetic character),
+                // it's a match
+                if (tolower(p[0]) == w[0] && tolower(p[1]) == w[1] && tolower(p[2]) == w[2]
+                    && !isalpha(p[3]))
+                {
+                    p += 3;
+                    dayResult = day;
+                    return true;
+                }
+            }
+
+            // not matched
+            return false;
+        };
+
+        // Parse a calendar date.  On success, fills in dateResult with the "year day"
+        // (see YearDayNumber() in the header) of the date matched, advances p past the
+        // matched text, and and returns true.  If no match, returns false, with no
+        // error messages, and with p advanced only past any leading whitespace.
+        auto ParseDate = [&args, &p](int &dateResult)
+        {
+            // skip spaces, and remember where we started
+            for ( ; isspace(*p) ; ++p) ;
+            const char *start = p;
+
+            // Check for a weekday
+            static const char months[] = "janfebmaraprmayjunjulaugsepoctnovdec";
+            const char *m = months;
+            for (int mon = 1 ; *m != 0 ; m += 3, ++mon)
+            {
+                // if the current month matches, and the token ends after the match
+                // (that is, the next character isn't another alphabetic character),
+                // it's a match
+                if (tolower(p[0]) == m[0] && tolower(p[1]) == m[1] && tolower(p[2]) == m[2]
+                    && !isalpha(p[3]))
+                {
+                    // skip the month and whitespace
+                    for (p += 3 ; isspace(*p) ; ++p) ;
+
+                    // there has to be a day number following
+                    if (isdigit(*p))
+                    {
+                        // parse the day number
+                        int day = *p++ - '0';
+                        while (isdigit(*p))
+                            day = day*10 + *p++ - '0';
+
+                        // success - fill in the Year Day Number in the result and return true
+                        dateResult = YearDayNumber(mon, day);
+                        return true;
+                    }
+                }
+            }
+
+            // not matched - reset the parse point and return false
+            p = start;
+            return false;
+        };
+
+        // Check for a weekday.  This could be either a "Day Time - Day Time" range,
+        // or a "Day/Day/Day Time-Time" range.
+        if (int day; ParseWeekday(day))
+        {
+            // after the first day, we can have:
+            //    -          - a full-day range, as in "Mon-Fri"
+            //    /Day/...   - a day mask
+            //    time       - either Day Time-Time or Day Time-Day Time
+            //    end        - a single-day mask with no time
+            for ( ; isspace(*p) ; ++p) ;
+            if (*p == '-')
+            {
+                // full-day range - skip the '-' and parse the second day
+                ++p;
+                if (int endDay; ParseWeekday(endDay))
+                {
+                    // success - create the day range, from 00:00:00 on the
+                    // starting day to 24:00:00 on the ending day
+                    source = new WeekdayTimeRangeSource(day, endDay, 0, 24*60*60);
+                }
+                else
+                    args.errors.emplace_back(args.argi - 1, Format("expected second weekday name in 'Day-Day' range at '%s'", p));
+            }
+            else if (*p == '/')
+            {
+                // definitely a day mask list - parse all remaining days
+                int dayMask = (1 << day);
+                bool ok = true;
+                while (*p == '/')
+                {
+                    ++p;
+                    if (!ParseWeekday(day))
+                    {
+                        args.errors.emplace_back(args.argi - 1, Format("expected another weekday name in 'Day/Day/...' range at '%s'", p));
+                        ok = false;
+                        break;
+                    }
+                    dayMask |= (1 << day);
+                    for ( ; isspace(*p) ; ++p) ;
+                }
+
+                // if we didn't encounter an error in the day mask, continue to the optional time range
+                if (ok)
+                {
+                    // we can now either be at end of string, or at a time range
+                    if (*p == 0)
+                    {
+                        // it's a simple day mask, with no time range, so it's all day on each selected day
+                        source = new WeekdayMaskTimeRangeSource(dayMask, 0, 24*60*60);
+                    }
+                    else if (ParseTime(tStart))
+                    {
+                        // we now need a '-' and the ending time
+                        if (*p == '-')
+                        {
+                            ++p;
+                            if (ParseTime(tEnd))
+                            {
+                                // success
+                                source = new WeekdayMaskTimeRangeSource(dayMask, tStart, tEnd);
+                            }
+                        }
+                        else
+                            args.errors.emplace_back(args.argi - 1, Format("expected '-' in day-and-time range at '%s'", p));                        
+                    }
+                }
+            }
+            else if (isdigit(*p))
+            {
+                // It's a time, so this is either a "Day Time-Day Time" or "Day Time-Time"
+                // range.  In either case, parse the starting time.
+                if (ParseTime(tStart))
+                {
+                    // the next token must be the '-'
+                    for ( ; isspace(*p) ; ++p) ;
+                    if (*p == '-')
+                    {
+                        // The next token can be:
+                        //    Day     - a "Day Time-Day Time" range
+                        //    Time    - a single-day mask range, "Day Time-Time"
+                        ++p;
+                        if (int dayEnd; ParseWeekday(dayEnd))
+                        {
+                            // it's a "Day Time-Day Time" range - we now just need an ending time
+                            if (ParseTime(tEnd))
+                            {
+                                // success - create the day-and-time range
+                                source = new WeekdayTimeRangeSource(day, dayEnd, tStart, tEnd);
+                            }
+                        }
+                        else
+                        {
+                            // it's not a day name, so it must be a time, for a single-day mask range
+                            if (ParseTime(tEnd))
+                            {
+                                // success - create the single-day mask range
+                                source = new WeekdayMaskTimeRangeSource(1 << day, tStart, tEnd);
+                            }
+                        }
+                    }
+                    else
+                        args.errors.emplace_back(args.argi - 1, Format("expected '-' in day-and-time range at '%s'", p));
+                }
+            }
+            else if (*p == 0)
+            {
+                // End of string.  A single day constitutes a day mask expression
+                // that covers the whole period of the single day.
+                source = new WeekdayMaskTimeRangeSource(1 << day, 0, 24*60*60);
+            }
+            else
+            {
+                // anything else is an error
+                args.errors.emplace_back(args.argi - 1, Format("invalid day-and-time range format - expected /, -, time, or end at '%s'", p));
+            }
+        }
+
+        // If that didn't work, check for a month, for a "Date Time - Date Time" range
+        if (int startDate; source == nullptr && ParseDate(startDate))
+        {
+            // Found a date.  The next token can be a time (numeric), '-' for
+            // an all-day date range, or end of string for a single day.
+            for ( ; isspace(*p) ; ++p) ;
+            if (*p == '-')
+            {
+                // it's an all-day range - parse the second date
+                ++p;
+                if (int endDate; ParseDate(endDate))
+                {
+                    // success
+                    source = new DateAndTimeRangeSource(startDate, endDate, 0, 24*60*60);
+                }
+                else
+                    args.errors.emplace_back(args.argi - 1, Format("expected date range ending date at '%s'", p));
+            }
+            else if (*p == 0)
+            {
+                // end of string - the range is a single day, all day
+                source = new DateAndTimeRangeSource(startDate, startDate, 0, 24*60*60);
+            }
+            else if (ParseTime(tStart))
+            {
+                // this must be followed by '-', then another date and time
+                for ( ; isspace(*p) ; ++p) ;
+                if (*p == '-')
+                {
+                    // get the ending date
+                    ++p;
+                    if (int endDate; ParseDate(endDate))
+                    {
+                        // get the ending time
+                        if (ParseTime(tEnd))
+                        {
+                            // success
+                            source = new DateAndTimeRangeSource(startDate, endDate, tStart, tEnd);
+                        }
+                    }
+                    else
+                        args.errors.emplace_back(args.argi - 1, Format("expected date range ending date at '%s'", p));
+                }
+                else
+                    args.errors.emplace_back(args.argi - 1, Format("expected '-' in date-and-time range at '%s'", p));
+            }
+        }
+
+        // If we didn't match one of the other formats, it must be the simple time-of-day range.
+        if (source == nullptr && ParseTime(tStart))
         {
             if (*p == '-')
             {
-                ++p, ParseEle(tEnd);
-                if (*p != 0)
-                    args.errors.emplace_back(args.argi - 1, Format("unexpected extra text '%s' after time range ignored", p));
+                // skip the '-' and parse the end time
+                ++p;
+                if (ParseTime(tEnd))
+                {
+                    // success - create the simple time range source
+                    source = new TimeRangeSource(tStart, tEnd);
+                }
             }
             else
                 args.errors.emplace_back(args.argi - 1, Format("expected '-' in time range at '%s'", p));
         }
+
+        // wherever we ended up, we have to be at the end of the string now
+        for ( ; isspace(*p) ; ++p) ;
+        if (*p != 0)
+            args.errors.emplace_back(args.argi - 1, Format("unexpected extra text '%s' after time range ignored", p));
     }
     else
     {
@@ -2399,9 +2690,18 @@ OutputManager::TimeRangeSource::TimeRangeSource(DataSourceArgs &args)
         args.errors.emplace_back(args.argi - 1, "time range must be a string");
     }
 
+    // If we didn't already create a source, we must not have a valid format,
+    // but we still need something, so create a basic time range source with
+    // the default time span.
+    if (source == nullptr)
+        source = new TimeRangeSource(tStart, tEnd);
+
     // store the ON and OFF sub-sources
-    sourceIn = args.GetSource();
-    sourceOut = args.GetSource();
+    source->sourceIn = args.GetSource();
+    source->sourceOut = args.GetSource();
+
+    // return the new source
+    return source;
 }
 
 OutputManager::SourceVal OutputManager::TimeRangeSource::Calc()
@@ -2430,6 +2730,140 @@ OutputManager::SourceVal OutputManager::TimeRangeSource::Calc()
             // mightnight and always < the end-of-day midnight.
             inRange = t.timeOfDay < tEnd || t.timeOfDay >= tStart;
         }
+        
+        // select the in-range or out-of-range sub-source
+        return inRange ? sourceIn->Calc() : sourceOut->Calc();
+    }
+    else
+    {
+        // time of day is unknown - return the 'out of range' value
+        return sourceOut->Calc();
+    }
+}
+
+// Weekday time range, as in "Tue 9:00 - Fri 17:00" (from Tuesday at
+// 9am to Friday at 5pm, which includes all day Wednesday and Thursday)
+OutputManager::SourceVal OutputManager::WeekdayTimeRangeSource::Calc()
+{
+    // check if we know the time of day
+    DateTime t;
+    if (timeOfDay.Get(t))
+    {
+        // Determine if the time is in range.  First, the day of
+        // the week has to be within the range.
+        bool inRange;
+        int weekday = t.GetWeekDay();
+        if (weekdayStart < weekdayEnd)
+        {
+            // start day < end day -> a range within one week
+            inRange = weekday >= weekdayStart && weekday <= weekdayEnd;
+        }
+        else
+        {
+            // end day < start day -> range spans a week boundary
+            inRange = weekday <= weekdayEnd || weekday >= weekdayStart;
+        }
+
+        // Even if it's within the weekday range, it could be out of the
+        // time range.  The time range is tStart to midnight on the
+        // starting day, all day on days between start and end, and
+        // midnight to tEnd on the ending day.
+        if ((weekday == weekdayStart && t.timeOfDay < tStart)
+            || weekday == weekdayEnd && t.timeOfDay >= tEnd)
+            inRange = false;
+
+        // select the in-range or out-of-range sub-source
+        return inRange ? sourceIn->Calc() : sourceOut->Calc();
+    }
+    else
+    {
+        // time of day is unknown - return the 'out of range' value
+        return sourceOut->Calc();
+    }
+}
+
+// Weekday mask time range, as in "Mon/Wed/Fri 9:00-17:00" (9am to 5pm
+// on Mondays, Wednesdays, and Fridays)
+OutputManager::SourceVal OutputManager::WeekdayMaskTimeRangeSource::Calc()
+{
+    // check if we know the time of day
+    DateTime t;
+    if (timeOfDay.Get(t))
+    {
+        // Determine first if the weekday is in the mask
+        int weekday = t.GetWeekDay();
+        bool dayInMask = ((weekdayMask & (1 << weekday)) != 0);
+
+        // Also check to see if the PRIOR weekday is in the mask
+        int priorWeekday = (weekday == 0 ? 6 : weekday - 1);
+        bool priorDayInMask = ((weekdayMask & (1 << priorWeekday)) != 0);
+
+        // Now check the time range
+        bool inRange;
+        if (tStart < tEnd)
+        {
+            // the time range is all within a single day, so we only
+            // have to check that the current time is between the start
+            // and end points, and the current day is in the mask
+            inRange = dayInMask && t.timeOfDay >= tStart && t.timeOfDay < tEnd;
+        }
+        else
+        {
+            // The time range spans midnight, so it's a match if the
+            // current time is greater than the starting time AND
+            // current day is in the mask, OR the current time is less
+            // than the ending time AND the PRIOR day is in the mask.
+            // We have to match the PRIOR day in the latter case because
+            // the time period started on the prior day, before the
+            // clock rolled over at midnight.
+            inRange = (dayInMask && t.timeOfDay >= tStart)
+                      || (priorDayInMask && t.timeOfDay < tEnd);
+        }
+
+        // select the in-range or out-of-range sub-source
+        return inRange ? sourceIn->Calc() : sourceOut->Calc();
+    }
+    else
+    {
+        // time of day is unknown - return the 'out of range' value
+        return sourceOut->Calc();
+    }
+}
+
+// Calendar date and time range, as in "Mar 1 0:00:00 - Nov 30 23:59:59"
+OutputManager::SourceVal OutputManager::DateAndTimeRangeSource::Calc()
+{
+    // check if we know the time of day
+    DateTime t;
+    if (timeOfDay.Get(t))
+    {
+        // First, determine if the date is in range.  We work in terms
+        // of "year day numbers", where we can determine if one date is
+        // before or after another by simple integer comparison.
+        bool inRange = false;
+        int day = YearDayNumber(t.mon, t.dd);
+        if (dateStart < dateEnd)
+        {
+            // the date range is all within one year, so we're in range
+            // if the date falls between the start and end dates
+            inRange = day >= dateStart && day <= dateEnd;
+        }
+        else
+        {
+            // the date range spans the end of the year, so we're in
+            // range if the date is after the starting date or before
+            // the ending date
+            inRange = day >= dateStart || day <= dateEnd;
+        }
+
+        // If the date is on the starting or ending date, the time
+        // has to be after the starting time or before the ending
+        // time (respectively).  Days between the endpoints include
+        // the full 24-hour period, so the time of day isn't a factor
+        // unless the date falls exactly on one of the endpoints.
+        if ((day == dateStart && t.timeOfDay < tStart)
+            || (day == dateEnd && t.timeOfDay >= tEnd))
+            inRange = false;
 
         // select the in-range or out-of-range sub-source
         return inRange ? sourceIn->Calc() : sourceOut->Calc();
@@ -4061,7 +4495,7 @@ OutputManager::DataSource *OutputManager::ParseSourcePrimary(int index, const ch
             { "nightmode",   [](DataSourceArgs &args) -> DataSource* { return new NightModeSource(args); } },
             { "plungercal",  [](DataSourceArgs &args) -> DataSource* { return new PlungerCalSource(args); } },
             { "statusled",   [](DataSourceArgs &args) -> DataSource* { return new StatusLedSource(args); } },
-            { "time",        [](DataSourceArgs &args) -> DataSource* { return new TimeRangeSource(args); } },
+            { "time",        [](DataSourceArgs &args) -> DataSource* { return TimeRangeSource::ParseArgs(args); } },
         };
         auto it = funcMap.find(funcName);
         if (it == funcMap.end())

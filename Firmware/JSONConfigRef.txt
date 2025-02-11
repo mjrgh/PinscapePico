@@ -3288,13 +3288,41 @@ outputs[].source string optional
         and when power is on after sending all of the TV ON commands, returns <i>on</i>.
       </td>
     </tr>
-    <tr><td>time('<i>range</i>', <i>in</i>, <i>out)</i></td>
+    <tr><td>time('<i>range</i>', <i>in</i>, <i>out</i>)</td>
       <td>
         Selects <i>in</i> if the current time of day is known and is within '<i>range</i>', otherwise selects <i>out</i>.  The range is
-        specified as a string (in single quote marks), of the form 'hh:mm:ss-hh:mm:ss'.  The minutes and seconds are optional, and the
-        times can be specified with an AM/PM marker if desired, or using 24-hour time (where 00:00:00 is midnight) if no AM/PM is provided.
-        For example, '9pm-1:30am' specifies a time range from 9 PM to 1:30 AM, and '10:00-13:00' specifies 10 AM to 1 PM.  All times are
-        in terms of local time, with no adjustments for time zones or daylight time.
+        a string, in one of the following formats:
+        <ul>
+            <li><b>'hh:mm:ss-hh:mm:ss'</b> - a range of times during the day, in 24-hour time, minutes and seconds optional: '11:00-13:00' selects 11 AM to 1 PM every day.
+                On the 24-hour clock 00:00 is midnight, and 12:00 is noon.  The special value 24:00:00 can be used to indicate the midnight at the
+                <i>end</i> of the day.  The range can span midnight, as in '23:00-01:00'.
+            <li><b>'hh:mm:ss am-hh:mm:ss pm'</b> - times on the 12-hour clock, as in '11AM-3PM'
+            <li><b>'day-day'</b> - a range of days of the week, using three-day English abbreviations (Mon, Tue, Wed, Thu, Fri, Sat, Sun);
+                'Mon-Fri' selects all day Monday through Friday.  The range can span the weekend, as in 'Fri-Mon'.
+            <li><b>'day time-day time'</b> - a time range during the week, using the same time format as a daily time: 'Mon 9AM-Fri 5PM' selects
+                the range from Monday at 9 AM to Friday at 5 PM every week
+            <li><b>'day time-time'</b> - a range of times on a given day of the week only, such as 'Sat 9am-5pm'
+            <li><b>'day/day/day'</b> - matches the listed days of the week only, all day: 'Mon/Wed/Fri' for all day every Monday, Wednesday, and Friday,
+                or 'Sat/Sun' for all day during weekends
+            <li><b>'day/day/day time-time'</b> - selects a daily time range on selected days only: 'Mon/Wed/Fri 9am-5pm' selects business hours
+                on Mondays, Wednesdays, and Fridays only
+            <li><b>'date-date'</b> - selects a range of calendar dates during the year, using a three-letter English month abbreviation
+                (Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec), followed by the day of the month, as in 'Mar 3-Nov 10';
+                the range selects all day from the first day in the range to the last day.  The range can span the end of the
+                year, as in 'Dec 23-Jan 2'.
+            <li><b>'date time-date time'</b> - selects a date range, with a starting time on the first day and an ending time on the
+                last day, as in 'Dec 15 5:30pm-Jan 15 8:30am'.
+        </ul>
+        All of the literal values (AM/PM, day names, month names) are case-insensitive.  This data source
+        only operates when the Pico has access to the wall-clock time, which it can get from the host
+        PC <i>as long as the host PC sends it</i>, or from a real-time clock (RTC) chip attached to the
+        Pico.  The reference Pinscape expansion boards include an RTC chip to ensure that time-based
+        functions are always available, but you don't really need one, as long as you run some Pinscape-aware
+        software on the PC from time to time.  Most Pinscape-aware software automatically sends the host's
+        system clock time to the Pico each time it connects.  But Windows won't send the time on its own;
+        you have to run some program that's Pinscape-aware, such as the Config Tool or a DOF client.
+        When the Pico doesn't know the wall-clock time, it considers the time to be out of the range,
+        so time() uses the <i>out</i> value as the result.
       </td>
     </tr>
     <tr><td>tvon</td><td><a href="#tvon.relay">TV ON relay</a> state; 0 when off, 255 during a power-on relay pulse, or when latched on</td></tr>

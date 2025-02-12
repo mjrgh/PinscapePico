@@ -211,7 +211,7 @@ void TLC5940::Configure(JSONParser &json)
         
         if (nChips == 0 || nChips > 16)
         {
-            Log(LOG_ERROR, "tlc5940[%d]: nchips (number of chips on chain) must be 1-16\n", index);
+            Log(LOG_ERROR, "tlc5940[%d]: nChips (number of chips on chain) must be 1-16\n", index);
             return;
         }
         if (pwmFreq == 0 || pwmFreq > 7324)

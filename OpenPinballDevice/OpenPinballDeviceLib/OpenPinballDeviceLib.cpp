@@ -11,6 +11,8 @@
 #include <string.h>
 #include <string>
 #include <regex>
+#include <functional>
+#include <chrono>
 #include "hidapi/hidapi.h"
 #include "hid-report-parser/hid_report_parser.h"
 #include "OpenPinballDeviceLib.h"
@@ -19,10 +21,21 @@
 // namespace access
 using namespace OpenPinballDevice;
 
+
 // --------------------------------------------------------------------------
 //
 // Device descriptor
 //
+
+DeviceDesc::DeviceDesc(const char *path, const wchar_t *version, uint16_t vid, uint16_t pid,
+	const wchar_t *friendlyName, const wchar_t *productName, const wchar_t *manufacturer, const wchar_t *serial,
+	uint8_t reportID, size_t reportSize) :
+	path(path), friendlyName(friendlyName), versionStr(version), versionNum(ParseVersionStr(version)),
+	vid(vid), pid(pid), productName(productName), manufacturer(manufacturer), serial(serial),
+	reportID(reportID), reportSize(reportSize)
+{
+}
+
 
 // parse a version string
 uint32_t DeviceDesc::ParseVersionStr(const wchar_t *str)
@@ -43,6 +56,383 @@ uint32_t DeviceDesc::ParseVersionStr(const wchar_t *str)
 	// not parsed
 	return 0;
 }
+
+// --------------------------------------------------------------------------
+//
+// Match a device report type by a usage string descriptor
+//
+
+struct ReportDescriptorInfo
+{
+	uint8_t reportID;            // HID report ID
+	size_t reportSize;           // HID report size
+	std::wstring usageString;    // usage string matched
+};
+
+static bool MatchReportTypeByStringUsage(
+	hid_device *hDevice,
+	uint16_t mainInterfaceUsagePage, uint16_t mainInterfaceUsage,
+	uint16_t controlUsagePage, uint16_t controlUsage,
+	const std::wregex &stringUsagePat, ReportDescriptorInfo *reportDescInfo)
+{
+	// read the report descriptor
+	std::unique_ptr<unsigned char> reportDescBuf(new unsigned char[HID_API_MAX_REPORT_DESCRIPTOR_SIZE]);
+	unsigned char *rp = reportDescBuf.get();
+	int rdSize = hid_get_report_descriptor(hDevice, rp, HID_API_MAX_REPORT_DESCRIPTOR_SIZE);
+	if (rdSize > 0)
+	{
+		// parse the usages
+		hidrp::UsageExtractor usageExtractor;
+		hidrp::UsageExtractor::Report report;
+		usageExtractor.ScanDescriptor(rp, rdSize, report);
+
+		// scan the collections
+		bool found = false;
+		for (auto &col : report.collections)
+		{
+			// check for the generic USB "Pinball Device CA" type (Application Collection, usage page 5, usage 2)
+			if (col.type == hidrp::COLLECTION_TYPE_APPLICATION
+				&& col.usage_page == mainInterfaceUsagePage && col.usage == mainInterfaceUsage)
+			{
+				// got it - scan the input fields in this collection
+				for (auto &f : col.Fields(hidrp::ReportType::input))
+				{
+					// Check for an opaque byte array, usage 0x00 (undefined/vendor-specific),
+					// with an associated usage string that matches the OPD signature string.
+					const size_t nStrBuf = 128;
+					wchar_t strBuf[nStrBuf];
+					if (f.usageRanges.size() == 1 && f.usageRanges.front().Equals(controlUsagePage, controlUsage)
+						&& f.stringRanges.size() == 1 && !f.stringRanges.front().IsRange()
+						&& hid_get_indexed_string(hDevice, f.stringRanges.front().GetSingle(), strBuf, nStrBuf) == 0
+						&& std::regex_match(strBuf, stringUsagePat))
+					{
+						// fill in the results, if requested
+						if (reportDescInfo != nullptr)
+						{
+							// set the report ID and usage string
+							reportDescInfo->reportID = f.reportID;
+							reportDescInfo->usageString = strBuf;
+
+							// Figure the report size for the associated input report ID.  The
+							// report size scanner returns the combined size of all of the fields
+							// in the report in BITS, so take ceil(bits/8) to get the report size
+							// in bytes.  Then add 1 for the HID Report ID byte prefix that every
+							// HID report must include.  This gives us the size of the USB packets
+							// the device sends.
+							hidrp::ReportSizeScanner sizeScanner;
+							hidrp::DescriptorParser parser;
+							parser.Parse(rp, rdSize, &sizeScanner);
+							reportDescInfo->reportSize = (sizeScanner.ReportSize(hidrp::ReportType::input, f.reportID) + 7) / 8 + 1;
+						}
+
+						// matched
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	// not matched
+	return false;
+}
+
+static bool MatchReportTypeByStringUsage(
+	hid_device_info *deviceInfo,
+	uint16_t mainInterfaceUsagePage, uint16_t mainInterfaceUsage,
+	uint16_t controlUsagePage, uint16_t controlUsage,
+	const std::wregex &stringUsagePat, ReportDescriptorInfo *reportDescInfo)
+{
+	// open the device
+	std::unique_ptr<hid_device, decltype(&hid_close)> hDevice(hid_open_path(deviceInfo->path), &hid_close);
+	if (hDevice == nullptr)
+		return false;
+
+	// match the report on the device handle
+	return MatchReportTypeByStringUsage(hDevice.get(), mainInterfaceUsagePage, mainInterfaceUsage,
+		controlUsagePage, controlUsage, stringUsagePat, reportDescInfo);
+}
+
+// --------------------------------------------------------------------------
+//
+// HID request/reply processor.  Sends a request packet to the device,
+// and awaits a reply packet.  The caller provides a recognition callback
+// to identify the reply of interest; the routine ignores other packets,
+// and continues reading until the desired reply arrives or the timeout
+// lapses.
+//
+// The request packet is specifed literally, with the report ID header
+// byte included if required.
+// 
+// The callback is invoked on each packet received from the device after
+// sending the request.  The callback returns true if the reply is the
+// one it's looking for, false if not.  If the callback returns true,
+// the main function immediately returns true.  Otherwise, the function
+// continues reading packets until the timeout expires or the callback
+// accepts a reply.
+//
+static bool SendRequestAwaitReply(
+	hid_device *hDevice, uint32_t timeout_ms,
+	const uint8_t *request, size_t requestBytes,
+	uint8_t *replyBuf, size_t replyBytes,
+	std::function<bool(uint8_t *replyBuf, size_t replyBytes)> testReply)
+{
+	// send the request; if that 
+	if (hid_write(hDevice, request, requestBytes) <= 0)
+		return false;
+
+	// read replies until the timeout lapses
+	using namespace std::chrono;
+	for (auto now = steady_clock::now(), tEnd = now + milliseconds{ timeout_ms } ;
+		now <= tEnd ; now = steady_clock::now())
+	{
+		// read a reply
+		auto remainingTimeout = duration_cast<milliseconds>(tEnd - now).count();
+		if (hid_read_timeout(hDevice, replyBuf, replyBytes, static_cast<int>(remainingTimeout)) > 0
+			&& testReply(replyBuf, replyBytes))
+			return true;
+	}
+
+	// timed out without a match
+	return false;
+}
+
+// --------------------------------------------------------------------------
+//
+// Get extended device identification details where available.  If extended
+// ID information is available, we fill in the result struct and return
+// true; otherwise we return false.  This is called internally during
+// device enumeration.
+//
+// This routine has special-case recognition for a few specific device
+// types (Pinscape KL25Z, Pinscape Pico), which it uses to get extended ID
+// information through the device's native interfaces.  Special device
+// recognition is contrary to the spirit of a standardized device-agnostic
+// interface like Open Pinball Device - the whole point is to abstract away
+// the device details so that an application doesn't need special code for
+// multiple device interfaces.  We justify it in this case on the basis
+// that it's not critical to any of our other functions - it's just bonus
+// information that's helpful to users, and if we encounter a device we
+// don't recognize, we can still fall back on the generic USB device
+// identification.
+//
+struct ExtendedDeviceID
+{
+	// friendly name
+	std::wstring friendlyName;
+};
+static bool GetExtendedDeviceID(hid_device_info *hEnum, hid_device_info *curDevice, ExtendedDeviceID &xid)
+{
+	// Scan the other HIDs for matching serial numbers, if this device has a
+	// serial number string.  The serial number is a property of the device,
+	// so it's necessarily the same for all of the device's interfaces.
+	// 
+	// There's no USB-level requirement that serial numbers are unique across
+	// devices, so even if two interfaces have the same serial number, it
+	// doesn't guarantee in general that the interfaces come from the same
+	// device.  However, the specific devices that we scan for do provide
+	// distinct serial numbers per device: they're unique within the device
+	// type, but more importantly, they use long enough identifiers that
+	// they're also unlikely to collide with any devices of unlike type.
+	// Specifically, Pinscape and Pinscape Pico generate serials based on
+	// the 64-bit flash hardware ID; flash hardware IDs are guaranteed by
+	// industry standards to be universally unique with respect to other
+	// flash IDs, and the 64-bit ID space they use is large enough that
+	// collisions with any other ID source is vanishingly improbable.  And
+	// even in the extremely unlikely event of a collision with an unlike
+	// device type, the unlike device won't provide the device-specific
+	// HID interfaces that we use to access the expanded ID information,
+	// so in the worst case, we needlessly check and reject the unrelated
+	// HIDs.  So the serial number match is just a first-level filter that
+	// doesn't have to discriminate perfectly, even though it probably
+	// actually does accomplish that in practice.
+	std::list<hid_device_info*> sameSerialList;
+	if (curDevice->serial_number != nullptr)
+	{
+		for (auto *h = hEnum ; h != nullptr ; h = h->next)
+		{
+			// match on serial numbers
+			if (h->serial_number != nullptr && wcscmp(h->serial_number, curDevice->serial_number) == 0)
+				sameSerialList.emplace_back(h);
+		}
+	}
+
+	// try identifying the device by the product and manufacturer strings
+	std::wregex patPinscapePico(L"PinscapePico\\b.*", std::regex_constants::icase);
+	std::wregex patPinscapeKL25Z(L"Pinscape Controller", std::regex_constants::icase);
+	if (std::regex_match(curDevice->product_string, patPinscapePico))
+	{
+		// Pinscape Pico - search for the feedback controller interface
+		for (auto *ifc : sameSerialList)
+		{
+			// open the device
+			std::unique_ptr<hid_device, decltype(&hid_close)> hDevice(hid_open_path(ifc->path), &hid_close);
+			if (hDevice == nullptr)
+				continue;
+
+			// The Pinscape Pico feedback controller interface identifies itself
+			// using a String Usage in the report descriptor, in the same manner
+			// as Open Pinball Device:
+			//
+			//   Main interface usage page Generic (0x06), usage undefined (0x00)
+			//   Control usage page Generic (0x06), usage undefined (0x00)
+			//   Control string usage "PinscapeFeedbackController/<version_number>"
+			//
+			// See USBProtocol/FeedbackControllerProtocol.h in the Pinscape Pico
+			// source code for details on this HID interface.
+			static const int USAGE_PAGE_GENERIC = 0x06;
+			static const int USAGE_GENERIC_UNDEFINED = 0x00;
+			std::wregex pat(L"PinscapeFeedbackController/.*");
+			ReportDescriptorInfo ri;
+			if (MatchReportTypeByStringUsage(hDevice.get(), USAGE_PAGE_GENERIC, USAGE_GENERIC_UNDEFINED, USAGE_PAGE_GENERIC, USAGE_GENERIC_UNDEFINED, pat, &ri))
+			{
+					// Send the ID query command (see PinscapePico/USBProtocol/FeedbackControllerInterface.h)
+					//
+					// Request: QUERY DEVICE IDENTIFICATION
+					//   0 <HID report ID:BYTE>
+					//   1 <0x01:BYTE>
+					//   2 <reserved:BYTE[62]>
+					//
+					// Reply: IDENTIFICATION REPORT
+					//   0 <HID report ID:BYTE>
+					//   1 <0x01:BYTE>
+					//   2 <UnitNumber:BYTE>
+					//   3 <UnitName:CHAR[32]>
+					//  35 <ProtocolVer:UINT16>
+					//  37 <HardwareID:BYTE[8]>
+					//  39 <NumPorts:UINT16>
+					//  41 <PlungerType:UINT16>
+					//  43 <LedWizUnitMask:UINT16>
+					//
+				const uint8_t cmd[64]{ ri.reportID, 0x01 };
+				uint8_t reply[64];
+				if (SendRequestAwaitReply(hDevice.get(), 100, cmd, sizeof(cmd), reply, sizeof(reply), 
+					[](uint8_t *buf, size_t len) { return buf[1] == 0x01; }))
+				{
+					// got it - decode the report
+					wchar_t name[128];
+					swprintf(name, _countof(name), L"Pinscape Pico unit %d (%.32hs)", reply[2], &reply[3]);
+					xid.friendlyName = name;
+
+					// successful identification
+					return true;
+				}
+			}
+		}
+	}
+	else if (std::regex_match(curDevice->product_string, patPinscapeKL25Z))
+	{
+		// KL25Z Pinscape.  Search for the joystick interface, which doubles
+		// as the feedback controller and system config interface, using a
+		// custom protocol that incorporates the original LedWiz protocol
+		// as a compatible subset.   Alternatively, the same OUT interface
+		// can be exposed as Generic Desktop/Undefined when no joystick
+		// input is configured.
+		for (auto *ifc : sameSerialList)
+		{
+			// open the device
+			std::unique_ptr<hid_device, decltype(&hid_close)> hDevice(hid_open_path(ifc->path), &hid_close);
+			if (hDevice == nullptr)
+				continue;
+
+			// Check the interface for Generic Desktop/Joystick or Generic Desktop/Undefined usage.
+			//
+			// It would be nice to be able to check the output report size to make sure it matches
+			// the Pinscape protocol's 8-byte report format, but hidapi doesn't give us that
+			// information directly.  And we can't even get it from the report descriptor, even
+			// though hidapi *supposedly* gives us the report descriptor, because hidapi can only
+			// give us a synthetically reconstructed form of the descriptor that it creates from
+			// the preparsed data.  And the reconstruction code doesn't recognize the Output Array
+			// type that the Pinscape OUT report declares.  So we just have to filter on the usage
+			// information alone.  I'd prefer to be more discriminating, to be positive that we're
+			// addressing a true Pinscape KL25Z interface, because a device that's NOT a Pinscape
+			// might interpret the command we send in some wildly different way that might have
+			// unwanted side effects - once we pack up the command, after all, it's just bytes.
+			// But we've already filtered on product string, so also filtering on usage codes
+			// should eliminate most cases of mistaken identity.
+			static const int USAGE_PAGE_GENERIC_DESKTOP = 0x01;
+			static const int USAGE_GENERIC_DESKTOP_UNDEFINED = 0x00;
+			static const int USAGE_GENERIC_DESKTOP_JOYSTICK = 0x04;
+			if (ifc->usage_page == USAGE_PAGE_GENERIC_DESKTOP
+				&& (ifc->usage == USAGE_GENERIC_DESKTOP_JOYSTICK || ifc->usage == USAGE_GENERIC_DESKTOP_UNDEFINED))
+			{
+				// get the report descriptor (just a synthetic reconstruction on Windows, which isn't 100% accurate)
+				std::unique_ptr<unsigned char> reportDescBuf(new unsigned char[HID_API_MAX_REPORT_DESCRIPTOR_SIZE]);
+				unsigned char *rp = reportDescBuf.get();
+				int rdSize = hid_get_report_descriptor(hDevice.get(), rp, HID_API_MAX_REPORT_DESCRIPTOR_SIZE);
+				if (rdSize <= 0)
+					continue;
+
+				// parse the report, to obtain the report ID
+				hidrp::UsageExtractor usageExtractor;
+				hidrp::UsageExtractor::Report report;
+				usageExtractor.ScanDescriptor(rp, rdSize, report);
+
+				// get the report ID from the first field of the first collection
+				uint8_t reportID = 0;
+				if (report.collections.size() != 0 && report.collections.front().fields != nullptr && report.collections.front().fields->size() != 0)
+					reportID = report.collections.front().fields->front().reportID;
+
+				// Send the configuration report query
+				// (See Pinscape_Controller_V2 repos -> USBProtocol.h)
+				//
+				// Request: Query Configuration Report
+				//   <Report ID>   - HID report ID
+				//   0x41          - extended protocol command code
+				//   0x04          - command subcode, Query Configuration Report
+				//   zero padding  - to fill out 9 bytes
+				//
+				// Reply: Configuration Report (after stripping the report ID, if present)
+				//   0 <0x8800:UINT16>     - special report marker for configuration reports
+				//   2 <nOutputs:UINT16>   - number of output ports
+				//   4 <unitNum:BYTE>      - Pinscape unit number
+				//   5 <reserved:BYTE>
+				//   6 <calZero:UINT16>    - Plunger calibration data
+				//   8 <calMax:UINT16>
+				//  10 <calTime:UINT16>
+				//  12 <flags:BYTE>        - Capability flags (see Pinscape source)
+				//  13 <freeMem:UINT16>    - Free RAM size in bytes
+				//
+				const uint8_t cmd[9]{ reportID, 0x41, 0x04 };
+				uint8_t reply[64];
+				int unitID = -1;
+				if (SendRequestAwaitReply(hDevice.get(), 100, cmd, sizeof(cmd), reply, sizeof(reply), 
+					[reportID, &unitID](uint8_t *buf, size_t len) {
+
+					// if there's a report ID, skip that byte
+					if (reportID != 0 && len > 0) ++buf, --len;
+
+					// check the header bytes
+					if (buf[0] == 0x00 && buf[1] == 0x88)
+					{
+						// Matched - recover the unit ID and return success
+						unitID = buf[4] + 1;
+						return true;
+					}
+
+					// not matched
+					return false;
+				}))
+				{
+					// Got it - set the friendly name.  Note that the unit number
+					// in the configuration report is 0-based, but the Pinscape
+					// tools adjust this to 1-based for UI displays (so a 0 in
+					// the report is displayed as unit #1).
+					wchar_t name[128];
+					swprintf(name, _countof(name), L"Pinscape KL25Z unit #%d", unitID + 1);
+					xid.friendlyName = name;
+
+					// successful identification
+					return true;
+				}
+			}
+		}
+	}
+
+	// no vendor-specific information available
+	return false;
+}
+
 
 // --------------------------------------------------------------------------
 //
@@ -67,8 +457,8 @@ std::list<DeviceDesc> OpenPinballDevice::EnumerateDevices()
 	// scan the list
 	for (auto *cur = hEnum; cur != nullptr; cur = cur->next)
 	{
-	    // check for a generic Pinball Device usage (usage page 0x05 "Game
-	    // Controls", usage 0x02 "Pinball Device")
+		// check for a generic Pinball Device usage (usage page 0x05 "Game
+		// Controls", usage 0x02 "Pinball Device")
 		const unsigned short USAGE_PAGE_GAMECONTROLS = 0x05;
 		const unsigned short USAGE_GAMECONTROLS_PINBALLDEVICE = 0x02;
 		if (cur->usage_page == USAGE_PAGE_GAMECONTROLS && cur->usage == USAGE_GAMECONTROLS_PINBALLDEVICE)
@@ -86,71 +476,30 @@ std::list<DeviceDesc> OpenPinballDevice::EnumerateDevices()
 			// serve the same purpose, as a self-selected universal ID
 			// that no other device will ever duplicate by accident.
 
-			// open the device so that we can read its report descriptor
-			std::unique_ptr<hid_device, decltype(&hid_close)> hDevice(hid_open_path(cur->path), &hid_close);
-			if (hDevice != nullptr)
+			// match by string usage
+			static const std::wregex pat(L"OpenPinballDeviceStruct/.*");
+			ReportDescriptorInfo ri{ 0 };
+			if (MatchReportTypeByStringUsage(cur, USAGE_PAGE_GAMECONTROLS, USAGE_GAMECONTROLS_PINBALLDEVICE, USAGE_PAGE_GAMECONTROLS, 0, pat, &ri))
 			{
-			    // read the report descriptor
-				std::unique_ptr<unsigned char> reportDescBuf(new unsigned char[HID_API_MAX_REPORT_DESCRIPTOR_SIZE]);
-				unsigned char *rp = reportDescBuf.get();
-				int rdSize = hid_get_report_descriptor(hDevice.get(), rp, HID_API_MAX_REPORT_DESCRIPTOR_SIZE);
-				if (rdSize > 0)
+				// Use the USB product name string descriptor as the default
+				// friendly name.  If possible, we'll override this with more
+				// specific information from the device, if we recognize the
+				// device type well enough to ask it for more details.
+				const wchar_t *friendlyName = cur->product_string;
+
+				// try getting extended device identification details, for
+				// devices that we have special-case support for
+				ExtendedDeviceID xid;
+				if (GetExtendedDeviceID(hEnum, cur, xid))
 				{
-				    // parse the usages
-					hidrp::DescriptorParser parser;
-					hidrp::UsageExtractor usageExtractor;
-					hidrp::UsageExtractor::Report report;
-					usageExtractor.ScanDescriptor(rp, rdSize, report);
-
-					// scan the collections
-					bool found = false;
-					for (auto &col : report.collections)
-					{
-				 	    // check for the generic USB "Pinball Device CA" type (Application Collection, usage page 5, usage 2)
-						if (col.type == hidrp::COLLECTION_TYPE_APPLICATION
-							&& col.usage_page == USAGE_PAGE_GAMECONTROLS && col.usage == USAGE_GAMECONTROLS_PINBALLDEVICE)
-						{
-						    // got it - scan the input fields in this collection
-							for (auto &f : col.Fields(hidrp::ReportType::input))
-							{
-						 	    // Check for an opaque byte array, usage 0x00 (undefined/vendor-specific),
-						 	    // with an associated usage string that matches the OPD signature string.
-								const size_t nStrBuf = 128;
-								wchar_t strBuf[nStrBuf];
-								if (f.usageRanges.size() == 1 && f.usageRanges.front().Equals(USAGE_PAGE_GAMECONTROLS, 0)
-									&& f.stringRanges.size() == 1 && !f.stringRanges.front().IsRange()
-									&& hid_get_indexed_string(hDevice.get(), f.stringRanges.front().GetSingle(), strBuf, nStrBuf) == 0
-									&& wcsncmp(strBuf, L"OpenPinballDeviceStruct/", 24) == 0)
-								{
-								   // matched
-									found = true;
-
-									// Figure the report size for the associated input report ID.  The
-									// report size scanner returns the combined size of all of the fields
-									// in the report in BITS, so take ceil(bits/8) to get the report size
-									// in bytes.  Then add 1 for the HID Report ID byte prefix that every
-									// HID report must include.  This gives us the size of the USB packets
-									// the device sends.
-									hidrp::ReportSizeScanner sizeScanner;
-									parser.Parse(rp, rdSize, &sizeScanner);
-									size_t reportSize = (sizeScanner.ReportSize(hidrp::ReportType::input, f.reportID) + 7) / 8 + 1;
-
-									// add it to the result list
-									list.emplace_back(cur->path, &strBuf[24], cur->vendor_id, cur->product_id,
-										cur->product_string, cur->manufacturer_string, cur->serial_number,
-										f.reportID, reportSize);
-
-									// stop searching - there should be only one match
-									break;
-								}
-							}
-						}
-
-						// stop as soon as we find a match
-						if (found)
-							break;
-					}
+					// success - use the friendly name from the device
+					friendlyName = xid.friendlyName.c_str();
 				}
+
+				// add it to the result list
+				list.emplace_back(cur->path, &ri.usageString.c_str()[24], cur->vendor_id, cur->product_id,
+					friendlyName, cur->product_string, cur->manufacturer_string,
+					cur->serial_number, ri.reportID, ri.reportSize);
 			}
 		}
 	}

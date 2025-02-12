@@ -210,11 +210,36 @@ void TLC5947::Configure(JSONParser &json)
             return;
         }
 
-        // The chain is limited to 14 chips, because 15*nBitsPerPort*nPortsPerChip = 15*12*24 > 4095,
-        // the maximum value that we can fit in the bit count header in the TX buffer.
-        if (nChips == 0 || nChips > 14)
+        // The data sheet doesn't specify a hard limit on the number of
+        // chips in a chain, but our transmission algorithm creates its
+        // own limit, arising from the signal timing.  Our transmission
+        // algorithm requires sending the complete register file for the
+        // whole chain on each PWM refresh cycle, so PWM cycle time sets
+        // an upper bound on how long we can spend transmitting, and
+        // thus on how many bits we can transmit, and thus on how many
+        // chips we can include in the transmission.  The TLC5947 has a
+        // fixed PWM cycle of 1024us.  It takes 19.2us at 15MHz to send
+        // the 288 bits (24 ports times 12 bits per port) of one chip's
+        // register file, so we can fit about 53 chips worth of register
+        // data into one refresh cycle.
+        //
+        // 53 chips amounts to 1272 output ports, which is far more than
+        // the 255-port limit that we can expose through DOF due to its
+        // 8-bit port numbering, which equates to 10 of the chips.
+        // That's not a hard limit, since our internal port numbering
+        // scheme isn't so limited, but exceeding it will at the very
+        // least create some inconveniences for a user.
+        //
+        // For configuration purposes, we'll set the limit at 16.  This
+        // is arbitrary, since it's way below the hard timing limit, and
+        // a bit above the implied DOF limit.  But the point is just to
+        // give the user some simple guidance, and to detect cases where
+        // the JSON seems way out of bounds, so that we can log an
+        // explanatory error rather than crash or manifest mysterious
+        // misbehavior.
+        if (nChips == 0 || nChips > 16)
         {
-            Log(LOG_ERROR, "tlc5947[%d]: nchips (number of chips on chain) must be 1-14\n", index);
+            Log(LOG_ERROR, "tlc5947[%d]: nChips (number of chips on chain) must be 1-16\n", index);
             return;
         }
 

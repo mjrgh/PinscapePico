@@ -131,12 +131,18 @@ namespace OpenPinballDevice
 	struct DeviceDesc
 	{
 		DeviceDesc(const char *path, const wchar_t *version, uint16_t vid, uint16_t pid,
-			const wchar_t *productName, const wchar_t *manufacturer, const wchar_t *serial,
-			uint8_t reportID, size_t reportSize) :
-			path(path), versionStr(version), versionNum(ParseVersionStr(version)), vid(vid), pid(pid),
-			productName(productName), manufacturer(manufacturer), serial(serial),
-			reportID(reportID), reportSize(reportSize)
-		{ }
+			const wchar_t *friendlyName, const wchar_t *productName, const wchar_t *manufacturer, 
+			const wchar_t *serial, uint8_t reportID, size_t reportSize);
+
+		// Friendly name.  When possible, this contains information on the
+		// device type and unit identification, suitable for display in the
+		// user interface, to help the user distinguish the device from like
+		// devices in case they have more than one.  The library has special
+		// knowledge of a few controller types (Pinscape KL25Z, Pinscape Pico)
+		// that it uses to fetch vendor-specific details to fill this out.
+		// For devices that the library doesn't specially recognize, it uses
+		// the HID product name descriptor string as the default here.
+		std::wstring friendlyName;
 
 		// hidapi device path.  This path can be used in hid_open_path() to open
 		// the device for access to its report stream.  (On most systems, this
@@ -154,7 +160,7 @@ namespace OpenPinballDevice
 		// operators.
 		uint32_t versionNum;
 
-		// VID/PID
+		// USB device identification
 		uint16_t vid;
 		uint16_t pid;
 
@@ -163,7 +169,7 @@ namespace OpenPinballDevice
 		std::wstring manufacturer;
 		std::wstring serial;
 
-		// input report ID, and byte size of the reports
+		// HID input report ID, and byte size of the reports
 		uint8_t reportID;
 		size_t reportSize;
 

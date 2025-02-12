@@ -238,7 +238,7 @@ namespace PinscapePico
         //
 
         // INVALID/EMPTY REQUEST
-        // <0x00:BYTE)
+        // <0x00:BYTE>
         static const uint8_t REQ_INVALID = 0x00;
 
         // QUERY DEVICE IDENTIFICATION

@@ -278,7 +278,7 @@ void DeviceListWin::PaintOffScreen(HDC hdc0)
 		int y = btnrc.top + btnPaddingY;
 
 		// format the button text
-		y += hdc.DrawTextF(x, y, 1, headlineFont, textColor, "%ws", dev.productName.c_str()).cy;
+		y += hdc.DrawTextF(x, y, 1, headlineFont, textColor, "%ws", dev.friendlyName.c_str()).cy;
 		y += hdc.DrawTextF(x, y, 1, mainFont, textColor, "Open Pinball Device %ws", dev.versionStr.c_str()).cy;
 		y += hdc.DrawTextF(x, y, 1, mainFont, textColor, "Manufacturer: %ws", dev.manufacturer.c_str()).cy;
 		y += hdc.DrawTextF(x, y, 1, mainFont, textColor, "VID/PID: %04X/%04X, Serial: %ws", dev.vid, dev.pid, dev.serial.c_str()).cy;
@@ -304,8 +304,8 @@ void DeviceListWin::RebuildDeviceList()
 	// sort the list by device name
 	newList.sort([](const OpenPinballDevice::DeviceDesc &a, const OpenPinballDevice::DeviceDesc &b) 
 	{
-		// sort first by product name
-		int c = _wcsicmp(a.productName.c_str(), b.productName.c_str());
+		// sort first by friendly name
+		int c = _wcsicmp(a.friendlyName.c_str(), b.friendlyName.c_str());
 		if (c != 0)
 			return c < 0;
 
@@ -572,7 +572,7 @@ void DeviceListWin::OpenViewerWindow(int selectionIndex)
 
 	// show the system window
 	win->CreateSysWindow(win, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0, hwnd,
-		dev.productName.c_str(), wrc.left + 32, wrc.top + 32, 700, 700, SW_SHOW);
+		dev.friendlyName.c_str(), wrc.left + 32, wrc.top + 32, 700, 700, SW_SHOW);
 
 	// disable the list window while the device viewer is open, so that the
 	// viewer acts like a modal dialog

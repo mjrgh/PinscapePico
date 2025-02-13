@@ -8,7 +8,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 REFERENCE:
 
 pico_adc object optional
-  TOC: Devices > ADC (Analog-to-digital converters) > Pico On-Board ADC
+  TOC: Peripheral Devices > ADC (Analog-to-digital converters) > Pico On-Board ADC
   TITLE: Pico On-Board ADC (Analog-to-Digital Converter)
   EXAMPLE:
   {
@@ -1735,7 +1735,8 @@ logging.filter string optional
     <tr><td>"config"</td><td>Configuration messages; these confirm successful setup operations and describe the final set of parameters chosen, which can be helpful to see the effect of defaults and to confirm that devices are working as expected</td></tr>
     <tr><td>"vendor"</td><td>Messages related to the USB "vendor interface"; these are mostly internal debugging messages for the developers</td></tr>
     <tr><td>"xinput"</td><td>Messages related to the XBox Controller (XInput) device emulation</td></tr>
-    <tr><td>"tinyusb"</td><td>Messages related to the USB hardware interface; these are for system-level debugging, and are only enabled (even if "tinyusb" is included in the logging filter) in special debug builds of the firmware</td></tr>
+    <tr><td>"tinyusb"</td><td>Messages related to the USB hardware interface; these are for system-level debugging, and are disabled at compile-time in regular builds, regardless of the "tinyusb" filter setting
+         (they can only be enabled at compile time, because TinyUSB's logging is so voluminous that it significantly affects performance even with the run-time filter disabled)</tr></tr>
   </table>
 
 logging.timestamps bool optional
@@ -1995,7 +1996,7 @@ serialPorts.usb.console.historySize number optional
   older commands).
 
 id object optional
-  TOC: Identification
+  TOC: Unit Identification
   TITLE: Unit Identification
   EXAMPLE:
   {
@@ -3465,7 +3466,7 @@ outputs[].source string optional
   <b>button('start', sine(500), 0)</b> would do the trick.
 
 lis3dh object optional
-  TOC: Devices > Acclerometers > LIS3DH
+  TOC: Peripheral Devices > Acclerometers > LIS3DH
   TITLE: LIS3DH Accelerometer
   EXAMPLE:
   {
@@ -3529,7 +3530,7 @@ lis3dh.gRange number optional
   tilting it.
 
 lis3dsh object optional
-  TOC: Devices > Acclerometers > LIS3DSH
+  TOC: Peripheral Devices > Acclerometers > LIS3DSH
   TITLE: LIS3DSH Accelerometer
   EXAMPLE:
   {
@@ -3597,7 +3598,7 @@ lis3dsh.gRange number optional
   tilting it.
 
 mc3416 object optional
-  TOC: Devices > Acclerometers > MC3416
+  TOC: Peripheral Devices > Acclerometers > MC3416
   TITLE: MC3416 Accelerometer
   EXAMPLE:
   {
@@ -3642,7 +3643,7 @@ mc3416.gRange number optional
   
 
 mxc6655xa object optional
-  TOC: Devices > Acclerometers > MXC6655XA
+  TOC: Peripheral Devices > Acclerometers > MXC6655XA
   TITLE: MXC6655XA Accelerometer
   EXAMPLE:
   {
@@ -3681,7 +3682,7 @@ mxc6655xa.gRange number optional
   tilting it.
   
 ds1307 object optional
-  TOC: Devices > RTC (Real-time clock/calendar chips) > DS1307
+  TOC: Peripheral Devices > RTC (Real-time clock/calendar chips) > DS1307
   TITLE: DS1307 Real-time clock/calendar chip
   EXAMPLE:
   {
@@ -3724,7 +3725,7 @@ ds1307.i2c number required
   the bus number; there's no need to specify the address.
 
 ds3231m object optional
-  TOC: Devices > RTC (Real-time clock/calendar chips) > DS3231M
+  TOC: Peripheral Devices > RTC (Real-time clock/calendar chips) > DS3231M
   TITLE: DS3231M Real-time clock/calendar chip
   EXAMPLE:
   {
@@ -3776,7 +3777,7 @@ ds3231m.i2c number required
   the bus number; there's no need to specify the address.
 
 rv3032c7 object optional
-  TOC: Devices > RTC (Real-time clock/calendar chips) > RV-3032-C7
+  TOC: Peripheral Devices > RTC (Real-time clock/calendar chips) > RV-3032-C7
   TITLE: RV-3032-C7 Real-time clock/calendar chip
   EXAMPLE:
   {
@@ -3812,7 +3813,7 @@ rv3032c7.i2c number required
   the bus number; there's no need to specify the address.
 
 ads1115 object|[object] optional
-  TOC: Devices > ADC (Analog-to-digital converters) > ADS1115
+  TOC: Peripheral Devices > ADC (Analog-to-digital converters) > ADS1115
   TITLE: ADS1115 ADC (analog-to-digital converter)
   EXAMPLE:
   {
@@ -3994,7 +3995,7 @@ ads1115.sampleRate number optional
   allowed rates.  The default is 860.
 
 vl6180x object optional
-  TOC: Devices > Plunger Sensors > Distance Sensors > VL6180X
+  TOC: Peripheral Devices > Plunger Sensors > Distance Sensors > VL6180X
   TITLE: VL6180X Distance Sensor (plunger)
   EXAMPLE:
   {
@@ -4028,7 +4029,7 @@ vl6180x.interrupt number optional
   since the Pico can tell when a new sample is available without an I2C transaction.
 
 pca9555 object|[object] optional
-  TOC: Devices > GPIO Extenders > PCA9555
+  TOC: Peripheral Devices > GPIO Extenders > PCA9555
   TITLE: PCA9555 GPIO Extender
   EXAMPLE:
   {
@@ -4090,7 +4091,7 @@ pca9555[].interrupt number optional
   supports that configuration.
 
 tcd1103 object optional
-  TOC: Devices > Plunger Sensors > Optical Sensors > TCD1103
+  TOC: Peripheral Devices > Plunger Sensors > Optical Sensors > TCD1103
   TITLE: TCD1103 Optical Sensor (plunger)
   EXAMPLE:
   {
@@ -4139,7 +4140,7 @@ tcd1103.invertedLogic bool optional
   are connected directly to Pico GPIO ports with no logic inverter.
 
 tsl1410r object optional
-  TOC: Devices > Plunger Sensors > Optical Sensors > TSL1410R
+  TOC: Peripheral Devices > Plunger Sensors > Optical Sensors > TSL1410R
   TITLE: TSL1410R Optical Sensor (plunger)
   EXAMPLE:
   {
@@ -4173,7 +4174,7 @@ tsl1410r.so number required
   This must be one of the Pico's ADC-capable GPIO ports, GPIO 26, 27, or 28.
 
 tsl1412s object optional
-  TOC: Devices > Plunger Sensors > Optical Sensors > TSL1412S
+  TOC: Peripheral Devices > Plunger Sensors > Optical Sensors > TSL1412S
   TITLE: TSL1412S Optical Sensor (plunger)
   EXAMPLE:
   {
@@ -4207,7 +4208,7 @@ tsl1412s.so number required
   This must be one of the Pico's ADC-capable GPIO ports, GPIO 26, 27, or 28.
 
 vcnl4010 object optional
-  TOC: Devices > Plunger Sensors > Proximity Sensors > VCNL4010
+  TOC: Peripheral Devices > Plunger Sensors > Proximity Sensors > VCNL4010
   TITLE: VCNL4010 Proximity Sensor (plunger)
   EXAMPLE:
   {
@@ -4242,7 +4243,7 @@ vcnl4010.interrupt number optional
   unnecessary I2C polling.
 
 pca9685 [object] optional
-  TOC: Devices > PWM Controllers > PCA9685
+  TOC: Peripheral Devices > PWM Controllers > PCA9685
   TITLE: PCA9685 PWM Controller
   EXAMPLE:
   {
@@ -4369,7 +4370,7 @@ pca9685[].oe number|object<outputs.device> optional
   can save GPIO ports on the Pico by connecting all of the OE pins together.
 
 tlc59116 [object] optional
-  TOC: Devices > PWM Controllers > TLC59116
+  TOC: Peripheral Devices > PWM Controllers > TLC59116
   TITLE: TLC59116 PWM Controller
   EXAMPLE:
   {
@@ -4451,7 +4452,7 @@ tlc59116[].reset number optional
   chip without the need to power-cycle the whole system.
 
 tlc5940 object|[object] optional
-  TOC: Devices > PWM Controllers > TLC5940
+  TOC: Peripheral Devices > PWM Controllers > TLC5940
   TITLE: TLC5940 PWM Controller
   EXAMPLE:
   {
@@ -4619,7 +4620,7 @@ tlc5940.dcData [number] optional
   setups, but capability is there if needed.
 
 tlc5947 object|[object] optional
-  TOC: Devices > PWM Controllers > TLC5947
+  TOC: Peripheral Devices > PWM Controllers > TLC5947
   TITLE: TLC5947 PWM Controller
   EXAMPLE:
   {
@@ -4705,7 +4706,7 @@ tlc5947.sin number required
 
 
 workerPico object|[object] optional
-  TOC: Devices > PWM Controllers > Worker Pico
+  TOC: Peripheral Devices > PWM Controllers > Worker Pico
   TITLE: Worker Pico PWM Controller
   EXAMPLE:
   {
@@ -4838,7 +4839,7 @@ workerPico.pwmFreq number optional
 
 
 aedr8300 object optional
-  TOC: Devices > Plunger Sensors > Quadrature Encoders > AEDR-8300
+  TOC: Peripheral Devices > Plunger Sensors > Quadrature Encoders > AEDR-8300
   TITLE: AEDR-8300 Quadrature Encoder (plunger)
   EXAMPLE:
   {
@@ -4859,7 +4860,7 @@ aedr8300.channelB number required
   The Pico GPIO port number connected to the chip's channel "B" pin.
 
 74hc165 object|[object] optional
-  TOC: Devices > Shift Registers > 74HC165 (Input)
+  TOC: Peripheral Devices > Shift Registers > 74HC165 (Input)
   TITLE: 74HC165 Input Shift Register (Parallel to Serial)
   EXAMPLE:
   {
@@ -4989,7 +4990,7 @@ aedr8300.channelB number required
   the data for 64 ports).
 
 74hc595 object|[object] optional
-  TOC: Devices > Shift Registers > 74HC595 (Output)
+  TOC: Peripheral Devices > Shift Registers > 74HC595 (Output)
   TITLE: 74HC595 Output Shift Register (Serial to Parallel)
   EXAMPLE:
   {

@@ -29,8 +29,38 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   <div class="jsonTOCEntry">
     <a href="#buttons">Button Inputs</a>
   </div>
+  <div class="jsonTOCEntry">
+    <a href="#expansionBoard">Expansion Board</a>
+  </div>
   <div class="jsonTOCSect tocLevel1">
-    <div class="jsonTOCSectTitle">Devices</div>
+    <div class="jsonTOCSectTitle">I2C</div>
+    <div class="jsonTOCEntry">
+      <a href="#i2c0">I2C0 (Pico I2C unit 0)</a>
+    </div>
+    <div class="jsonTOCEntry">
+      <a href="#i2c1">I2C1 (Pico I2C unit 1)</a>
+    </div>
+  </div>
+  <div class="jsonTOCSect tocLevel1">
+    <div class="jsonTOCSectTitle">IR Remote Control</div>
+    <div class="jsonTOCEntry">
+      <a href="#irRx">Receiver</a>
+    </div>
+    <div class="jsonTOCEntry">
+      <a href="#irTx">Transmitter</a>
+    </div>
+  </div>
+  <div class="jsonTOCEntry">
+    <a href="#logging">Message Logging</a>
+  </div>
+  <div class="jsonTOCEntry">
+    <a href="#nudge">Nudging (Accelerometer)</a>
+  </div>
+  <div class="jsonTOCEntry">
+    <a href="#outputs">Output Ports (Feedback Devices)</a>
+  </div>
+  <div class="jsonTOCSect tocLevel1">
+    <div class="jsonTOCSectTitle">Peripheral Devices</div>
     <div class="jsonTOCSect tocLevel2">
       <div class="jsonTOCSectTitle">ADC (Analog-to-digital converters)</div>
       <div class="jsonTOCEntry">
@@ -135,39 +165,6 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     </div>
   </div>
   <div class="jsonTOCEntry">
-    <a href="#expansionBoard">Expansion Board</a>
-  </div>
-  <div class="jsonTOCSect tocLevel1">
-    <div class="jsonTOCSectTitle">I2C</div>
-    <div class="jsonTOCEntry">
-      <a href="#i2c0">I2C0 (Pico I2C unit 0)</a>
-    </div>
-    <div class="jsonTOCEntry">
-      <a href="#i2c1">I2C1 (Pico I2C unit 1)</a>
-    </div>
-  </div>
-  <div class="jsonTOCSect tocLevel1">
-    <div class="jsonTOCSectTitle">IR Remote Control</div>
-    <div class="jsonTOCEntry">
-      <a href="#irRx">Receiver</a>
-    </div>
-    <div class="jsonTOCEntry">
-      <a href="#irTx">Transmitter</a>
-    </div>
-  </div>
-  <div class="jsonTOCEntry">
-    <a href="#id">Identification</a>
-  </div>
-  <div class="jsonTOCEntry">
-    <a href="#logging">Message Logging</a>
-  </div>
-  <div class="jsonTOCEntry">
-    <a href="#nudge">Nudging (Accelerometer)</a>
-  </div>
-  <div class="jsonTOCEntry">
-    <a href="#outputs">Output Ports (Feedback Devices)</a>
-  </div>
-  <div class="jsonTOCEntry">
     <a href="#pwm">Pico PWM Settings</a>
   </div>
   <div class="jsonTOCEntry">
@@ -199,6 +196,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     <div class="jsonTOCEntry">
       <a href="#xInput">XBox Controller</a>
     </div>
+  </div>
+  <div class="jsonTOCEntry">
+    <a href="#id">Unit Identification</a>
   </div>
 </div>
 </div>
@@ -5138,7 +5138,8 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     <tr><td>"config"</td><td>Configuration messages; these confirm successful setup operations and describe the final set of parameters chosen, which can be helpful to see the effect of defaults and to confirm that devices are working as expected</td></tr>
     <tr><td>"vendor"</td><td>Messages related to the USB "vendor interface"; these are mostly internal debugging messages for the developers</td></tr>
     <tr><td>"xinput"</td><td>Messages related to the XBox Controller (XInput) device emulation</td></tr>
-    <tr><td>"tinyusb"</td><td>Messages related to the USB hardware interface; these are for system-level debugging, and are only enabled (even if "tinyusb" is included in the logging filter) in special debug builds of the firmware</td></tr>
+    <tr><td>"tinyusb"</td><td>Messages related to the USB hardware interface; these are for system-level debugging, and are disabled at compile-time in regular builds, regardless of the "tinyusb" filter setting
+    (they can only be enabled at compile time, because TinyUSB's logging is so voluminous that it significantly affects performance even with the run-time filter disabled)</tr></tr>
     </table>
   </p>
     </div>

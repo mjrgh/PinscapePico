@@ -124,9 +124,18 @@ table.data td, table.data th {
     font-size: 125%;
     margin-bottom: .5em;
 }
+.jsonTOCSect.tocLevel0 > .jsonTOCEntry > a {
+    font-weight: bold;
+}
 
 .jsonTOCEntry + .jsonTOCSect, .jsonTOCSect > .jsonTOCSect {
     margin-top: .5ex;
+}
+.jsonTOCEntry a:link, .jsonTOCEntry a:visited {
+    text-decoration: none;
+}
+.jsonTOCEntry a:hover {
+    text-decoration: underline;
 }
 
 .jsonSectTitle {

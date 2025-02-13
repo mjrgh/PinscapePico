@@ -54,6 +54,24 @@ with direct USB operations.  The C++ API just makes things a lot easier
 by managing the low-level USB details.
 
 
+## Windows target SDK version
+
+The API library is set by default to build for the Windows 10 SDK
+(PinscapePicoAPI project > Properties > General > Windows SDK Version).
+
+Compiling against the Windows 10 SDK will make the resulting program
+work only on Windows 10 and later, of course.  If you need to create
+an .exe that will run on older systems, you can change to an earlier
+SDK.  The project compiles with the SDK set to 8.1, but I haven't
+tested against anything earlier than that.  Note that changing to 8.1
+or earlier disables the Pico high-precision clock synchronization
+APIs, since they depend upon WinUsb functions added in Windows 10.
+The only reason you'd need the clock sync functions is for a program
+like Button Latency Tester 2 that measure the relative time between
+events on the Pico and the PC.
+
+
+
 ## How to include in a project
 
 The API library is designed to be linked into a C++ project as a

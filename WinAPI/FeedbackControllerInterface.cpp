@@ -12,6 +12,7 @@
 #include <string>
 #include <regex>
 #include <algorithm>
+struct IUnknown;  // workaround for Microsoft SDK header bug when compiling with a Win 8.1 target
 #include <Windows.h>
 #include <shlwapi.h>
 #include <usb.h>

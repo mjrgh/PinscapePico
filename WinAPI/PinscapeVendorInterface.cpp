@@ -12,7 +12,9 @@
 #include <string>
 #include <regex>
 #include <algorithm>
+struct IUnknown;  // workaround for Microsoft SDK header bug when compiling with a Win 8.1 target
 #include <Windows.h>
+#include <ntverp.h>
 #include <shlwapi.h>
 #include <usb.h>
 #include <winusb.h>
@@ -1070,149 +1072,6 @@ int VendorInterface::QueryStats(PinscapePico::Statistics *stats, size_t sizeofSt
 	// success
 	return PinscapeResponse::OK;
 }
-
-int VendorInterface::EnableClockSync(bool enable)
-{
-	// enable/disable time tracking on the client
-	VendorRequest::Args::TimeSync args;
-	args.hostClockAtSof = 0;
-	args.usbFrameNumber = enable ? args.ENABLE_FRAME_TRACKING : args.DISABLE_FRAME_TRACKING;
-	if (int stat = SendRequestWithArgs(VendorRequest::CMD_SYNC_CLOCKS, args); stat != VendorResponse::OK)
-		return stat;
-
-	// enable/disable time tracking in the WinUsb driver
-	if (enable && timeTrackingHandle == NULL)
-	{
-		// set up time tracking
-		USB_START_TRACKING_FOR_TIME_SYNC_INFORMATION syncInfo{ NULL, TRUE };
-		if (!WinUsb_StartTrackingForTimeSync(winusbHandle, &syncInfo) || syncInfo.TimeTrackingHandle == NULL)
-			return VendorResponse::ERR_FAILED;
-
-		// save the tracking handle
-		timeTrackingHandle = syncInfo.TimeTrackingHandle;
-	}
-	else if (!enable && timeTrackingHandle != NULL)
-	{
-		// stop time tracking
-		USB_STOP_TRACKING_FOR_TIME_SYNC_INFORMATION syncInfo{ timeTrackingHandle };
-		WinUsb_StopTrackingForTimeSync(winusbHandle, &syncInfo);
-		timeTrackingHandle = NULL;
-	}
-
-	// success
-	return VendorResponse::OK;
-}
-
-int VendorInterface::SynchronizeClocks(int64_t &picoClockOffset)
-{
-	// if time tracking isn't enabled on the Windows side, we can't proceed
-	if (timeTrackingHandle == NULL)
-		return VendorResponse::ERR_NOT_READY;
-
-	// get the current USB hardware frame counter and SOF time
-	USB_FRAME_NUMBER_AND_QPC_FOR_TIME_SYNC_INFORMATION qpcInfo{ timeTrackingHandle };
-	if (!WinUsb_GetCurrentFrameNumberAndQpc(winusbHandle, &qpcInfo))
-		return VendorResponse::ERR_FAILED;
-
-	// convert the QPC time from "ticks" since the QPC epoch to microseconds since the QPC epoch
-	uint64_t tMicroframe = static_cast<uint64_t>(
-		static_cast<double>(qpcInfo.CurrentQueryPerformanceCounter.QuadPart)
-		* (1.0e6 / static_cast<double>(qpcInfo.QueryPerformanceCounterFrequency.QuadPart)));
-
-	// Figure the time at the SOF, at microframe 0.  The current time in the 
-	// qpcInfo struct is the time at the start of the current hardware *microframe*,
-	// not the overall frame.  Each microframe is 125us, so deduct 125us times the
-	// microframe number to get the SOF time.
-	uint64_t tSOF = tMicroframe - qpcInfo.CurrentHardwareMicroFrameNumber*125;
-
-	// Get the frame index
-	uint16_t frameIndex = static_cast<uint16_t>(qpcInfo.CurrentHardwareFrameNumber);
-
-	// fill in command arguments
-	VendorRequest::Args::TimeSync args;
-	args.hostClockAtSof = tSOF;
-	args.usbFrameNumber = frameIndex;
-
-	// send the request
-	VendorResponse resp;
-	int stat = SendRequestWithArgs(VendorRequest::CMD_SYNC_CLOCKS, args, resp);
-
-	// On success, calculate the Pico clock offset, such that
-	//  T[Pico] = T[Windows] + picoClockOffset
-	if (stat == VendorResponse::OK)
-		picoClockOffset = static_cast<int64_t>(resp.args.timeSync.picoClockAtSof - tSOF);
-
-	// return the result
-	return stat;
-}
-
-int VendorInterface::QueryPicoSystemClock(int64_t &w1, int64_t &w2, uint64_t &p1, uint64_t &p2)
-{
-	// send the pre-query command, to get the Pico into fast polling
-	// mode, so that it processes the command as quickly as possible
-	PinscapeResponse resp;
-	uint8_t args = PinscapeRequest::SUBCMD_STATS_PREP_QUERY_CLOCK;
-	int result = SendRequestWithArgs(PinscapeRequest::CMD_STATS, args, resp);
-	if (result != PinscapeResponse::OK)
-		return result;
-
-	// The main purpose of reading the Pico clock is to synchronize
-	// time readings with the host clock.  The limiting factor in
-	// the precision of the synchronization is the elapsed time in
-	// the USB round trip, including time spent going through the
-	// Windows API layers and USB driver stack layers.  We can't do
-	// anything here to affect the actual USB hardware transmission
-	// time, and we also can't do anything to make the Windows API
-	// code paths shorter.  But we can at least streamline our own
-	// code bracketing the USB send/receive operations, by calling
-	// the Windows APIs directly rather than using our helper
-	// functions.  That also lets us take the time snapshots
-	// immediately before calling the "send" API and immediately
-	// after the "receive" API returns.
-	PinscapeRequest req{ token++, PinscapeRequest::CMD_STATS, 0 };
-	req.args.argBytes[0] = PinscapeRequest::SUBCMD_STATS_QUERY_CLOCK;
-
-	// set up the OVERLAPPED structure
-	OVERLAPPEDHolder ovWrite(hDevice, winusbHandle);
-	OVERLAPPEDHolder ovRead(hDevice, winusbHandle);
-
-	// record the starting time
-	LARGE_INTEGER t1, t2;
-	QueryPerformanceCounter(&t1);
-
-	// send the request
-	ULONG sz;
-	if (!WinUsb_WritePipe(winusbHandle, epOut,
-		reinterpret_cast<BYTE*>(&req), static_cast<ULONG>(sizeof(req)), &sz, &ovWrite.ov)
-		&& (GetLastError() != ERROR_IO_PENDING || !SUCCEEDED(ovWrite.Wait(REQUEST_TIMEOUT, sz))))
-		return PinscapeResponse::ERR_FAILED;
-
-	// read the reply
-	if (!WinUsb_ReadPipe(winusbHandle, epIn,
-		reinterpret_cast<BYTE*>(&resp), static_cast<ULONG>(sizeof(resp)), &sz, &ovRead.ov)
-		&& (GetLastError() != ERROR_IO_PENDING || !SUCCEEDED(ovRead.Wait(REQUEST_TIMEOUT, sz))))
-		return PinscapeResponse::ERR_FAILED;
-	
-	// record the return time snap
-	QueryPerformanceCounter(&t2);
-
-	// check the result
-	if (resp.token != req.token || resp.argsSize < 16)
-		return PinscapeResponse::ERR_BAD_REPLY_DATA;
-
-	// unpack the reply arguments (the Pico before and after timestamps)
-	const uint8_t *p = resp.args.argBytes;
-	p1 = GetUInt64(p);
-	p2 = GetUInt64(p);
-
-	// pass back the Windows timestamps
-	w1 = t1.QuadPart;
-	w2 = t2.QuadPart;
-
-	// success
-	return PinscapeResponse::OK;
-}
-
 
 int VendorInterface::QueryUSBInterfaceConfig(PinscapePico::USBInterfaces *ifcs, size_t sizeofIfcs)
 {
@@ -2639,13 +2498,8 @@ void VendorInterface::FlushWrite()
 
 void VendorInterface::CloseDeviceHandle()
 {
-	// close the time-tracking handle
-	if (timeTrackingHandle != NULL)
-	{
-		USB_STOP_TRACKING_FOR_TIME_SYNC_INFORMATION sti{ timeTrackingHandle };
-		WinUsb_StopTrackingForTimeSync(winusbHandle, &sti);
-		timeTrackingHandle = NULL;
-	}
+    // close the time-tracking handle
+    CloseTimeTrackingHandle();
 
 	// close the WinUSB handle
 	if (winusbHandle != NULL)
@@ -2661,6 +2515,178 @@ void VendorInterface::CloseDeviceHandle()
 		hDevice = NULL;
 	}
 }
+
+
+// --------------------------------------------------------------------------
+//
+// Pico clock synchronization.  Only available on Windows 10+.
+//
+
+#if VER_PRODUCTBUILD > 9600
+
+void VendorInterface::CloseTimeTrackingHandle()
+{
+	if (timeTrackingHandle != NULL)
+	{
+		USB_STOP_TRACKING_FOR_TIME_SYNC_INFORMATION sti{ timeTrackingHandle };
+		WinUsb_StopTrackingForTimeSync(winusbHandle, &sti);
+		timeTrackingHandle = NULL;
+	}
+}
+
+int VendorInterface::EnableClockSync(bool enable)
+{
+	// enable/disable time tracking on the client
+	VendorRequest::Args::TimeSync args;
+	args.hostClockAtSof = 0;
+	args.usbFrameNumber = enable ? args.ENABLE_FRAME_TRACKING : args.DISABLE_FRAME_TRACKING;
+	if (int stat = SendRequestWithArgs(VendorRequest::CMD_SYNC_CLOCKS, args); stat != VendorResponse::OK)
+		return stat;
+
+	// enable/disable time tracking in the WinUsb driver
+	if (enable && timeTrackingHandle == NULL)
+	{
+		// set up time tracking
+		USB_START_TRACKING_FOR_TIME_SYNC_INFORMATION syncInfo{ NULL, TRUE };
+		if (!WinUsb_StartTrackingForTimeSync(winusbHandle, &syncInfo) || syncInfo.TimeTrackingHandle == NULL)
+			return VendorResponse::ERR_FAILED;
+
+		// save the tracking handle
+		timeTrackingHandle = syncInfo.TimeTrackingHandle;
+	}
+	else if (!enable && timeTrackingHandle != NULL)
+	{
+		// stop time tracking
+		USB_STOP_TRACKING_FOR_TIME_SYNC_INFORMATION syncInfo{ timeTrackingHandle };
+		WinUsb_StopTrackingForTimeSync(winusbHandle, &syncInfo);
+		timeTrackingHandle = NULL;
+	}
+
+	// success
+	return VendorResponse::OK;
+}
+
+int VendorInterface::SynchronizeClocks(int64_t &picoClockOffset)
+{
+	// if time tracking isn't enabled on the Windows side, we can't proceed
+	if (timeTrackingHandle == NULL)
+		return VendorResponse::ERR_NOT_READY;
+
+	// get the current USB hardware frame counter and SOF time
+	USB_FRAME_NUMBER_AND_QPC_FOR_TIME_SYNC_INFORMATION qpcInfo{ timeTrackingHandle };
+	if (!WinUsb_GetCurrentFrameNumberAndQpc(winusbHandle, &qpcInfo))
+		return VendorResponse::ERR_FAILED;
+
+	// convert the QPC time from "ticks" since the QPC epoch to microseconds since the QPC epoch
+	uint64_t tMicroframe = static_cast<uint64_t>(
+		static_cast<double>(qpcInfo.CurrentQueryPerformanceCounter.QuadPart)
+		* (1.0e6 / static_cast<double>(qpcInfo.QueryPerformanceCounterFrequency.QuadPart)));
+
+	// Figure the time at the SOF, at microframe 0.  The current time in the 
+	// qpcInfo struct is the time at the start of the current hardware *microframe*,
+	// not the overall frame.  Each microframe is 125us, so deduct 125us times the
+	// microframe number to get the SOF time.
+	uint64_t tSOF = tMicroframe - qpcInfo.CurrentHardwareMicroFrameNumber*125;
+
+	// Get the frame index
+	uint16_t frameIndex = static_cast<uint16_t>(qpcInfo.CurrentHardwareFrameNumber);
+
+	// fill in command arguments
+	VendorRequest::Args::TimeSync args;
+	args.hostClockAtSof = tSOF;
+	args.usbFrameNumber = frameIndex;
+
+	// send the request
+	VendorResponse resp;
+	int stat = SendRequestWithArgs(VendorRequest::CMD_SYNC_CLOCKS, args, resp);
+
+	// On success, calculate the Pico clock offset, such that
+	//  T[Pico] = T[Windows] + picoClockOffset
+	if (stat == VendorResponse::OK)
+		picoClockOffset = static_cast<int64_t>(resp.args.timeSync.picoClockAtSof - tSOF);
+
+	// return the result
+	return stat;
+}
+
+int VendorInterface::QueryPicoSystemClock(int64_t &w1, int64_t &w2, uint64_t &p1, uint64_t &p2)
+{
+	// send the pre-query command, to get the Pico into fast polling
+	// mode, so that it processes the command as quickly as possible
+	PinscapeResponse resp;
+	uint8_t args = PinscapeRequest::SUBCMD_STATS_PREP_QUERY_CLOCK;
+	int result = SendRequestWithArgs(PinscapeRequest::CMD_STATS, args, resp);
+	if (result != PinscapeResponse::OK)
+		return result;
+
+	// The main purpose of reading the Pico clock is to synchronize
+	// time readings with the host clock.  The limiting factor in
+	// the precision of the synchronization is the elapsed time in
+	// the USB round trip, including time spent going through the
+	// Windows API layers and USB driver stack layers.  We can't do
+	// anything here to affect the actual USB hardware transmission
+	// time, and we also can't do anything to make the Windows API
+	// code paths shorter.  But we can at least streamline our own
+	// code bracketing the USB send/receive operations, by calling
+	// the Windows APIs directly rather than using our helper
+	// functions.  That also lets us take the time snapshots
+	// immediately before calling the "send" API and immediately
+	// after the "receive" API returns.
+	PinscapeRequest req{ token++, PinscapeRequest::CMD_STATS, 0 };
+	req.args.argBytes[0] = PinscapeRequest::SUBCMD_STATS_QUERY_CLOCK;
+
+	// set up the OVERLAPPED structure
+	OVERLAPPEDHolder ovWrite(hDevice, winusbHandle);
+	OVERLAPPEDHolder ovRead(hDevice, winusbHandle);
+
+	// record the starting time
+	LARGE_INTEGER t1, t2;
+	QueryPerformanceCounter(&t1);
+
+	// send the request
+	ULONG sz;
+	if (!WinUsb_WritePipe(winusbHandle, epOut,
+		reinterpret_cast<BYTE*>(&req), static_cast<ULONG>(sizeof(req)), &sz, &ovWrite.ov)
+		&& (GetLastError() != ERROR_IO_PENDING || !SUCCEEDED(ovWrite.Wait(REQUEST_TIMEOUT, sz))))
+		return PinscapeResponse::ERR_FAILED;
+
+	// read the reply
+	if (!WinUsb_ReadPipe(winusbHandle, epIn,
+		reinterpret_cast<BYTE*>(&resp), static_cast<ULONG>(sizeof(resp)), &sz, &ovRead.ov)
+		&& (GetLastError() != ERROR_IO_PENDING || !SUCCEEDED(ovRead.Wait(REQUEST_TIMEOUT, sz))))
+		return PinscapeResponse::ERR_FAILED;
+
+	// record the return time snap
+	QueryPerformanceCounter(&t2);
+
+	// check the result
+	if (resp.token != req.token || resp.argsSize < 16)
+		return PinscapeResponse::ERR_BAD_REPLY_DATA;
+
+	// unpack the reply arguments (the Pico before and after timestamps)
+	const uint8_t *p = resp.args.argBytes;
+	p1 = GetUInt64(p);
+	p2 = GetUInt64(p);
+
+	// pass back the Windows timestamps
+	w1 = t1.QuadPart;
+	w2 = t2.QuadPart;
+
+	// success
+	return PinscapeResponse::OK;
+}
+#else
+
+//
+// Stubs for pre-Windows 10 systems, where time-tracking isn't available
+//
+
+void VendorInterface::CloseTimeTrackingHandle()
+{
+}
+
+#endif // VER_PRODUCTBUILD > 9600
+
 
 // --------------------------------------------------------------------------
 //

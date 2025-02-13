@@ -486,7 +486,10 @@ namespace PinscapePico
 		// Of Frame) signal to create a fixed reference point in time shared
 		// between the Windows host and the Pico, so that the two systems
 		// can translate event times between their two clocks with high
-		// precision.
+        // precision.  The SOF signal occurs every millisecond, and both
+        // the Pico and PC can measure it on their system clocks to about
+        // +/- 1us accuracy, so the resulting synchronization is good to
+        // within a few microseconds.
 		// 
 		// On success, picoClockOffset is filled in with the time offset
 		// between the Pico's system clock and the Windows high-precision
@@ -502,9 +505,8 @@ namespace PinscapePico
 		// different rates that are unpredictable.  The Pico clock's rated
 		// accuracy is about 30 ppm, so it can drift by up to 0.1 seconds
 		// per hour, or 2.5 seconds per day.  The client should therefore
-		// refresh the offset from time to time, according to how much
-		// precision it needs.  For millisecond-scale measurements, you
-		// should refresh about once a minute.
+        // query the offset as close (in time) as possible to the event
+        // being measured.
 		// 
 		// Before using this function, clock synchronization must be
 		// explicitly enabled via EnableClockSync().  The clock sync feature
@@ -522,7 +524,25 @@ namespace PinscapePico
 		int EnableClockSync(bool enable);
 
 		// Query the Pico system clock time, for synchronizing between Pico
-		// timestamps and Windows timestamps.
+        // timestamps and Windows timestamps.
+        //
+        // This uses a different approach from SynchronizeClocks(), and
+        // can't achieve nearly as high precision.  The strategy here is
+        // similar to NTP (the Internet time protocol, which PCs use to
+        // keep their local clocks up to date with server clocks), where
+        // we interpolate the Windows clock and Pico clock across a USB
+        // transaction.  A USB round trip takes about 350us, so the
+        // resulting synchronization is good to about +/- 200us (0.2ms).
+        // This API was originally created for button latency measurement,
+        // which measures events on the millisecond time scale, so 0.2ms
+        // precision isn't really good enough for the API's intended
+        // purpose.  That's why the more precise SynchronizeClocks() API
+        // was added.  Most applications that need high-precision sync
+        // will want to use that instead.  However, SynchronizeClocks()
+        // will only work on Windows 10+, since it depends on some newer
+        // Win32 functions, so we're keeping this as a fallback in case
+        // anyone needs synchronization on older Windows versions (and
+        // can tolerate the lower precision this API offers).
 		// 
 		// On success, the values w1..p1..p2..w2 provide timestamps before
 		// and after the request.  The 'w' values are the Windows times,
@@ -554,14 +574,16 @@ namespace PinscapePico
 		// averaging will cancel out the random noise in individual samples.
 		// 
 		// The Windows and Pico clocks are independent, obviously, so they
-		// will typically exhibit some skew.  This will make projections
-		// of Pico times from Windows times increasingly inaccurate as the
-		// elapsed time from the reference reading increases.  You can
-		// correct for skew by taking readings at extended intervals and
-		// using the ratio between the projected Pico time and the actual
-		// observed Pico time as a correction factor.  Experimentally, the
-		// skew is about one part per million, so skew correction should
-		// be measured perhaps every few minutes for an extended session.
+        // will drift apart after any sync point.  A sync point close (in
+        // time) to the event being measured will be more accurate.  The
+        // Pico clock is rated for 30ppm accuracy, so you can expect it to
+        // drift by up to 30us per second.  Most PCs probably have somewhat
+        // better clocks than the Pico, but they'll still have some drift,
+        // so the net drift will be even higher than the Pico's own drift.
+        // So don't try to take a sync point once and then project forward;
+        // the drift will make that highly inaccurate after just a few
+        // minutes.  Instead, take a new sync point close to each even
+        // you're trying to measure.
 		// 
 		// Returns the usual status code (OK or ERR_xxx).
 		int QueryPicoSystemClock(int64_t &w1, int64_t &w2, uint64_t &p1, uint64_t &p2);
@@ -595,7 +617,7 @@ namespace PinscapePico
 			bool sioIsOutput = false;
 
 			// Usage description.  This is human-readable string, intended 
-			// for display in a UI, describing the assigned function for 
+			// for display in a UI, describing the assigned function for for
 			// the port, based on the JSON configuration settings.
 			std::string usage;
 		};
@@ -1319,5 +1341,8 @@ namespace PinscapePico
 		// been since the last pass.  Otherwise, we'll only attempt
 		// the cleanup periodically.
 		void CleanUpTimedOutIOs(bool now);
+
+        // Close the time-tracking handle
+        void CloseTimeTrackingHandle();
 	};
 }

@@ -935,11 +935,11 @@
     // Accelerometer chip on the Adapter Board
     lis3dh: {
         i2c: 0,             // bus I2C0
-        address: 0x18,      // I2C address
+        addr: 0x18,         // I2C address
         interrupt: 14,      // interrupt signal wired to Pico GP14
         gRange: 2,          // set chip dynamic range to +/- 2g
     },
-            
+
     // -------------------------------------------------------------------
     //
     // Plunger

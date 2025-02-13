@@ -73,6 +73,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         <a href="#tlc5940">TLC5940</a>
       </div>
       <div class="jsonTOCEntry">
+        <a href="#tlc5947">TLC5947</a>
+      </div>
+      <div class="jsonTOCEntry">
         <a href="#workerPico">Worker Pico</a>
       </div>
     </div>
@@ -625,6 +628,13 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         <span class="propName"><a href="#tlc5940.sin">sin</a></span>: <span class="typeNames">number</span>,
         <span class="propName"><a href="#tlc5940.vprg">vprg</a></span>: <span class="typeNames">number</span>,
         <span class="propName"><a href="#tlc5940.xlat">xlat</a></span>: <span class="typeNames">number</span>,
+     },
+     <span class="propName"><a href="#tlc5947">tlc5947</a></span>: {     // object <i>or</i> array of objects
+        <span class="propName"><a href="#tlc5947.blank">blank</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#tlc5947.nChips">nChips</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#tlc5947.sclk">sclk</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#tlc5947.sin">sin</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#tlc5947.xlat">xlat</a></span>: <span class="typeNames">number</span>,
      },
      <span class="propName"><a href="#tsl1410r">tsl1410r</a></span>: {
         <span class="propName"><a href="#tsl1410r.clk">clk</a></span>: <span class="typeNames">number</span>,
@@ -5289,8 +5299,6 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         i2c: 0,
         interrupt: 21,
         gRange: 2,
-        channel: 2,
-        sampleRate: 860,
      },
   }
 </div>
@@ -8314,7 +8322,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   instances of the chip without any additional GPIO ports beyond those
   needed to connect the first chip.
   </p><p>
-  If necessary you can configure multiple TLC5940 daisy chains, each
+  If necessary, you can configure multiple TLC5940 daisy chains, each
   with its own set of GPIO ports.  There should be little reason to do so
   in practice, since you can instead just connect more chips to the same
   chain.  But if you do set up multiple chains, define this property as
@@ -8332,20 +8340,24 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   Wiring notes:
   <ul>
   <li>Any Pico GPIOs can be assigned to the TLC5940 control lines,
-  with the constraints that BLANK and XLAT must be paired (XLAT = BLANK + 1),
-  and GSCLK and SCLK must be paired (GSCLK = SCLK + 1).
+  with the constraints that BLANK and XLAT must be on adjacent
+  ports, in that order, and GSCLK and SCLK must likewise be
+  on adjacent ports in that order.  For example, if BLANK is on GP11, 
+  XLAT must be GP12, and if SCLK is on GP17, GSCLK must be on GP18.
   <li>OUTn ports are current-limited by the chip, so small LEDs can
   be driven directly without any current-limiting resistors.
   <li>The resistor at the IREF pin programs the OUTn current limit.
   2K sets the current limit to approximately 20mA, which is suitable
-  for most small LEDs and optocouplers.  See the data sheet for
-  details.
-  <li>A two-chip daisy chain is shown; more chips can be added
+  for most small LEDs and optocouplers.  The data sheet provides a
+  formula for the relationship between the IREF resistor size and
+  the current limit.
+  <li>A two-chip daisy chain is shown, but the actual chain can be
+  any length from 1 to 16 chips.  More chips can be added
   by repeating the pattern for additional chips, by connecting
   the SCLK, XLAT, BLANK, and GSCLK lines in parallel, and connecting
-  each chip's SOUT to the next chip's SIN as shown.  The last chip's
-  SOUT can be connected to ground through a high-value resistor (10K)
-  to reduce EMI emissions.
+  each chip's SOUT to the next chip's SIN as shown.  Optionally,
+  the last chip's SOUT can be connected to ground through a high-value
+  resistor (10K), which might reduce EMI emissions.
   <li>The HTTSOP-28 SMD package is shown.  This chip is made in other
   packages, including the out-of-production DIP-28 version (TLC5940NT),
   which was used in the original Pinscape KL25Z expansion boards.
@@ -8478,10 +8490,10 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     </div>
     <div class="jsonPropDesc">
   <p>
-    The Pico GPIO port number connected to the chip GSCLK pins.  This must
-    be connected to the GSCLK pins for all chips in the chain.  This
-    GPIO port must be the next higher port after the SCLK port; for
-    example, if SCLK is on GPIO 17, GSCLK must be on GPIO 18.
+    The Pico GPIO port number connected to the chip GSCLK pins.  Connect
+    this port to the GSCLK pins for all chips in the chain.  <b>This
+    GPIO port must be the next higher port number after the SCLK port.</b>
+    For example, if SCLK is on GPIO 17, GSCLK must be on GPIO 18.
   </p>
     </div>
   </div>
@@ -8529,8 +8541,8 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     </div>
     <div class="jsonPropDesc">
   <p>
-    The Pico GPIO port number connected to the chip SCLK pins.  This must
-    be connected to the SCLK pins for all chips in the chain.
+    The Pico GPIO port number connected to the chip SCLK pins.  Connect
+    this port to the SCLK pins for all chips in the chain.
   </p>
     </div>
   </div>
@@ -8542,7 +8554,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     </div>
     <div class="jsonPropDesc">
   <p>
-    The Pico GPIO Port number connected to the first chip's SIN pin.  The
+    The Pico GPIO Port number connected to the first chip's SIN pin.  This
     GPIO port connects <b>only</b> to the SIN pin of the first chip in
     the chain.  For each subsequent chip in the chain, connect SIN to the
     previous chip's SOUT (the second chip's SIN connects to the first chip's
@@ -8575,10 +8587,159 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     </div>
     <div class="jsonPropDesc">
   <p>
-    The Pico GPIO port number connected to the chip XLAT pins.  This must
-    be connected to the XLAT pins for all chips in the chain.  This
-    GPIO port must be the next higher port after the BLANK port; for
-    example, if BLANK is on GPIO 15, XLAT must be on GPIO 16.
+    The Pico GPIO port number connected to the chip XLAT pins.  Connect
+    this port to the XLAT pins for all chips in the chain.  <b>This
+    GPIO port must be the next higher port number after the BLANK port.</b>
+    For example, if BLANK is on GPIO 15, XLAT must be on GPIO 16.
+  </p>
+    </div>
+  </div>
+</div>
+<a name="tlc5947"></a>
+<div class="jsonSectTitle">TLC5947 PWM Controller</div>
+<p>
+  Configures a daisy-chain of TLC5947 PWM controller chips.  These chips
+  can be used to add PWM output ports to the Pico.  The chips can be
+  connected together in a daisy chain, which lets you connect multiple
+  instances of the chip without any additional GPIO ports beyond those
+  needed to connect the first chip.
+  </p><p>
+  If necessary, you can configure multiple TLC5947 daisy chains, each
+  with its own set of GPIO ports.  There should be little reason to do so
+  in practice, since you can instead just connect more chips to the same
+  chain.  But if you do set up multiple chains, define this property as
+  an array of objects, with each object defining one daisy chain.
+  </p><p>
+  The TLC5947 has a fixed PWM frequency of 967 Hz.
+  </p><p>
+  <img src="TLC5947-wiring.png" class="circuit-diagram">
+  Wiring notes:
+  <ul>
+  <li>Any Pico GPIOs can be assigned to the TLC5947 control lines,
+  with the constraint that BLANK and XLAT must be on adjacent GPIO
+  ports, so that XLAT is on the very next port after BLANK.  For
+  example, if BLANK is on GP11, XLAT must be on GP12.
+  <li>OUTn ports are current-limited by the chip, so small LEDs can
+  be driven directly without any current-limiting resistors.
+  <li>The resistor at the IREF pin programs the OUTn current limit.
+  2.4K sets the current limit to approximately 20mA, which is suitable
+  for most small LEDs and optocouplers.  The data sheet provides a
+  formula for the relationship between the IREF resistor and the
+  current limit.
+  <li>A two-chip daisy chain is shown, but the actual chain can be
+  any length from 1 to 16 chips.  More chips can be added
+  by repeating the pattern for additional chips, by connecting
+  the SCLK, XLAT, and BLANK lines in parallel, and connecting
+  each chip's SOUT to the next chip's SIN as shown.  Optionally,
+  the last chip's SOUT can be connected to ground through a high-value
+  resistor (10K), which might reduce EMI emissions.
+  <li>The HTTSOP-32 SMD package is shown.  This chip is also available
+  in a VQFN-32 package, which has a different pin layout, but is
+  otherwise wired the same way.
+  <li>The 10K pull-up on BLANK disables outputs during initial
+  power-on, when the GPIO ports are in the initial high-impedance
+  state.  This is intended to ensure glitch-free startup by
+  disabling the outputs until the Pinscape software initializes
+  the control ports.
+  </ul>
+</p>
+<div class="jsonSectIndexHdr">Summary</div>
+<div class="jsonSectIndex">{
+   <span class="propName"><a href="#tlc5947">tlc5947</a></span>: {     // object <i>or</i> array of objects
+      <span class="propName"><a href="#tlc5947.blank">blank</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#tlc5947.nChips">nChips</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#tlc5947.sclk">sclk</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#tlc5947.sin">sin</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#tlc5947.xlat">xlat</a></span>: <span class="typeNames">number</span>,
+   },
+}
+</div>
+<div class="jsonExampleHdr">Example</div>
+<div class="jsonExample">  {
+     tlc5947: {
+        nChips: 2,   // two chips in daisy chain, for 32 total ports
+        blank: 17,
+        xlat: 18,    // must be BLANK+1
+        sclk: 13,
+        sin: 16,
+     },
+  }
+</div>
+<div class="jsonProp">
+  <div class="jsonPropHdr">
+    <span class="jsonPropPath"></span><span class="jsonPropName">tlc5947</span>
+    <span class="jsonPropType">object, array of object</span><span class="jsonPropOptional">Optional</span>
+  </div>
+  <div class="jsonPropDesc">
+  </div>
+  <a name="tlc5947.blank"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">tlc5947[].</span><span class="jsonPropName">blank</span>
+      <span class="jsonPropType">number</span><span class="jsonPropRequired">Required</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The Pico GPIO port number connected to the chip BLANK pins.  Connect
+    this port to the BLANK pins for all of the chips in the chain.
+  </p>
+    </div>
+  </div>
+  <a name="tlc5947.nChips"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">tlc5947[].</span><span class="jsonPropName">nChips</span>
+      <span class="jsonPropType">number</span><span class="jsonPropRequired">Required</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The number of TLC5947 chips connected to the daisy chain.  This is
+    required so that the software knows how many port settings to send
+    to the chain on each update cycle.
+  </p>
+    </div>
+  </div>
+  <a name="tlc5947.sclk"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">tlc5947[].</span><span class="jsonPropName">sclk</span>
+      <span class="jsonPropType">number</span><span class="jsonPropRequired">Required</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The Pico GPIO port number connected to the chip SCLK pins.  Connect
+    this port to the SCLK pins for all chips in the chain.
+  </p>
+    </div>
+  </div>
+  <a name="tlc5947.sin"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">tlc5947[].</span><span class="jsonPropName">sin</span>
+      <span class="jsonPropType">number</span><span class="jsonPropRequired">Required</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The Pico GPIO Port number connected to the first chip's SIN pin.  This
+    GPIO port connects <b>only</b> to the SIN pin of the first chip in
+    the chain.  For each subsequent chip in the chain, connect SIN to the
+    previous chip's SOUT (the second chip's SIN connects to the first chip's
+    SOUT, the third chip's SIN connects to the second chip's SOUT, etc).
+  </p>
+    </div>
+  </div>
+  <a name="tlc5947.xlat"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">tlc5947[].</span><span class="jsonPropName">xlat</span>
+      <span class="jsonPropType">number</span><span class="jsonPropRequired">Required</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The Pico GPIO port number connected to the chip XLAT pins.  Connect
+    this port to the XLAT pins for all chips in the chain.  <b>This
+    GPIO port must be the next higher port number after the BLANK port.</b>
+    For example, if BLANK is on GPIO 15, XLAT must be on GPIO 16.
   </p>
     </div>
   </div>

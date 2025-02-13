@@ -428,18 +428,22 @@ void I2C::I2CIRQ()
         // read the clr_stop_det register to clear the condition flag
         auto volatile dummy = hw->clr_stop_det;
 
-        // count the completion
-        if (state == State::Reading)
-            devices[curDevice]->i2cStats.rxCompleted += 1;
-        else
-            devices[curDevice]->i2cStats.txCompleted += 1;
-
-        // end the capture in progress
-        IF_I2C_DEBUG(DebugCaptureEnd(devices[curDevice]->i2cAddr, rxBuf.data, rxBuf.len, "OK"));
-
-        // invoke the device callback
-        I2CX i2cx(this);
-        devices[curDevice]->OnI2CCompletionIRQ(rxBuf.data, rxBuf.len, &i2cx);
+        // if a device is active, call completion methods
+        if (devices.size() != 0)
+        {
+            // count the completion
+            if (state == State::Reading)
+                devices[curDevice]->i2cStats.rxCompleted += 1;
+            else
+                devices[curDevice]->i2cStats.txCompleted += 1;
+            
+            // end the capture in progress
+            IF_I2C_DEBUG(DebugCaptureEnd(devices[curDevice]->i2cAddr, rxBuf.data, rxBuf.len, "OK"));
+            
+            // invoke the device callback
+            I2CX i2cx(this);
+            devices[curDevice]->OnI2CCompletionIRQ(rxBuf.data, rxBuf.len, &i2cx);
+        }
     }
 
     // done with IRQ
@@ -583,29 +587,26 @@ void I2C::UnitTask()
         
         // Scan for a device with pending work, starting where we left
         // off from last time.
-        if (devices.size() != 0)
+        for (int prvDevice = curDevice ; ; )
         {
-            for (int prvDevice = curDevice ; ; )
-            {
-                // Tell the current device that the I2C bus is available for
-                // its use.  This gives the device a chance to start a transaction
-                // (a read or write) if it has work pending.  If the device does
-                // start a transaction, stop the scan and return to the main loop,
-                // to let other tasks run while the I2C operation proceeds in the
-                // background via DMA.
-                I2CX i2cx(this);
-                if (devices[curDevice]->OnI2CReady(&i2cx))
-                    break;
-
-                // advance to the next device, wrapping at the end of the list
-                curDevice = (curDevice + 1) % devices.size();
-
-                // stop if we've wrapped back to where we started - this means
-                // that none of the devices have pending work at the moment, so
-                // we should yield the CPU and let other non-I2C tasks proceed
-                if (curDevice == prvDevice)
-                    break;
-            }
+            // Tell the current device that the I2C bus is available for
+            // its use.  This gives the device a chance to start a transaction
+            // (a read or write) if it has work pending.  If the device does
+            // start a transaction, stop the scan and return to the main loop,
+            // to let other tasks run while the I2C operation proceeds in the
+            // background via DMA.
+            I2CX i2cx(this);
+            if (devices[curDevice]->OnI2CReady(&i2cx))
+                break;
+            
+            // advance to the next device, wrapping at the end of the list
+            curDevice = (curDevice + 1) % devices.size();
+            
+            // stop if we've wrapped back to where we started - this means
+            // that none of the devices have pending work at the moment, so
+            // we should yield the CPU and let other non-I2C tasks proceed
+            if (curDevice == prvDevice)
+                break;
         }
         break;
 

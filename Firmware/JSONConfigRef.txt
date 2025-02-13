@@ -1554,11 +1554,11 @@ i2c0.enable string|bool optional
     <li><b>false</b> - disable the bus; equivalent to omitting the i2c0 definition entirely
     <li><b>"on-demand"</b> - enable the bus only if one or more devices are configured on it
   </ul>
-  This allows you to define the bus's GPIO assignments in the JSON configuration
-  file without actually tying up the GPIO pins if there aren't any devices on
-  the bus.  This is mostly to make it easier to write "template" configuration
-  files that adapt automatically to different configurations without the need to
-  manually edit dependent elements.
+  The "on-demand" setting lets you define the bus's GPIO assignments in the JSON
+  configuration file without actually tying up the GPIO pins if there aren't any
+  devices on the bus.  This is mostly to make it easier to write "template"
+  configuration files that adapt automatically to different configurations without
+  the need to manually edit dependent elements.
 
 i2c1 object optional
   TOC: I2C > I2C1 (Pico I2C unit 1)
@@ -1598,11 +1598,11 @@ i2c1.enable string|bool optional
     <li><b>false</b> - disable the bus; equivalent to omitting the i2c1 definition entirely
     <li><b>"on-demand"</b> - enable the bus only if one or more devices are configured on it
   </ul>
-  This allows you to define the bus's GPIO assignments in the JSON configuration
-  file without actually tying up the GPIO pins if there aren't any devices on
-  the bus.  This is mostly to make it easier to write "template" configuration
-  files that adapt automatically to different configurations without the need to
-  manually edit dependent elements.
+  The "on-demand" setting lets you define the bus's GPIO assignments in the JSON
+  configuration file without actually tying up the GPIO pins if there aren't any
+  devices on the bus.  This is mostly to make it easier to write "template"
+  configuration files that adapt automatically to different configurations without
+  the need to manually edit dependent elements.
 
 i2c1.pullup bool optional
   Controls the internal pull-up resistors on the SDA and SCL GPIO ports.  Set
@@ -4089,6 +4089,31 @@ pca9555[].interrupt number optional
   from multiple PCA9555 chips together, connecting them all to a single
   Pico GPIO port.  The Pinscape software specifically recognizes and
   supports that configuration.
+
+pca9555[].initialOut number|[number|bool] optional
+  Sets the initial output port states.  This can be set as an integer
+  giving a bit mask of the on/off states of the ports, or as an array
+  of true/false or 0/1 values.
+
+  If expressed as an integer, each bit of the value corresponds to
+  the on/off state of a port (a 0 bit is OFF, a 1 bit is ON).  The
+  low-order bit of the value (0x0001) gives the value for port 0_0,
+  and the bits are assigned to ports consecutively in bit order.
+  So port 0_1 is the second bit (0x0002), 0_2 is the third bit (0x0004),
+  and so on, with the high-order bit (0x8000) assigned to port 1_7.
+  This format is obtuse in general, but it has its concise charm for
+  certain cases, such as when you want to set all of the ports to the
+  same level (all OFF is 0x0000, all ON is 0xFFFF), or perhaps
+  if you want to set the whole 1_X block ON and the whole 0_x block
+  off (0xFF00).
+
+  If expressed as an array, each element of the array corresponds to
+  one port, starting at 0_0 for the first element, 0_1 for the second
+  element, and so on.  For example, to turn all of the 0_X ports
+  OFF and all of the 1_X ports ON, you could write
+  <tt>[0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1]</tt>.
+  This is a lot more verbose than the integer format, but much more readable
+  for cases where the values are mixed.
 
 tcd1103 object optional
   TOC: Peripheral Devices > Plunger Sensors > Optical Sensors > TCD1103

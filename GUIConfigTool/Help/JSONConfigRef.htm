@@ -521,6 +521,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
      <span class="propName"><a href="#pca9555">pca9555</a></span>: {     // object <i>or</i> array of objects
         <span class="propName"><a href="#pca9555.addr">addr</a></span>: <span class="typeNames">number</span>,
         <span class="propName"><a href="#pca9555.i2c">i2c</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#pca9555.initialOut">initialOut</a></span>: <span class="typeNames">number|[number|boolean]</span>,
         <span class="propName"><a href="#pca9555.interrupt">interrupt</a></span>: <span class="typeNames">number</span>,
      },
      <span class="propName"><a href="#pca9685">pca9685</a></span>: [
@@ -4195,11 +4196,11 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     <li><b>false</b> - disable the bus; equivalent to omitting the i2c0 definition entirely
     <li><b>"on-demand"</b> - enable the bus only if one or more devices are configured on it
     </ul>
-    This allows you to define the bus's GPIO assignments in the JSON configuration
-    file without actually tying up the GPIO pins if there aren't any devices on
-    the bus.  This is mostly to make it easier to write "template" configuration
-    files that adapt automatically to different configurations without the need to
-    manually edit dependent elements.
+    The "on-demand" setting lets you define the bus's GPIO assignments in the JSON
+    configuration file without actually tying up the GPIO pins if there aren't any
+    devices on the bus.  This is mostly to make it easier to write "template"
+    configuration files that adapt automatically to different configurations without
+    the need to manually edit dependent elements.
   </p>
     </div>
   </div>
@@ -4337,11 +4338,11 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     <li><b>false</b> - disable the bus; equivalent to omitting the i2c1 definition entirely
     <li><b>"on-demand"</b> - enable the bus only if one or more devices are configured on it
     </ul>
-    This allows you to define the bus's GPIO assignments in the JSON configuration
-    file without actually tying up the GPIO pins if there aren't any devices on
-    the bus.  This is mostly to make it easier to write "template" configuration
-    files that adapt automatically to different configurations without the need to
-    manually edit dependent elements.
+    The "on-demand" setting lets you define the bus's GPIO assignments in the JSON
+    configuration file without actually tying up the GPIO pins if there aren't any
+    devices on the bus.  This is mostly to make it easier to write "template"
+    configuration files that adapt automatically to different configurations without
+    the need to manually edit dependent elements.
   </p>
     </div>
   </div>
@@ -6626,6 +6627,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
    <span class="propName"><a href="#pca9555">pca9555</a></span>: {     // object <i>or</i> array of objects
       <span class="propName"><a href="#pca9555.addr">addr</a></span>: <span class="typeNames">number</span>,
       <span class="propName"><a href="#pca9555.i2c">i2c</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#pca9555.initialOut">initialOut</a></span>: <span class="typeNames">number|[number|boolean]</span>,
       <span class="propName"><a href="#pca9555.interrupt">interrupt</a></span>: <span class="typeNames">number</span>,
    },
 }
@@ -6669,6 +6671,40 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     <div class="jsonPropDesc">
   <p>
     The I2C bus number, 0 for I2C0 or 1 for I2C1, where the chip is connected.
+  </p>
+    </div>
+  </div>
+  <a name="pca9555.initialOut"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">pca9555[].</span><span class="jsonPropName">initialOut</span>
+      <span class="jsonPropType">number, array of number or boolean</span><span class="jsonPropOptional">Optional</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    Sets the initial output port states.  This can be set as an integer
+    giving a bit mask of the on/off states of the ports, or as an array
+    of true/false or 0/1 values.
+    </p><p>
+    If expressed as an integer, each bit of the value corresponds to
+    the on/off state of a port (a 0 bit is OFF, a 1 bit is ON).  The
+    low-order bit of the value (0x0001) gives the value for port 0_0,
+    and the bits are assigned to ports consecutively in bit order.
+    So port 0_1 is the second bit (0x0002), 0_2 is the third bit (0x0004),
+    and so on, with the high-order bit (0x8000) assigned to port 1_7.
+    This format is obtuse in general, but it has its concise charm for
+    certain cases, such as when you want to set all of the ports to the
+    same level (all OFF is 0x0000, all ON is 0xFFFF), or perhaps
+    if you want to set the whole 1_X block ON and the whole 0_x block
+    off (0xFF00).
+    </p><p>
+    If expressed as an array, each element of the array corresponds to
+    one port, starting at 0_0 for the first element, 0_1 for the second
+    element, and so on.  For example, to turn all of the 0_X ports
+    OFF and all of the 1_X ports ON, you could write
+    <tt>[0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1]</tt>.
+    This is a lot more verbose than the integer format, but much more readable
+    for cases where the values are mixed.
   </p>
     </div>
   </div>

@@ -460,10 +460,6 @@ void I2C::Task()
 
 void I2C::UnitTask()
 {
-    // if there aren't any devices, there's nothing to do
-    if (devices.size() == 0)
-        return;
-
     // if DMA configuration failed, try again
     if ((dmaChannelTx < 0 || dmaChannelRx < 0))
     {
@@ -585,6 +581,10 @@ void I2C::UnitTask()
             busScanTime = time_us_64() + 5000;
         }
         
+        // if there aren't any devices, there's nothing more to do
+        if (devices.size() == 0)
+            return;
+
         // Scan for a device with pending work, starting where we left
         // off from last time.
         for (int prvDevice = curDevice ; ; )
@@ -612,6 +612,10 @@ void I2C::UnitTask()
 
     case State::Writing:
     case State::Reading:
+        // if there aren't any devices, there's nothing to do
+        if (devices.size() == 0)
+            return;
+
         // Transmission in progress.  Check for an abort condition, indicating
         // an error; a stop condition, indicating successful completion; or a
         // timeout condition.

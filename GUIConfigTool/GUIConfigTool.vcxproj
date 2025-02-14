@@ -488,6 +488,7 @@
     <Image Include="resources\JoystickButtonOn.bmp" />
     <Image Include="resources\Keyboard.bmp" />
     <Image Include="resources\Keyboard.png" />
+    <Image Include="resources\LedWizWaveIcons.bmp" />
     <Image Include="resources\Logo.bmp" />
     <Image Include="resources\MenuIconHelp.bmp" />
     <Image Include="resources\NewDeviceIcon.png" />

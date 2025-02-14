@@ -153,8 +153,9 @@ public:
     // time.)
     static Port *Get(JSONParser&, const JSONParser::Value *val);
 
-    // Set a port level.  Does nothing if the port doesn't exist.
-    static void Set(int n, int level) { if (n >= 1 && n <= static_cast<int>(portsByNumber.size())) portsByNumber[n]->SetHostLevel(level); }
+    // Set a port level.  Does nothing if the port doesn't exist.  This
+    // sets the DOF level on the port.
+    static void Set(int n, int level) { if (n >= 1 && n <= static_cast<int>(portsByNumber.size())) portsByNumber[n]->SetDOFLevel(level); }
 
     // Set a device port PWM level.  This should only be used when
     // output management is suspended, since the output manager will
@@ -721,9 +722,18 @@ public:
         // Get the logical port level (the calculated level)
         uint8_t Get() const { return logLevel; }
 
-        // Get/Set the port's host level setting.
-        uint8_t GetHostLevel() const { return hostLevel; }
-        void SetHostLevel(uint8_t level);
+        // Get the current host level as set through the Feedback
+        // Controller interface OR the LedWiz emulation interface,
+        // whichever sent the more recent update.
+        uint8_t GetHostLevel() const { return lw.mode ? lw.GetLiveLogLevel() : dofLevel; }
+
+        // Get/Set the port's DOF level setting.  This is the level set
+        // the PC host through the Feedback Controller interface.  In
+        // most cases, the host software is DOF or a similar game
+        // controller program, so we also loosely refer to this as the
+        // current DOF level.
+        uint8_t GetDOFLevel() const { return dofLevel; }
+        void SetDOFLevel(uint8_t level);
 
         // Set the LedWiz state for the port.  Setting the LedWiz state
         // overrides the host level setting, and setting the host level
@@ -768,7 +778,7 @@ public:
         void SetDataSource(DataSource *source) { this->source = source; }
 
     protected:
-        // Set the logical port level.  This is called from SetHostLevel()
+        // Set the logical port level.  This is called from SetDOFevel()
         // and from the derived data source calculator.
         void SetLogicalLevel(uint8_t level);
 
@@ -862,21 +872,38 @@ public:
 
         // Current DOF host level setting, 0..255.  This is the last port level
         // setting commanded by the host (e.g., by DOF).
-        uint8_t hostLevel = 0;
+        uint8_t dofLevel = 0;
 
-        // LedWiz emulation state.  To support a host-side LedWiz emulation
-        // via an ledwiz.dll replacement, we provide an LedWiz state alongside
-
-        // the DOF host state in 'hostLevel'.  The LedWiz state treats the
-        // on/off state and brightness (PWM) level as orthogonal.  In addition,
-        // the brightness portion of the state can be set to one of several
-        // pre-defined waveform patterns instead of a fixed brightness, and
-        // a separate property sets the cycle period for the waveforms.
+        // LedWiz emulation state.
         //
-        // The LedWiz state and DOF host level are mutually exclusive.
-        // Whichever one was set last by the host takes precedence, so part of
-        // our state here is a flag saying whether or not the LedWiz state is
-        // in use - this is set to true whenever the host sends an LedWiz
+        // To support a host-side LedWiz emulation via a custom replacement
+        // for LEDWIZ.DLL, we store an LedWiz state alongside the DOF host
+        // state in 'dofLevel'.  It's not enough to translate an LedWiz state
+        // into a DOF setting at the moment the LedWiz setting is transmitted,
+        // because the LedWiz exposes a complex model to applications that the
+        // DOF state can't represent.  The LedWiz application model separates
+        // the On/Off state from the brightness setting, and doesn't actually
+        // have brightness settings at all, but rather has *waveform*
+        // settings.  Many of the waveforms that can be selected are just
+        // constant PWM levels, so they're equivalent to brightness settings,
+        // but a few of the settings represent actual time-varying waveforms,
+        // such as square waves (that is, blinking patterns) and sawtooth
+        // waves.
+        //
+        // To handle all of these details, we have to store the two orthogonal
+        // elements of the LedWiz setting sent from the host (the On/Off state
+        // and the waveform selection), and then calculate the resulting live
+        // PWM level on the fly from moment to moment.  That's what this state
+        // structure is for.
+        //
+        // The LedWiz state and DOF host level are mutually exclusive.  Both
+        // interfaces luckily expose application models where ports are
+        // writable registers with non-exclusive access, so applications (and
+        // users) expect that a port will hold whatever value was written most
+        // recently from any application.  So we can arbitrate LedWiz vs DOF
+        // control over the port simply by whoever wrote last.  We do that
+        // with a flag here saying whether or not the LedWiz state is in
+        // effect.  This is set to true whenever the host sends an LedWiz
         // protocol "SBA" or "PBA" command, and set to false whenever the host
         // sends a DOF port setting command.
         struct LedWizState

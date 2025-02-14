@@ -240,6 +240,61 @@
    by the host, even if the various other settings change the actual output
    value before it reaches the physical port.
 </p>
+<p>
+   If the host level number is displayed with an <b>L</b> prefix, as in <b>L48</b>,
+   it means that the port is in LedWiz mode, which happens when a legacy LedWiz-based
+   program is controlling the port.
+</p>
+
+<h4>LedWiz mode</h4>
+<p>
+   Pinscape Pico ports can be controlled through an LedWiz-compatible interface
+   as well as through DOF.  This is purely for compatibility with older, pre-DOF
+   programs that haven't been updated to work with DOF, so most people running
+   virtual pinball cabinets will never encounter this feature.
+</p>
+<p>
+   When an LedWiz-based program writes to an output port, Pinscape automatically
+   puts the port into LedWiz mode.  This is <i>almost</i> like regular DOF mode,
+   but it uses the slightly different LedWiz brightness scale, which only has
+   48 levels, numbered 1 to 48.  (The DOF scale has 256 levels, 0 to 255.)
+   When LedWiz mode is in effect on a port, the Output Tester window displays
+   the port's level number with an <b>L</b> prefix, as in <b>L30</b>, to
+   flag that the port is in LedWiz mode, and to call out the different scale
+   it's using.
+</p>
+<p>
+   LedWiz mode has another big difference from DOF, which is that the LedWiz
+   treats the On/Off status of the port separately from its brightness level.
+   This means that a port can be set to L48 - full brightness - but still be
+   off, because its separate On/Off status is set to Off.  The output window
+   indicates this peculiar combination by showing the level with a black
+   background, indicating that the port is turned off, but still shows the
+   <b>L</b> brightness level setting number currently in effect.
+</p>
+<p>
+   Finally, the LedWiz interface gives applications some special port control
+   options besides just the brightness level setting and the on/off switch.
+   It also lets an application to set a port to display one of four repeating
+   waveform patterns: blinking, fading in/out, blinking with fade out, and
+   blinking with fade in.  Pinscape faithfully replicates these patterns to
+   ensure the broadest compatibility with older software.  When one of the
+   waveform patterns is in effect on a port, the level box will display a
+   little oscilloscope-like drawing of the waveform in place of the <b>L</b>
+   level number.
+</p>
+<p>
+   Pinscape handles all of the toggling between normal DOF mode and LedWiz
+   mode automatically.  There's nothing you have to do yourself to select
+   LedWiz mode - it's just a matter of running an application that invokes
+   the LedWiz interface and sends commands to the Pico.  And when you're
+   done with that program, the next program you run that sends DOF commands
+   will automatically put the port back into regular DOF mode.  If you
+   adjust the port level manually with the slider controls in the Output
+   Tester window, that's enough to put the port back into DOF mode, at least
+   until some other program sends another LedWiz command to the Pico.
+</p>
+
 
 <h3>Calc Level</h3>
 <p>

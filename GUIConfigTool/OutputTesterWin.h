@@ -191,6 +191,11 @@ namespace PinscapePico
 		int cxAttrIcons = 0;
 		int cyAttrIcons = 0;
 
+		// LedWiz waveform icons
+		HBITMAP bmpLedWizWaveIcons = NULL;
+		int cxLedWizWaveIcons = 0;
+		int cyLedWizWaveIcons = 0;
+
 		// control/command IDs
         static const UINT_PTR ID_SB_PORTS = 101;
         static const UINT_PTR ID_SB_DEVS = 102;

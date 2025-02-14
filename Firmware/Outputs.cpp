@@ -806,7 +806,7 @@ void OutputManager::Task()
 void OutputManager::AllOff()
 {
     for (auto &port : portList)
-        port.SetHostLevel(0);
+        port.SetDOFLevel(0);
 }
 
 // Enable/disable physical outputs across all peripherals.  This asserts
@@ -1114,9 +1114,13 @@ size_t OutputManager::QueryLogicalPortLevels(uint8_t *buf, size_t bufSize)
     Level *pl = reinterpret_cast<Level*>(hdr + 1);
     for (auto &port : portList)
     {
-        pl->hostLevel = port.GetHostLevel();
+        pl->dofLevel = port.GetDOFLevel();
         pl->calcLevel = port.Get();
         pl->outLevel = port.GetOutLevel();
+        pl->lwState = (port.lw.period & pl->LWSTATE_PERIOD_MASK);
+        if (port.lw.mode) pl->lwState |= pl->LWSTATE_MODE;
+        if (port.lw.on) pl->lwState |= pl->LWSTATE_ON;
+        pl->lwProfile = port.lw.profile;
         ++pl;
     }
 
@@ -1160,11 +1164,11 @@ size_t OutputManager::QueryDevicePortLevels(uint8_t *buf, size_t bufSize)
 // Logical output port
 //
 
-// set the host level
-void OutputManager::Port::SetHostLevel(uint8_t newLevel)
+// set the host DOF port level
+void OutputManager::Port::SetDOFLevel(uint8_t newLevel)
 {
-    // remember the new host level
-    hostLevel = newLevel;
+    // remember the new DOF port level
+    dofLevel = newLevel;
 
     // this replaces any LedWiz state
     lw.mode = false;
@@ -4672,7 +4676,7 @@ void OutputManager::Command_out(const ConsoleCommandContext *c)
                 if (port.GetDataSource() == nullptr && port.IsLedWizMode())
                     sprintf(setting, "%3d/%s", port.GetLedWizProfileState(), port.GetLedWizOnState() ? "On" : "Off");
                 else
-                    sprintf(setting, "%3d", port.GetHostLevel());
+                    sprintf(setting, "%3d", port.GetDOFLevel());
 
                 // display the line
                 c->Printf(
@@ -4770,7 +4774,7 @@ void OutputManager::Command_out(const ConsoleCommandContext *c)
                 return c->Printf("out: invalid level \"%s\" (in \"%s\"), expected a number 0-255\n", eq + 1, c->argv[i]);
 
             // success - set the level
-            port->SetHostLevel(level);
+            port->SetDOFLevel(level);
             c->Printf("Port %d -> %d%s\n", portNum, level, isSuspended ? "   [Suspended]" : "");
 
             // note if we made changes while suspended

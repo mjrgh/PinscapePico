@@ -370,6 +370,9 @@
     <Image Include="resources\OpenPinDevButtons.bmp">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="resources\LedWizWaveIcons.bmp">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Help\PlungerCal.htm">

@@ -75,6 +75,8 @@
 #define ID_CTXMENU_BOOTLOADERBUTTON     165
 #define IDD_WORKER_UPDATE_SUCCESS       165
 #define ID_CTXMENU_IRCMDHIST            166
+#define IDB_BITMAP2                     167
+#define IDB_LEDWIZWAVEICONS             167
 #define IDC_TXT_SAVEQUERY               1001
 #define IDC_ERROR_ICON                  1002
 #define IDC_TXT_SAVEQUERY2              1002
@@ -270,7 +272,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        167
+#define _APS_NEXT_RESOURCE_VALUE        168
 #define _APS_NEXT_COMMAND_VALUE         40170
 #define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           801

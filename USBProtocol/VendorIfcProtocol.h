@@ -2468,10 +2468,14 @@ namespace PinscapePico
 
     struct __PackedBegin OutputLevel
     {
-        // Host level - this is the current level as commanded by the host,
-        // before applying computed data sources and time limiters.  This is
-        // a value 0..255, representing the PWM duty cycle from 0% to 100%.
-        uint8_t hostLevel;
+        // DOF level - this is the current level as commanded by the host
+        // through the Feedback Controller interface, before applying computed
+        // data sources and time limiters.  This is a value 0..255, representing
+        // the PWM duty cycle from 0% to 100%.  We refer to this as the DOF
+        // level to distinguish it from the level set through the LedWiz
+        // interface, but the actual host program need not be DOF; this can
+        // be from any program that uses the Feedback Controller interface.
+        uint8_t dofLevel;
 
         // Calculated level - this is the current output level from the port,
         // after applying computed data sources.
@@ -2481,6 +2485,64 @@ namespace PinscapePico
         // applying flipper logic time limitation, duty cycle inversion,
         // and any other processing.
         uint8_t outLevel;
+
+        // LedWiz state - these elements reflect the latest setting made
+        // through the virtual LedWiz interface.  A setting through the
+        // LedWiz interface can't be simply mapped to a DOF level,
+        // because the LedWiz application model is more complex than
+        // DOF's, which only allows setting a PWM level for each port.
+        // The LedWiz model has two orthogonal settings for each port:
+        // an On/Off state, and a "profile", which selects either a PWM
+        // brightness level or a time-varying waveform.
+        //
+        // At any given time, a port expresses EITHER its DOF or LedWiz
+        // setting on its physical output.  Both application models
+        // treat ports as writable registers with non-exclusive access,
+        // so we can arbitrate between the two access methods simply by
+        // applying whichever value was written most recently.  Part of
+        // the LedWiz port state is therefore a bit recording which mode
+        // the port is currently in: if the port was written most
+        // recently through the LedWiz interface, the LedWiz mode bit is
+        // set, and the port is in LedWiz mode; otherwise, the port is
+        // in DOF mode, and expresses its DOF level setting.
+        //
+        // Note that lwState can have the ON bit set but the MODE bit
+        // off.  That means that the port is currently in DOF mode, so
+        // the LedWiz state isn't currently expressed on the physical
+        // port, but the last LedWiz on/off state setting was ON.  The
+        // port remembers its last LedWiz state even when LedWiz mode
+        // isn't in effect, so that it can be restored the next time a
+        // client program addresses the port through the LedWiz
+        // interface again.
+        //
+        // The low-order three bits of lwState give the waveform time
+        // period.  This is a value from 1 to 7, in units of 250ms (the
+        // LedWiz's native unit system for expressing the period).  The
+        // LedWiz protocol only allows setting the period across the
+        // entire device (which for our purposes is a block of 32
+        // ports), but we have a less constrained hardware environment
+        // than the original, so we extend the notion to maintain an
+        // individual period setting for each port.
+        uint8_t lwState;
+        static const uint8_t LWSTATE_PERIOD_MASK = 0x07;  // waveform time period mask (low-order 3 bits, values 1-7)
+        static const uint8_t LWSTATE_ON = 0x40;           // the LedWiz On/Off state (ON if bit set)
+        static const uint8_t LWSTATE_MODE = 0x80;         // bit set -> port is in LedWiz mode, clear -> DOF mode
+
+        // LedWiz "profile" setting, per the LedWiz API:
+        //
+        //  0-48 = constant PWM level, in units of 1/48 duty cycle
+        //    49 = 100% duty cycle
+        //   129 = sawtooth wave (linear fade in/out)
+        //   130 = square wave, 50% duty cycle (on/off flashing)
+        //   131 = on/ramp down (50% duty cycle flash with linear fade out)
+        //   132 = ramp up/on (50% duty cycle flash with linear fade in)
+        //
+        // Other values are invalid.  Value 49 is also invalid per the
+        // official LedWiz API documentation, but has been observed
+        // empirically on genuine LedWiz units to equal 100% duty cycle,
+        // so Pinscape Pico implements it that way for the sake of full
+        // compatibility.
+        uint8_t lwProfile;
 
     } __PackedEnd;
 

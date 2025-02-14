@@ -42,6 +42,11 @@ OutputTesterWin::OutputTesterWin(HINSTANCE hInstance, std::shared_ptr<VendorInte
     GetObject(bmpAttrIcons, sizeof(bmp), &bmp);
     cxAttrIcons = cyAttrIcons = bmp.bmHeight;  // multiple square cells - use height as cell width
 
+    bmpLedWizWaveIcons = LoadBitmap(hInstance, MAKEINTRESOURCE(IDB_LEDWIZWAVEICONS));
+    GetObject(bmpLedWizWaveIcons, sizeof(bmp), &bmp);
+    cxLedWizWaveIcons = bmp.bmWidth / 4;    // 4 horizontal cells [ 129 Off | 130 Off | 131 Off | 132 Off ]
+    cyLedWizWaveIcons = bmp.bmHeight / 2;   // x 2 vertical cells [ 129 On  | 130 On  | 131 On  | 132 On  ]
+
     // Query device information
     QueryDeviceInfo();
 }
@@ -139,7 +144,7 @@ void OutputTesterWin::QueryDeviceInfo()
 
     // initialize the logical port sliders with the current levels set on the device side
     for (size_t i = 0, n = min(portLevels.size(), logSlider.size()); i < n ; ++i)
-        logSlider[i].level = portLevels[i].hostLevel;
+        logSlider[i].level = portLevels[i].dofLevel;
 
     // initialize the test-mode sliders with device information
     {
@@ -487,17 +492,17 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             hdc.DrawText(xLevelCol3, y, 1, boldFont, RGB(0, 0, 0), "Out");
 
             // draw a PWM level box
-            auto DrawLevelBox = [this, &hdc](const RECT &rc, uint8_t level)
+            auto DrawLevelBox = [this, &hdc](const RECT &rc, uint8_t level, uint8_t levelForColor, const char *format = "%d")
             {
                 // fill and frame the rect
-                FillRect(hdc, &rc, HBrush(LevelFill(level)));
+                FillRect(hdc, &rc, HBrush(LevelFill(levelForColor)));
                 FrameRect(hdc, &rc, HBrush(RGB(0, 0, 0)));
 
                 // draw the level number centered in the box
                 char label[20];
-                sprintf_s(label, "%d", level);
+                sprintf_s(label, format, level);
                 SIZE sz = hdc.MeasureText(boldFont, label);
-                hdc.DrawText((rc.right + rc.left - sz.cx)/2, (rc.bottom + rc.top - sz.cy)/2, 1, boldFont, LevelText(level), label);
+                hdc.DrawText((rc.right + rc.left - sz.cx)/2, (rc.bottom + rc.top - sz.cy)/2, 1, boldFont, LevelText(levelForColor), label);
             };
 
             // draw the output ports
@@ -572,13 +577,72 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
 
                 // draw the level boxes (Host, Calc, Out)
                 RECT rclvl{ xLevelCol, portrc.top + 2, xLevelCol + 32, portrc.bottom - 2 };
-                DrawLevelBox(rclvl, pLevel->hostLevel);
+                if ((pLevel->lwState & pLevel->LWSTATE_MODE) != 0)
+                {
+                    // LedWiz port mode.  The LedWiz state has two orthogonal components:
+                    // the On/Off state, and the "profile", which is either a PWM brightness
+                    // level from 0 to 48 (in linear units of 1/48 duty cycle), or one of
+                    // four special waveform codes: 129=sawtooth, 130=blink, 131=on/fade out,
+                    // 132=fade in/on.  
+                    //
+                    // To visualize the two axes in the little box we have, draw the profile
+                    // code as a number as usual, but superimpose it over a black background
+                    // if the On/Off state is Off, otherwise translate the profile level to
+                    // a color on our usual 0-255 scale.  For the waveform codes, draw an
+                    // icon representing the waveform, using distinct icons for On and Off
+                    // states.
+                    bool on = (pLevel->lwState & pLevel->LWSTATE_ON) != 0;
+                    if (pLevel->lwProfile <= 49)
+                    {
+                        // 0-48 = PWM duty cycle in units of 1/48 duty cycle; 49 = 100%
+                        
+                        // Figure the fill color:
+                        //    ON  -> rescale 0..48 to 0..255, rescale 49 to 255
+                        //    OFF -> black background
+                        uint8_t dofEquivLevel = on ? (pLevel->lwProfile == 49 ? 255 : (pLevel->lwProfile*255 + 24)/48) : 0x00;
+
+                        // draw the level box, showing the LedWiz profile value as the level number
+                        DrawLevelBox(rclvl, pLevel->lwProfile, dofEquivLevel, "L%d");
+                    }
+                    else if (pLevel->lwProfile >= 129 && pLevel->lwProfile <= 132)
+                    {
+                        // Draw the appropriate icon.  The icons are arranged in a cell
+                        // matrix, two rows of four columns:
+                        //
+                        //   129 Off | 130 Off | 131 Off | 132 Off
+                        //   129 On  | 130 On  | 131 On  | 132 On
+                        //
+                        int xCell = (pLevel->lwProfile - 129) * cxLedWizWaveIcons;
+                        int yCell = on ? cyLedWizWaveIcons : 0;
+
+                        // fill the cell with the appropriate background color
+                        FillRect(hdc, &rclvl, HBrush(HRGB(on ? 0x00FF00 : 0x000000)));
+
+                        // draw the icon centered in the available space
+                        bdc.Select(bmpLedWizWaveIcons);
+                        int w = rclvl.right - rclvl.left;
+                        int h = rclvl.bottom - rclvl.top;
+                        int wBlt = min(cxLedWizWaveIcons, w);
+                        int hBlt = min(cyLedWizWaveIcons, h);
+                        BitBlt(hdc, rclvl.left + max(0, (w - cxLedWizWaveIcons)/2), rclvl.top + max(0, (h - cyLedWizWaveIcons)/2), wBlt, hBlt,
+                            bdc, xCell + max(0, (cxLedWizWaveIcons - w)/2), yCell + max(0, (cyLedWizWaveIcons - h)/2), SRCCOPY);
+
+                        // draw the frame outline
+                        FrameRect(hdc, &rclvl, HBrush(RGB(0, 0, 0)));
+                    }
+                }
+                else
+                {
+                    // normal DOF port mode - just draw the 0-255 DOF PWM level number
+                    DrawLevelBox(rclvl, pLevel->dofLevel, pLevel->dofLevel);
+                }
+
                 OffsetRect(&rclvl, xLevelCol2 - xLevelCol, 0);
 
-                DrawLevelBox(rclvl, pLevel->calcLevel);
+                DrawLevelBox(rclvl, pLevel->calcLevel, pLevel->calcLevel);
                 OffsetRect(&rclvl, xLevelCol3 - xLevelCol2, 0);
 
-                DrawLevelBox(rclvl, pLevel->outLevel);
+                DrawLevelBox(rclvl, pLevel->outLevel, pLevel->outLevel);
                 OffsetRect(&rclvl, xLevelCol3 - xLevelCol2, 0);
 
                 // figure the slider control's screen coordinates
@@ -930,6 +994,11 @@ void OutputTesterWin::OnCreateWindow()
 	// do the base class work
 	__super::OnCreateWindow();
 
+    // set up for layout computation - get the client area size and window DC
+    RECT crc;
+    GetClientRect(hwnd, &crc);
+    WindowDC hdc(hwnd);
+
     // add our system menu items
     HMENU sysMenu = GetSystemMenu(hwnd, FALSE);
 
@@ -950,14 +1019,9 @@ void OutputTesterWin::OnCreateWindow()
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
         hwnd, NULL, hInstance, NULL);
 
-    // set up for layout computation - get the client area size and window DC
-    RECT crc;
-    GetClientRect(hwnd, &crc);
-    HDC dc = GetWindowDC(hwnd);
-
     // figure the width of the logical port panel and height of a port cell
-    HFONT oldfont = SelectFont(dc, mainFont);
-    GetTextExtentPoint32A(dc, "M", 1, &szMainFont);
+    HFONT oldFont = SelectFont(hdc, mainFont);
+    GetTextExtentPoint32A(hdc, "M", 1, &szMainFont);
     cxPanelMin = szMainFont.cx * 42;
     cyHeaderLeft = szMainFont.cy*2 + 20;
     cyOutput = max(szMainFont.cy + yMarginOutput + 1, cyAttrIcons + 4);
@@ -966,8 +1030,8 @@ void OutputTesterWin::OnCreateWindow()
     cyHeaderRight = szMainFont.cy + 12;
 
     // get the bold font size
-    SelectFont(dc, boldFont);
-    GetTextExtentPoint32A(dc, "M", 1, &szBoldFont);
+    SelectFont(hdc, boldFont);
+    GetTextExtentPoint32A(hdc, "M", 1, &szBoldFont);
 
     // Figure the top tab control metrics.  The tab control is only
     // shown if we're a top-level window; when we're embedded, we
@@ -1081,8 +1145,7 @@ void OutputTesterWin::OnCreateWindow()
 	AdjustLayout();
 	
 	// done with the window DC - clean it up and release it
-	SelectFont(dc, oldfont);
-	ReleaseDC(hwnd, dc);
+	SelectFont(hdc, oldFont);
 
     // Note descriptor errors if we're running as a top-level window.
     // Don't do this in embedded mode; we'll count on the container
@@ -1129,7 +1192,7 @@ void OutputTesterWin::OnActivateUI(bool isAppActivate)
             {
                 for (size_t i = 0, nSlider = logSlider.size(), nPorts = ut->portLevels.size() ;
                     i < nSlider && i < nPorts ; ++i)
-                    logSlider[i].level = ut->portLevels[i].hostLevel;
+                    logSlider[i].level = ut->portLevels[i].dofLevel;
             }
         }
     }
@@ -1318,7 +1381,7 @@ bool OutputTesterWin::OnKeyDown(WPARAM vkey, LPARAM flags)
     switch (vkey)
     {
     case VK_TAB:
-        // commit the current number entry, if one is in progerss
+        // commit the current number entry, if one is in progress
         CommitNumberEntry();
 
         // move focus to the next/previous slider

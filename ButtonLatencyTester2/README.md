@@ -434,24 +434,26 @@ The BLT-II test setup has three devices:
 * A Windows PC
 
 Note that we're using a KL25Z in this example, rather than a second
-Pico, to help keep straight which device is which.  If they were both
-Picos, we'd have to more verbose about specifying which Pico we're
-talking about at any given time, and it would probably still be too
-easy to confuse them.
+Pico, to help keep straight which device is which.  The KL25Z could
+just as well be an I-PAC, or even another Pico.  But if they were both
+Picos, we'd have to be more careful about specifying which Pico we're
+talking about at any given time, so I thought it would be clearer
+for the example to use a whole different device type.
 
 The point of the test setup is to measure the latency of a button
-inputs, which is defined as the elapsed time between physically
-pressing the button (or more specifically, the moment when the
-button's internal switch makes electrical contact) and the arrival of
+input, which is defined as the elapsed time between physically
+pressing the button (more precisely, the moment of electrical
+contact on the button's internal switch) and the arrival of
 the corresponding high-level Windows input event at the application
 layer.  The application layer is typically a Windows input loop, such
-as a window procedure or message loop.  This represents the first
-possible moment where the application can respond to the input event.
-Any further processing time *in the application code* doesn't count as
-latency for our purposes, because anything beyond that point is part
-of the application, not part of the input mechanism.
+as a window procedure or message loop.  This represents the moment
+the application code becomes aware of the event, and thus the earliest
+time that it could possibly respond to the input.  Any additional
+processing delay *in the application code* after this point doesn't
+count as latency for the purposes of our measurements, because that's
+part of the application, not part of the input mechanism.
 
-To measure this latency, the BLT-II Pico needs two data points for
+To measure the input latency, the BLT-II Pico needs two data points for
 each event:
 
 * The time on some reference clock of the physical button press
@@ -525,7 +527,8 @@ between except for a short run of wire, so we're talking
 speed-of-light timing, in the nanosecond range.  So there's virtually
 no time uncertainty.  On the Pico, the reception of an SOF packet
 triggers a hardware interrupt from the USB adapter, so the CPU is
-looped in on the SOF event within a few hundred nanoseconds.  The
+looped in on the SOF event within a few hundred nanoseconds.  (The
+Pico's RP2040 CPU interrupt response latency is around 200ns.)  The
 BLT-II firmware intercepts this interrupt, and records the time of the
 SOF on the Pico's microsecond clock.  The result is accurate to about
 +/- 2 microseconds after taking into consideration the CPU's response
@@ -569,6 +572,74 @@ within the course of typical HID input time of a few milliseconds
 will be accurate to about 0.1 microseconds, which is much smaller than
 the uncertainty in the SOF time measurement itself, making it a
 negligible contribution to the error term.
+
+## Using this tool to instrument an application
+
+We mentioned above that the BLT-II tool is only interested in
+measuring the latency of the input mechanism, from time the button is
+physically pressed to the moment where the Windows API delivers the
+corresponding Windows input event to the application.  
+
+But there's another potential bit of latency that we explicitly
+disavowed, which is the time it takes the *application* to process the
+event after receiving it from the Windows API.  From the user's
+perspective, it's impossible to perceive the cutoff point where the
+API latency ends and the application latency begins; the user can only
+perceive the total latency, from button press to the visible response
+in the application, such as moment when the effect appears on-screen
+in the video representation of the game.
+
+We disavowed this notion of additional application processing time
+because BLT-II was designed as a tool for device developers, to
+measure and thereby help optimize the latency on the device input
+side.  Whatever happens after the application gets hold of the event
+is beyond the control of the device developer, so it's not useful for
+device optimization.  But by the same token, it's quite useful for an
+application developer to be able to separate out the portion of
+latency that the application is responsible for, because you have to
+be able to measure that to optimize it.  You can only optimize
+something if you can reliably measure the effects of the changes you
+make in the attempt.
+
+One easy way to use the BLT-II tool for application latency
+optimization is to use it to compare Windows input APIs, to see if you
+can improve your application's response times just by switching to a
+faster API.  Microsoft likes to invent a new input API every three or
+four years, so there are many to choose from, and it's almost certain
+that whichever API you're using now has been deprecated in favor of
+something newer.  Even so, it might not be strictly necessary to
+chase the very latest thing, since my own testing suggests that it
+would be hard to improve on Raw Input's performance, given that it seems
+to run at pretty much native USB speeds.  Any further improvements
+beyond Raw Input are probably more about ease of use than performance.
+
+A second way to use BLT-II to optimize application latency would be to
+use it to take baseline latency measurements for the devices you're
+testing with, so that you can subtract the device-to-API latency from
+your total application latency, and thereby determine how much latency
+your application is adding in its internal processing.  To do this,
+you'll need your own way of measuring total latency from button press
+to application response.  Figure whatever statistical metric you
+prefer, such as the mean or median of the measured latencies.  Once
+you have those figures, test the same input device with BLT-II,
+configured with the same input APIs that your application uses.  The
+difference between the average total latency that you measure for your
+application and the average device-to-API latency that you measure
+with BLT-II should equal the average processing time within the
+application itself.
+
+A third way, which would be more precise but also require more work,
+would be to instrument your application with BLT-II event tracking.
+That would let you measure the processing time of *individual events*,
+rather than using averages.  WinHost/BLTVendorInterface.h provides
+a high-level C++ interface to the measurement functions.  By
+inserting a few calls into that API into your application, you
+can precisely partition the latency of each individual event into
+the device-to-API time - the time it takes for the event to arrive
+at the input API call that your application makes - and the remaining
+processing time, such as the time to the next video frame where the
+event takes effect in the game.
+
 
 ## Orthographical notes on the Microsoft APIs mentioned
 

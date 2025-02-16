@@ -130,7 +130,7 @@ working order, and you have no interest in adding new features.
 ### How to set up the protocol emulation
 
 If you've read through the warnings above and you've decided that
-the limitations are acceptable, here's how to set it the protocol emulator.
+the limitations are acceptable, here's how to set up the protocol emulator:
 
 * Enable the LedWiz protocol on the Pico, via the JSON configuration file:
 ```

@@ -33,15 +33,14 @@ A pre-built Windows installation is available on the github project page,
 under the **Releases** section in the right panel.
 
 The distribution is a ZIP file.  To install, just unpack the ZIP file
-into a local directory on your hard disk.  **Don't** put it in a folder
-under the system Program Files tree, because Windows applies special
-write protection to that whole tree.  Just about anywhere else should be
-fine, such as a root-level folder (C:\PinscapePico, say) or a folder
-within your personal C:\Users folder.
+into a local directory on your hard disk.  Just about any folder
+location will work, except that you should avoid any of the Windows
+system folders and the C:\Program Files tree, since those folders
+are protected.
 
 Once you unpack the files, you can launch the Pinscape Pico GUI Config
 Tool by double-clicking **GUIConfigTool.exe**.  That's designed to be
-your main gateway to the system.  The program will offer on-screen
+your main gateway to the system, and it'll display on-screen
 instructions for setting up a new Pico with the Pinscape software.
 
 More setup details can be found [below](#SetupDetails).
@@ -115,8 +114,8 @@ control ports based on timed events or internal device events, and all sorts of 
 
 * Support for legacy LedWiz-only applications, via two levels of emulation:
   <ul>
-    <li>Windows API-level emulation, via an open-source LEDWIZ.DLL replacement.  This is the preferred
-    <li>Full USB protocol emulation, **intended as a last resort only**, for systems or applications where the LEDWIZ.DLL replacement can't be used
+    <li>Windows API-level emulation, via an open-source LEDWIZ.DLL replacement.  This is the preferred method, since it's compatible with all of the other Pinscape features.
+    <li>Full USB protocol emulation, for systems or applications where the LEDWIZ.DLL replacement can't be used.  This is a last resort when the first option doesn't work, because it restricts what other Pinscape features you can use.
   </ul>
     
     These two approaches are mutually exclusive, and have certain trade-offs.

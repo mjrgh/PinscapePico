@@ -176,7 +176,7 @@ void DeviceOverviewWin::PaintOffScreen(HDC hdc0)
     // still a good immediate reference point.
     y += hdc.DrawText(x, y, 1, boldFont, HRGB(0x800080), "Pinscape Pico").cy;
     y += hdc.DrawTextF(x, y, 1, mainFont, HRGB(0x000000), "Pinscape Unit #%d, %s", devID.unitNum, devID.unitName.c_str()).cy;
-    if (devID.ledWizUnitMask == 0)
+    if (devID.ledWizUnitMask == 0 || (usbIfcs.flags & usbIfcs.F_FEEDBACK_CONF) == 0)
         y += hdc.DrawTextF(x, y, 1, mainFont, HRGB(0x000000), "Virtual LedWiz disabled").cy;
     else
     {

@@ -456,6 +456,122 @@ bool VendorInterfaceDesc::GetCDCPort(TSTRING &name) const
 	return found;
 }
 
+HRESULT VendorInterfaceDesc::GetAssociatedHIDs(std::list<AssociatedHID> &hids) const
+{
+	// clear any prior list entries
+	hids.clear();
+
+	// Get the vendor interface's parent, to identify the Pinscape
+	// USB composite device object.
+	DEVINST parentCompositeInterface;
+	DEVINST di = NULL;
+	CONFIGRET cr;
+	if ((cr = CM_Locate_DevNodeW(&di, const_cast<DEVINSTID_W>(DeviceInstanceId()), CM_LOCATE_DEVNODE_NORMAL)) != CR_SUCCESS
+		|| (cr = CM_Get_Parent(&parentCompositeInterface, di, 0)) != CR_SUCCESS)
+		return HRESULT_FROM_WIN32(CM_MapCrToWin32Err(cr, ERROR_GEN_FAILURE));
+
+	// Set up a device set for all currently connected HID devices.
+	GUID hidGuid;
+	HidD_GetHidGuid(&hidGuid);
+	HDEVINFO hdi = SetupDiGetClassDevs(&hidGuid, NULL, NULL,
+		DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+	if (hdi == INVALID_HANDLE_VALUE)
+		return HRESULT_FROM_WIN32(GetLastError());
+
+	// enumerate HID interfaces in the device set
+	HRESULT hresult = S_OK;
+	SP_DEVICE_INTERFACE_DATA did{ sizeof(SP_DEVICE_INTERFACE_DATA) };
+	for (DWORD memberIndex = 0 ;
+		SetupDiEnumDeviceInterfaces(hdi, NULL, &hidGuid, memberIndex, &did) ;
+		++memberIndex)
+	{
+		// retrieve the required buffer size for device detail
+		DWORD diDetailSize = 0;
+		DWORD err = 0;
+		if (!SetupDiGetDeviceInterfaceDetailW(hdi, &did, NULL, 0, &diDetailSize, NULL)
+			&& (err = GetLastError()) != ERROR_INSUFFICIENT_BUFFER)
+		{
+			hresult = HRESULT_FROM_WIN32(err);
+			break;
+		}
+
+		// retrieve the device detail and devinfo data
+		std::unique_ptr<SP_DEVICE_INTERFACE_DETAIL_DATA_W> diDetail(
+			reinterpret_cast<SP_DEVICE_INTERFACE_DETAIL_DATA_W*>(new BYTE[diDetailSize]));
+		diDetail->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W);
+		SP_DEVINFO_DATA devInfo{ sizeof(SP_DEVINFO_DATA) };
+		if (!SetupDiGetDeviceInterfaceDetailW(hdi, &did, diDetail.get(), diDetailSize, NULL, &devInfo))
+		{
+			hresult = HRESULT_FROM_WIN32(GetLastError());
+			break;
+		}
+
+		// Get the grandparent IDs.  In the Windows device hierarchy, the HID's
+		// parent is a HID composite interface, whose parent is the USB composite
+		// device interface, which is also the parent of the vendor interface
+		// that serves as our reference point.
+		DEVINST devInstParent = NULL, devInstGrandparent = NULL;
+		if (CM_Get_Parent(&devInstParent, devInfo.DevInst, 0) == CR_SUCCESS
+			&& CM_Get_Parent(&devInstGrandparent, devInstParent, 0) == CR_SUCCESS)
+		{
+			// check for a match to our parent USB composite interface - skip this one
+			// if it's not a match
+			if (devInstGrandparent != parentCompositeInterface)
+				continue;
+
+			// open the device desc to access the HID
+			HANDLE hDevice = CreateFileW(diDetail->DevicePath,
+				GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
+				NULL, OPEN_EXISTING, 0, NULL);
+			if (hDevice != INVALID_HANDLE_VALUE)
+			{
+				// get the preparsed data
+				PHIDP_PREPARSED_DATA ppd;
+				if (HidD_GetPreparsedData(hDevice, &ppd))
+				{
+					// get the device capabilities
+					HIDP_CAPS caps;
+					if (HidP_GetCaps(ppd, &caps) == HIDP_STATUS_SUCCESS)
+					{
+						// Check for a usage string on the IN report.  This
+						// provides positive identification for certain of our
+						// HID interfaces, particularly Open Pinball Device.
+						std::vector<HIDP_BUTTON_CAPS> btnCaps;
+						btnCaps.resize(caps.NumberInputButtonCaps);
+						USHORT nBtnCaps = caps.NumberInputButtonCaps;
+						WCHAR usageString[256]{ 0 };
+						if (HidP_GetButtonCaps(HIDP_REPORT_TYPE::HidP_Input, btnCaps.data(), &nBtnCaps, ppd) == HIDP_STATUS_SUCCESS
+							&& nBtnCaps == 1)
+						{
+							// check for a string index
+							USHORT stringIndex = btnCaps[0].NotRange.StringIndex;
+							if (stringIndex != 0
+								&& !HidD_GetIndexedString(hDevice, stringIndex, usageString, sizeof(usageString)))
+								usageString[0] = 0;
+						}
+
+						// add it to the list
+						hids.emplace_back(diDetail->DevicePath, caps.Usage, caps.UsagePage,
+							caps.InputReportByteLength, caps.OutputReportByteLength, usageString);
+					}
+
+					// done with the preparsed data
+					HidD_FreePreparsedData(ppd);
+				}
+
+				// done with the handle
+				CloseHandle(hDevice);
+			}
+		}
+	}
+
+	// done with the device list handle
+	SetupDiDestroyDeviceInfoList(hdi);
+
+	// return the result code
+	return hresult;
+}
+
 
 
 // Pinscape Pico GUID {D3057FB3-8F4C-4AF9-9440-B220C3B2BA23}.  This GUID is

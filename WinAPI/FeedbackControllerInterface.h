@@ -155,6 +155,9 @@ namespace PinscapePico
 		// to find the matching unit.
 		static FeedbackControllerInterface *Open(int unitNum);
 
+		// Open from a Windows system device system path
+		static FeedbackControllerInterface *Open(const WCHAR *path);
+
 		// Get the file system path to this device
 		const WCHAR *GetFileSystemPath() const { return path.c_str(); }
 

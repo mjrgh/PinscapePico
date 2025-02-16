@@ -274,6 +274,36 @@ namespace PinscapePico
 
 		// get the Win32 device instance ID for the underlying device
 		const WCHAR *DeviceInstanceId() const { return deviceInstanceId.c_str(); }
+		
+		// get associated HID interfaces
+		struct AssociatedHID
+		{
+			AssociatedHID(const WCHAR *path, USHORT usagePage, USHORT usage, 
+				USHORT inputReportByteLength, USHORT outputReportByteLength,
+				const WCHAR *inputReportStringUsage) :
+				path(path), usagePage(usagePage), usage(usage), 
+				inputReportByteLength(inputReportByteLength), outputReportByteLength(outputReportByteLength),
+				inputReportStringUsage(inputReportStringUsage)
+			{ }
+
+			// device path
+			std::wstring path;
+
+			// interface usage identifiers
+			USHORT usagePage;
+			USHORT usage;
+
+			// report sizes
+			USHORT inputReportByteLength;
+			USHORT outputReportByteLength;
+
+			// Input report string usage.  If the IN report descriptor has a string
+			// usage associated with its button caps, it will be reported here.  This
+			// is useful for positively identifying certain HIDs, particularly Open
+			// Pinball Device.
+			std::wstring inputReportStringUsage;
+		};
+		HRESULT GetAssociatedHIDs(std::list<AssociatedHID> &hids) const;
 
 		// get the device's file system path
 		const WCHAR *Path() const { return path.c_str(); }

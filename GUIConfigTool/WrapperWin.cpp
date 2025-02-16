@@ -135,7 +135,7 @@ void WrapperWin::SortButtonList()
     leftPanelButtons.sort([](const Ele &a, const Ele &b) { return a->SortCompare(b.get()); });
 }
 
-HRESULT WrapperWin::EnumerateDevices(std::list<DeviceDesc::ID> &devices)
+HRESULT WrapperWin::EnumerateDevices(std::list<DeviceDesc::ID> &newDeviceList)
 {
     // enumerate vendor interfaces
     std::list<VendorInterfaceDesc> vendorIfcDescs;
@@ -143,16 +143,87 @@ HRESULT WrapperWin::EnumerateDevices(std::list<DeviceDesc::ID> &devices)
     if (!SUCCEEDED(hr))
         return hr;
 
-    // query Pinscape identifiers for the devices
+    // The vendor interface list only gives us the USB paths to the devices,
+    // because we can't get the Pinscape identifiers (unit number, name, Pico
+    // hardware ID) without actually connecting to the device.  WinUsb requires
+    // exclusive access (no shared access across processes), so the enumerator
+    // explicitly does not open the device, so that the mere act of enumeration
+    // doesn't have side effects visible in other processes (specifically,
+    // locking out their access to the WinUsb devices) AND so that it succeeds
+    // even if some of the devices are currently open in other processes.
+    // 
+    // But this means that the enumeration doesn't give us all of the
+    // information we need.  We need each device's Pinscape unit ID (number
+    // and name) to display in the list of available devices in the UI, and we
+    // also need the Pico hardware ID so that we can positively identify each
+    // physical device, even if its configuration changes while we're running.
+    // A change to the Pinscape configuration can change all of the Windows
+    // identifiers for the device (Windows device path and device instance
+    // ID), because these things are based on the USB configuration that the
+    // device presents to the host, which Pinscape allows the user to change
+    // on the fly.
+    //
+    // To get the Pinscape IDs, we have several options:
+    //
+    // - First, to avoid the exclusive access problem, look for a HID that
+    //   we can query for the ID information.  The Feedback Controller
+    //   interface, if enabled, provides such a query.  HID is the most
+    //   cooperative way to get the information because HIDs allow shared
+    //   read/write access.
+    // 
+    // - Failing that, open the Vendor Interface and query the ID that way.
+    //   This is less cooperative because of the exclusive access constraint
+    //   for WinUsb, but the Config Tool has to access the vendor ifc anyway
+    //   if the user actually wants to do anything with the device in this
+    //   session, so they really shouldn't be running any other software
+    //   that's tying up the vendor interfaces in the first place.
+    // 
+    // - If all else fails, we can look to see if we've looked up the IDs
+    //   for the same device path previously, and if so, assume they're
+    //   the same now.  This could give us faulty information, but it
+    //   should be corrected the next time we can actually connect.
+    //
     for (const auto &vid : vendorIfcDescs)
     {
+        // Try getting associated HIDs
+        std::list<VendorInterfaceDesc::AssociatedHID> hids;
+        if (SUCCEEDED(vid.GetAssociatedHIDs(hids)))
+        {
+            // scan for a HID that we can query for device identifiers
+            bool foundIDs = false;
+            for (auto &hid : hids)
+            {
+                // look for our Feedback Controller interface
+                static const std::wregex fcPat(L"PinscapeFeedbackController/(\\d+)");
+                if (std::regex_match(hid.inputReportStringUsage, fcPat))
+                {
+                    // connect to the Feedback Controller and query IDs
+                    std::unique_ptr<FeedbackControllerInterface> fc(FeedbackControllerInterface::Open(hid.path.c_str()));
+                    FeedbackControllerInterface::IDReport id;
+                    if (fc != nullptr && fc->QueryID(id, 200))
+                    {
+                        // got it - add the device
+                        newDeviceList.emplace_back(vid.Path(), id.unitNum, id.unitName, id.hwid);
+
+                        // mission accomplished
+                        foundIDs = true;
+                        break;
+                    }
+                }
+            }
+
+            // stop here if we got obtained the identifiers
+            if (foundIDs)
+                continue;
+        }
+
         // try opening the vendor interface
         std::unique_ptr<VendorInterface> vi;
         DeviceID id;
         if (SUCCEEDED(vid.Open(vi)) && vi->QueryID(id) == PinscapeResponse::OK)
         {
             // success - populate a device list entry
-            devices.emplace_back(vid.Path(), id.unitNum, id.unitName.c_str(), id.hwid);
+            newDeviceList.emplace_back(vid.Path(), id.unitNum, id.unitName.c_str(), id.hwid);
             continue;
         }
 
@@ -162,13 +233,17 @@ HRESULT WrapperWin::EnumerateDevices(std::list<DeviceDesc::ID> &devices)
         // if a device with the same path is already there and is
         // open - if so, we can get the ID from there.
         auto it = std::find_if(devices.begin(), devices.end(),
-            [&vid](const DeviceDesc &d) { return d.id.path == vid.Path() && d.device != nullptr; });
+            [&vid](const std::pair<std::string, DeviceDesc> &d) { return d.second.id.path == vid.Path() && d.second.device != nullptr; });
         if (it != devices.end())
         {
             // got it - add the list entry
-            devices.emplace_back(vid.Path(), it->unitNum, it->unitName.c_str(), it->hwId);
+            const auto &id = it->second.id;
+            newDeviceList.emplace_back(vid.Path(), id.unitNum, id.unitName.c_str(), id.hwId);
             continue;
         }
+
+        // Add it to the list with unknown IDs
+        newDeviceList.emplace_back(vid.Path(), 0, "Unknown", PicoHardwareId());
     }
 
     // success
@@ -1041,7 +1116,7 @@ LRESULT WrapperWin::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 // marking existing devices that aren't in the new list as offline.
 void WrapperWin::OnNewDeviceList(const std::list<DeviceDesc::ID> &newDevLst)
 {
-    // Move by marking all of our devices as offline.  We'll
+    // Start by marking all of our devices as offline.  We'll
     // restore online status to each we find in the new list.
     for (auto &dev : devices)
     {
@@ -1141,8 +1216,6 @@ void WrapperWin::OnNewDeviceList(const std::list<DeviceDesc::ID> &newDevLst)
     // Now check for devices that are newly online, so that we
     // can refresh their windows for the possibly updated configuration
     // after a device reset.
-    std::list<DeviceDesc::ID> fcList;
-    EnumerateDevices(fcList);
     for (auto &itDev : devices)
     {
         // check for a state transition
@@ -1169,9 +1242,9 @@ void WrapperWin::OnNewDeviceList(const std::list<DeviceDesc::ID> &newDevLst)
             // its Pico hardware ID, which is immutable.
             if (desc.online)
             {
-                auto it = std::find_if(fcList.begin(), fcList.end(),
+                auto it = std::find_if(newDevLst.begin(), newDevLst.end(),
                     [&desc](const DeviceDesc::ID &d) { return d.hwId == desc.id.hwId; });
-                if (it != fcList.end())
+                if (it != newDevLst.end())
                     desc.id = *it;
 
                 // remember it as the latest new device we've seen

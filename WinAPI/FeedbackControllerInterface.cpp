@@ -330,6 +330,19 @@ FeedbackControllerInterface::~FeedbackControllerInterface()
 	CloseHandle(hWriteEvent);
 }
 
+FeedbackControllerInterface *FeedbackControllerInterface::Open(const WCHAR *devicePath)
+{
+	// create the interface
+	std::unique_ptr<FeedbackControllerInterface> f(new FeedbackControllerInterface(devicePath));
+
+	// if the file handle is invalid, return failure
+	if (f->handle == INVALID_HANDLE_VALUE)
+		return nullptr;
+
+	// release the interface to the caller
+	return f.release();
+}
+
 FeedbackControllerInterface *FeedbackControllerInterface::Open(const Desc &desc)
 {
 	// create the interface

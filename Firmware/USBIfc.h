@@ -495,7 +495,7 @@ public:
     // devices being optional, so a configuration amounts to a list of
     // which devices are enabled.
     //
-    // Note that Medie Control device type doesn't need its own bit,
+    // Note that Media Control device type doesn't need its own bit,
     // because it's always paired with the Keyboard device.  We just
     // need one bit for the Keyboard/Media Control combination.
     static const uint8_t SerialBitKeyboard = 0x01;
@@ -968,6 +968,9 @@ public:
     public:
         FeedbackController() : HID("feedback", true, ReportIDFeedbackController, 0) { }
 
+        // configure; returns true if enabled
+        bool Configure(JSONParser &json);
+
         // HID reporting
         virtual const uint8_t *GetReportDescriptor(uint16_t *byteLength) override;
         virtual uint16_t GetReport(hid_report_type_t type, uint8_t *buf, uint16_t reqLen) override;
@@ -1022,6 +1025,83 @@ public:
         } irCmdBuf[IRCmdBufSize];
         int irCmdRead = 0;
         int irCmdWrite = 0;
+    };
+
+    // LedWiz USB interface emulator.  Implements an OUT interface that
+    // accepts commands in the original LedWiz protocol.
+    //
+    // This is disabled by default, because most modern virtual pinball
+    // setups are better served by our host-side LedWiz DLL API
+    // emulation.  The DLL API emulation exposes the same exported DLL
+    // interface as the original LEDWIZ.DLL, and it's 100% compatible
+    // with genuine LedWiz devices and clones, but it also has special
+    // recognition for Pinscape Pico and Pinscape KL25Z units that let
+    // it provide access to all ports on devices with more than 32
+    // ports.  The replacement DLL is also compatible with devices that
+    // expose multiple HID interfaces, which the original manufacturer
+    // DLL doesn't tolerate, because it assumes that every HID interface
+    // it finds under a device with the LedWiz VID/PID combination is
+    // the LedWiz protocol interface.
+    //
+    // So, this interface is really only intended for setups OTHER than
+    // the "modern virtual pin cab", where the Windows-side LedWiz
+    // emulation through the DLL isn't workable for one reason or
+    // another, and thus you need emulation at the USB protocol level.
+    // One example is a machine that's running a really old version of
+    // Windows, or a non-Windows operating system, where it's not
+    // possible to use the replacement DLL.  Another example is legacy
+    // LedWiz-aware software that communicates with the LedWiz directly
+    // through the USB protocol rather than through LEDWIZ.DLL.
+    //
+    // To fully emulate an LedWiz at the USB level, you must:
+    //
+    //  - Enable this interface.
+    //
+    //  - Set the USB VID/PID to an LedWiz codes, namely FAFA/00Fx,
+    //    where the nominal unit number is x+1 (00F0 -> unit #1, etc).
+    //    Required because legacy software recognizes LedWiz units
+    //    strictly by VID/PID.
+    //
+    //  - Disable all other HID interfaces, including the Feedback
+    //    controller interface.  Required because most legacy LedWiz
+    //    software can't distinguish multiple HID interfaces on a
+    //    device it recognizes based on the VID/PID, and will likely
+    //    crash if multiple HIDs are exposed.
+    //
+    // None of these are Pinscape requirements; they all arise from the
+    // limitations of legacy LedWiz software.  Operating in this mode
+    // limits host access to 32 ports, since the native LedWiz protocol
+    // can only address 32 ports.  If you have more than 32 ports on the
+    // Pico, only ports 1-32 will be accessible from the host.
+    //
+    class LedWizIfc : public HID
+    {
+    public:
+        // Note that the LedWiz protocol is OUT-only, but TinyUSB only has
+        // IN and IN/OUT descriptors, so the only way to have an OUT endpoint
+        // is to say we're IN/OUT.  Our report descriptor doesn't have any
+        // IN fields, so the host will know better.
+        LedWizIfc() : HID("ledwiz", true, 0, 0) { }
+        
+        // configure; returns true if enabled
+        bool Configure(JSONParser &json);
+
+        // HID reporting
+        virtual const uint8_t *GetReportDescriptor(uint16_t *byteLength) override;
+        virtual uint16_t GetReport(hid_report_type_t type, uint8_t *buf, uint16_t reqLen) override;
+        virtual void SetReport(hid_report_type_t type, const uint8_t *buf, uint16_t reqLen) override;
+
+        // initialize - call during main loop setup
+        void Init();
+
+    protected:
+        // PBA index.  A PBA protocol command addresses 8 ports, with
+        // the device maintaining an internal counter that sets the base
+        // port.  The index is set to 0 at power-on, and is reset to 0
+        // on every SBA command.  Every PBA command increments the base
+        // port by 8 after applying the PBA port updates, wrapping to 0
+        // when reaching 32 (since the valid port indices are 0 to 31).
+        int pbaIndex = 0;
     };
 
     // Pinball Device HID interface.  Implements usage page 0x05 (Game
@@ -1173,7 +1253,9 @@ public:
         // remain valid as long as the HIDIfc is still valid.  (The device
         // objects generally have session lifetime, so a suitable and
         // simple way to instantiate them is as statics or globals.)
-        void AddDevice(HID *dev);
+        // Returns 'this', for easy call chaining when adding multiple
+        // devices.
+        HIDIfc *AddDevice(HID *dev);
 
         // number of devices in the list
         int GetNDevices() const { return static_cast<int>(devices.size()); }
@@ -1391,6 +1473,7 @@ extern USBIfc::MediaControl mediaControl;
 extern USBIfc::Gamepad gamepad;
 extern USBIfc::OpenPinballDevice openPinballDevice;
 extern USBIfc::FeedbackController feedbackController;
+extern USBIfc::LedWizIfc ledWizIfc;
 
 // The most reliable way to detect the version number is via the macros
 // for the three components, TUSB_VERSION_(MAJOR|MINOR|REVISION), which

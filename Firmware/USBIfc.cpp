@@ -896,7 +896,7 @@ uint16_t USBIfc::OnGetHIDReport(uint8_t instance, uint8_t id, hid_report_type_t 
 }
 
 // Set Report event handler
-void USBIfc::OnSetHIDReport(uint8_t instance, uint8_t id, hid_report_type_t type, const uint8_t *buf, uint16_t reqLen)
+void USBIfc::OnSetHIDReport(uint8_t instance, uint8_t reportID, hid_report_type_t type, const uint8_t *buf, uint16_t reqLen)
 {
     // report type names
     static_assert(static_cast<int>(HID_REPORT_TYPE_INVALID) == 0);
@@ -911,11 +911,63 @@ void USBIfc::OnSetHIDReport(uint8_t instance, uint8_t id, hid_report_type_t type
         // get the interface
         HIDIfc *ifc = hidIfcs[instance].get();
 
+        // Tinyusb calls this in two contexts, with inconsistent arguments:
+        //
+        // Control transfer:
+        //    - report type set to type from control request
+        //    - 'reportID' set to first byte of raw buffer
+        //    - first byte of raw buffer skipped, buffer length reduced by 1
+        //
+        // OUT Endpoint transfer
+        //    - Tinyusb < 0.17.0:
+        //      - report type set to HID_REPORT_TYPE_INVALID
+        //      - reportID set to 0
+        //      - raw buffer passed exactly as sent, with no length change
+        //
+        //    - Tinyusb >= 0.17.0:
+        //      - report type set to HID_REPORT_TYPE_OUTPUT
+        //      - reportID set to 0
+        //      - raw buffer passed exactly as sent, with no length change
+        //
+        // If reportID != 0, we know this is a control transfer, and we know that
+        // the report ID prefix has already been removed from the buffer.
+        //
+        // If reportID == 0, we have either:
+        //   - a control transfer with ID==0, buffer has no ID prefix
+        //   - an OUT transfer with ANY ID:
+        //     - buffer has an ID prefix if and only if the reports use IDs
+        //     - buffer does not contain an ID prefix if the reports don't use IDs
+        //
+        // As far as I can see, there's no way to distinguish these cases
+        // from what TinyUSB sends us.  So we have to go by what we EXPECT
+        // the host to send, and assume that the host is sending us well-
+        // formed packets that include report IDs when required and don't
+        // include report IDs where not required:
+        //
+        //   - If we have exactly one interface, and its report ID == 0,
+        //     there are no report IDs, so assume the buffer has no report
+        //     ID prefix bytes
+        //
+        //   - If we have more than one interface, or our one interface
+        //     uses a non-zero report ID, all of our OUT reports should
+        //     come with a report ID prefix, which is still in the buffer.
+        //
+        if (reportID == 0 && (ifc->devices.size() != 1 || ifc->devices.front()->reportID != 0))
+        {
+            // We have multiple interfaces (-> we MUST use report IDs
+            // for all interfaces), OR we have just one interface, but
+            // it uses a non-zero report ID anyway.  Therefore this is
+            // an OUT report with the report ID still in the buffer as
+            // the prefix byte.
+            reportID = *buf++;
+            reqLen -= 1;
+        }
+
         // find the device that handles this type of report
         for (auto &device : ifc->devices)
         {
             // match on the report ID
-            if (device->reportID == id)
+            if (device->reportID == reportID)
             {
                 switch (type)
                 {
@@ -926,15 +978,15 @@ void USBIfc::OnSetHIDReport(uint8_t instance, uint8_t id, hid_report_type_t type
                     
                 default:
                     // we don't handle other types
-                    Log(LOG_DEBUGEX, "OnSetHIDReport: unhandled report type %d (%s) on HIDIfc[%d], id=%d (%s)\n",
-                        type, typeName[type], instance, id, device->name);
+                    Log(LOG_DEBUGEX, "OnSetHIDReport: unhandled report type %d (%s) on HIDIfc[%d], report ID=%d (%s)\n",
+                        type, typeName[type], instance, reportID, device->name);
                     return;
                 }
             }
         }
 
         // not handled
-        Log(LOG_DEBUGEX, "OnSetHIDReport: unhandled report type %d (%s), id=%d [no device match]\n", type, typeName[type], id);
+        Log(LOG_DEBUGEX, "OnSetHIDReport: unhandled report type %d (%s), report ID=%d [no device match]\n", type, typeName[type], reportID);
     }
     else
     {
@@ -985,44 +1037,6 @@ uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t id, hid_report_type_t t
 // Tinyusb Set HID Report client callback
 void tud_hid_set_report_cb(uint8_t instance, uint8_t reportId, hid_report_type_t type, const uint8_t *buf, uint16_t bufSize)
 {
-    // Tinyusb calls this in two contexts, with inconsistent arguments:
-    //
-    // Control transfer:
-    //    - report type set to type from control request
-    //    - 'id' set to first byte of raw buffer
-    //    - first byte of raw buffer skipped, buffer length reduced by 1
-    //
-    // OUT Endpoint transfer
-    //    - Tinyusb < 0.17.0:
-    //      - report type set to HID_REPORT_TYPE_INVALID
-    //      - id set to 0
-    //      - raw buffer passed exactly as sent, with no length change
-    //
-    //    - Tinyusb >= 0.17.0:
-    //      - report type set to HID_REPORT_TYPE_OUTPUT
-    //      - id set to 0
-    //      - raw buffer passed exactly as sent, with no length change
-    //
-    // To make these consistent, we have to detect the second case and
-    // treat it like the first, assigning type HID_REPORT_TYPE_OUTPUT
-    // and adjusting the buffer length.
-    //
-    // Before Tinyusb 0.17.0, the second case was positively
-    // identifiable by the _INVALID report type.  The change in 0.17.0
-    // was probably an attempt to make things more consistent, but it
-    // actually makes it worse by making the two cases harder to
-    // distinguish.  However, for this particular application, we can
-    // detect the second case based on report ID alone, since we ALWAYS
-    // use report IDs across all of our HID interfaces.  So if the
-    // report ID is zero, we're definitely dealing with the second case.
-    if (reportId == 0 && bufSize >= 1)
-    {
-        type = HID_REPORT_TYPE_OUTPUT;
-        reportId = *buf++;
-        bufSize -= 1;
-    }
-
-    // pass the adjusted report to our class handler
     usbIfc.OnSetHIDReport(instance, reportId, type, buf, bufSize);
 }
 
@@ -1126,7 +1140,7 @@ usbd_class_driver_t const *usbd_app_driver_get_cb(uint8_t *driverCount)
 //
 
 // add a device to a HID interface
-void USBIfc::HIDIfc::AddDevice(HID *dev)
+USBIfc::HIDIfc *USBIfc::HIDIfc::AddDevice(HID *dev)
 {
     // add the device to our list
     devices.emplace_back(dev);
@@ -1151,6 +1165,9 @@ void USBIfc::HIDIfc::AddDevice(HID *dev)
     // leave time to set up the new send before the next host polling request
     // actually occurs.  The refractory interval can never be less than zero.
     pollingRefractoryInterval = std::max(0, pollingInterval - RefractoryIntervalPadding);
+
+    // return 'this' for call chaining
+    return this;
 }
 
 // get the combined HID report descriptors for this interface

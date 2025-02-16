@@ -182,10 +182,16 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   <div class="jsonTOCSect tocLevel1">
     <div class="jsonTOCSectTitle">USB</div>
     <div class="jsonTOCEntry">
+      <a href="#feedbackController">Feedback Controller</a>
+    </div>
+    <div class="jsonTOCEntry">
       <a href="#gamepad">Gamepad</a>
     </div>
     <div class="jsonTOCEntry">
       <a href="#keyboard">Keyboard</a>
+    </div>
+    <div class="jsonTOCEntry">
+      <a href="#ledWizProtocol">LedWiz Protocol Interface</a>
     </div>
     <div class="jsonTOCEntry">
       <a href="#openPinballDevice">Open Pinball Device</a>
@@ -381,6 +387,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
            <span class="propName"><a href="#expansionBoard.peripheralPowerEnable.waitTime">waitTime</a></span>: <span class="typeNames">number</span>,
         },
      },
+     <span class="propName"><a href="#feedbackController">feedbackController</a></span>: {
+        <span class="propName"><a href="#feedbackController.enable">enable</a></span>: <span class="typeNames">boolean</span>,
+     },
      <span class="propName"><a href="#gamepad">gamepad</a></span>: {
         <span class="propName"><a href="#gamepad.enable">enable</a></span>: <span class="typeNames">boolean</span>,
         <span class="propName"><a href="#gamepad.rx">rx</a></span>: <span class="typeNames">string</span>,
@@ -420,6 +429,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
      },
      <span class="propName"><a href="#keyboard">keyboard</a></span>: {
         <span class="propName"><a href="#keyboard.enable">enable</a></span>: <span class="typeNames">boolean</span>,
+     },
+     <span class="propName"><a href="#ledWizProtocol">ledWizProtocol</a></span>: {
+        <span class="propName"><a href="#ledWizProtocol.enable">enable</a></span>: <span class="typeNames">boolean</span>,
      },
      <span class="propName"><a href="#lis3dh">lis3dh</a></span>: {
         <span class="propName"><a href="#lis3dh.addr">addr</a></span>: <span class="typeNames">number</span>,
@@ -3909,6 +3921,61 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     </div>
   </div>
 </div>
+<a name="feedbackController"></a>
+<div class="jsonSectTitle">Feedback Controller USB Interface</div>
+<p>
+  Configures Pinscape Pico's custom USB HID protocol interface, which
+  host PC programs can use to send commands to the Pico to activate
+  and control feedback device output ports.  This is the interface
+  that DOF uses to activate feedback effects on the Pico, and the
+  protocol is documented, so it's available to any other programs
+  that wish to use it.
+  </p><p>
+  The Feedback Controller interface is enabled by default.  The only
+  scenario where you should disable it is for strict LedWiz emulation.
+  A genuine LedWiz has only one HID interface, which accepts commands
+  using the proprietary LedWiz protocol.  If you want to make a
+  Pinscape Pico unit fully emulate an LedWiz at the USB level, it's
+  necessary to disable all of Pinscape's other HID interfaces, including
+  this one, as well as the keyboard, gamepad, XInput, and Open Pinball
+  Device interfaces.  See the <a href="#ledWizProtocol"><tt>ledWizProtocol</tt></a>
+  object for more details on setting up LedWiz emulation.
+</p>
+<div class="jsonSectIndexHdr">Summary</div>
+<div class="jsonSectIndex">{
+   <span class="propName"><a href="#feedbackController">feedbackController</a></span>: {
+      <span class="propName"><a href="#feedbackController.enable">enable</a></span>: <span class="typeNames">boolean</span>,
+   },
+}
+</div>
+<div class="jsonExampleHdr">Example</div>
+<div class="jsonExample">  {
+     feedbackController: {
+         enable: true,
+     },
+  }
+</div>
+<div class="jsonProp">
+  <div class="jsonPropHdr">
+    <span class="jsonPropPath"></span><span class="jsonPropName">feedbackController</span>
+    <span class="jsonPropType">object</span><span class="jsonPropOptional">Optional</span>
+  </div>
+  <div class="jsonPropDesc">
+  </div>
+  <a name="feedbackController.enable"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">feedbackController.</span><span class="jsonPropName">enable</span>
+      <span class="jsonPropType">boolean</span><span class="jsonPropOptional">Optional</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    Enables or disables the interface.  The interface is enabled by
+    default.  The only common reason for disabling it is for <a href="#ledWizProtocol">strict LedWiz emulation</a>.
+  </p>
+    </div>
+  </div>
+</div>
 <a name="gamepad"></a>
 <div class="jsonSectTitle">USB Gamepad</div>
 <p>
@@ -4765,6 +4832,110 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     Set this to true to enable the keyboard emulation.  Pinscape won't create
     its virtual keyboard unless you explicitly tell it to by setting this
     to true.
+  </p>
+    </div>
+  </div>
+</div>
+<a name="ledWizProtocol"></a>
+<div class="jsonSectTitle">LedWiz USB Protocol Interface</div>
+<p>
+  Configures Pinscape Pico's LedWiz USB protocol emulation.  When this
+  is enabled, the Pico exposes a HID interface that accepts commands
+  using the proprietary USB protocol defined by the commercial LedWiz
+  device, making the Pico appear to legacy LedWiz-aware software as
+  though it were an actual LedWiz hardware unit.
+  </p><p>
+  <b>Warning: Enabling LedWiz protocol emulation places some severe
+  restrictions on other Pinscape features.</b>  The LEDWIZ.DLL replacement
+  option (see below) should always be the first choice, whenever possible.
+  You should only consider protocol emulation if the LEDWIZ.DLL approach
+  isn't workable for your use case.
+  </p><p>
+  When using LedWiz protocol emulation, you usually have to disable
+  all of the other HID features when using this mode:  the keyboard, gamepad,
+  XInput, Open Pinball Device, and Feedback Controller interfaces must
+  all be disabled.  This restriction comes from the legacy LedWiz software
+  that the protocol emulator is designed to support.  The problem is that
+  the older LedWiz software can't distinguish the LedWiz protocol interface
+  from any other HID interfaces on the same device, so those programs
+  are likely to crash or otherwise misbehave if any other virtual
+  HID devices are enabled.
+  </p><p>
+  To enable strict LedWiz emulation, the following configuration
+  settings are required:
+  <ul>
+  <li>Enable the LedWiz protocol interface: <tt>ledWizProtocol: { enable: true }</tt>
+  <li>Disable all other virtual HID devices (keyboard, gamepad, XInput, Open Pinball Device, Feedback Controller)
+  <li>Set the USB device identifiers to match the LedWiz VID/PID: <tt>usb: vid: 0xFAFA, pid: 0x00F0 }</tt>
+  (the PID determines the unit number that applications use to address the device: 0x00F0 is unit #1, 0x00F1 is unit #2, and so on)
+  </ul>
+  </p><p>
+  You can still use the Pinscape Config Tool even when strict LedWiz
+  emulation is in effect, since it uses a separate, non-HID protocol
+  that won't confuse or interfere with any legacy LedWiz software.
+  </p><p>
+  <b>The LEDWIZ.DLL replacement alternative:</b>
+  For most virtual pinball cabinet users, there's a better option that
+  doesn't come with all of these restrictions.  Instead of emulating
+  the LedWiz at the USB protocol level, you can emulate it on the
+  Windows host, by using the replacement LEDWIZ.DLL available at
+  <a href="http://mjrnet.org/pinscape/dll-updates.html#LedWiz.dll">mjrnet.org/pinscape/dll-updates.html#LedWiz.dll</a>.
+  Nearly all legacy LedWiz applications on Windows access the LedWiz
+  through LEDWIZ.DLL rather than directly through the USB protocol.
+  This makes it possible to give legacy LedWiz applications access
+  to Pinscape simply by replacing the DLL with a new version that
+  knows how to access Pinscape through the Pinscape USB protocols.
+  There's no need for Pinscape to pretend to be an LedWiz at the USB
+  level, because the library intercepts the LedWiz API calls and
+  translates them to the Pinscape USB protocol.  This has
+  several advantages:
+  <ul>
+  <li>You can keep using all of the Pinscape HID devices
+  <li>DOF-based programs can still access the device through the Pinscape Pico Feedback Controller protocol,
+  which provides faster access speeds and finer-grained PWM control than the LedWiz protocol does
+  <li>The LEDWIZ.DLL replacement can give legacy programs access to more than 32 output ports
+  on the Pico, by making the Pico appear as multiple virtual LedWiz units
+  </ul>
+  </p><p>
+  You should use the LEDWIZ.DLL replacement instead of USB emulation
+  whenever possible.  USB emulation should be treated as a last resort,
+  only for cases where you can't use the DLL: for example, you're running on a
+  non-Windows host; or the host has a brittle configuration that makes it
+  impractical to replace the DLL; or the legacy software you want to use accesses
+  the LedWiz directly through its USB interface rather than through the DLL.
+  If the LEDWIZ.DLL approach is unworkable for one of these reasons or some
+  other reason, only then should you consider the USB protocol emulation approach.
+</p>
+<div class="jsonSectIndexHdr">Summary</div>
+<div class="jsonSectIndex">{
+   <span class="propName"><a href="#ledWizProtocol">ledWizProtocol</a></span>: {
+      <span class="propName"><a href="#ledWizProtocol.enable">enable</a></span>: <span class="typeNames">boolean</span>,
+   },
+}
+</div>
+<div class="jsonExampleHdr">Example</div>
+<div class="jsonExample">  {
+     ledWizProtocol: {
+        enable: true,
+     },
+  }
+</div>
+<div class="jsonProp">
+  <div class="jsonPropHdr">
+    <span class="jsonPropPath"></span><span class="jsonPropName">ledWizProtocol</span>
+    <span class="jsonPropType">object</span><span class="jsonPropOptional">Optional</span>
+  </div>
+  <div class="jsonPropDesc">
+  </div>
+  <a name="ledWizProtocol.enable"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">ledWizProtocol.</span><span class="jsonPropName">enable</span>
+      <span class="jsonPropType">boolean</span><span class="jsonPropOptional">Optional</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    Enables or disables LedWiz USB protocol emulation.  Disabled by default.
   </p>
     </div>
   </div>

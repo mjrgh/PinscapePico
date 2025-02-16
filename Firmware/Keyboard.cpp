@@ -145,7 +145,7 @@ bool USBIfc::Keyboard::Configure(JSONParser &json)
     // presume disabled if not configured
     bool enabled = false;
 
-    // check for the main keyboard JSON key
+    // check for our top-level keyboard JSON key
     if (auto *val = json.Get("keyboard") ; !val->IsUndefined())
     {
         // get the enable status

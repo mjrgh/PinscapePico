@@ -111,6 +111,7 @@ add_executable(
     Gamepad.cpp
     OpenPinballDevice.cpp
     FeedbackController.cpp
+    LedWizIfc.cpp
     Logger.cpp
     CommandConsole.cpp
     Config.cpp

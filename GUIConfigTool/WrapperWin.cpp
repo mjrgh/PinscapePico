@@ -67,8 +67,8 @@ WrapperWin::WrapperWin(HINSTANCE hInstance, const WCHAR *settingsFile,
     // Initialize our device list.  Use the feedback controller HID
     // interface to do the enumeration, since that allows concurrent
     // access from any number of clients.
-    std::list<FeedbackController::Desc> descs;
-    HRESULT hr = FeedbackController::Enumerate(descs);
+    std::list<DeviceDesc::ID> descs;
+    HRESULT hr = EnumerateDevices(descs);
     if (!SUCCEEDED(hr))
         MessageBoxFmt(NULL, "An error occurred searching for Pinscape Pico devices (error code %08lx)", static_cast<UINT>(hr));
 
@@ -135,7 +135,47 @@ void WrapperWin::SortButtonList()
     leftPanelButtons.sort([](const Ele &a, const Ele &b) { return a->SortCompare(b.get()); });
 }
 
-WrapperWin::DeviceButton *WrapperWin::AddDevice(const FeedbackController::Desc &desc)
+HRESULT WrapperWin::EnumerateDevices(std::list<DeviceDesc::ID> &devices)
+{
+    // enumerate vendor interfaces
+    std::list<VendorInterfaceDesc> vendorIfcDescs;
+    HRESULT hr = VendorInterface::EnumerateDevices(vendorIfcDescs);
+    if (!SUCCEEDED(hr))
+        return hr;
+
+    // query Pinscape identifiers for the devices
+    for (const auto &vid : vendorIfcDescs)
+    {
+        // try opening the vendor interface
+        std::unique_ptr<VendorInterface> vi;
+        DeviceID id;
+        if (SUCCEEDED(vid.Open(vi)) && vi->QueryID(id) == PinscapeResponse::OK)
+        {
+            // success - populate a device list entry
+            devices.emplace_back(vid.Path(), id.unitNum, id.unitName.c_str(), id.hwid);
+            continue;
+        }
+
+        // We can't open the vendor interface, which could just be
+        // because it's already open in the UI (WinUsb only allows
+        // exclusive access).  Scan our active device list to see
+        // if a device with the same path is already there and is
+        // open - if so, we can get the ID from there.
+        auto it = std::find_if(devices.begin(), devices.end(),
+            [&vid](const DeviceDesc &d) { return d.id.path == vid.Path() && d.device != nullptr; });
+        if (it != devices.end())
+        {
+            // got it - add the list entry
+            devices.emplace_back(vid.Path(), it->unitNum, it->unitName.c_str(), it->hwId);
+            continue;
+        }
+    }
+
+    // success
+    return S_OK;
+}
+
+WrapperWin::DeviceButton *WrapperWin::AddDevice(const DeviceDesc::ID &desc)
 {
     // add the device table entry
     auto &devTabEntry = devices.emplace(desc.hwId.ToString(), desc).first->second;
@@ -365,13 +405,13 @@ HBITMAP WrapperWin::DeviceButton::Draw(WrapperWin *win, HDCHelper &hdc, const RE
 {
     int x = rc.left, y = rc.top;
     y += hdc.DrawText(x, y, 1, win->boldFont, HRGB(0x800080), "Pinscape Pico").cy;
-    SIZE sz = hdc.DrawTextF(x, y, 1, win->mainFont, HRGB(0x000000), "Unit #%d", dev->desc.unitNum);
+    SIZE sz = hdc.DrawTextF(x, y, 1, win->mainFont, HRGB(0x000000), "Unit #%d", dev->id.unitNum);
     if (!dev->online)
         hdc.DrawText(x + sz.cx + 16, y, 1, win->boldFont, HRGB(0xFF0000), "OFFLINE");
 
     y += sz.cy;
-    y += hdc.DrawTextF(x, y, 1, win->mainFont, HRGB(0x000000), "(%s)", dev->desc.unitName.c_str()).cy;
-    y += hdc.DrawTextF(x, y, 1, win->mainFont, HRGB(0x000000), "HW ID %s", dev->desc.hwId.ToString().c_str()).cy;
+    y += hdc.DrawTextF(x, y, 1, win->mainFont, HRGB(0x000000), "(%s)", dev->id.unitName.c_str()).cy;
+    y += hdc.DrawTextF(x, y, 1, win->mainFont, HRGB(0x000000), "HW ID %s", dev->id.hwId.ToString().c_str()).cy;
 
     // return the Pinscape Pico Device icon, in its online or offline appearance
     return dev->online ? win->bmpPinscapeDevice : win->bmpPinscapeOffline;
@@ -430,7 +470,7 @@ void WrapperWin::DeviceButton::Activate(WrapperWin *win)
         MessageBoxFmt(win->GetHWND(), "Unable to connect to device (error code %08lx)", static_cast<UINT>(hr));
 }
 
-HRESULT WrapperWin::DevDesc::Connect(WrapperWin *win, bool reconnect)
+HRESULT WrapperWin::DeviceDesc::Connect(WrapperWin *win, bool reconnect)
 {
     // lock the device
     HRESULT hr = S_OK;
@@ -441,7 +481,7 @@ HRESULT WrapperWin::DevDesc::Connect(WrapperWin *win, bool reconnect)
         {
             // connect
             VendorInterface *newDevice = nullptr;
-            hr = VendorInterface::Open(newDevice, desc.hwId);
+            hr = VendorInterface::Open(newDevice, id.hwId);
 
             // if successful, stash the new device pointer
             if (hr == S_OK && newDevice != nullptr)
@@ -999,7 +1039,7 @@ LRESULT WrapperWin::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
 // Cross-checks the list against our current list of devices, adding
 // a new entry for each device that we didn't know about before, and
 // marking existing devices that aren't in the new list as offline.
-void WrapperWin::OnNewDeviceList(const std::list<FeedbackControllerInterface::Desc> &newDevLst)
+void WrapperWin::OnNewDeviceList(const std::list<DeviceDesc::ID> &newDevLst)
 {
     // Move by marking all of our devices as offline.  We'll
     // restore online status to each we find in the new list.
@@ -1017,7 +1057,7 @@ void WrapperWin::OnNewDeviceList(const std::list<FeedbackControllerInterface::De
         // search for an existing copy of the device
         if (auto it = devices.find(newDev.hwId.ToString()); it != devices.end())
         {
-            // We already know about this device.  Mark it as online
+            // We already know about this device.  Mark it as online.
             auto &dev = it->second;
             dev.online = true;
 
@@ -1084,10 +1124,9 @@ void WrapperWin::OnNewDeviceList(const std::list<FeedbackControllerInterface::De
                 }
             }
 
-
             // make sure we have its current Pinscape IDs, in case the
             // configuration was updated since we last checked
-            dev.desc = newDev;
+            dev.id = newDev;
         }
         else
         {
@@ -1102,8 +1141,8 @@ void WrapperWin::OnNewDeviceList(const std::list<FeedbackControllerInterface::De
     // Now check for devices that are newly online, so that we
     // can refresh their windows for the possibly updated configuration
     // after a device reset.
-    std::list<FeedbackController::Desc> fcList;
-    FeedbackController::Enumerate(fcList);
+    std::list<DeviceDesc::ID> fcList;
+    EnumerateDevices(fcList);
     for (auto &itDev : devices)
     {
         // check for a state transition
@@ -1131,9 +1170,9 @@ void WrapperWin::OnNewDeviceList(const std::list<FeedbackControllerInterface::De
             if (desc.online)
             {
                 auto it = std::find_if(fcList.begin(), fcList.end(),
-                    [&desc](const FeedbackController::Desc &d) { return d.hwId == desc.desc.hwId; });
+                    [&desc](const DeviceDesc::ID &d) { return d.hwId == desc.id.hwId; });
                 if (it != fcList.end())
-                    desc.desc = *it;
+                    desc.id = *it;
 
                 // remember it as the latest new device we've seen
                 newDeviceButton = desc.button;
@@ -1327,7 +1366,7 @@ bool WrapperWin::OnClose()
 //
 // Get the device associated with the active tab, if any
 //
-WrapperWin::DevDesc *WrapperWin::GetActiveDevice()
+WrapperWin::DeviceDesc *WrapperWin::GetActiveDevice()
 {
     if (auto *db = dynamic_cast<DeviceButton*>(curButton) ; db != nullptr)
         return db->dev;
@@ -1335,7 +1374,7 @@ WrapperWin::DevDesc *WrapperWin::GetActiveDevice()
         return nullptr;
 }
 
-WrapperWin::DevDesc *WrapperWin::CanExecDeviceCommand(bool silent)
+WrapperWin::DeviceDesc *WrapperWin::CanExecDeviceCommand(bool silent)
 {
     if (auto *dd = GetActiveDevice(); dd == nullptr || dd->device == nullptr)
     {
@@ -1977,8 +2016,8 @@ bool WrapperWin::OnDevNodesChanged()
 {
     // enumerate Pinscape devices, and send the list to the main
     // thread for comparison against its existing device list
-    std::list<FeedbackController::Desc> descs;
-    HRESULT hr = FeedbackController::Enumerate(descs);
+    std::list<DeviceDesc::ID> descs;
+    HRESULT hr = EnumerateDevices(descs);
     if (SUCCEEDED(hr))
         OnNewDeviceList(descs);
 

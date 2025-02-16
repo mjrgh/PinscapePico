@@ -1626,8 +1626,10 @@ namespace PinscapePico
         static const uint16_t F_XINPUT_ENA    = 0x0020;   // XInput reporting enabled
         static const uint16_t F_PINDEV_CONF   = 0x0040;   // Open Pinball Device configured
         static const uint16_t F_PINDEV_ENA    = 0x0080;   // Open Pinball Device enabled
+        static const uint16_t F_FEEDBACK_CONF = 0x0100;   // Feedback Controller configured
+        static const uint16_t F_LEDWIZ_CONF   = 0x0200;   // LedWiz Protocol Emulation configured
         static const uint16_t F_CDC_CONF      = 0x1000;   // USB CDC port configured
-        
+
     } __PackedEnd;
 
     // CMD_QUERY_GPIO_CONFIG response data.  This is returned in the additional

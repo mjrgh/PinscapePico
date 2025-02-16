@@ -480,6 +480,8 @@ static void Configure(PicoReset::BootMode bootMode)
     bool useGamepad = gamepad.Configure(json);
     bool useXInput = xInput.Configure(json);
     bool usePinControl = openPinballDevice.Configure(json);
+    bool useFeedbackController = feedbackController.Configure(json);
+    bool useLedWizIfc = ledWizIfc.Configure(json);
 
     // Set XInput enable status
     xInput.enabled = useXInput;
@@ -489,14 +491,30 @@ static void Configure(PicoReset::BootMode bootMode)
 
     // Create the first HID interface
     std::list<USBIfc::HIDIfc*> hids;
-    hids.emplace_back(usbIfc.AddHIDInterface());
+    auto GetFirstHID = [&hids]()
+    {
+        // if we haven't created our first HID interface yet, do so now
+        if (hids.size() == 0)
+            hids.emplace_back(usbIfc.AddHIDInterface());
+
+        // return the first one
+        return hids.front();
+    };
+    auto GetLastHID = [&hids]()
+    {
+        // if we haven't created our first HID interface yet, do so now
+        if (hids.size() == 0)
+            hids.emplace_back(usbIfc.AddHIDInterface());
+
+        // return the last one
+        return hids.back();
+    };
 
     // Add the keyboard, if configured
     if (useKb)
     {
         // add the keyboard and media controller to the main HID interface
-        hids.front()->AddDevice(&keyboard);
-        hids.front()->AddDevice(&mediaControl);
+        GetFirstHID()->AddDevice(&keyboard)->AddDevice(&mediaControl);
     }
 
     // Add the gamepad, if configured
@@ -515,7 +533,7 @@ static void Configure(PicoReset::BootMode bootMode)
         // the keyboard nor joystick should be combined into an interface
         // that has any OTHER high-volume device, since both require low
         // latency for their button event inputs.
-        if (hids.back()->GetNDevices() != 0)
+        if (GetLastHID()->GetNDevices() != 0)
             hids.emplace_back(usbIfc.AddHIDInterface());
         hids.back()->AddDevice(&gamepad);
     }
@@ -525,18 +543,30 @@ static void Configure(PicoReset::BootMode bootMode)
     {
         // As with the gamepad, the pinball controller should be on its
         // own interface for low latency.
-        if (hids.back()->GetNDevices() != 0)
+        if (GetLastHID()->GetNDevices() != 0)
             hids.emplace_back(usbIfc.AddHIDInterface());
         hids.back()->AddDevice(&openPinballDevice);
     }
 
-    // Add the feedback controller device to HID0.  The feedback controller
-    // primarily transacts Output (host-to-device) reports, and only sends
-    // back low-priority replies to queries from the host, so it can
-    // share an interface with other devices without creating latency for
-    // them, and can tolerate any latency they create for it.
-    hids.front()->AddDevice(&feedbackController);
-    feedbackController.Init();
+    // Add the feedback controller device to HID0, if enabled.  The
+    // feedback controller primarily transacts Output (host-to-device)
+    // reports, and only sends back low-priority replies to queries from
+    // the host, so it can share an interface with other devices without
+    // creating latency for them, and can tolerate any latency they create
+    // for it.
+    if (useFeedbackController)
+    {
+        GetFirstHID()->AddDevice(&feedbackController);
+        feedbackController.Init();
+    }
+
+    // Add the LedWiz interface.  This requires its own HID interface,
+    // since the LedWiz protocol doesn't allow for report IDs.
+    if (useLedWizIfc)
+    {
+        hids.emplace_back(usbIfc.AddHIDInterface());
+        hids.back()->AddDevice(&ledWizIfc);
+    }
 
     // USB interfaces are configured - initialize the Tinyusb subsystem
     usbIfc.Init();

@@ -861,6 +861,8 @@ void PinscapeVendorIfc::ProcessRequest()
             if (xInput.reportsEnabled) u.flags |= u.F_XINPUT_ENA;
             if (openPinballDevice.configured) u.flags |= u.F_PINDEV_CONF;
             if (openPinballDevice.enabled) u.flags |= u.F_PINDEV_ENA;
+            if (feedbackController.configured) u.flags |= u.F_FEEDBACK_CONF;
+            if (ledWizIfc.configured) u.flags |= u.F_LEDWIZ_CONF;
             if (usbcdc.IsConfigured()) u.flags |= u.F_CDC_CONF;
 
             // copy the struct to the transfer data

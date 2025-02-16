@@ -144,10 +144,6 @@ protected:
 	// devices that we've registered to receive notifications.
 	virtual bool OnDeviceRemoveComplete(DEV_BROADCAST_HDR *hdr) override;
 
-	// handle device list updates
-	void OnNewDeviceList(const std::list<FeedbackControllerInterface::Desc> &newDevList);
-	void OnNewBootDriveList(const RP2BootDevice::RP2BootDeviceList &newDriveList);
-
 	// Paint off-screen.  This prepares a bitmap with the window
 	// contents filled in, for display in the next WM_PAINT.
 	virtual void PaintOffScreen(HDC hdc) override;
@@ -189,11 +185,6 @@ protected:
 
 	// notify windows of a configuration erase/factory reset action
 	void OnEraseDeviceConfig(bool factoryReset);
-
-	// validate that a device command is possible; returns the device
-	// descriptor so, shows an error message and returns nullptr if not
-	struct DevDesc;
-	DevDesc *CanExecDeviceCommand(bool silent);
 
 	// Execute a command on the currently selected device.  If a device
 	// is selected in the UI, and the device is connected, this acquires
@@ -363,19 +354,40 @@ protected:
 	// Current known devices.  We track devices by hardware ID.  We
 	// keep track of devices that we've ever seen even if they go
 	// offline during the session.
-	using FeedbackController = PinscapePico::FeedbackControllerInterface;
 	struct DeviceButton;
-	struct DevDesc
+	struct DeviceDesc
 	{
-		DevDesc(const FeedbackController::Desc &desc) : desc(desc) { }
+		// Device information
+		using PicoHardwareId = PinscapePico::PicoHardwareId;
+		struct ID
+		{
+			ID() { }
+			ID(const wchar_t *path, int unitNum, const char *unitName, const PicoHardwareId &hwId) :
+				path(path), unitNum(unitNum), unitName(unitName), hwId(hwId) { }
+
+			// Windows device path
+			std::wstring path;
+
+			// Pinscape Pico unit number (user-assigned in the config)
+			int unitNum = 0;
+
+			// Unit name (user-assigned in the config)
+			std::string unitName;
+
+			// Pico hardware ID
+			PicoHardwareId hwId;
+		};
+
+		// construction
+		DeviceDesc(const ID &id) : id(id) { }
+		DeviceDesc(const wchar_t *path, int unitNum, const char *unitName, const PicoHardwareId &hwId) :
+			id(path, unitNum, unitName, hwId) { }
 
 		// connect or reconnect the device
 		HRESULT Connect(WrapperWin *win, bool reconnect);
 
-		// the feedback controller descriptor; we use this to identify
-		// the USB device, which in turn lets us open a connection to 
-		// the Vendor Interface
-		FeedbackController::Desc desc;
+		// device identifiers
+		ID id;
 
 		// Vendor interface handle.  This is populated when we first
 		// connect to the device.  We use a shared-access struct so
@@ -397,7 +409,7 @@ protected:
 		// WinUsb device handle alive after the reset (it seems to be a
 		// matter of how long the reset takes: the connection sometimes
 		// survives a reset that completes within a few hundred
-		// milliseconds.  So we can't always detect a reset by device
+		// milliseconds).  So we can't always detect a reset by device
 		// handle validity.  But if the projected time-since-boot is less
 		// now than the last time we checked, we can be sure the device
 		// has gone through a reset.  Note that we need to figure the
@@ -410,24 +422,36 @@ protected:
 		// UI button for the device
 		DeviceButton *button = nullptr;
 	};
-	std::unordered_map<std::string, DevDesc> devices;
+	std::unordered_map<std::string, DeviceDesc> devices;
+
+		// handle device list updates
+	struct DeviceDesc;
+	void OnNewDeviceList(const std::list<DeviceDesc::ID> &newDevList);
+	void OnNewBootDriveList(const RP2BootDevice::RP2BootDeviceList &newDriveList);
+
+	// Enumerate devices
+	HRESULT EnumerateDevices(std::list<DeviceDesc::ID> &devices);
 
 	// get the device for the active tab, if any
-	DevDesc *GetActiveDevice();
+	DeviceDesc *GetActiveDevice();
 
 	// add a device
-	DeviceButton *AddDevice(const FeedbackController::Desc &desc);
+	DeviceButton *AddDevice(const DeviceDesc::ID &desc);
+
+	// validate that a device command is possible; returns the device
+	// descriptor so, shows an error message and returns nullptr if not
+	DeviceDesc *CanExecDeviceCommand(bool silent);
 
 	// Device button.  This is a left-panel button that corresponds
 	// to an attached Pinscape Pico unit.
 	struct DeviceButton : LeftPanelButton
 	{
-		DeviceButton(DevDesc *dev) : LeftPanelButton(DEVICE_SORT_GROUP), dev(dev) { }
+		DeviceButton(DeviceDesc *dev) : LeftPanelButton(DEVICE_SORT_GROUP), dev(dev) { }
 		virtual HBITMAP Draw(WrapperWin *win, HDCHelper &hdc, const RECT &rc) override;
 		virtual COLORREF GetStatuslineColor() const override { return HRGB(dev->online ? 0x204080 : 0xA00000); }
 		virtual void GetStatuslineText(char *buf, size_t bufSize) override {
 			sprintf_s(buf, bufSize, "Pinscape Pico unit %d (%s) | %s",
-				dev->desc.unitNum, dev->desc.unitName.c_str(), dev->online ? "ONLINE" : "OFFLINE");
+				dev->id.unitNum, dev->id.unitName.c_str(), dev->online ? "ONLINE" : "OFFLINE");
 		}
 
 		// devices are valid firmware drop targets
@@ -435,18 +459,18 @@ protected:
 		virtual void ExecFirmwareDrop(WrapperWin *win, const TCHAR *filename);
 
 		// device descriptor
-		DevDesc *dev;
+		DeviceDesc *dev;
 
 		// use the device name as the display name 
 		virtual std::string GetDisplayName() const override {
 			char buf[128];
-			sprintf_s(buf, "Unit #%d (%s)", dev->desc.unitNum, dev->desc.unitName.c_str());
+			sprintf_s(buf, "Unit #%d (%s)", dev->id.unitNum, dev->id.unitName.c_str());
 			return buf;
 		}
 
 		// sort relative to other device buttons according to unit number
 		virtual bool SortCompareLikeKind(const LeftPanelButton *other) const override {
-			return dev->desc.unitNum < static_cast<const DeviceButton*>(other)->dev->desc.unitNum;
+			return dev->id.unitNum < static_cast<const DeviceButton*>(other)->dev->id.unitNum;
 		}
 
 		// Activate.  This establishes a connection to the device if

@@ -122,6 +122,23 @@ using FeedbackReport = PinscapePico::FeedbackControllerReport;
 // HID device singleton
 USBIfc::FeedbackController feedbackController;
 
+// JSON configuration
+bool USBIfc::FeedbackController::Configure(JSONParser &json)
+{
+    // presume enabled
+    bool enabled = true;
+
+    // check for the top-level feedbackController key
+    if (auto *val = json.Get("feedbackController") ; !val->IsUndefined())
+    {
+        // get the enable status
+        enabled = val->Get("enable")->Bool();
+    }
+
+    // return the 'enabled' status
+    return enabled;
+}
+
 // initialize
 void USBIfc::FeedbackController::Init()
 {

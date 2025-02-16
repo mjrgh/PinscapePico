@@ -275,6 +275,9 @@ namespace PinscapePico
 		// get the Win32 device instance ID for the underlying device
 		const WCHAR *DeviceInstanceId() const { return deviceInstanceId.c_str(); }
 
+		// get the device's file system path
+		const WCHAR *Path() const { return path.c_str(); }
+
 		// Find the CDC (virtual COM) port associated with this device.
 		// The device sets up a CDC port for logging and command console
 		// access.  Windows assigns the COM port number, and the device

@@ -297,7 +297,8 @@ void DeviceOverviewWin::PaintOffScreen(HDC hdc0)
             y += mainFontMetrics.tmHeight;
         };
         y += hdc.DrawText(x, y, 1, mainFont, HRGB(0x000000), "Pinscape Vendor Interface: Configured (always present)").cy;
-        y += hdc.DrawText(x, y, 1, mainFont, HRGB(0x000000), "Pinscape Feedback Controller: Configured (always present)").cy;
+        ShowUSB("Pinscape Feedback Controller", usbIfcs.F_FEEDBACK_CONF, 0);
+        ShowUSB("LedWiz Protocol Emulation", usbIfcs.F_LEDWIZ_CONF, 0);
         ShowUSB("Virtual COM port (CDC)", usbIfcs.F_CDC_CONF, 0, [this, y, &hdc](int x) {
             hdc.DrawTextF(x, y, 1, mainFont, HRGB(0x000000), " (%" _TSFMT ")", cdcPortName.c_str());
         });

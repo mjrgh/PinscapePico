@@ -113,10 +113,14 @@ control ports based on timed events or internal device events, and all sorts of 
 
 * DOF support, via Pinscape Pico device recognition in DOF (present in unified R3++ DOF releases since late 2024)
 
-* Support for legacy LedWiz-only applications, via a new version of the open-source LEDWIZ.DLL
-that adds Pinscape Pico as a recognized device type; the DLL presents the Pinscape Pico to
-legacy applications as a virtual LedWiz, or even as a collection of virtual LedWiz units,
-for Pinscape configurations with more than 32 output ports
+* Support for legacy LedWiz-only applications, via two levels of emulation:
+  <ul>
+    <li>Windows API-level emulation, via an open-source LEDWIZ.DLL replacement.  This is the preferred
+    <li>Full USB protocol emulation, **intended as a last resort only**, for systems or applications where the LEDWIZ.DLL replacement can't be used
+  </ul>
+    
+    These two approaches are mutually exclusive, and have certain trade-offs.
+    See [LedWiz Emulation Options](LedWizEmulationOptions.md) for more details.
 
 * Night Mode, to disable designated outputs as a group for quieter play
 

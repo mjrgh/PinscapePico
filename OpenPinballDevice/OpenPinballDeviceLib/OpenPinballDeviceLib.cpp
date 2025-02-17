@@ -339,17 +339,16 @@ static bool GetExtendedDeviceID(hid_device_info *hEnum, hid_device_info *curDevi
 			//
 			// It would be nice to be able to check the output report size to make sure it matches
 			// the Pinscape protocol's 8-byte report format, but hidapi doesn't give us that
-			// information directly.  And we can't even get it from the report descriptor, even
-			// though hidapi *supposedly* gives us the report descriptor, because hidapi can only
-			// give us a synthetically reconstructed form of the descriptor that it creates from
-			// the preparsed data.  And the reconstruction code doesn't recognize the Output Array
-			// type that the Pinscape OUT report declares.  So we just have to filter on the usage
-			// information alone.  I'd prefer to be more discriminating, to be positive that we're
-			// addressing a true Pinscape KL25Z interface, because a device that's NOT a Pinscape
-			// might interpret the command we send in some wildly different way that might have
-			// unwanted side effects - once we pack up the command, after all, it's just bytes.
-			// But we've already filtered on product string, so also filtering on usage codes
-			// should eliminate most cases of mistaken identity.
+			// information directly.  And we can't even reliably get it from the report descriptor,
+			// because hidapi can't correctly reconstruct the OUT report descriptor on Windows.
+			// (After investigating, it's not entirely clear to me why this is, but the Windows
+			// preparsed data has what looks like a corrupted entry for the OUT report - evidently
+			// Pinscape KL25Z's OUT report descriptor format is somehow confusing the Windows HID
+			// descriptor parser in such a way that screws up the caps struct it builds, even
+			// though the HID parser accepts the descriptor and correctly determines the overall
+			// report size.  The frustrating thing is that *the only thing we really want* is the
+			// report size, which Windows *does* know, but the portable hidapi interface doesn't
+			// have a way to pass that back, so it's buried beyond our reach.)
 			static const int USAGE_PAGE_GENERIC_DESKTOP = 0x01;
 			static const int USAGE_GENERIC_DESKTOP_UNDEFINED = 0x00;
 			static const int USAGE_GENERIC_DESKTOP_JOYSTICK = 0x04;
@@ -363,7 +362,7 @@ static bool GetExtendedDeviceID(hid_device_info *hEnum, hid_device_info *curDevi
 				if (rdSize <= 0)
 					continue;
 
-				// parse the report, to obtain the report ID
+				// parse the report, to obtain the IN report ID (should be same as OUT)
 				hidrp::UsageExtractor usageExtractor;
 				hidrp::UsageExtractor::Report report;
 				usageExtractor.ScanDescriptor(rp, rdSize, report);

@@ -96,16 +96,24 @@ software that the protocol emulation exists to support.
 The big limitation with the protocol emulator is that you'll have to
 disable all of the Pinscape HID input devices: keyboard, gamepad,
 XInput, Open Pinball Device, and Feedback Controller.  The reason this
-is necessary is that most legacy LedWiz software doens't have any way
-to distinguish among multiple HID interfaces when it recognizes an
-LedWiz device.  The original LedWiz only has the one HID interface,
-for its custom command protocol, so all of the old software based on
-the interface will assume that the first HID it finds associated with
-a device sporting the LedWiz VID/PID is in fact the LedWiz protocol
-interface.  If you enable other HIDs, like the keyboard or gamepad
-input, the old software will try sending LedWiz commands to the
-keyboard or gamepad.  In the case of the original manufacturer
-LEDWIZ.DLL, the result will be a hard crash of the application.
+is necessary is that most legacy LedWiz software doesn't have any way
+to discriminate among multiple HID interfaces when it recognizes an
+LedWiz device.  The original LedWiz only has a single HID interface,
+which implements its custom command protocol, so all of the legacy
+software based on the LedWiz USB interface assumes that the first HID
+it finds associated with a device identifying itself under an LedWiz
+VID/PID is in fact the LedWiz protocol interface.  If you tell the
+Pico to identify itself as an LedWiz, and then you enable any of the
+other Pinscape virtual HIDs, like the keyboard or gamepad input, the
+old software will mistake those other HID devices for the LedWiz
+protocol interface and will try to send it LedWiz protocol commands.
+At best, the commands won't have any effect, so the application's
+attempt to control feedback devices will simply appear to do nothing.
+But it can cause any number of problems as well.  In the case of the
+original manufacturer LEDWIZ.DLL, the DLL outright crashes when it
+encounters any other HIDs under an LedWiz VID/PID - so at least you
+won't be left wondering why the LedWiz features aren't working, but
+you won't be able to run your games, either.
 
 The other big restriction when using the LedWiz USB emulation is that
 the LedWiz protocol is only capable of accessing 32 output ports per

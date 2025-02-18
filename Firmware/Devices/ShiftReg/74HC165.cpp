@@ -402,7 +402,7 @@ bool C74HC165::Init()
     sm_config_set_in_pins(&piocfg, gpQH);               // IN pin: QH
     sm_config_set_out_pins(&piocfg, gpSHLD, 1);         // OUT pin: SH/LD
     sm_config_set_sideset_pins(&piocfg, gpClk);         // one sideset pin: CLK
-    sm_config_set_out_shift(&piocfg, true, true, 8);    // true=shift RIGHT (LSB first), true=auto-pull ON, 8=bit refill threshold
+    sm_config_set_out_shift(&piocfg, true, true, 32);   // true=shift RIGHT (LSB first), true=auto-pull ON, 32=bit refill threshold
     sm_config_set_in_shift(&piocfg, false, true, 8);    // true=shift LEFT (LSB first), true=auto-push ON, 8-bit flush threshold
     sm_config_set_clkdiv(&piocfg, pioClockDiv);         // PIO clock divider (see above)
     pio_sm_init(pio, piosm, pioOffset, &piocfg);        // initialize with the configuration and starting program offset

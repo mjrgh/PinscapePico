@@ -1,6 +1,8 @@
 Release build procedure
 -----------------------
 
+- Update the main version number in PinscapeVersion.h (in the root project folder)
+
 - Run the build script in the root project folder - builds all binaries and
   creates the ZIP files:
 

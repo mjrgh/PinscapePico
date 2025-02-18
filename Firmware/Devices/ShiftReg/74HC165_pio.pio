@@ -55,10 +55,10 @@
 .wrap_target
     ; Top of main loop 
 
-    ; load the port loop counter into X (the host pre-loads it into OSR)
+    ; load the port loop counter into X (the host sends it on the TX FIFO);
     ; take SH/LD LOW to load parallel input ports into the shift register
     ; hold for one extra clock cycle
-    out x, 8          side 0  ; load loop count into X
+    out x, 32         side 0  ; load loop count into X
 
     ; Toggle SH/LD into LOAD mode for two clocks, then go back to SHIFT mode.
     ; The extra clocks are a (probably overly) conservative interpretation

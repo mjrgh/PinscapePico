@@ -1703,7 +1703,7 @@ void ButtonTesterWin::PaintOffScreen(HDC hdc0)
                     hdc.DrawTextF(x, y + (portBoxSize - szMainFont.cy)/2, 1, mainFont, RGB(0, 0, 0),
                         "  Chip #%d (I2C%d 0x%02X)", d.configIndex, d.addr >> 8, d.addr & 0xFF);
 
-                    y += portBoxSize;
+                    y += portBoxSize + 4;
                 }
             }
             y += 8;
@@ -1724,10 +1724,10 @@ void ButtonTesterWin::PaintOffScreen(HDC hdc0)
                     // 8 physical ports, so we can infer the number of chips
                     // from the total number of ports in the chain.  Draw each
                     // chip separately.
-                    int x = xkb;
                     for (int chip = 0, dcPort = 0 ; dcPort < d.numPorts ; ++chip, dcPort += 8)
                     {
                         // draw the ports for one chip
+                        int x = xkb;
                         for (int port = 0 ; port < 8 ; ++port)
                             x = DrawPort(x, y, port, ut->hc165State[idx++] != 0);
 
@@ -1735,7 +1735,7 @@ void ButtonTesterWin::PaintOffScreen(HDC hdc0)
                         hdc.DrawTextF(x, y + (portBoxSize - szMainFont.cy)/2, 1, mainFont, RGB(0, 0, 0),
                             "  Chain %d, chip %d", d.configIndex, chip);
 
-                        y += portBoxSize;
+                        y += portBoxSize + 4;
                     }
                 }
             }

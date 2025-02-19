@@ -57,6 +57,7 @@
 #include "GPIOManager.h"
 #include "JSON.h"
 #include "Logger.h"
+#include "Watchdog.h"
 #include "../USBProtocol/VendorIfcProtocol.h"
 #include "74HC165.h"
 #include "74HC165_pio.pio.h"
@@ -168,7 +169,11 @@ void C74HC165::Configure(JSONParser &json)
             "options:\n"
             "  --stats, -s       show statistics\n"
             "  --reset-stats     reset statistics\n"
-            "  --list, -l        list port status\n",
+            "  --list, -l        list port status\n"
+            "  --dma-off         disable DMA (to allow --bitbang and --dma-once transfer tests)\n"
+            "  --dma-on          re-enable DMA\n"
+            "  --dma-once        execute one PIO DMA cycle (--dma-off mode only)\n"
+            "  --bitbang         clock data in directly from GPIOs (--dma-off mode only)\n",
             &Command_main_S);
     }
 }
@@ -177,8 +182,11 @@ C74HC165::C74HC165(int chainNum, int nChips, int shld, int clk, int qh, bool loa
     chainNum(chainNum), nChips(nChips), nPorts(nChips*8),
     gpSHLD(shld), gpClk(clk), gpQH(qh), loadPolarity(loadPolarity), shiftClockFreq(shiftClockFreq)
 {
-    // allocate the chip data array
-    data = new uint8_t[nChips];
+    // Allocate the chip data array.  Allocate at double size -
+    // one block for the "real" DMA buffer, a second for the scratch
+    // (debug transfer) buffer.
+    data = new uint8_t[nChips*2];
+    scratchData = &data[nChips];
 }
 
 C74HC165::~C74HC165()
@@ -276,14 +284,14 @@ void C74HC165::SecondCoreChainTask()
     stats.CheckResetRequest();
 
     // if the DMA channel isn't busy, start a new transfer
-    if (!dma_channel_is_busy(dmaChan))
+    if (!dma_channel_is_busy(dmaChan) && dmaEnabled)
     {
         // start the next transfer
-        StartTransfer();
+        StartTransfer(data);
     }
 }
 
-void C74HC165::StartTransfer()
+void C74HC165::StartTransfer(volatile uint8_t *destBuf)
 {
     // count statistics
     stats.AddDMACycle();
@@ -292,7 +300,7 @@ void C74HC165::StartTransfer()
     pio_sm_put(pio, piosm, nPorts - 1);
 
     // start the transfer; the PIO program transfers one 8-bit element per chip
-    dma_channel_transfer_to_buffer_now(dmaChan, data, nChips);
+    dma_channel_transfer_to_buffer_now(dmaChan, destBuf, nChips);
 }
 
 // initialization
@@ -431,7 +439,7 @@ bool C74HC165::Init()
     channel_config_set_read_increment(&dmaConf, false);
     channel_config_set_write_increment(&dmaConf, true);
     channel_config_set_transfer_data_size(&dmaConf, DMA_SIZE_8);
-    channel_config_set_dreq(&dmaConf, pio_get_dreq(pio, piosm, true));
+    channel_config_set_dreq(&dmaConf, pio_get_dreq(pio, piosm, false));
     dma_channel_configure(dmaChan, &dmaConf, nullptr, &pio->rxf[piosm], nChips, false);
 
     // flag a statistics reset, to set the start time of the first transfer
@@ -559,6 +567,96 @@ void C74HC165::Command_main(const ConsoleCommandContext *c, int specifiedChipNum
                     c->Printf("  %c: %s\n", j + 'A', Get(i*8 + j) ? "HIGH" : "LOW");
             }
         }
+        else if (strcmp(a, "--dma-off") == 0)
+        {
+            // disable second-core DMA initiation
+            dmaEnabled = false;
+
+            // wait for the current transfer to finish
+            WatchdogTemporaryExtender wde(2500);
+            for (uint64_t tStop = time_us_64() + 1000 ; dma_channel_is_busy(dmaChan) && time_us_64() < tStop ; ) ;
+
+            // set pins to CPU control
+            PinsToCPU();
+            c->Printf("DMA disabled; input will be frozen until DMA is re-enabled with --dma-on\n");
+        }
+        else if (strcmp(a, "--dma-on") == 0)
+        {
+            // enable second-core DMA initiation
+            dmaEnabled = true;
+
+            // set pins back to PIO control
+            PinsToPIO();
+            c->Printf("DMA enabled\n");
+        }
+        else if (strcmp(a, "--dma-once") == 0)
+        {
+            if (dmaEnabled)
+            {
+                c->Printf("%s requires disabling DMA via --dma-off\n", a);
+                continue;
+            }
+            if (dma_channel_is_busy(dmaChan))
+            {
+                c->Printf("DMA is still running\n");
+                continue;
+            }
+
+            WatchdogTemporaryExtender wde(12500);
+
+            // set the GPIO pins to PIO control
+            PinsToPIO();
+
+            // show FIFO status before
+            c->Printf("FIFO levels (before): TX %d, RX %d\n", pio_sm_get_tx_fifo_level(pio, piosm), pio_sm_get_rx_fifo_level(pio, piosm));
+
+            // start the transfer to the temp buffer
+            StartTransfer(scratchData);
+
+            // wait for the transfer
+            for (uint64_t tStop = time_us_64() + 10000 ; dma_channel_is_busy(dmaChan) && time_us_64() < tStop ; ) ;
+
+            // set the GPIOs back to CPU bit-bang control
+            PinsToCPU();
+
+            // show the results, including FIFO status after
+            c->Printf("FIFO levels (after): TX %d, RX %d\n", pio_sm_get_tx_fifo_level(pio, piosm), pio_sm_get_rx_fifo_level(pio, piosm));
+            c->Printf("DMA data:");
+            for (int i = 0 ; i < nChips ; ++i)
+                c->Printf(" %02X", scratchData[i]);
+            c->Printf("\n");
+        }
+        else if (strcmp(a, "--bitbang") == 0)
+        {
+            if (dmaEnabled)
+            {
+                c->Printf("%s requires disabling DMA via --dma-off\n", a);
+                continue;
+            }
+
+            WatchdogTemporaryExtender wde(2500);
+            gpio_put(gpSHLD, loadPolarity);
+            sleep_us(1);
+            gpio_put(gpSHLD, !loadPolarity);
+            sleep_us(1);
+            c->Printf("Bit-bang data:");
+            for (int chip = 0 ; chip < nChips ; ++chip)
+            {
+                uint8_t b = 0x00;
+                for (int port = 0 ; port < 8 ; ++port)
+                {
+                    b <<= 1;
+                    b |= (gpio_get(gpQH) ? 0x01 : 0x00);
+
+                    gpio_put(gpClk, true);
+                    sleep_us(1);
+                    gpio_put(gpClk, false);
+                    sleep_us(1);
+                }
+                c->Printf(" %02X", b);
+            }
+            c->Printf("\n");
+        }
         else
         {
             return c->Printf("74hc165: invalid option \"%s\"\n", a);
@@ -566,3 +664,20 @@ void C74HC165::Command_main(const ConsoleCommandContext *c, int specifiedChipNum
     }
 }
 
+void C74HC165::PinsToCPU()
+{
+    // set GPIO functions to bit-bang operation
+    gpio_set_function(gpSHLD, GPIO_FUNC_SIO);
+    gpio_set_function(gpClk, GPIO_FUNC_SIO);
+    gpio_set_dir(gpSHLD, GPIO_OUT);
+    gpio_set_dir(gpClk, GPIO_OUT);
+    gpio_put(gpSHLD, true);
+    gpio_put(gpClk, false);
+}
+
+void C74HC165::PinsToPIO()
+{
+    // set GPIO functions back to PIO operation
+    pio_gpio_init(pio, gpClk);
+    pio_gpio_init(pio, gpSHLD);
+}

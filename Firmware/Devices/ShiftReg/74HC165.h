@@ -100,7 +100,7 @@ protected:
     void SecondCoreChainTask();
 
     // start a DMA transfer from the PIO to the data buffer
-    void StartTransfer();
+    void StartTransfer(volatile uint8_t *destBuf);
 
     // my chain number in the configuration
     int chainNum;
@@ -119,6 +119,9 @@ protected:
 
     // DMA channel
     int dmaChan = -1;
+
+    // DMA enabled (can be disabled for debugging)
+    volatile bool dmaEnabled = true;
 
     // Desired shift clock (CLK) frequency
     int shiftClockFreq = 6000000;
@@ -193,4 +196,12 @@ protected:
     // console commands
     static void Command_main_S(const ConsoleCommandContext *c);
     void Command_main(const ConsoleCommandContext *c, int chip, int firstOptionIndex);
+
+    // Debugging - switch GPIO ownership between CPU and PIO.  CPU control
+    // allows bit-bang access, for testing purposes.
+    void PinsToCPU();
+    void PinsToPIO();
+
+    // scratch DMA buffer for debug transfers
+    volatile uint8_t *scratchData = nullptr;
 };

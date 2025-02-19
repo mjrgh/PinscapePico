@@ -45,9 +45,8 @@
 ;   Pre-load Y with LOAD state bit for SH/LD (0 for standard 74HC165, where LOAD mode is active low)
 ;
 ; Other PIO configuration:
-;   AUTOPUSH ON
-;   PUSH(IN)  Shift Direction = LEFT (LSB first)
-;   PUSH(IN)  Shift Threshold = 8 bits
+;   PUSH(IN)  Autopush ON, shift direction LEFT (LSB first), shift threshold 8 bits
+;   PULL(OUT) Autopull ON, shift direction RIGHT (LSB first), shift threshold 32 bits
 
 .program C74HC165
 .side_set 1        ; CLK

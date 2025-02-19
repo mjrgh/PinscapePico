@@ -158,21 +158,33 @@ for troubleshooting problems that don't easily yield to other means
 * GUI configuration and testing tool, with detailed visualizations of hardware
 and software status for button inputs, feedback device outputs, plunger sensor, and IR features
 
-### No smart light strip support
+### Non-features (things Pinscape Pico doesn't do)
 
-Pinscape Pico (like its KL25Z predecessor) doesn't have any support
-for smart light strips with individually addressable LEDs, such as
-WS2812B strips.  You still need a separate controller for that.
+Pinscape Pico is billed as a "comprehensive" I/O controller for
+virtual pinball cabinets, but there are a few I/O functions that
+Pinscape doesn't handle.  In each case, the decision to omit them was
+based primarily on the resource limits of the Pico: there would be too
+many compromises trying to make a single Pico perform all of its
+Pinscape duties *plus* these other tasks.  Fortunately, all of these
+functions are already covered by other open-source projects that run
+on similarly inexpensive hardware, so leaving them out of Pinscape
+shouldn't be an obstacle to including them in a DIY pin cab.
 
-The Pico hardware is powerful enough to handle the WS2812B protocol
-concurrently with the other Pinscape functions, so I might look into
-adding this at some point.  However, the Pico is also quite limited on
-GPIO ports, so I'm not sure anyone would really be all that happy
-trying to cram both functions into a single Pico, when they consider
-how severely it would constrain the available GPIO ports for each
-function.  I think everyone might end up happiest with the current
-situation, where you just use a separate, dedicated controller for
-your smart LED strips.
+* **No smart light strips:** Pinscape doesn't control smart light
+strips - the kind with individually addressable RGB LEDs, such as
+WS2812B strips.  The resource limit that makes this impractical to
+include in Pinscape is the Pico's relatively small number of GPIO
+ports.  For a typical pin cab light strip setup, you'd need four to
+eight GPIO ports dedicated to the light strips.  Pinscape needs almost
+all of the GPIO ports to itself as it is.
+
+* **No Dot-Matrix Displays (DMDs):** Pinscape also doesn't control the
+128x32 dot-matrix display panels found in 1990s pinball machines, and
+still popular in virtual pinball cabinets.  The main reason to
+dedicate a separate controller to the DMD is that it requires a lot of
+USB bandwidth, since the DMD is essentially a small video display.  A
+separate device with its own USB port is the simplest way to ensure
+plenty of bandwidth for everyone.
 
 
 ## Documentation

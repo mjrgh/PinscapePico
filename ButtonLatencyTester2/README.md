@@ -125,25 +125,38 @@ verify that the device appears in the list of recognized devices
 drivers are required on the Windows side
 
 
+## Companion Circuit Board
+
+The project includes a [circuit board design](ConnectorBoard) that
+implements the test bench setup described below on a small board that
+you can plug a Pico into.  The circuit board includes inputs for four
+buttons, and uses screw terminals for all external connections, to
+make it easy to temporarily patch into an existing pin cab's button
+encoder wiring.  The circuitry needed is also easy to set up on a
+breadboard, so the PCB isn't a must.  But it might be worthwhile to
+build if you plan to use it for more than one or two ad hoc test runs.
+
+
+
 ## Recommended Test Bench Setup - description
 
-One key to accurately measuring the latency is to capture the exact
-moment when you press the button.  The whole point of the exercise is
-to measure the time between the button press and the arrival of the
-corresponding input event on the PC, so we need to know the time of
-each of those endpoints.
+A crucial step in accurately measuring button latency is to capture
+the exact moment when you press the button.  The whole point of the
+exercise is to measure the time between the button press and the
+arrival of the corresponding input event on the PC, so we need to know
+the time of each of those endpoints, as precisely as possible.
 
-To precisely measure the time of the button press, we set up the
-button so that it's physically connected to **both** the subject
-device and the BLT-II Pico.  This ensures that the BLT-II Pico sees
-the physical button press at exactly the same time as the subject
-device, giving us an accurate reading on the beginning endpoint of the
-time interval we're trying to measure.
+To measure the time of the button press, we set up the button so that
+it's physically connected to **both** the subject device and the
+BLT-II Pico.  This ensures that the BLT-II Pico sees the physical
+button press at exactly the same time as the subject device, giving us
+an accurate reading on the beginning endpoint of the time interval
+we're trying to measure.
 
 The best way to connect a single button to both devices without any
 risk of electrical interference between the two devices is to use an
 optocoupler to isolate the button from each device.  In the
-recommended setup, the button is wired to **two** optocouplers - one
+reference setup, the button is wired to **two** optocouplers: one
 for the subject device, one for the BLT-II Pico.  When you press the
 button, it activates both optocouplers simultaneously.  This sends the
 button press signal to the subject device and the BLT-II Pico at the
@@ -152,11 +165,11 @@ event to the host, and the BLT-II Pico uses the signal to record the
 time of the physical button press.
 
 An optocoupler's transistor (Collector/Emitter) side acts roughly like
-an ordinary switch, so for the Pico and for most subject devices, it
-can take the place of an ordinary pushbutton switch in a button input
-port's wiring.  This works as long as the subject device's button
-input ports are voltage-sensitive and high-impedance (very low current).
-This is true of the Pico, and for most other microcontrollers.
+an ordinary switch, so in most encoder setups, it can physically take
+the place of an ordinary pushbutton switch in a button input port's
+wiring.  This works as long as the subject device's button input ports
+are voltage-sensitive and high-impedance (very low current).  This is
+true of the Pico, and also holds for most other microcontrollers.
 
 
 ## Recommended Test Bench Setup - how to

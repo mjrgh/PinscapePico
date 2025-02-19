@@ -434,9 +434,8 @@ bool C74HC165::Init()
     channel_config_set_dreq(&dmaConf, pio_get_dreq(pio, piosm, true));
     dma_channel_configure(dmaChan, &dmaConf, nullptr, &pio->rxf[piosm], nChips, false);
 
-    // start the first DMA transfer
-    stats.t0 = time_us_64();
-    StartTransfer();
+    // flag a statistics reset, to set the start time of the first transfer
+    stats.RequestReset();
 
     // success
     Log(LOG_CONFIG, "74HC165[%d] initialized, CLK=GP%d, QH=GP%d, SH/LD=GP%d (LD is active %s); DMA ch %d; PIO %d.%d@%u, clock divider=%.3lf\n",

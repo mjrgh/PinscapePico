@@ -156,23 +156,29 @@ requirements.  In this case, we have a lot more button inputs than
 the Pico has GPIO ports.  The newer version of the board accomplishes
 the same thing using 74HC165 shift register chips.
 
-The main advantage of the PCA9555 over the 74HC165 is that the former
-has built-in pull-up resistors.  Each button port requires a pull-up
-resistor so that the port reads a deterministic logic level when the
-button **isn't** being pressed (so the button switch is open).  The
-74HC165 doesn't have its own built-in pull-ups, so a board based on
-this chip requires additional parts (one resistor per port).  That
-increases the parts cost and assembly work to build the board, so I
-started with the PCA9555 for the sake of economy.
+The main advantage of the PCA9555 over the 74HC165, and the reason I
+started with the PCA9555 version, is that the PCA9555 has built-in
+pull-up resistors.  Regardless of which chip is used, each button
+input requires a pull-up resistor, to give it a definite voltage
+reading when the button isn't being pressed.  The PCA9555 happens to
+include pull-up resistors internally on every port, which makes it
+really easy to use for button inputs, since you don't need to add any
+parts to get the required pull-up voltage.  The 74HC165, in contrast,
+doesn't provide any equivalent, so you have to add one resistor per
+button port - with 24 button ports on this board, that's 24 extra
+parts.  So I initially designed the board around the PCA9555, for the
+sake of reducing the parts cost and the assembly work.
 
-But the PCA9555 has a major disadvantage, which is that it's
-relatively slow: it can only sample the button inputs about once per
-millisecond.  For most applications, that would be fine, but it's a
-negative for a gaming device like this one, where users desire
-extremely low latency for control inputs.  The 74HC165 solves this; it
-can clock samples into the host microcontroller at megahertz speeds,
-allowing buttons to be sampled every 10 to 20 microseconds.  That's
-effectively zero latency.
+But the PCA9555 has a major disadvantage, which is that it's not
+nearly as fast as the 74HC165.  It can only sample the button inputs
+about once per millisecond.  For most applications, that would be
+fine, but it's a negative for a gaming device like this one, where
+users desire extremely low latency for control inputs.  The 74HC165
+solves this; it can clock samples into the host microcontroller at
+megahertz speeds, allowing buttons to be sampled every 10 to 20
+microseconds.  That's effectively zero latency.  I decided that the
+fast sampling rate is important enough for a pin cab controller to
+justify all of those extra resistors.
 
 I'm keeping the PCA9555 board in the repository just in case anyone
 deems the reduced parts cost more important than the reduced latency
@@ -180,5 +186,3 @@ of the 74HC165 version.  However, I haven't brought it up to date
 with the changes for the through-hole pin sockets for the Pico, and
 I don't plan to maintain it, since I think the 74HC165 version is
 the better choice for most people.
-
-

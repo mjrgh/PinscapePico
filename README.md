@@ -287,6 +287,56 @@ the specified UF2 file into its flash, and reboots the Pico to
 launch the updated firmware.
 
 
+## Safe Mode
+
+Pinscape uses the Pico's hardware watchdog module to automatically
+detect most software crashes.  The watchdog is essentially a hardware
+timer that performs a power-cycle reboot on the Pico if the software
+ever stops responding for more than a fraction of a second.  This is
+an excellent way to detect software crashes, freezes, and other
+problems that make the software stop functioning correctly, and in
+most cases, it prevents the Pico from ever getting into a truly
+unresponsive state.
+
+When the hardware watchdog detects a crash, it reboots Pinscape into
+Safe Mode.  Safe Mode runs the normal Pinscape firmware, but it
+bypasses the usual JSON configuration file, and instead uses a
+stripped-down configuration with a minimal number of features enabled.
+The idea is that most crashes are caused by specific features in the
+software, rather than by the core system software, so disabling most
+of the optional features will allow the basic core software to run
+without problems.
+
+When Safe Mode is active, the Config Tool can connect to the Pico, and
+you can inspect and edit the JSON configuration file.  You can also
+use Safe Mode to install new firmware, if you're aware of a newer
+firmware version that contains a fix for the crash.
+
+If you suspect that the crash that led to Safe Mode activation was due
+to a particular feature, you can use Safe Mode to edit the
+configuration file and disable the suspect feature.  If you think it
+was due to a setting, but you're not sure which one, you can
+experiment with disabling features until you find the one responsible.
+
+If you think the crash was purely random or sporadic, you can just
+reboot the Pico and try again.  If the Pico keeps going back into Safe
+Mode after each reboot, you probably will need to disable something in
+the configuration to get back to normal operation.
+
+By default, Safe Mode uses default "factory" settings for everything.
+You can optionally create your own Safe Mode configuration file via
+the Config Tool, in the Safe Mode Config window.  This works exactly
+like the regular JSON configuration; it's just a separate JSON file
+that's loaded instead of the regular one when Safe Mode is triggered.
+The Safe Mode config file lets you enable specific features even when
+in Safe Mode.  Naturally, you should minimize the features you enable
+here, since the whole point is to create a minimal configuration
+that's less likely to crash due its very simplicity.  I like to
+configure the ID information here to match the main configuration, and
+also enable the UART ports, so that I can access the command console
+for troubleshooting even when Safe Mode is active.
+
+
 ## Recovering a bricked Pico
 
 First, you can't actually "brick" a Pico, in the sense of rendering it
@@ -294,15 +344,11 @@ permanently unrecoverable due to a software error.  But the Pinscape
 software certainly can crash, and it can crash at startup, such that
 it won't connect to the Config Tool long enough to let you perform an
 update.  So the Pico might *appear* to be bricked.  Even this is
-unlikely, because Pinscape uses the Pico's hardware watchdog to
-automatically detect most software crashes, rebooting the Pico
-into "safe mode".  This bypasses the normal configuration loading and
-thereby usually bypasses whatever triggered the crash.  This doesn't
-necessarily solve the underlying problem, but it at least gives you
-access the Pinscape software as far as updating the configuration
-and firmware.
+unlikely, because the Pico will automatically detect most crashes
+and reboot itself into Safe Mode (see above), giving you access to
+basic configuration functions.
 
-Even in the event that Safe Mode doesn't kick in, it's *still* essentially
+In the event that Safe Mode doesn't kick in, it's *still* essentially
 impossible to truly brick a Pico, thanks to the Pico's boot loader
 being etched into inalterable hardware ROM.  No matter how badly the
 software screws up, there's just no physical way that it can break
@@ -317,8 +363,9 @@ Holding the BOOTSEL button during a power cycle activates the Pico
 boot loader, bypassing any software loaded in flash.  Since it's
 impossible to erase the boot loader program itself (as it's stored in
 unerasable ROM), and since the BOOTSEL button physically bypasses the
-flash during the reset, there's nothing that an errant firmware
-program can do to derail this assertion of Boot Loader control.
+flash during the reset, there's nothing that a firmware program can do
+to prevent this assertion of Boot Loader control, even if it were
+deliberately trying to.
 
 After you perform the BOOTSEL maneuver, the Pico should appear as a
 virtual thumb drive on your Windows desktop.  You can now replace the

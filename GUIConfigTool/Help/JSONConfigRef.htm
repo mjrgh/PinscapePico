@@ -7903,25 +7903,24 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   The most popular one among software developers (who are practically the only
   people who use terminal programs at all these days) is probably PuTTY, which
   is free and open-source.  Almost everyone who uses PuTTY uses it to connect
-  to remote Linux servers, but it also works great to talk to the Pico.
+  to remote Linux servers, but it's also great for talking to the Pico.
   </p><p>
-  You'll have to figure out the COM port number that Windows assigns to the 
-  Pinscape connection.  Pinscape has no control over this - it's up to Windows to
-  assign the port number.  For the USB virtual COM port, the Config Tool's Overview 
-  page displays the COM port number that Windows assigned to the device.  If
-  you're using a Pico UART port and plugging it into a physical serial
-  port on your PC, simply use the physical COM port number for the port where
-  you plugged in the cable (a physical serial port is almost always named
-  COM1, unless your PC has more than one of them, in which case they should
-  usually numbered sequentially - COM1, COM2, etc).  If you're using a Pico
-  UART port, but plugging it into the PC through a USB-to-UART adapter cable,
-  you'll have to figure out the COM port that Windows assigned to the adapter.
-  You should be able to do that by scanning the "Ports (COM & LPT)" section in
-  Device Manager.
+  You'll have to figure out the COM port number that Windows assigns to the
+  Pinscape connection. Pinscape has no control over this; Windows is solely
+  responsible for choosing the port number. For the USB virtual COM port, the
+  Config Tool's Overview page displays the assigned COM port number.  If
+  you're using the Pico UART port and plugging it into a physical serial port on
+  your PC, use the physical COM port number for the physical serial port where you
+  plugged in the cable.  This is almost always COM1, unless you have more than
+  one, in which case they'll be numbered sequentially - COM1, COM2, etc.
+  If you're using a Pico UART port, but plugging it into the PC through a
+  USB-to-UART adapter cable, the COM port number is the one that Windows
+  assigned to the <b>adapter</b>.  You should be able to identify that
+  by opening Device Manager and scanning the "Ports (COM & LPT)" section.
   </p><p>
-  Once you know the COM port, set it up in PuTTY by setting Connection Type to
-  Serial, typing in the COM port number in the "Serial line" box, and setting
-  Speed to 115200.
+  Once you know the COM port number, set it up in PuTTY by setting <b>Connection
+  Type</b> to <b>Serial</b>, typing in the COM port number in the <b>Serial line</b>
+  box, and setting <b>Speed</b> to <b>115200</b>.
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{

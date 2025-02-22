@@ -804,8 +804,53 @@ tt {
    suitable large "power" MOSFETs are available that can switch well
    over 15A at 50V or even 100V, which is more than enough for most
    virtual pinball projects.  The GPIO port should be configured in the
-   default Active High mode.
+   default Active High mode.  See note below on selecting R1 and R2.
 </div>
+
+<p>
+   <b>Selecting gate resistors R1, R2:</b>  220 Ohms seems to be a
+   good general-purpose choice.  The primary purpose of these resistors
+   is to suppress "ringing", which refers to high-frequency current
+   oscillations that occur during the rapid inrush of charge when the
+   MOSFET gate is initially switched on.  For that function, you only
+   need a very small resistor, on the order of 10 Ohms.
+   However, the resistors have a second function, which is to protect
+   the UCC27524P chip from excessive current spikes during on/off switching.
+   UCC27524P's entire purpose is to handle high-current spikes, but even so,
+   it has its limits (as do all similar gate driver chips).  The chip
+   has to dissipate a certain amount of heat during on/off switching
+   transitions, and since PWM operation is all about rapid on/off
+   switching, high PWM frequencies increase the amount of heat the
+   chip has to dissipate.  R1 and R2 limit the current spikes during
+   switching transitions, which in turn reduces the power dissipated
+   by the chip.  Higher R1 and R2 values lead to less chip heating.
+   However, this has the countervailing effect of <i>increasing</i>
+   switching power losses in the MOSFET, so higher R1 and R2 also
+   lead to <i>more</i> MOSFET heating.  So we have one of those cruel
+   trade-offs that engineering is all about: you can heat up the
+   driver chip, or you can heat up the MOSFET, take your pick.  The
+   optimal R1 and R2 values have to balance between fast MOSFET switching
+   (lower resistance values) and safer driver chip operation (higher
+   resistance values).  The one-size-fits-all 220 Ohm recommendation
+   that opened this note was chosen because it seems to be a good
+   compromise.  It's high enough, according to experiments, to protect
+   UCC27524P from current spikes when using a high-gate-charge MOSFET
+   like IRF540N, but it's still low enough to allow fairly high PWM
+   rates (20 kHz) with such a MOSFET without excessive heating from
+   switching power loss.  Note that "high-gate-charge" is a more
+   difficult case for the circuit to handle than low gate charge,
+   so it's not a feature you should look for when choosing a MOSFET.
+   The circuit should actually work even better with MOSFETs with
+   lower gate charge numbers.  But MOSFETs with lower gate
+   charge tend to be more expensive, so I wanted to make the circuit
+   plan flexible enough to accommodate the more demanding
+   high-gate-charge type.
+</p>
+<p>
+   There's some more in-depth discussion about the resistor size
+   selection in this vpforums thread:
+   <a href="https://www.vpforums.org/index.php?showtopic=54968&p=543950">www.vpforums.org/index.php?showtopic=54968&p=543950</a>.
+</p>
 
 <h3>Glitch-free startup</h3>
 <p>

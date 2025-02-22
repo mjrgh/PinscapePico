@@ -1,0 +1,26 @@
+Qty,Value,Parts,Description,PARTNO,Comments
+2,B3F-1000,"S1, S2","Omron pushbutton switch, SPST, through-hole",B3F-1000,
+1,"0.1"" PIN-HD 1X8-90",J8,"Pin header, 0.1"" pitch, 1x8, right angle",10129379-908001BLF,
+4,"0.1"" SOCK-HD 1X20","PICO1, PICO2","Socket Header, 20 position, 2.54mm pitch",61302011821,
+2,Pico-H,"PICO1, PICO2",Raspberry Pi Pico w/pin headers installed,SC0917,
+4,MTA100-10PIN,"J4, J5, J6, J7","MTA100 friction lock header, 2.54mm pitch, 10 position",1-640456-0,
+4,MTA100-10PIN-24AWG,"PLUG_J4, PLUG_J4, PLUG_J6, PLUG_J7","MTA100 housing, 10 pin, 24 AWG",4-643814-0,
+8,100nF,"C1, C3, C5, C7, C9, C11, C13, C15","Capacitor, ceramic, 100nF, radial, 2.5mm lead pitch",K104K15X7RF5TL2,
+2,2.2k,"R13, R33","Resistor, 2.2K, axial, 2mm x 4mm",MFR25SFTE26-2K2,
+2,2N2222A,"Q17, Q18","NPN transistor, TO-92, 40V, 600mA",637-2N2222A,
+2,4.7K,"R18, R32","Resistor, 4.7K, axial, 2mm x 4mm",MFR25SFRF52-4K7,
+8,4.7uF,"C2, C4, C6, C8, C10, C12, C14, C16","Capacitor, ceramic, 4.7uF, radial, 2.5mm lead pitch",FG14X7R1E475KRT06,
+16,4R7,"R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R14, R15, R16, R17","Resistor, 4.7 Ohm, axial, 2 mm x 4mm",MF0204FTE52-4R7,"Gate driver resistor; current limit 2.5A, fastest switching"
+16,47R,"R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R14, R15, R16, R17","Resistor, 47 Ohm, axial, 2 mm x 4mm",MFR25SFRF52-47R,Alternate gate driver resistor; current limit 255mA - see notes
+16,200R,"R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R14, R15, R16, R17","Resistor, 200 Ohm, axial, 2 mm x 4mm",MFR25SFRF52-200R,Alternate gate driver resistor; current limit 60mA - see notes
+1,MTA156-6PIN,J3,"Header,MTA156,6 way friction lock header,3.96mm pitch",571-6404456,
+1,MTA156-6PIN-22AWG,PLUG_J3,"MTA156 IDC housing, 6 pin, 22 AWG",3-643819-6,
+2,MTA156-9PIN,"J1, J2","Header,MTA156,straight,3.96mm,9way",571-6404459,
+2,MTA156-9PIN-24AWG,"PLUG_J1, PLUG_J2","MTA156 IDC housing, 9 pin, 24 AWG",571-3-640429-9,
+1,BAT-HLD-001-THM,BATT1,Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount,712-BAT-HLD-001-THM,
+1,DS1307,IC13,"Real-time clock IC, DS1307, 8-Pin PDIP",700-DS1307,
+1,32.768kHz/12.5pF/35K,Y1,"Crystal, 32.768 kHZ, 12.5 PF, ESR 35K, through hole radial 2.8mm pitch",520-S-.32712.513XC,
+16,FDPF085N10A,"Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, Q14, Q15, Q16","Power MOSFET, TO-220-3 (G-D-S pin ordering)",FDPF085N10A,Substitute any N-channel TO-220-3 with G-D-S pin ordering and minimum 20V V[gs][max]
+2,SB140-T,"D1, D2","Schottky Diodes & Rectifiers 1.0A 40V, SB140-T, through-hole",621-SB140-T,
+8,UCC27524P,"IC1, IC2, IC3, IC4, IC5, IC6, IC7, IC8",Dual 5A High-Speed Low-Side Power MOSFET Driver,595-UCC27524P,
+4,ULN2803A,"IC9, IC10, IC11, IC12","Darlington NPN transistor array, 500mA/ch",ULN2803A,

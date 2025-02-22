@@ -1,0 +1,6 @@
+Qty,Value,Parts,Description,PARTNO,Comments
+1,150nF,C1,"Capacitor, ceramic, 150nF, radial, 2.5mm lead pitch",K154K20X7RF53H5,
+1,220R,R1,"Resistor, 200 Ohm, axial, 2mm 4 xmm",MFR25SFTF52-220R,
+1,TSOP38438,U1,"IR receiver/demodulator, Vishay TSOP38438",TSOP38438,
+1,MICROMATCH-4PIN,J1,"Connector, Micro-MaTch female-on-board, 4 pin, top entry",215079-4,
+1,MICROMATCH-4PIN,PLUG_J1,"Plug for J1, Micro-MaTch male-on-wire, 4 pin, IDC",215083-4,

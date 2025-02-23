@@ -54,3 +54,27 @@ high-voltage (48V) supply, so that the high-voltage power is automatically
 cut off whenever you open the coin door to do maintenance work inside the
 cabinet.  It also features connectors that match the power connectors on the
 DIY-Friendly and Pro expansion boards, again just to make the wiring tidier.
+
+
+## Bills of Materials (BOMs)
+
+Each circuit board has an accompanying BOM file, in .csv (Comma-Separated
+Value) format.  To view these, open them in a spreadsheet program like
+Microsoft Excel, Apple Numbers, or Google Sheets.
+
+The reason these are in CSV format rather than plain text is that Mouser and
+Digikey will accept them as uploads, to construct a shopping cart without a
+lot of manual data entry.  But you should carefully review the results.  For
+one thing, the sites aren't always perfect at matching the BOM line items to
+their inventory, so check that everything looks plausibly correct before
+ordering.  For another, items go out of stock.  Some items might even be out
+of production by the time you order, especially if the BOM you're working
+from is more than five minutes old, since the manufacturers constantly
+change their product lineups.  For out-of-stock or obsolete items, you'll
+have to select suitable substitutes.  For generic parts like resistors and
+capacitors, substitutes should always be easy to find - just match the Ohms
+or "uF" values, and the physical package type and size.  For more complex
+parts, such as transistors and IC chips, it can be more difficult to select
+substitutes; ask on the forums if you're in doubt, and hopefully someone
+with an electronics background can point you in the right direction.
+

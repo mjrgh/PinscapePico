@@ -5,6 +5,8 @@ Pico software.  Pinscape Pico is firmware for the Raspberry Pi Pico
 that turns a Pico into a highly customizable I/O controller for
 virtual pinball cabinets.
 
+## Description
+
 My first Pinscape Pico expansion board design was an All-In-One board
 that packed everything you'd need for a pin cab into one 10x16 cm
 board.  To achieve that kind of density, that design uses tiny SMD
@@ -91,7 +93,7 @@ so comprehensive that no one would really need other options.  It
 simplifies the design, and it simplifies everyone's planning and
 setup process.
 
-## No hardware chime timers
+### No hardware chime timers
 
 The Pinscape KL25Z expansion boards included the Chime Board option,
 which had ports with hardware timers to protect against software
@@ -150,8 +152,7 @@ flexibility (in that each port's protection parameters can be
 individually configured).
 
 
-
-## No support for smart light strips
+### No support for smart light strips
 
 The one big virtual pin cab feature that these boards don't support is
 "smart" light strips, with individually addressable LEDs, such as
@@ -167,6 +168,50 @@ and **.brd** is the physical board layout file.   If you want to have the
 board manufactured, you only need the **.brd** file, since this is the
 input to the EAGLE "CAM Processor", which generates the Gerber files
 that you upload to the fabricator.
+
+In addition, each board has a matching BOM (Bill of Materials) file,
+which is presented in CSV (Comma-Separated Values) format.  These contain
+shopping lists for the parts you need to populate the board.  You can
+view these in a spreadsheet program like Microsoft Excel, Apple Numbers,
+or Google Sheets, and Mouser and Digikey will accept these as uploads
+to construct shopping carts without a lot of manual data entry.
+
+## BOM Notes
+
+<b>Gate driver resistors (R1, R2, etc):</b> The BOM specifies three
+options for these resistors.  My original design calls for a very
+resistance value (4.7 Ohms - just plain Ohms, <i>not</i> K Ohms),
+selected for fast MOSFET switching.  However, some early experiences
+suggest that a higher value is needed to protect the UCC27524P driver
+chip from excessive power draw when using a MOFSET with a higher gate
+charge.  The highest value listed in the alternatives, 200 Ohms, is
+the safest in this sense, but it slows down the MOSFET switching
+times, which might have the undesirable trade-off of making the MOSFET
+run hot during PWM operation.  The middle value, 47 Ohms, is mostly
+there for experimental purposes.  Further testing is required; at
+the moment, the 200 Ohm is probably the safest choice.
+
+<b>IR emitter:</b> Two IR emitters are listed.  You only need one.
+I've tested with TSAL6400 in the past.  VSLB4940 is a newer part with
+higher luminosity, so it might improve transmission range somewhat.  I
+still need to test it, though, so I'm leaving the older tested part in
+the list for now.
+
+<b>MTA-156 and MTA-100 connectors:</b> The BOM includes the pin header
+<b>and</b> matching IDC wire housing for each connector.  The wire
+housings are IDC type, which is fast and easy to wire - but note that
+it requires a <b>specific wire gauge</b> for each housing.  I chose a
+mix of 24 AWG and 22 AWG connectors - 24 AWG for low-power wiring like
+buttons and lamps, and 22 AWG for the high-power MOSFET outputs.  The
+MTA-156 and MTA-100 product lines do have equivalent connectors in
+other wire gauges, though, and they're all compatible with the same
+pin headers, so you can easily substitute parts for different wire
+gauge as desired.  I chose 22 and 24 because they're perfectly
+adequate for the respective jobs, and it's easy to source wire in
+those sizes.  From a cost perspective, it's better to minimize the
+number of different wire types you use so you can buy big spools of a
+few types, rather than lots of little spools.
+
 
 ## Versions
 
@@ -1006,3 +1051,4 @@ from the edge of the board in this version.  That's likely to get in
 the way of the USB cable for a direct-soldered Pico.  Using the
 sockets lifts the Pico vertically above the board enough that it
 leaves room for the USB cable.
+

@@ -155,7 +155,7 @@ public:
 
     // Set a port level.  Does nothing if the port doesn't exist.  This
     // sets the DOF level on the port.
-    static void Set(int n, int level) { if (n >= 1 && n <= static_cast<int>(portsByNumber.size())) portsByNumber[n]->SetDOFLevel(level); }
+    static void Set(int n, int level) { if (n >= 1 && n < static_cast<int>(portsByNumber.size())) portsByNumber[n]->SetDOFLevel(level); }
 
     // Set a device port PWM level.  This should only be used when
     // output management is suspended, since the output manager will

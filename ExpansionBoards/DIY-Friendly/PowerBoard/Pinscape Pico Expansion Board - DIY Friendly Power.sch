@@ -10972,6 +10972,22 @@ Series resistance (ESR) &lt;= 45K ohms</text>
 </net>
 </nets>
 </sheet>
+<sheet>
+<description>Notes</description>
+<plain>
+<text x="5.08" y="5.08" size="2.54" layer="91">Copyright and License Info
+
+  Pinscape Pico DIY Friendly Expansion Board (Power Board)
+  Copyright 2024, 2025 Michael J Roberts
+  BSD 3-clause license</text>
+</plain>
+<instances>
+</instances>
+<busses>
+</busses>
+<nets>
+</nets>
+</sheet>
 </sheets>
 <errors>
 <approved hash="104,3,121.92,157.48,IC1,VDD,12V,,,"/>

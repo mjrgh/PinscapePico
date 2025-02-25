@@ -213,6 +213,18 @@ number of different wire types you use so you can buy big spools of a
 few types, rather than lots of little spools.
 
 
+## Credits
+
+A big thanks to RickH at vpforums, who reviewed some of the early
+designs, caught a number of errors, and offered some great ideas for
+improvements.  He also advanced the project immensely by taking the
+leap and being first to order physical boards, and generously sending
+me a set to test out.
+
+Thanks also to DDH69 at vpforums for his early building and testing
+of some of the key design elements, and his detailed debugging work
+tracking down problems in the MOSFET driver circuit design.
+
 ## Versions
 
 * <b>Socketed Pico:</b>  This is the latest version of the board,

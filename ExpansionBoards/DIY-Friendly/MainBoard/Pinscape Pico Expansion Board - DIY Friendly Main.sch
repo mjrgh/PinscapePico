@@ -9785,7 +9785,7 @@ high speed (Philips)</description>
 <part name="GND26" library="supply1" deviceset="GND" device=""/>
 <part name="GND47" library="supply1" deviceset="GND" device=""/>
 <part name="PICO1" library="RaspberryPi_Pico" deviceset="RPI_PICO_NO_DEBUG" device=""/>
-<part name="S1" library="switch-omron" deviceset="10-XX" device=""/>
+<part name="S1" library="switch-omron" deviceset="10-XX" device="" value="B3F-1000"/>
 <part name="JP1" library="pinhead" deviceset="PINHD-1X6" device=""/>
 <part name="JP2" library="pinhead" deviceset="PINHD-1X6" device=""/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
@@ -9812,7 +9812,7 @@ high speed (Philips)</description>
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C1" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="C2" library="rcl" deviceset="C-US" device="025-024X044" value="4.7uF">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
@@ -9831,7 +9831,7 @@ high speed (Philips)</description>
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C3" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="C4" library="rcl" deviceset="C-US" device="025-024X044" value="4.7uF">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
@@ -9850,7 +9850,7 @@ high speed (Philips)</description>
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C5" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="C6" library="rcl" deviceset="C-US" device="025-024X044" value="4.7uF">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
@@ -9869,7 +9869,7 @@ high speed (Philips)</description>
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C7" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="C8" library="rcl" deviceset="C-US" device="025-024X044" value="4.7uF">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
@@ -9877,23 +9877,23 @@ high speed (Philips)</description>
 <part name="PICO2" library="RaspberryPi_Pico" deviceset="RPI_PICO_NO_DEBUG" device=""/>
 <part name="D1" library="SamacSys_Parts" deviceset="SB140-T" device=""/>
 <part name="R9" library="resistor" deviceset="R-US_" device="0204/7" value="100R">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="MFR-12FTE52-100R"/>
 </part>
 <part name="LED2" library="SamacSys_Parts" deviceset="521-8559F" device=""/>
 <part name="R10" library="resistor" deviceset="R-US_" device="0204/7" value="10R">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="MFR25SFTE52-10R"/>
 </part>
 <part name="R11" library="resistor" deviceset="R-US_" device="0204/7" value="10R">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="MFR25SFTE52-10R"/>
 </part>
 <part name="R12" library="resistor" deviceset="R-US_" device="0204/7" value="10K">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="mfr-12frrf52-10k"/>
 </part>
 <part name="R13" library="resistor" deviceset="R-US_" device="0204/7" value="10K">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="mfr-12frrf52-10k"/>
 </part>
 <part name="C9" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="IC7" library="uln-udn" deviceset="ULN2803A" device="" value="ULN2803A"/>
 <part name="IC8" library="uln-udn" deviceset="ULN2803A" device="" value="ULN2803A"/>
@@ -9915,7 +9915,7 @@ high speed (Philips)</description>
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C11" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="C12" library="rcl" deviceset="C-US" device="025-024X044" value="4.7uF">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
@@ -9935,7 +9935,7 @@ high speed (Philips)</description>
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C13" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="C14" library="rcl" deviceset="C-US" device="025-024X044" value="4.7uF">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
@@ -9954,33 +9954,33 @@ high speed (Philips)</description>
 <part name="IC14" library="optocoupler" deviceset="PC827" device=""/>
 <part name="IC15" library="SamacSys_Parts" deviceset="S-80833CLY-B2-U" device="TO92" value="S-80833CLY"/>
 <part name="C15" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="R18" library="resistor" deviceset="R-US_" device="0204/7" value="240R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="R20" library="resistor" deviceset="R-US_" device="0204/7" value="10K">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="mfr-12frrf52-10k"/>
 </part>
 <part name="R21" library="resistor" deviceset="R-US_" device="0204/7" value="360R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="R22" library="resistor" deviceset="R-US_" device="0204/7" value="10K">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="mfr-12frrf52-10k"/>
 </part>
 <part name="J13" library="SamacSys_Parts" deviceset="640445-2" device=""/>
 <part name="IC13" library="SamacSys_Parts" deviceset="SN74HC74NE4" device=""/>
 <part name="IC11" library="SamacSys_Parts" deviceset="SN74HC165N" device=""/>
 <part name="C10" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="IC12" library="SamacSys_Parts" deviceset="SN74HC165N" device=""/>
 <part name="C18" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="IC16" library="SamacSys_Parts" deviceset="SN74HC165N" device=""/>
 <part name="C19" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
-<attribute name="PARTNO" value="21RZ310-RC"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2"/>
 </part>
 <part name="IC18" library="SamacSys_Parts" deviceset="SN74HC165N" device=""/>
 <part name="R27" library="SamacSys_Parts - backup" deviceset="4609X-101-122LF" device="" value="4609X-101-103F"/>
@@ -9988,7 +9988,7 @@ high speed (Philips)</description>
 <part name="R24" library="SamacSys_Parts - backup" deviceset="4609X-101-122LF" device="" value="4609X-101-103F"/>
 <part name="R25" library="SamacSys_Parts - backup" deviceset="4609X-101-122LF" device="" value="4609X-101-103F"/>
 <part name="R26" library="resistor" deviceset="R-US_" device="0204/7" value="1K">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="MF0204FTE52-1K"/>
 </part>
 <part name="R28" library="resistor" deviceset="R-US_" device="0204/7" value="22K">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
@@ -10002,10 +10002,10 @@ high speed (Philips)</description>
 <part name="QWIIC1" library="microbuilder" deviceset="STEMMA_I2C" device="_QT" value="QWIIC"/>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="R29" library="resistor" deviceset="R-US_" device="0204/7" value="15K">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="MFR25SFRF52-15K"/>
 </part>
 <part name="R30" library="resistor" deviceset="R-US_" device="0204/7" value="15K">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
+<attribute name="PARTNO" value="MFR25SFRF52-15K"/>
 </part>
 <part name="Q15" library="SamacSys_Parts" deviceset="2N5195G" device=""/>
 <part name="C16" library="rcl" deviceset="C-US" device="025-024X044" value="4.7uF">
@@ -10025,7 +10025,7 @@ high speed (Philips)</description>
 <part name="R34" library="resistor" deviceset="R-US_" device="0204/7" value="4.7K">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
-<part name="S2" library="switch-omron" deviceset="10-XX" device=""/>
+<part name="S2" library="switch-omron" deviceset="10-XX" device="" value="B3F-1000"/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
 <part name="J14" library="SamacSys_Parts" deviceset="SSQ-108-02-T-S-RA" device=""/>
 </parts>
@@ -13756,6 +13756,11 @@ substituted (the 3x portion is the voltage threshold in .1V units).</text>
   $32    Pico PWM Helper #2 (power board)
   $48    ADS1115 (ADC)
   $68    DS1307 (RTC clock/calendar chip) [On Power board]</text>
+<text x="2.54" y="43.18" size="2.54" layer="91">Copyright and License Info
+
+  Pinscape Pico DIY Friendly Expansion Board
+  Copyright 2024, 2025 Michael J Roberts
+  BSD 3-clause license</text>
 </plain>
 <instances>
 </instances>
@@ -13774,14 +13779,12 @@ substituted (the 3x portion is the voltage threshold in .1V units).</text>
 <approved hash="104,7,236.22,111.76,IC6,VDD,12V,,,"/>
 <approved hash="104,10,40.64,73.66,IC15,VDD,5V,,,"/>
 <approved hash="113,1,91.44,39.5393,PICO1,,,,,"/>
-<approved hash="113,1,160.02,37.7105,S1,,,,,"/>
 <approved hash="113,4,48.4971,15.3712,JP1,,,,,"/>
 <approved hash="113,4,84.0571,15.3712,JP2,,,,,"/>
 <approved hash="113,6,132.317,20.4512,JP3,,,,,"/>
 <approved hash="113,6,162.797,20.4512,JP4,,,,,"/>
 <approved hash="113,2,43.18,36.9993,PICO2,,,,,"/>
 <approved hash="113,3,117.077,57.2812,J12,,,,,"/>
-<approved hash="113,2,119.38,40.2505,S2,,,,,"/>
 </errors>
 </schematic>
 </drawing>

@@ -7,7 +7,7 @@ Qty,Value,Parts,Description,PARTNO,Comments
 4,MTA100-10PIN,"J5, J6, J7, J8",10 way MTA100 straight friction lock header,1-640456-0,
 4,MTA100-10PIN-24AWG,"PLUG_J5, PLUG_J6, PLUG_J7, PLUG_J8","Plug for J5 J6 J7 J8, 10p IDC housing 24 AWG",4-644563-0,
 1,100R,R9,"Resistor, 100 Ohm, axial, 2mm 4 xmm",MFR-12FTE52-100R,
-11,100nF,"C1, C3, C5, C7, C9, C10, C11, C13, C15, C18, C19","Capacitor, ceramic, 100nF, radial, 2.5mm lead pitch",K104K15X7RF5TL2,
+11,100nF,"C1, C3, C5, C7, C9, C10, C11, C13, C15, C18, C19","Capacitor, ceramic, 0.1uF, radial, 2.5mm lead pitch",K104K15X7RF5TL2,
 4,10K,"R12, R13, R20, R22","Resistor, 10K, axial, 2mm x 4mm",MFR-12FRF52-10K,
 2,10R,"R10, R11","Resistor, 10 Ohm, axial, 2mm 4 xmm",MFR25SFTE52-10R,
 2,15K,"R29, R30","Resistor, 15K, axial, 2mm x 4mm",MFR25SFRF52-15K,

@@ -1,0 +1,34 @@
+Qty,Value,Parts,Description,PARTNO
+1,LED-5mm,LED1,"LED, 5mm, blue",C503B-BCN-CV0Z0462
+1,0.1uF,C2,"Capacitor, ceramic, 0.1uF, radial, 2.54mm lead pitch",K104K15X7RF5TL2
+1,1.1K,R2,"Resistor, 1.1K, axial, 2mm x 4mm",MFR-12FTF52-1K1
+1,1uF,C1,"Capacitor, Tantalum, 1uF, radial, 5mm lead pitch",TAP105K035CRS
+1,2.4K/1W,R1,"Resistor, 2.4K, 1W, axial, 3mm x 9mm",279-RR02J2K4TB
+1,MicroFit Hdr 2P,J1,"Molex Micro-Fit+ vertical header, 2 Ckt, black",538-216571-1002
+1,MicroFit Plug 2P,PLUG_J1,"Molex Micro-Fit+ wire housing, 2 Ckt, black",538-215759-1002
+1,MicroFit Hdr 3P,J7,"Molex Micro-Fit+ vertical header, 3 Ckt, red",538-216571-1023
+1,MicroFit Plug 3P,PLUG_J7,"Molex Micro-Fit+ wire housing, 3 Ckt, red",538-215759-1023
+1,MicroFit Hdr 3P,J15,"Molex Micro-Fit+ vertical header, 3 Ckt, black",538-216571-2003
+1,MicroFit Plug 3P,PLUG_J15,"Molex Micro-Fit+ wire housing, 3 Ckt, black",538-215759-1003
+1,MicroFit Hdr 5P,J2,"Molex Micro-Fit+ vertical header, 5 Ckt, black",538-216571-2005
+1,MicroFit Plug 5P,PLUG_J2,"Molex Micro-Fit+ wire housing, 5 Ckt, black",538-215759-1005
+1,MicroFit Hdr 5P,J3,"Molex Micro-Fit+ vertical header, 5 Ckt, red",538-216571-1025
+1,MicroFit Plug 5P,PLUG_J3,"Molex Micro-Fit+ wire housing, 5 Ckt, red",538-215759-1025
+1,MicroFit Hdr 5P,J5,"Molex Micro-Fit+ vertical header, 10 Ckt",538-215922-1001
+1,MicroFit Plug 5P,PLUG_J5,"Molex Micro-Fit+ wire housing, 10 Ckt",538-206461-1000
+1,270R,R3,"Resistor, 270 Ohm, axial, 2mm x 4mm",CFR25SJT-26-270R
+2,350211-1,"J4, J8","Mate-N-Lok PCB header, 4-pos straight (PC ATX floppy disk connector, male)",571-3502111
+1,571-6404452,J12,"MTA-156 pin header, 2 position",571-6404452
+1,571-3-643819-2,PLUG_J12,"MTA-156 wire housing, IDC, 2 position, 22AWG",571-3-643819-2
+1,571-6404453,J14,"MTA-156 pin header, 3 position",571-6404453
+1,571-3-643819-3,PLUG_J14,"MTA-156 wire housing, IDC, 3 position, 22AWG",571-3-643819-3
+1,571-640445-5,J13,"MTA-156 pin header, 5 position",571-640445-5
+1,571-3-643819-5,PLUG_J13,"MTA-156 wire housing, IDC, 5 position, 22AWG",571-3-643819-5
+3,571-640445-6,"J9, J10, J11","MTA-156 pin header, 6 position",571-640445-6
+3,571-3-643819-6,"PLUG_J9, PLUG_J10, PLUG_J11","MTA-156 wire housing, IDC, 6 position, 22 AWG",571-3-643819-6
+1,571-640445-8,J16,"MTA-156 pin header, 8 position",571-640445-8
+1,571-3-643819-8,PLUG_J16,"MTA-156 wire housing, IDC, 8 position, 22 AWG",571-3-643819-8
+1,AHQSS105DM2FA0G,K1,"Relay, 5V coil, 16A switch contacts, contact form A",523-AHQSS105DM2FA0G
+1,LM338T/NOPB,U3,"Voltage regulator, LM338T/NOPB",LM338T/NOPB
+1,SL22_7R010,RT1,"Inrush Current Limiter, 22mm, 7 ohms, 10A",995-SL22-7R010
+3,SLPX682M080H7P3,"C3, C4, C5","Aluminum Electrolytic Capacitor, 6800uF 80V 20% 85C, Snap-in",598-SLPX682M080H7P3

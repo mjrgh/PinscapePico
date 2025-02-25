@@ -229,7 +229,7 @@ Module</text>
 <text x="91.3" y="92.4" size="1.5" layer="25" ratio="15" rot="SR0" align="center">12</text>
 <text x="104.7" y="92.2" size="1.2" layer="25" ratio="15" rot="SR0" align="center">GND</text>
 <text x="116.6" y="54.7" size="2" layer="25" ratio="20" rot="SR0" align="center">+</text>
-<text x="60.5" y="4.8" size="1.8" layer="25" ratio="15" rot="SR0" align="center">QWIIC</text>
+<text x="60.3" y="-2.1" size="1.8" layer="25" ratio="15" rot="SR0" align="center">QWIIC</text>
 <text x="44.1" y="92.3" size="1.7" layer="25" ratio="15" rot="SR0" align="center">2</text>
 <text x="47.9" y="92.3" size="1.7" layer="25" ratio="15" rot="SR0" align="center">3</text>
 <text x="51.7" y="92.3" size="1.7" layer="25" ratio="15" rot="SR0" align="center">4</text>
@@ -3789,7 +3789,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 </autorouter>
 <elements>
 <element name="PICO1" library="RaspberryPi_Pico" package="RPI_PICO_TH_NO_DEBUG" value="" x="76.05" y="27.57" rot="R180"/>
-<element name="S1" library="switch-omron" package="B3F-10XX" value="" x="60.8" y="31.7" smashed="yes" rot="R90">
+<element name="S1" library="switch-omron" package="B3F-10XX" value="B3F-1000" x="60.8" y="31.7" smashed="yes" rot="R90">
 <attribute name="OC_NEWARK" value="36M3542" x="60.8" y="31.7" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="OC_FARNELL" value="176432" x="60.8" y="31.7" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MF" value="" x="60.8" y="31.7" size="1.778" layer="27" rot="R90" display="off"/>
@@ -3902,7 +3902,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="38.6336" y="77.3114" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
 <element name="C1" library="rcl" package="C025-024X044" value="100nF" x="41.3" y="71.4" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="21RZ310-RC" x="41.3" y="71.4" size="1.4" layer="27" rot="R270" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="41.3" y="71.4" size="1.4" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="40.422" y="74.497" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="40.022" y="73.733" size="0.6" layer="27" ratio="10"/>
 </element>
@@ -3940,7 +3940,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="52.0336" y="77.4114" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
 <element name="C3" library="rcl" package="C025-024X044" value="100nF" x="54.5" y="71.3" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="21RZ310-RC" x="12.7" y="89.7" size="0.6" layer="27" rot="R270" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="12.7" y="89.7" size="0.6" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="53.422" y="74.297" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="53.222" y="73.533" size="0.6" layer="27" ratio="10"/>
 </element>
@@ -3978,7 +3978,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="65.3336" y="77.4114" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
 <element name="C5" library="rcl" package="C025-024X044" value="100nF" x="67.7" y="71.3" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="21RZ310-RC" x="39.2" y="89.7" size="0.6" layer="27" rot="R270" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="39.2" y="89.7" size="0.6" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="66.722" y="74.297" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="66.522" y="73.633" size="0.6" layer="27" ratio="10"/>
 </element>
@@ -4016,7 +4016,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="78.4336" y="77.5114" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
 <element name="C7" library="rcl" package="C025-024X044" value="100nF" x="80.9" y="66.8" smashed="yes" rot="R90">
-<attribute name="PARTNO" value="21RZ310-RC" x="199.8" y="66.8" size="0.6" layer="27" rot="R90" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="199.8" y="66.8" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="81.978" y="63.803" size="1.27" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="79.622" y="73.633" size="0.6" layer="27" ratio="10"/>
 </element>
@@ -4037,7 +4037,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="114" y="0.8" size="0.5" layer="27" rot="R180" align="center"/>
 </element>
 <element name="R9" library="resistor" package="0204/7" value="100R" x="106.5" y="49.6" smashed="yes">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="106.5" y="49.6" size="0.7" layer="27" display="off"/>
+<attribute name="PARTNO" value="MFR-12FTE52-100R" x="106.5" y="49.6" size="0.7" layer="27" display="off"/>
 <attribute name="NAME" x="107.3066" y="48.5316" size="0.9906" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="105.2664" y="49.1886" size="0.7" layer="27" ratio="10"/>
 </element>
@@ -4051,27 +4051,27 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="115.8" y="55.85" size="1.27" layer="25" align="center"/>
 </element>
 <element name="R10" library="resistor" package="0204/7" value="10R" x="106.5" y="51.8" smashed="yes">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="106.5" y="51.8" size="0.7" layer="27" display="off"/>
+<attribute name="PARTNO" value="MFR25SFTE52-10R" x="106.5" y="51.8" size="0.7" layer="27" display="off"/>
 <attribute name="NAME" x="101.8684" y="51.9066" size="0.99" layer="25" ratio="10" rot="R270" align="top-center"/>
 <attribute name="VALUE" x="105.2664" y="51.3886" size="0.7" layer="27" ratio="10"/>
 </element>
 <element name="R11" library="resistor" package="0204/7" value="10R" x="106.5" y="54" smashed="yes">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="106.5" y="54" size="0.7" layer="27" display="off"/>
+<attribute name="PARTNO" value="MFR25SFTE52-10R" x="106.5" y="54" size="0.7" layer="27" display="off"/>
 <attribute name="NAME" x="105.1934" y="55.0684" size="0.9906" layer="25" ratio="10"/>
 <attribute name="VALUE" x="105.0664" y="53.6886" size="0.7" layer="27" ratio="10"/>
 </element>
 <element name="R12" library="resistor" package="0204/7" value="10K" x="28.638" y="21.502" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="28.638" y="21.502" size="0.8" layer="27" rot="R270" display="off"/>
+<attribute name="PARTNO" value="mfr-12frrf52-10k" x="28.638" y="21.502" size="0.8" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="27.1064" y="21.9086" size="0.9906" layer="25" ratio="10" rot="R270" align="center"/>
 <attribute name="VALUE" x="28.1266" y="22.7356" size="0.9906" layer="27" ratio="10" rot="R270"/>
 </element>
 <element name="R13" library="resistor" package="0204/7" value="10K" x="28.6" y="31.1" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="28.6" y="31.1" size="0.8" layer="27" rot="R270" display="off"/>
+<attribute name="PARTNO" value="mfr-12frrf52-10k" x="28.6" y="31.1" size="0.8" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="26.9444" y="31.3106" size="0.9906" layer="25" ratio="10" rot="R270" align="center"/>
 <attribute name="VALUE" x="28.0886" y="32.4336" size="0.9906" layer="27" ratio="10" rot="R270"/>
 </element>
 <element name="C9" library="rcl" package="C025-024X044" value="100nF" x="27.7" y="97.9" smashed="yes" rot="R180">
-<attribute name="PARTNO" value="21RZ310-RC" x="27.7" y="97.9" size="0.8" layer="27" rot="R180" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="27.7" y="97.9" size="0.8" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="28.278" y="94.803" size="1.27" layer="25" ratio="10" rot="R180" align="center"/>
 <attribute name="VALUE" x="27.678" y="96.167" size="0.7" layer="27" ratio="10" rot="R180" align="center"/>
 </element>
@@ -4122,7 +4122,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="91.8336" y="77.5114" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
 <element name="C11" library="rcl" package="C025-024X044" value="100nF" x="94.1" y="71.3" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="21RZ310-RC" x="46.4" y="91.1" size="0.6" layer="27" rot="R270" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="46.4" y="91.1" size="0.6" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="92.822" y="74.297" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="93.022" y="73.533" size="0.6" layer="27" ratio="10"/>
 </element>
@@ -4170,7 +4170,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="105.0336" y="77.5114" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
 <element name="C13" library="rcl" package="C025-024X044" value="100nF" x="107.3" y="71.3" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="21RZ310-RC" x="59.6" y="91.1" size="1" layer="27" rot="R270" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="59.6" y="91.1" size="1" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="105.722" y="74.197" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="106.122" y="73.533" size="0.6" layer="27" ratio="10"/>
 </element>
@@ -4209,7 +4209,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="MF" value="" x="109.6" y="22.7" size="0.7" layer="27" rot="R270" display="off"/>
 <attribute name="MPN" value="" x="109.6" y="22.7" size="0.7" layer="27" rot="R270" display="off"/>
 <attribute name="OC_FARNELL" value="unknown" x="109.6" y="22.7" size="0.7" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="114.321" y="17.466" size="1.27" layer="25" ratio="10" rot="R180"/>
+<attribute name="NAME" x="113.021" y="17.466" size="1.27" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="108.965" y="26.256" size="1.27" layer="27" ratio="10" rot="R270"/>
 </element>
 <element name="IC15" library="SamacSys_Parts" package="TO-92_(TO-226)" value="S-80833CLY" x="98.3" y="24.7" smashed="yes" rot="R180">
@@ -4217,7 +4217,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="95.94" y="24.77" size="1.27" layer="25" rot="R270" align="center"/>
 </element>
 <element name="C15" library="rcl" package="C025-024X044" value="100nF" x="99.3" y="39.1" smashed="yes">
-<attribute name="PARTNO" value="21RZ310-RC" x="99.3" y="39.1" size="0.6" layer="27" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="99.3" y="39.1" size="0.6" layer="27" display="off"/>
 <attribute name="NAME" x="93.7" y="38.6" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="101.533" y="40.678" size="0.6" layer="27" ratio="10" rot="R270"/>
 </element>
@@ -4227,7 +4227,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="97.6664" y="20.2886" size="0.7" layer="27" ratio="10"/>
 </element>
 <element name="R20" library="resistor" package="0204/7" value="10K" x="117.6" y="30.7" smashed="yes" rot="R90">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="117.6" y="30.7" size="0.6" layer="27" rot="R90" display="off"/>
+<attribute name="PARTNO" value="mfr-12frrf52-10k" x="117.6" y="30.7" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="119.5316" y="29.3934" size="0.9906" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="118.1114" y="29.4664" size="0.9906" layer="27" ratio="10" rot="R90"/>
 </element>
@@ -4237,7 +4237,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="97.4664" y="17.8886" size="0.8" layer="27" ratio="10"/>
 </element>
 <element name="R22" library="resistor" package="0204/7" value="10K" x="117.6" y="20.7" smashed="yes" rot="R90">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="117.6" y="20.7" size="0.6" layer="27" rot="R90" display="off"/>
+<attribute name="PARTNO" value="mfr-12frrf52-10k" x="117.6" y="20.7" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="116.6316" y="19.4934" size="0.9906" layer="25" ratio="10" rot="R90"/>
 <attribute name="VALUE" x="118.1114" y="19.5664" size="0.9906" layer="27" ratio="10" rot="R90"/>
 </element>
@@ -4268,11 +4268,11 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/Texas-Instruments/SN74HC165N?qs=bvpNxolhIUPhyI98TAZx%2Fg%3D%3D" x="20.2" y="28.1" size="1.7" layer="27" display="off"/>
 <attribute name="DESCRIPTION" value="8-BIT PARALLEL-LOAD SHIFT REGISTERS" x="20.2" y="28.1" size="1.7" layer="27" display="off"/>
 <attribute name="MANUFACTURER_NAME" value="Texas Instruments" x="20.2" y="28.1" size="1.7" layer="27" display="off"/>
-<attribute name="NAME" x="25.9" y="29.1" size="1.27" layer="25" rot="R90" align="center"/>
+<attribute name="NAME" x="25.8" y="27.7" size="1.27" layer="25" rot="R90" align="center"/>
 <attribute name="VALUE" x="21.4" y="28.1" size="1.27" layer="27" rot="R90" align="center"/>
 </element>
 <element name="C10" library="rcl" package="C025-024X044" value="100nF" x="26.6" y="76.5" smashed="yes" rot="R90">
-<attribute name="PARTNO" value="21RZ310-RC" x="-4.3" y="76.5" size="1.7" layer="27" rot="R90" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="-4.3" y="76.5" size="1.7" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="27.022" y="84.497" size="1.27" layer="25" ratio="10" align="center"/>
 <attribute name="VALUE" x="27.022" y="73.733" size="0.7" layer="27" ratio="10" align="center"/>
 </element>
@@ -4287,7 +4287,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="18.8" y="48.3" size="1.27" layer="27" rot="R90" align="center"/>
 </element>
 <element name="C18" library="rcl" package="C025-024X044" value="100nF" x="27.6" y="57.3" smashed="yes" rot="R180">
-<attribute name="PARTNO" value="21RZ310-RC" x="27.6" y="26.4" size="1.7" layer="27" rot="R180" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="27.6" y="26.4" size="1.7" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="27.878" y="59.303" size="1.27" layer="25" ratio="10" rot="R180" align="center"/>
 <attribute name="VALUE" x="27.578" y="55.667" size="0.7" layer="27" ratio="10" rot="R180" align="center"/>
 </element>
@@ -4302,7 +4302,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="VALUE" x="22.6" y="68.5" size="1.27" layer="27" rot="R90" align="center"/>
 </element>
 <element name="C19" library="rcl" package="C025-024X044" value="100nF" x="27.6" y="37.4" smashed="yes" rot="R180">
-<attribute name="PARTNO" value="21RZ310-RC" x="27.6" y="6.5" size="1.7" layer="27" rot="R180" display="off"/>
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="27.6" y="6.5" size="1.7" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="27.578" y="39.403" size="1.27" layer="25" ratio="10" rot="R180" align="center"/>
 <attribute name="VALUE" x="27.578" y="35.667" size="0.7" layer="27" ratio="10" rot="R180" align="center"/>
 </element>
@@ -4353,7 +4353,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="10.66433125" y="97.79433125" size="1.27" layer="25" rot="R90" align="center"/>
 </element>
 <element name="R26" library="resistor" package="0204/7" value="1K" x="96.7" y="49.3" smashed="yes" rot="R180">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="96.7" y="49.3" size="0.6" layer="27" rot="R180" display="off"/>
+<attribute name="PARTNO" value="MF0204FTE52-1K" x="96.7" y="49.3" size="0.6" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="92.14" y="49.7046" size="0.9906" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="98.3256" y="49.7826" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
@@ -4381,13 +4381,13 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="60.2" y="2.614" size="0.75" layer="25" align="center"/>
 </element>
 <element name="R29" library="resistor" package="0204/7" value="15K" x="59.1" y="12.7" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="59.1" y="12.7" size="1.5" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="59.1316" y="16.0934" size="0.9906" layer="25" ratio="10" rot="R90" align="center-left"/>
+<attribute name="PARTNO" value="MFR25SFRF52-15K" x="59.1" y="12.7" size="1.5" layer="27" rot="R270" display="off"/>
+<attribute name="NAME" x="57.3316" y="12.0934" size="0.9906" layer="25" ratio="10" rot="R90" align="center-left"/>
 <attribute name="VALUE" x="58.6886" y="14.0336" size="0.9906" layer="27" ratio="10" rot="R270"/>
 </element>
 <element name="R30" library="resistor" package="0204/7" value="15K" x="61.7" y="12.7" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="61.7" y="12.7" size="1.5" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="61.7316" y="16.0934" size="0.9906" layer="25" ratio="10" rot="R90" align="center-left"/>
+<attribute name="PARTNO" value="MFR25SFRF52-15K" x="61.7" y="12.7" size="1.5" layer="27" rot="R270" display="off"/>
+<attribute name="NAME" x="63.2316" y="11.0934" size="0.9906" layer="25" ratio="10" rot="R90" align="center-left"/>
 <attribute name="VALUE" x="61.1886" y="13.8336" size="0.9906" layer="27" ratio="10" rot="R270"/>
 </element>
 <element name="Q15" library="SamacSys_Parts" package="TO229P300X760X1364-3P" value="2N5195G" x="94.3" y="52.9" smashed="yes">
@@ -4423,7 +4423,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 </element>
 <element name="R31" library="resistor" package="0204/7" value="2R5" x="115.5" y="9.2" smashed="yes" rot="R180">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="115.5" y="9.2" size="0.6" layer="27" rot="R180" display="off"/>
-<attribute name="NAME" x="120.16" y="8.6954" size="1" layer="25" ratio="10"/>
+<attribute name="NAME" x="120.26" y="8.7954" size="1" layer="25" ratio="10"/>
 <attribute name="VALUE" x="117.1256" y="9.6826" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
 <element name="J2" library="SamacSys_Parts" package="SHDR6W183P0X396_1X6_2377X762X1" value="640445-6" x="96.3" y="97.9" smashed="yes">
@@ -4433,7 +4433,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="MANUFACTURER_NAME" value="TE Connectivity" x="96.3" y="97.9" size="1" layer="27" display="off"/>
 <attribute name="HEIGHT" value="11.049mm" x="96.3" y="97.9" size="1" layer="27" display="off"/>
 <attribute name="DESCRIPTION" value="6 way friction lock header,3.96mm pitch" x="96.3" y="97.9" size="1" layer="27" display="off"/>
-<attribute name="NAME" x="85.585" y="95.334" size="1.27" layer="25" rot="R270" align="center"/>
+<attribute name="NAME" x="119.085" y="100.134" size="1.27" layer="25" rot="R270" align="center"/>
 <attribute name="VALUE" x="105.773" y="100.187" size="0.9" layer="27" rot="R180" align="center"/>
 </element>
 <element name="R32" library="resistor" package="0204/7" value="4.7K" x="110.7" y="39.5" smashed="yes">
@@ -4443,10 +4443,10 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 </element>
 <element name="R34" library="resistor" package="0204/7" value="4.7K" x="60.7" y="22.9" smashed="yes" rot="R270">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="47.2" y="22.9" size="1.2" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="62.2954" y="24.04" size="0.9906" layer="25" ratio="10" rot="R270" align="center"/>
+<attribute name="NAME" x="59.0954" y="22.94" size="0.9906" layer="25" ratio="10" rot="R270" align="center"/>
 <attribute name="VALUE" x="60.6826" y="24.5744" size="0.9906" layer="27" ratio="10" rot="R90" align="center-right"/>
 </element>
-<element name="S2" library="switch-omron" package="B3F-10XX" value="" x="119" y="42.8" smashed="yes" rot="R270">
+<element name="S2" library="switch-omron" package="B3F-10XX" value="B3F-1000" x="119" y="42.8" smashed="yes" rot="R270">
 <attribute name="MF" value="" x="119" y="42.8" size="0.45" layer="27" rot="R270" display="off"/>
 <attribute name="OC_NEWARK" value="36M3542" x="119" y="42.8" size="0.45" layer="27" rot="R270" display="off"/>
 <attribute name="MPN" value="B3F-1000" x="119" y="42.8" size="0.45" layer="27" rot="R270" display="off"/>
@@ -6966,18 +6966,16 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <contactref element="PICO2" pad="3V3"/>
 <contactref element="R32" pad="2"/>
 <wire x1="118.9" y1="26.1" x2="121.5" y2="23.5" width="0.4" layer="1"/>
-<wire x1="121.5" y1="23.5" x2="121.5" y2="19.3" width="0.4" layer="1"/>
+<wire x1="121.5" y1="23.5" x2="121.5" y2="15.3" width="0.4" layer="1"/>
 <wire x1="118.9" y1="26.1" x2="118.9" y2="28" width="0.4" layer="1"/>
 <wire x1="118.9" y1="28" x2="117.8" y2="29.1" width="0.4" layer="1"/>
 <wire x1="117.8" y1="29.1" x2="117.8" y2="31.8" width="0.4" layer="1"/>
 <wire x1="117.8" y1="31.8" x2="114.9" y2="34.7" width="0.4" layer="1"/>
 <wire x1="114.9" y1="34.7" x2="114.9" y2="39.11" width="0.4" layer="1"/>
 <wire x1="114.9" y1="39.11" x2="114.51" y2="39.5" width="0.4" layer="1"/>
-<wire x1="125.71" y1="13.33" x2="123.07" y2="13.33" width="0.4" layer="16"/>
-<wire x1="123.07" y1="13.33" x2="122.1" y2="14.3" width="0.4" layer="16"/>
-<wire x1="122.1" y1="14.3" x2="122.1" y2="18.7" width="0.4" layer="16"/>
-<wire x1="122.1" y1="18.7" x2="121.5" y2="19.3" width="0.4" layer="16"/>
-<via x="121.5" y="19.3" extent="1-16" drill="0.45"/>
+<via x="121.5" y="15.3" extent="1-16" drill="0.45"/>
+<wire x1="125.71" y1="13.33" x2="123.47" y2="13.33" width="0.4" layer="16"/>
+<wire x1="123.47" y1="13.33" x2="121.5" y2="15.3" width="0.4" layer="16"/>
 </signal>
 <signal name="N$36">
 <contactref element="S1" pad="3"/>

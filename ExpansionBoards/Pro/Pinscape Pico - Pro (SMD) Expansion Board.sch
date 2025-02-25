@@ -21963,7 +21963,8 @@ Pico SDK conventions
 
 Note: TLC59116F addresses $68
 and $6B are reserved; do not use
-for new chips added to the design.</text>
+for new chips (of ANY type) added
+to the design.</text>
 <text x="81.28" y="86.36" size="2.032" layer="91" align="top-left">Reserved Pico PWM Channels
 Note: PWM channels associated with the pins assigned to
 the plunger sensor interface are marked as reserved
@@ -21995,6 +21996,11 @@ to be used.
 1. Avoid routing signals under the I2C (SDA/SCL) traces.  
 When unavoidable, route underlying signal traces at right
 angles to the I2C traces to minimize coupling.</text>
+<text x="7.62" y="116.84" size="2.032" layer="91" ratio="12">Copyright and License Info
+
+  Pinscape Pico "Pro" Expansion Board
+  Copyright 2024, 2025 Michael J Roberts
+  BSD 3-clause license</text>
 </plain>
 <instances>
 </instances>

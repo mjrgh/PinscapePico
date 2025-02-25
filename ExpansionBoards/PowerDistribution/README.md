@@ -88,3 +88,42 @@ switched through the "smart" relay, too.
 various feeedback devices.  This is a convenience to help tidy up your
 wiring by providing enough ports that you won't have to improvise by
 tying multiple wires together.
+
+
+## Ground interconnects
+
+This board connects all of the power supply grounds together, and
+connects them all to the Earth ground from the 120VAC line power
+input.  This is generally considered the safest configuration, because
+it ensures that all voltages in the cabinet have the same 0V reference
+point.
+
+Note that all PC ATX power supplies connect the DC ground to the AC
+Earth ground internally, since this is required by the ATX
+specifications.  Power bricks and bare-metal-case power supply units
+might or might not connect the grounds internally, but connecting them
+to the board will interconnect the grounds whether or not they're
+connected internally in the power supply units.
+
+
+## Power capacity
+
+The Molex Micro-Fit connectors used for the SMPS inputs are rated for
+13A per pin, so this is the upper limit for each voltage level in the
+system.  If you plan to use anywhere close to the 13A current limit,
+use 18 AWG wire for the SMPS connections.
+
+The different voltage supplies are all independent of one another, so
+you can be using 13A at 12V and 13A at 24V at the same time without
+overloading any of the connector pins.
+
+If the power supplies you're using have lower individual current
+limits, the lower limits will apply, again on an individual basis for
+each voltage-level circuit.
+
+The 13A limit on each voltage level should be adequate for most
+virtual pinball cabinets.  The one likely exception is if you're using
+very long LED light strips.  Those can draw 3A or more per meter, so
+you'll reach the 13A limit at about 4 meters.  The best solution would
+be to power those from a separate power supply connected directly to
+the light strips, without going through the power distribution board.

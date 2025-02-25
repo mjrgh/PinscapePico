@@ -9213,62 +9213,71 @@ Source: http://www.ctscorp.com/components/Datasheets/CTSChipArrayDs.pdf</descrip
 <sheet>
 <description>Main</description>
 <plain>
-<text x="129.54" y="12.7" size="1.778" layer="91" align="center-right">NC</text>
-<text x="128.524" y="50.8" size="1.778" layer="91" align="center-right">NC</text>
-<text x="125.222" y="76.2" size="1.778" layer="91" align="center-right">NC</text>
-<text x="127.762" y="86.36" size="1.778" layer="91" align="center-right">NC</text>
-<text x="206.502" y="96.52" size="1.778" layer="91" align="center-right">NC</text>
-<text x="245.618" y="86.36" size="1.778" layer="91" rot="R180" align="center-right">NC</text>
-<text x="246.634" y="96.52" size="1.778" layer="91" rot="R180" align="center-right">NC</text>
-<text x="259.334" y="81.28" size="1.27" layer="91" align="center-left">Button 29=TV SWITCH OUT</text>
-<text x="257.81" y="43.18" size="1.27" layer="91" align="center-left">30 = KNOCKER TRIGGER</text>
-<text x="96.52" y="137.16" size="2.54" layer="91" align="center">Pico Hard Reset</text>
-<text x="50.8" y="101.6" size="2.54" layer="91" align="center">I2C Pullup</text>
-<text x="187.96" y="127" size="1.905" layer="91" align="center">Install 0.1" pin headers on BOTTOM of board
+<text x="147.32" y="12.7" size="1.778" layer="91" align="center-right">NC</text>
+<text x="146.304" y="50.8" size="1.778" layer="91" align="center-right">NC</text>
+<text x="143.002" y="76.2" size="1.778" layer="91" align="center-right">NC</text>
+<text x="145.542" y="86.36" size="1.778" layer="91" align="center-right">NC</text>
+<text x="224.282" y="96.52" size="1.778" layer="91" align="center-right">NC</text>
+<text x="263.398" y="86.36" size="1.778" layer="91" rot="R180" align="center-right">NC</text>
+<text x="264.414" y="96.52" size="1.778" layer="91" rot="R180" align="center-right">NC</text>
+<text x="277.114" y="81.28" size="1.27" layer="91" align="center-left">Button 29=TV SWITCH OUT</text>
+<text x="275.59" y="43.18" size="1.27" layer="91" align="center-left">30 = KNOCKER TRIGGER</text>
+<text x="27.94" y="124.46" size="2.54" layer="91" align="center">Pico Hard Reset</text>
+<text x="86.36" y="124.46" size="2.54" layer="91" align="center">I2C Pullup</text>
+<text x="205.74" y="127" size="1.905" layer="91" align="center">Install 0.1" pin headers on BOTTOM of board
 to mate with expansion board KL25Z sockets</text>
-<text x="48.26" y="137.16" size="2.54" layer="91" align="center">RGB Status LED</text>
+<text x="48.26" y="167.64" size="2.54" layer="91" align="center">RGB Status LED</text>
 <text x="53.34" y="73.66" size="1.905" layer="91" align="center">Install 0.1" pin sockets on top of board
 to mate with 0.1" headers on bottom of Pico</text>
-<text x="187.96" y="134.62" size="2.54" layer="91" align="center">KL25Z Compatible Connectors</text>
-<text x="187.96" y="116.84" size="1.905" layer="91" align="center">NOTE: DO NOT INSTALL A KL25Z HERE!
+<text x="205.74" y="134.62" size="2.54" layer="91" align="center">KL25Z Compatible Connectors</text>
+<text x="205.74" y="116.84" size="1.905" layer="91" align="center">NOTE: DO NOT INSTALL A KL25Z HERE!
 This whole board TAKES THE PLACE of a KL25Z.
 It DOESN'T connect to an actual KL25Z.</text>
+<text x="71.12" y="162.56" size="1.905" layer="91" align="top-left">EC3203ARGB:
+   Vf @ 5mA:  R 1.8, G 2.8, B 2.8
+   -&gt; R3 (R) 360, R2 (G) 100, R1 (B) 100
+
+Pin-compatible substitutes:
+   Wurth 150141M173100
+   Vf: R 2V @ 10mA, G 3.0V @ 8mA, B 3.0V @ 10mA
+   -&gt; R3 (R) 130, R2 (G) 39, R1 (B) 30
+   </text>
 </plain>
 <instances>
 <instance part="RASPBERRY_PI_PICO" gate="G$1" x="50.8" y="40.64" smashed="yes">
 <attribute name="NAME" x="50.8" y="78.74" size="2.54" layer="95" align="center"/>
 <attribute name="VALUE" x="50.8" y="76.2" size="2.54" layer="95" align="center"/>
 </instance>
-<instance part="FRDM1" gate="G$1" x="190.5" y="60.96" smashed="yes">
-<attribute name="NAME" x="134.62" y="93.98" size="2.032" layer="95"/>
+<instance part="FRDM1" gate="G$1" x="208.28" y="60.96" smashed="yes">
+<attribute name="NAME" x="152.4" y="93.98" size="2.032" layer="95"/>
 </instance>
-<instance part="R3" gate="G$1" x="45.72" y="119.38" smashed="yes" rot="R180">
-<attribute name="NAME" x="41.148" y="116.3066" size="1.778" layer="95"/>
-<attribute name="VALUE" x="47.244" y="116.332" size="1.778" layer="96"/>
+<instance part="R3" gate="G$1" x="45.72" y="149.86" smashed="yes" rot="R180">
+<attribute name="NAME" x="41.148" y="146.7866" size="1.778" layer="95"/>
+<attribute name="VALUE" x="47.244" y="146.812" size="1.778" layer="96"/>
 </instance>
-<instance part="R1" gate="G$1" x="45.72" y="111.76" smashed="yes" rot="R180">
-<attribute name="NAME" x="41.402" y="108.6866" size="1.778" layer="95"/>
-<attribute name="VALUE" x="47.244" y="108.712" size="1.778" layer="96"/>
+<instance part="R1" gate="G$1" x="45.72" y="142.24" smashed="yes" rot="R180">
+<attribute name="NAME" x="41.402" y="139.1666" size="1.778" layer="95"/>
+<attribute name="VALUE" x="47.244" y="139.192" size="1.778" layer="96"/>
 </instance>
-<instance part="R2" gate="G$1" x="45.72" y="127" smashed="yes" rot="R180">
-<attribute name="NAME" x="41.148" y="123.9266" size="1.778" layer="95"/>
-<attribute name="VALUE" x="46.99" y="123.952" size="1.778" layer="96"/>
+<instance part="R2" gate="G$1" x="45.72" y="157.48" smashed="yes" rot="R180">
+<attribute name="NAME" x="41.148" y="154.4066" size="1.778" layer="95"/>
+<attribute name="VALUE" x="46.99" y="154.432" size="1.778" layer="96"/>
 </instance>
-<instance part="LED1" gate="G$1" x="35.56" y="119.38" smashed="yes">
-<attribute name="NAME" x="35.56" y="133.35" size="1.778" layer="95" align="center"/>
-<attribute name="VALUE" x="35.56" y="130.81" size="1.778" layer="95" align="center"/>
+<instance part="LED1" gate="G$1" x="35.56" y="149.86" smashed="yes">
+<attribute name="NAME" x="35.56" y="163.83" size="1.778" layer="95" align="center"/>
+<attribute name="VALUE" x="35.56" y="161.29" size="1.778" layer="95" align="center"/>
 </instance>
-<instance part="SW1" gate="G$1" x="96.52" y="124.46" smashed="yes">
-<attribute name="NAME" x="102.108" y="124.714" size="1.27" layer="95"/>
-<attribute name="VALUE" x="101.854" y="123.19" size="1.27" layer="96"/>
+<instance part="SW1" gate="G$1" x="27.94" y="111.76" smashed="yes">
+<attribute name="NAME" x="33.528" y="112.014" size="1.27" layer="95"/>
+<attribute name="VALUE" x="33.274" y="110.49" size="1.27" layer="96"/>
 </instance>
-<instance part="R6" gate="G$1" x="50.8" y="93.98" smashed="yes" rot="R180">
-<attribute name="NAME" x="47.244" y="95.4786" size="1.778" layer="95"/>
-<attribute name="VALUE" x="53.34" y="95.504" size="1.778" layer="96"/>
+<instance part="R6" gate="G$1" x="86.36" y="116.84" smashed="yes" rot="R180">
+<attribute name="NAME" x="82.804" y="118.3386" size="1.778" layer="95"/>
+<attribute name="VALUE" x="88.9" y="118.364" size="1.778" layer="96"/>
 </instance>
-<instance part="R7" gate="G$1" x="50.8" y="88.9" smashed="yes" rot="R180">
-<attribute name="NAME" x="47.244" y="90.3986" size="1.778" layer="95"/>
-<attribute name="VALUE" x="53.34" y="90.424" size="1.778" layer="96"/>
+<instance part="R7" gate="G$1" x="86.36" y="111.76" smashed="yes" rot="R180">
+<attribute name="NAME" x="82.804" y="113.2586" size="1.778" layer="95"/>
+<attribute name="VALUE" x="88.9" y="113.284" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -9282,45 +9291,45 @@ It DOESN'T connect to an actual KL25Z.</text>
 </segment>
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="3V3"/>
-<wire x1="129.54" y1="71.12" x2="124.46" y2="71.12" width="0.1524" layer="91"/>
-<label x="124.46" y="71.12" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="71.12" x2="142.24" y2="71.12" width="0.1524" layer="91"/>
+<label x="142.24" y="71.12" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<wire x1="129.54" y1="81.28" x2="124.46" y2="81.28" width="0.1524" layer="91"/>
-<label x="124.46" y="81.28" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="81.28" x2="142.24" y2="81.28" width="0.1524" layer="91"/>
+<label x="142.24" y="81.28" size="1.27" layer="95" rot="R180" xref="yes"/>
 <pinref part="FRDM1" gate="G$1" pin="IOREF/3V3"/>
 </segment>
 <segment>
-<label x="27.94" y="119.38" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="27.94" y="149.86" size="1.27" layer="95" rot="R180" xref="yes"/>
 <pinref part="LED1" gate="G$1" pin="1"/>
-<wire x1="30.48" y1="119.38" x2="27.94" y2="119.38" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="149.86" x2="27.94" y2="149.86" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="R6" gate="G$1" pin="1"/>
-<wire x1="55.88" y1="93.98" x2="58.42" y2="93.98" width="0.1524" layer="91"/>
-<wire x1="58.42" y1="93.98" x2="58.42" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="91.44" y1="116.84" x2="93.98" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="93.98" y1="116.84" x2="93.98" y2="111.76" width="0.1524" layer="91"/>
 <pinref part="R7" gate="G$1" pin="1"/>
-<wire x1="58.42" y1="88.9" x2="55.88" y2="88.9" width="0.1524" layer="91"/>
-<wire x1="58.42" y1="93.98" x2="60.96" y2="93.98" width="0.1524" layer="91"/>
-<junction x="58.42" y="93.98"/>
-<label x="60.96" y="93.98" size="1.27" layer="95" xref="yes"/>
+<wire x1="93.98" y1="111.76" x2="91.44" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="93.98" y1="116.84" x2="96.52" y2="116.84" width="0.1524" layer="91"/>
+<junction x="93.98" y="116.84"/>
+<label x="96.52" y="116.84" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="GND" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="GND1"/>
-<wire x1="129.54" y1="60.96" x2="124.46" y2="60.96" width="0.1524" layer="91"/>
-<label x="124.46" y="60.96" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="60.96" x2="142.24" y2="60.96" width="0.1524" layer="91"/>
+<label x="142.24" y="60.96" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="GND0"/>
-<wire x1="129.54" y1="55.88" x2="124.46" y2="55.88" width="0.1524" layer="91"/>
-<label x="124.46" y="55.88" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="55.88" x2="142.24" y2="55.88" width="0.1524" layer="91"/>
+<label x="142.24" y="55.88" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<label x="246.38" y="91.44" size="1.27" layer="95" xref="yes"/>
+<label x="264.16" y="91.44" size="1.27" layer="95" xref="yes"/>
 <pinref part="FRDM1" gate="G$1" pin="GND2"/>
-<wire x1="243.84" y1="91.44" x2="246.38" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="261.62" y1="91.44" x2="264.16" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <wire x1="50.8" y1="10.16" x2="50.8" y2="7.62" width="0.1524" layer="91"/>
@@ -9329,14 +9338,14 @@ It DOESN'T connect to an actual KL25Z.</text>
 </segment>
 <segment>
 <pinref part="SW1" gate="G$1" pin="C"/>
-<wire x1="91.44" y1="121.92" x2="91.44" y2="119.38" width="0.1524" layer="91"/>
-<wire x1="91.44" y1="119.38" x2="96.52" y2="119.38" width="0.1524" layer="91"/>
+<wire x1="22.86" y1="109.22" x2="22.86" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="22.86" y1="106.68" x2="27.94" y2="106.68" width="0.1524" layer="91"/>
 <pinref part="SW1" gate="G$1" pin="D"/>
-<wire x1="96.52" y1="119.38" x2="101.6" y2="119.38" width="0.1524" layer="91"/>
-<wire x1="101.6" y1="119.38" x2="101.6" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="96.52" y1="119.38" x2="96.52" y2="116.84" width="0.1524" layer="91"/>
-<junction x="96.52" y="119.38"/>
-<label x="96.52" y="116.84" size="1.27" layer="95" rot="R270" xref="yes"/>
+<wire x1="27.94" y1="106.68" x2="33.02" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="33.02" y1="106.68" x2="33.02" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="27.94" y1="106.68" x2="27.94" y2="104.14" width="0.1524" layer="91"/>
+<junction x="27.94" y="106.68"/>
+<label x="27.94" y="104.14" size="1.27" layer="95" rot="R270" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="AGND"/>
@@ -9347,8 +9356,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="5V_PICO" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="5V"/>
-<wire x1="129.54" y1="66.04" x2="124.46" y2="66.04" width="0.1524" layer="91"/>
-<label x="124.46" y="66.04" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="66.04" x2="142.24" y2="66.04" width="0.1524" layer="91"/>
+<label x="142.24" y="66.04" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="VBUS"/>
@@ -9359,92 +9368,92 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="BUTTON7" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE5"/>
-<wire x1="165.1" y1="50.8" x2="170.18" y2="50.8" width="0.1524" layer="91"/>
-<label x="170.18" y="50.8" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="50.8" x2="187.96" y2="50.8" width="0.1524" layer="91"/>
+<label x="187.96" y="50.8" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON8" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE4"/>
-<wire x1="165.1" y1="55.88" x2="170.18" y2="55.88" width="0.1524" layer="91"/>
-<label x="170.18" y="55.88" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="55.88" x2="187.96" y2="55.88" width="0.1524" layer="91"/>
+<label x="187.96" y="55.88" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON9" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE3"/>
-<wire x1="165.1" y1="60.96" x2="170.18" y2="60.96" width="0.1524" layer="91"/>
-<label x="170.18" y="60.96" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="60.96" x2="187.96" y2="60.96" width="0.1524" layer="91"/>
+<label x="187.96" y="60.96" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON10" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE2"/>
-<wire x1="165.1" y1="66.04" x2="170.18" y2="66.04" width="0.1524" layer="91"/>
-<label x="170.18" y="66.04" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="66.04" x2="187.96" y2="66.04" width="0.1524" layer="91"/>
+<label x="187.96" y="66.04" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON11" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTB11"/>
-<wire x1="165.1" y1="71.12" x2="170.18" y2="71.12" width="0.1524" layer="91"/>
-<label x="170.18" y="71.12" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="71.12" x2="187.96" y2="71.12" width="0.1524" layer="91"/>
+<label x="187.96" y="71.12" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON12" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTB10"/>
-<wire x1="165.1" y1="76.2" x2="170.18" y2="76.2" width="0.1524" layer="91"/>
-<label x="170.18" y="76.2" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="76.2" x2="187.96" y2="76.2" width="0.1524" layer="91"/>
+<label x="187.96" y="76.2" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON13" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTB9"/>
-<wire x1="165.1" y1="81.28" x2="170.18" y2="81.28" width="0.1524" layer="91"/>
-<label x="170.18" y="81.28" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="81.28" x2="187.96" y2="81.28" width="0.1524" layer="91"/>
+<label x="187.96" y="81.28" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON14" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTB8"/>
-<wire x1="165.1" y1="86.36" x2="170.18" y2="86.36" width="0.1524" layer="91"/>
-<label x="170.18" y="86.36" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="86.36" x2="187.96" y2="86.36" width="0.1524" layer="91"/>
+<label x="187.96" y="86.36" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON1" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="A4/PTC2"/>
-<wire x1="129.54" y1="17.78" x2="127" y2="17.78" width="0.1524" layer="91"/>
-<label x="127" y="17.78" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="17.78" x2="144.78" y2="17.78" width="0.1524" layer="91"/>
+<label x="144.78" y="17.78" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON2" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="A3/PTB3"/>
-<wire x1="129.54" y1="22.86" x2="127" y2="22.86" width="0.1524" layer="91"/>
-<label x="127" y="22.86" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="22.86" x2="144.78" y2="22.86" width="0.1524" layer="91"/>
+<label x="144.78" y="22.86" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON3" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="A2/PTB2"/>
-<wire x1="129.54" y1="27.94" x2="127" y2="27.94" width="0.1524" layer="91"/>
-<label x="127" y="27.94" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="27.94" x2="144.78" y2="27.94" width="0.1524" layer="91"/>
+<label x="144.78" y="27.94" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON4" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="A1/PTB1"/>
-<wire x1="129.54" y1="33.02" x2="127" y2="33.02" width="0.1524" layer="91"/>
-<label x="127" y="33.02" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="33.02" x2="144.78" y2="33.02" width="0.1524" layer="91"/>
+<label x="144.78" y="33.02" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON5" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE30"/>
-<wire x1="165.1" y1="12.7" x2="170.18" y2="12.7" width="0.1524" layer="91"/>
-<label x="170.18" y="12.7" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="12.7" x2="187.96" y2="12.7" width="0.1524" layer="91"/>
+<label x="187.96" y="12.7" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="PLUNGER_IRQ1_SCL" class="0">
@@ -9455,13 +9464,13 @@ It DOESN'T connect to an actual KL25Z.</text>
 </segment>
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE21"/>
-<wire x1="165.1" y1="33.02" x2="170.18" y2="33.02" width="0.1524" layer="91"/>
-<label x="170.18" y="33.02" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="33.02" x2="187.96" y2="33.02" width="0.1524" layer="91"/>
+<label x="187.96" y="33.02" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D10/PTD0"/>
-<wire x1="243.84" y1="71.12" x2="246.38" y2="71.12" width="0.1524" layer="91"/>
-<label x="246.38" y="71.12" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="71.12" x2="264.16" y2="71.12" width="0.1524" layer="91"/>
+<label x="264.16" y="71.12" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="PLUNGER_IRQ2" class="0">
@@ -9472,13 +9481,13 @@ It DOESN'T connect to an actual KL25Z.</text>
 </segment>
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE22"/>
-<wire x1="165.1" y1="27.94" x2="170.18" y2="27.94" width="0.1524" layer="91"/>
-<label x="170.18" y="27.94" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="27.94" x2="187.96" y2="27.94" width="0.1524" layer="91"/>
+<label x="187.96" y="27.94" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D9/PTD5"/>
-<wire x1="243.84" y1="66.04" x2="246.38" y2="66.04" width="0.1524" layer="91"/>
-<label x="246.38" y="66.04" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="66.04" x2="264.16" y2="66.04" width="0.1524" layer="91"/>
+<label x="264.16" y="66.04" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="PLUNGER_SDA" class="0">
@@ -9489,8 +9498,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 </segment>
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE20"/>
-<wire x1="165.1" y1="38.1" x2="170.18" y2="38.1" width="0.1524" layer="91"/>
-<label x="170.18" y="38.1" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="38.1" x2="187.96" y2="38.1" width="0.1524" layer="91"/>
+<label x="187.96" y="38.1" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="PLUNGER_ADC" class="0">
@@ -9501,92 +9510,92 @@ It DOESN'T connect to an actual KL25Z.</text>
 </segment>
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="A0/PTB0"/>
-<wire x1="129.54" y1="38.1" x2="127" y2="38.1" width="0.1524" layer="91"/>
-<label x="127" y="38.1" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="147.32" y1="38.1" x2="144.78" y2="38.1" width="0.1524" layer="91"/>
+<label x="144.78" y="38.1" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON15" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC12"/>
-<wire x1="208.28" y1="60.96" x2="200.66" y2="60.96" width="0.1524" layer="91"/>
-<label x="200.66" y="60.96" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="60.96" x2="218.44" y2="60.96" width="0.1524" layer="91"/>
+<label x="218.44" y="60.96" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON16" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC13"/>
-<wire x1="208.28" y1="66.04" x2="200.66" y2="66.04" width="0.1524" layer="91"/>
-<label x="200.66" y="66.04" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="66.04" x2="218.44" y2="66.04" width="0.1524" layer="91"/>
+<label x="218.44" y="66.04" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON17" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC16"/>
-<wire x1="208.28" y1="71.12" x2="200.66" y2="71.12" width="0.1524" layer="91"/>
-<label x="200.66" y="71.12" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="71.12" x2="218.44" y2="71.12" width="0.1524" layer="91"/>
+<label x="218.44" y="71.12" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON18" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC17"/>
-<wire x1="208.28" y1="76.2" x2="200.66" y2="76.2" width="0.1524" layer="91"/>
-<label x="200.66" y="76.2" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="76.2" x2="218.44" y2="76.2" width="0.1524" layer="91"/>
+<label x="218.44" y="76.2" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON19" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTA16"/>
-<wire x1="208.28" y1="81.28" x2="200.66" y2="81.28" width="0.1524" layer="91"/>
-<label x="200.66" y="81.28" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="81.28" x2="218.44" y2="81.28" width="0.1524" layer="91"/>
+<label x="218.44" y="81.28" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON20" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTA17"/>
-<wire x1="208.28" y1="86.36" x2="200.66" y2="86.36" width="0.1524" layer="91"/>
-<label x="200.66" y="86.36" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="86.36" x2="218.44" y2="86.36" width="0.1524" layer="91"/>
+<label x="218.44" y="86.36" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON21" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE31"/>
-<wire x1="208.28" y1="91.44" x2="200.66" y2="91.44" width="0.1524" layer="91"/>
-<label x="200.66" y="91.44" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="91.44" x2="218.44" y2="91.44" width="0.1524" layer="91"/>
+<label x="218.44" y="91.44" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON22" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTD6"/>
-<wire x1="208.28" y1="101.6" x2="200.66" y2="101.6" width="0.1524" layer="91"/>
-<label x="200.66" y="101.6" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="101.6" x2="218.44" y2="101.6" width="0.1524" layer="91"/>
+<label x="218.44" y="101.6" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON23" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTD7"/>
-<wire x1="208.28" y1="106.68" x2="200.66" y2="106.68" width="0.1524" layer="91"/>
-<label x="200.66" y="106.68" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="106.68" x2="218.44" y2="106.68" width="0.1524" layer="91"/>
+<label x="218.44" y="106.68" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON6" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC11"/>
-<wire x1="208.28" y1="48.26" x2="203.2" y2="48.26" width="0.1524" layer="91"/>
-<label x="203.2" y="48.26" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="48.26" x2="220.98" y2="48.26" width="0.1524" layer="91"/>
+<label x="220.98" y="48.26" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BUTTON24" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="SCL/PTE1"/>
-<wire x1="243.84" y1="106.68" x2="246.38" y2="106.68" width="0.1524" layer="91"/>
-<label x="246.38" y="106.68" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="106.68" x2="264.16" y2="106.68" width="0.1524" layer="91"/>
+<label x="264.16" y="106.68" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="PSU2_STATUS_SET" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="SDA/PTE0"/>
-<wire x1="243.84" y1="101.6" x2="246.38" y2="101.6" width="0.1524" layer="91"/>
-<label x="246.38" y="101.6" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="101.6" x2="264.16" y2="101.6" width="0.1524" layer="91"/>
+<label x="264.16" y="101.6" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP21"/>
@@ -9597,8 +9606,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="PSU2_STATUS_SENSE" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D11/PTD2"/>
-<wire x1="243.84" y1="76.2" x2="246.38" y2="76.2" width="0.1524" layer="91"/>
-<label x="246.38" y="76.2" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="76.2" x2="264.16" y2="76.2" width="0.1524" layer="91"/>
+<label x="264.16" y="76.2" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP20"/>
@@ -9609,8 +9618,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="IR_IN" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D8/PTA13"/>
-<wire x1="243.84" y1="60.96" x2="246.38" y2="60.96" width="0.1524" layer="91"/>
-<label x="246.38" y="60.96" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="60.96" x2="264.16" y2="60.96" width="0.1524" layer="91"/>
+<label x="264.16" y="60.96" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP6"/>
@@ -9626,8 +9635,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 </segment>
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D7/PTC9"/>
-<wire x1="243.84" y1="48.26" x2="246.38" y2="48.26" width="0.1524" layer="91"/>
-<label x="246.38" y="48.26" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="48.26" x2="264.16" y2="48.26" width="0.1524" layer="91"/>
+<label x="264.16" y="48.26" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="SDA" class="0">
@@ -9638,8 +9647,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 </segment>
 <segment>
 <pinref part="R6" gate="G$1" pin="2"/>
-<wire x1="43.18" y1="93.98" x2="45.72" y2="93.98" width="0.1524" layer="91"/>
-<label x="43.18" y="93.98" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="78.74" y1="116.84" x2="81.28" y2="116.84" width="0.1524" layer="91"/>
+<label x="78.74" y="116.84" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SCL" class="0">
@@ -9650,15 +9659,15 @@ It DOESN'T connect to an actual KL25Z.</text>
 </segment>
 <segment>
 <pinref part="R7" gate="G$1" pin="2"/>
-<wire x1="43.18" y1="88.9" x2="45.72" y2="88.9" width="0.1524" layer="91"/>
-<label x="43.18" y="88.9" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="78.74" y1="111.76" x2="81.28" y2="111.76" width="0.1524" layer="91"/>
+<label x="78.74" y="111.76" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="PWM_XLAT" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC10"/>
-<wire x1="208.28" y1="43.18" x2="203.2" y2="43.18" width="0.1524" layer="91"/>
-<label x="203.2" y="43.18" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="43.18" x2="220.98" y2="43.18" width="0.1524" layer="91"/>
+<label x="220.98" y="43.18" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP19"/>
@@ -9669,8 +9678,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="PWM_SIN" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC6"/>
-<wire x1="208.28" y1="38.1" x2="203.2" y2="38.1" width="0.1524" layer="91"/>
-<label x="203.2" y="38.1" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="38.1" x2="220.98" y2="38.1" width="0.1524" layer="91"/>
+<label x="220.98" y="38.1" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP17"/>
@@ -9681,8 +9690,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="PWM_BLANK" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC7"/>
-<wire x1="208.28" y1="12.7" x2="203.2" y2="12.7" width="0.1524" layer="91"/>
-<label x="203.2" y="12.7" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="12.7" x2="220.98" y2="12.7" width="0.1524" layer="91"/>
+<label x="220.98" y="12.7" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP18"/>
@@ -9693,8 +9702,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="PWM_SCLK" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC5"/>
-<wire x1="208.28" y1="33.02" x2="203.2" y2="33.02" width="0.1524" layer="91"/>
-<label x="203.2" y="33.02" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="33.02" x2="220.98" y2="33.02" width="0.1524" layer="91"/>
+<label x="220.98" y="33.02" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP15"/>
@@ -9705,8 +9714,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="PWM_GSCLK" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D0/PTA1"/>
-<wire x1="243.84" y1="12.7" x2="246.38" y2="12.7" width="0.1524" layer="91"/>
-<label x="246.38" y="12.7" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="12.7" x2="264.16" y2="12.7" width="0.1524" layer="91"/>
+<label x="264.16" y="12.7" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP16"/>
@@ -9717,8 +9726,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="CHIME_SOUT" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D5/PTA5"/>
-<wire x1="243.84" y1="38.1" x2="246.38" y2="38.1" width="0.1524" layer="91"/>
-<label x="246.38" y="38.1" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="38.1" x2="264.16" y2="38.1" width="0.1524" layer="91"/>
+<label x="264.16" y="38.1" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP3"/>
@@ -9729,8 +9738,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="CHIME_SCLK" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D4/PTA4"/>
-<wire x1="243.84" y1="33.02" x2="246.38" y2="33.02" width="0.1524" layer="91"/>
-<label x="246.38" y="33.02" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="33.02" x2="264.16" y2="33.02" width="0.1524" layer="91"/>
+<label x="264.16" y="33.02" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP1"/>
@@ -9741,8 +9750,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="CHIME_LATCH" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D3/PTA12"/>
-<wire x1="243.84" y1="27.94" x2="246.38" y2="27.94" width="0.1524" layer="91"/>
-<label x="246.38" y="27.94" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="27.94" x2="264.16" y2="27.94" width="0.1524" layer="91"/>
+<label x="264.16" y="27.94" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP2"/>
@@ -9753,92 +9762,92 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="CHIME_ENA" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D2/PTD4"/>
-<wire x1="243.84" y1="22.86" x2="246.38" y2="22.86" width="0.1524" layer="91"/>
-<label x="246.38" y="22.86" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="22.86" x2="264.16" y2="22.86" width="0.1524" layer="91"/>
+<label x="264.16" y="22.86" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="TV_RELAY" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D12/PTD3"/>
-<wire x1="243.84" y1="81.28" x2="246.38" y2="81.28" width="0.1524" layer="91"/>
-<label x="246.38" y="81.28" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="81.28" x2="264.16" y2="81.28" width="0.1524" layer="91"/>
+<label x="264.16" y="81.28" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="EXPAN1" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC4"/>
-<wire x1="208.28" y1="27.94" x2="203.2" y2="27.94" width="0.1524" layer="91"/>
-<label x="203.2" y="27.94" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="27.94" x2="220.98" y2="27.94" width="0.1524" layer="91"/>
+<label x="220.98" y="27.94" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="EXPAN2" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC3"/>
-<wire x1="208.28" y1="22.86" x2="203.2" y2="22.86" width="0.1524" layer="91"/>
-<label x="203.2" y="22.86" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="22.86" x2="220.98" y2="22.86" width="0.1524" layer="91"/>
+<label x="220.98" y="22.86" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="EXPAN3" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTC0"/>
-<wire x1="208.28" y1="17.78" x2="203.2" y2="17.78" width="0.1524" layer="91"/>
-<label x="203.2" y="17.78" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="226.06" y1="17.78" x2="220.98" y2="17.78" width="0.1524" layer="91"/>
+<label x="220.98" y="17.78" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="EXPAN4" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D1/PTA2"/>
-<wire x1="243.84" y1="17.78" x2="246.38" y2="17.78" width="0.1524" layer="91"/>
-<label x="246.38" y="17.78" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="17.78" x2="264.16" y2="17.78" width="0.1524" layer="91"/>
+<label x="264.16" y="17.78" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="PLUNGER_CAL_BTN" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE29"/>
-<wire x1="165.1" y1="17.78" x2="170.18" y2="17.78" width="0.1524" layer="91"/>
-<label x="170.18" y="17.78" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="17.78" x2="187.96" y2="17.78" width="0.1524" layer="91"/>
+<label x="187.96" y="17.78" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="PLUNGER_CAL_LED" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="PTE23"/>
-<wire x1="165.1" y1="22.86" x2="170.18" y2="22.86" width="0.1524" layer="91"/>
-<label x="170.18" y="22.86" size="1.27" layer="95" xref="yes"/>
+<wire x1="182.88" y1="22.86" x2="187.96" y2="22.86" width="0.1524" layer="91"/>
+<label x="187.96" y="22.86" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="KNOCKER" class="0">
 <segment>
 <pinref part="FRDM1" gate="G$1" pin="D6/PTC8"/>
-<wire x1="243.84" y1="43.18" x2="246.38" y2="43.18" width="0.1524" layer="91"/>
-<label x="246.38" y="43.18" size="1.27" layer="95" xref="yes"/>
+<wire x1="261.62" y1="43.18" x2="264.16" y2="43.18" width="0.1524" layer="91"/>
+<label x="264.16" y="43.18" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="N$8" class="0">
 <segment>
 <pinref part="R3" gate="G$1" pin="2"/>
 <pinref part="LED1" gate="G$1" pin="3"/>
-<wire x1="38.1" y1="119.38" x2="40.64" y2="119.38" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="149.86" x2="40.64" y2="149.86" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$10" class="0">
 <segment>
 <pinref part="R1" gate="G$1" pin="2"/>
 <pinref part="LED1" gate="G$1" pin="2"/>
-<wire x1="38.1" y1="111.76" x2="40.64" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="142.24" x2="40.64" y2="142.24" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$13" class="0">
 <segment>
 <pinref part="R2" gate="G$1" pin="2"/>
 <pinref part="LED1" gate="G$1" pin="4"/>
-<wire x1="38.1" y1="127" x2="40.64" y2="127" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="157.48" x2="40.64" y2="157.48" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="LED_R" class="0">
 <segment>
 <pinref part="R3" gate="G$1" pin="1"/>
-<wire x1="53.34" y1="119.38" x2="50.8" y2="119.38" width="0.1524" layer="91"/>
-<label x="53.34" y="119.38" size="1.27" layer="95" xref="yes"/>
+<wire x1="53.34" y1="149.86" x2="50.8" y2="149.86" width="0.1524" layer="91"/>
+<label x="53.34" y="149.86" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP27_A1"/>
@@ -9849,8 +9858,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="LED_B" class="0">
 <segment>
 <pinref part="R1" gate="G$1" pin="1"/>
-<wire x1="53.34" y1="111.76" x2="50.8" y2="111.76" width="0.1524" layer="91"/>
-<label x="53.34" y="111.76" size="1.27" layer="95" xref="yes"/>
+<wire x1="53.34" y1="142.24" x2="50.8" y2="142.24" width="0.1524" layer="91"/>
+<label x="53.34" y="142.24" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP22"/>
@@ -9861,8 +9870,8 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="LED_G" class="0">
 <segment>
 <pinref part="R2" gate="G$1" pin="1"/>
-<wire x1="53.34" y1="127" x2="50.8" y2="127" width="0.1524" layer="91"/>
-<label x="53.34" y="127" size="1.27" layer="95" xref="yes"/>
+<wire x1="53.34" y1="157.48" x2="50.8" y2="157.48" width="0.1524" layer="91"/>
+<label x="53.34" y="157.48" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="GP26_A0"/>
@@ -9873,13 +9882,13 @@ It DOESN'T connect to an actual KL25Z.</text>
 <net name="PICO_RUN" class="0">
 <segment>
 <pinref part="SW1" gate="G$1" pin="A"/>
-<wire x1="91.44" y1="127" x2="91.44" y2="129.54" width="0.1524" layer="91"/>
-<wire x1="91.44" y1="129.54" x2="101.6" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="22.86" y1="114.3" x2="22.86" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="22.86" y1="116.84" x2="33.02" y2="116.84" width="0.1524" layer="91"/>
 <pinref part="SW1" gate="G$1" pin="B"/>
-<wire x1="101.6" y1="129.54" x2="101.6" y2="127" width="0.1524" layer="91"/>
-<wire x1="91.44" y1="129.54" x2="88.9" y2="129.54" width="0.1524" layer="91"/>
-<junction x="91.44" y="129.54"/>
-<label x="88.9" y="129.54" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="33.02" y1="116.84" x2="33.02" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="22.86" y1="116.84" x2="20.32" y2="116.84" width="0.1524" layer="91"/>
+<junction x="22.86" y="116.84"/>
+<label x="20.32" y="116.84" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="RASPBERRY_PI_PICO" gate="G$1" pin="RUN"/>
@@ -10935,6 +10944,22 @@ the data sheet.</text>
 <wire x1="43.18" y1="12.7" x2="45.72" y2="12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
+</nets>
+</sheet>
+<sheet>
+<description>Notes</description>
+<plain>
+<text x="2.54" y="5.08" size="2.54" layer="91">Copyright and License Info
+
+  Pinscape Pico Adapter Board for Pinscape-KL25Z Expansion Set
+  Copyright 2024, 2025 Michael J Roberts
+  BSD 3-clause license</text>
+</plain>
+<instances>
+</instances>
+<busses>
+</busses>
+<nets>
 </nets>
 </sheet>
 </sheets>

@@ -1,0 +1,106 @@
+# Flasher Panel Circuit Board
+
+This circuit board implements a 5-way flasher panel of the type that's
+most common in virtual pin cabs.  It uses five high-current (350mA) RGB
+LEDs, spaced in a single row at 4" intervals.
+
+This board was designed with [EasyEDA Pro](https://pro.easyeda.com).  (Most
+of my boards are designed with EAGLE, but the "amateur" version of EAGLE
+that I use doesn't allow boards this large.)  I've also provided the Gerber
+files, which are the standard format that almost all PCB fabricators accept.
+
+
+## Physical layout
+
+This is designed to sit behind a wood panel, made from 1/4" to 1/2"
+plywood or MDF, with this layout:
+
+<img src="flasher-layout.png">
+
+Each circular represents a 1/2"-diameter drill hole, spaced at 4" intervals.
+The overall panel dimensions are up to you.  If the panel will sit above the
+playfield TV at the back of the cabinet, make the width about 1/4" less than
+the overall inside cabinet width, so that it fits the width of the cabinet
+with a little room left over to position it.  The height of the panel depends
+entirely on your layout.
+
+Attach the circuit board to the back of the panel using three #6 wood
+screws (choose a length according to the thickness of the panel
+material) and matching flat washers.  Fasten at the holes in the
+circuit board.  Align the LEDs with the 1" round holes in the board.
+The LEDs face forward, through the holes in the panel.
+
+On the front side of the board, attach a standard plastic flasher dome over
+each LED.  Select the "with screw tabs" type, clear, Williams/Bally part number
+03-8149-13.  You can find these at [Marco Specialties](https://www.marcospecialties.com/),
+[Pinball Life](https://www.pinballlife.com/), [Planetary Pinball](https://www.planetarypinball.com/),
+and other online pinball vendors.
+
+
+## Connecting to a controller
+
+The 16-pin connector is designed to mate with a standard 2x8 pin, 0.1"
+pitch IDC cable connector, and standard 1.27mm pitch, 28 AWG, 16-wire
+ribbon cable.  The connectors and ribbon cable are basic electronics
+supply staples that are widely available.  You should be able to find
+them at electronics vendors (Mouser, DigiKey) and many general retailers
+(Amazon, eBay).
+
+If you're using a Pinscape Pico or KL25Z expansion board, the connector
+on this board uses the same layout as the expansion board Flasher port.
+If you're connecting to an LedWiz or some other kind of expansion board,
+you'll need to create your own connector at the source end that matches
+the layout of the flasher board connector.
+
+The 16-pin connector uses the following pin assignments.  This is a
+top view of the pin header. +5V is the positive power supply input,
+which is connected to all of the LEDs.  "1R" is the Red channel of LED
+#1 (the leftmost LED), "1G" is the Green channel, "1B" is the Blue
+channel, and so on.  The LEDs are numbered #1 to #5, left to right.
+The arrow in the diagram corresponds to the arrow printed on the circuit
+board, which is the nominal "pin #1" on the header.
+
+<img src="flasher-pin-header.png">
+
+When you connect this to a ribbon cable with an IDC connector, the pins
+connect to the wires alternating between the two rows, so the ribbon cable
+will have the following wire assignments:
+
+<img src="flasher-ribbon-cable.png">
+
+The rightmost wire is shown in red because this is the nominal "pin #1"
+position on the header, and it's conventional to mark the side of the
+ribbon cable that lines up with pin #1 with a red stripe.  That helps
+make sure that the cable is plugged into the port in the correct orientation.
+Pin #1 is also marked on the circuit board with a pair of arrows.
+
+
+## SMD parts
+
+This board uses SMD parts for the LEDs and resistors.  Suitable LEDs are
+only available in SMD form, so there was no option to make this part any
+friendlier for hand-soldering.  I chose to use the SMD resistors to keep
+the board flatter, to make it easier to mount to the flasher panel; through-hole
+parts always have little nubs that stick up from the back, which makes the
+board harder to mount flush.  As SMD parts go, these resistors are quite
+easy to work with, because they're fairly large.
+
+You should be able to solder them by hand with a soldering iron and
+the same solder you'd use for through-hole parts, but if you have
+solder paste and a heat gun available, that's probably even easier.
+Just put a dab of solder paste on each pad, then position each
+resistor on top of the paste (tweezers help with that), pressing it
+down gently to make sure it sticks.  Then hit it with the heat gun
+until the solder paste melts and turns shiny.
+
+To solder with a regular soldering iron, melt a little solder onto
+a pad, I think the easiest technique is to attach one pad first to
+lock the resistor in place, then solder the other pad.  Melt a little
+solder onto the first pad, then, with the solder still liquid, move the
+resistor into position.  Once it's positioned properly over both
+pads, let the solder cool and solidify.  The first pad will hold the
+resistor in place, so now just heat the other pad and melt some solder
+one it to complete the job.  You can use the same technique to attach
+the LEDs, starting with one pad to lock the LED in place, and then
+soldering the other pads one at a time.
+

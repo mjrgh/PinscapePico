@@ -54,6 +54,22 @@ high-voltage (48V) supply, so that the high-voltage power is automatically
 cut off whenever you open the coin door to do maintenance work inside the
 cabinet.  It also features connectors that match the power connectors on the
 DIY-Friendly and Pro expansion boards, again just to make the wiring tidier.
+<p>
+This board can be used with any I/O controller, not just Pinscape
+Pico.  It does include two connectors designed especially to match
+the layout of the Pinscape Pico expansion board power inputs, but
+other controllers are likely to have similar power input requirements,
+so it should be easy to adapt in most cases.
+</p>
+
+* <b>Flasher Panel:</b> A board designed to sit behind an RGB LED flasher
+panel in a standard-width pin cab, to provide all of the electronics and
+wiring to the flashers, including the five high-current (350mA) RGB LEDs.
+It uses a 16-wire ribbon cable connector that matches the layout of the
+Flasher port on the Pisncape Pico and KL25Z expansion boards, to make the
+wiring between the controller and panel very easy and neat.  Like the Power
+Distribution board, this one is designed to replace ad hoc wiring to make
+your build a little tidier, and it can be used with any I/O controller.
 
 
 ## Bills of Materials (BOMs)

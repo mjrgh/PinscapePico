@@ -10,6 +10,41 @@ that I use doesn't allow boards this large.)  I've also provided the Gerber
 files, which are the standard format that almost all PCB fabricators accept.
 
 
+## Parts sourcing
+
+The project includes a Bill of Materials (BOM) in CSV format.
+All of the parts **except the LEDs** are available from [Mouser](https://mouser.com).
+
+The LEDs are a little harder to source in the US market.  The particular part
+used in the board layout is Xinglight XL-HD6070RGBC-A46L-BD, and none of the US
+distributors (Mouser, DigiKey, etc) stock these LEDs, or even anything in the same
+class.  They seem to only be available from Asian distributors, such as [LCSC](https://lcsc.com),
+and are also currently available on [AliExpress](https://aliexpress.us).  I couldn't
+any find exact matches on Amazon or eBay, but there are near matches that would
+fit the footprint - search for **3W RGB LED**, and look for the type with 6 leads
+that's **not** attached to a "star" heat sink base.  These parts on Amazon appears
+to be fully compatible, including using the same resistors as the Xinglight:
+
+* Chanzon LED 3W RGB 6 pins, ASIN B01DBZIW8W
+
+* Vrabocry LED RGB, 3x1w 6pin RGB style, ASIN B0CXF5YTQ7
+
+<b>Important:</b>  If you substitute a different part that fits the footprint,
+you might have to adjust the resistor sizes.  Use an LED resistor calculator
+(several are available online) to calculate the required resistances from the
+<b>Vf</b> (forward voltage) and <b>If</b> (forward current) listed in the data
+sheet, using a 5V supply voltage.  In most cases, this should give you values
+around 10 Ohms for the Red channel, and about 5 Ohms for the Blue and Green
+channels.  If the results come out within an Ohm or two of these values, you
+can probably get away with using the same resistors listed in the BOM.  If
+the values are much different, however, you should select the appropriate
+replacement resistors.  You'll have to match the resistance value, the
+required minimum wattage (typically 1W for blue/green and 2W for red) and
+the "SMD case code", which is 2512 (that specifies the physical size of the
+resistor).  Note that there's a case code called "2512 Reversed" that's **not**
+compatible with regular 2512, so don't select one of those.
+
+
 ## Physical layout
 
 This is designed to sit behind a wood panel, made from 1/4" to 1/2"

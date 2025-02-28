@@ -76,6 +76,10 @@ public:
     // construct
     Logger();
 
+    // Run-time initialization.  This should be called before any
+    // log messages are generated.
+    void Init();
+
     // set display modes
     void SetDisplayModes(bool timestamps, bool typeCodes, bool colors);
 
@@ -111,6 +115,19 @@ public:
 
     // Put a string to the buffer, with newline translation ('\n' -> CR/LF)
     void Puts(int typeCode, const char *s);
+
+    // Log the preserved log data from the prior session into the
+    // current session log.  Does nothing if the prior session log is
+    // empty.  'type' is the LOG_xxx code for logging the messages.
+    void LogPriorSessionLog(int type);
+
+    // Log one line of preserved log data from the prior session to a
+    // console.  'ofs' is the offset in the buffer of the start of the
+    // line to log; pass 0 on the first call, and then pass the return
+    // value from the prior call on each subsequent call.  The return
+    // value is the offset of the start of the next line, or -1 upon
+    // reaching the end of the buffer.
+    int PrintPriorSessionLogLine(CommandConsole *console, int ofs);
 
     // Logger device.  This is the base class for the concrete output
     // devices (UART, USB CDC, vendor interface).
@@ -273,6 +290,95 @@ public:
     };
 
 protected:
+    // "Tail" - this is a small static buffer that we locate in
+    // not-initialized-at-reset RAM, where we keep a copy of the most
+    // recent section of the log data.  Since the buffer is in storage
+    // that's not initialized at reset, it remains intact across a CPU
+    // reset, allowing us to capture the PRIOR session's log in the new
+    // session after a reset.  This can be useful for diagnostics after
+    // a crash or unexpected watchdog reset, by providing some
+    // information on what the program was doing just before the crash.
+    //
+    // The complete "prior session log" mechanism consists of two
+    // buffers: this struct, which is in not-initialized-at-reset RAM,
+    // and the PriorSessionLog struct, which is in ordinary RAM.  The
+    // prior session struct is initialized immediately after reset with
+    // a copy of the log tail struct.  After that, the log tail struct
+    // is cleared, and then maintains a live copy of the log as it's
+    // written during the new session.  So the "log tail" always
+    // reflects output from the CURRENT session, EXCEPT immediately
+    // after a CPU reset, when it still contains the data left over from
+    // the PREVIOUS session.
+    //
+    // Because this is in not-initialized-at-reset storage, the struct
+    // should be expected to contain randomized data after a power-on
+    // reset.  We use a lightweight checksum to distinguish this from
+    // valid data carried over across a reset.
+    struct LogTail
+    {
+        // test for validity
+        uint32_t IsValid() const
+        {
+            // it's valid if the integrity checksum is correct and
+            // the counters are all in range
+            return write >= 0 && write < sizeof(buf)
+                && nBytes >= 0 && nBytes <= sizeof(buf)
+                && check == CalcCheck();
+        }
+        
+        // clear the buffer
+        void Clear()
+        {
+            write = 0;
+            nBytes = 0;
+            check = CalcCheck();
+        }
+        
+        // add a byte
+        void Add(char c)
+        {
+            buf[write++] = c;
+            if (write >= sizeof(buf)) write = 0;
+            if (nBytes < sizeof(buf)) nBytes += 1;
+            check = CalcCheck();
+        }
+        
+        // number of bytes stored
+        int nBytes;
+        
+        // write offset
+        int write;
+        
+        // Integrity check.  This is a lightweight checksum, to determine if
+        // the buffer contains random power-on garbage or contains valid
+        // data.  It's updated after each buffer write, and can be tested at
+        // startup to determine if the buffer contains valid data carried
+        // over from before the CPU reset.
+        uint32_t check;
+        
+        // calculate the integrity check
+        uint32_t CalcCheck() const {
+            int prevWrite = write == 0 ? sizeof(buf) - 1 : write < sizeof(buf) ? write - 1 : 0;
+            return ~((nBytes << 18) | (write << 8) | buf[prevWrite]);
+        }
+        
+        // storage area
+        static const int BUF_SIZE = 1024;
+        char buf[BUF_SIZE];
+    };
+    static LogTail logTail;
+
+    // Prior session log snapshot.  At startup, we copy a snapshot of
+    // the not-initialized-at-reset log tail buffer into this buffer, to
+    // preserve the tail end of the log from just before the last reset
+    // for inspection during this session.
+    struct PriorSessionLog
+    {
+        int nBytes = 0;                // number of bytes actually stored
+        char buf[LogTail::BUF_SIZE];   // buffer snapshot
+    };
+    PriorSessionLog priorSessionLog;
+
     // Put a character to the buffer
     void Put(char c);
 

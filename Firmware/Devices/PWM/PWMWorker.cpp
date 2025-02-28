@@ -158,22 +158,36 @@ void PWMWorker::Init()
     // in case the Pinscape unit went through a software reset that didn't
     // also reset the remote Pico, leaving a previous register configuration
     // in place.
-    bool ok = true;
+    bool ok = false;
     {
-        // set the RESET REGISTERS bit in CTRL0 to request a rest
-        const uint8_t tx[2] = { REG_CTRL0, CTRL0_RESET_REGS };
-        if (i2c_write_timeout_us(i2c, i2cAddr, tx, _countof(tx), false, 1000) == _countof(tx))
+        // Set the RESET REGISTERS bit in CTRL0 to request a reset.  Allow
+        // some time for the other Pico to complete its initialization.
+        uint64_t tEnd = time_us_64() + 20000;
+        do
+        {
+            // try the reset; stop looping on success
+            const uint8_t tx[2] = { REG_CTRL0, CTRL0_RESET_REGS };
+            if (i2c_write_timeout_us(i2c, i2cAddr, tx, _countof(tx), false, 1000) == _countof(tx))
+            {
+                ok = true;
+                break;
+            }
+        } while (time_us_64() < tEnd);
+
+        // if that was successful, wait for the reset to complete
+        if (ok)
         {
             // now poll CTRL0 until the RESET REGISTERS bit clears, indicating
             // that the reset has completed
             uint8_t rx = CTRL0_RESET_REGS;
-            uint64_t tEnd = time_us_64() + 10000;
+            tEnd = time_us_64() + 10000;
             do
             {
                 // let the watchdog know that the delay is intentional
                 watchdog_update();
 
                 // poll the register
+                const uint8_t tx[1] = { REG_CTRL0 };
                 if (i2c_write_timeout_us(i2c, i2cAddr, tx, 1, true, 1000) != 1
                     || i2c_read_timeout_us(i2c, i2cAddr, &rx, 1, false, 1000) != 1)
                 {
@@ -198,7 +212,6 @@ void PWMWorker::Init()
         else
         {
             Log(LOG_ERROR, "WorkerPico[%d]: I2C error requesting register reset (CTRL0_RESET_REGS)\n");
-            ok = false;
         }
     }
 

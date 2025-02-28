@@ -56,6 +56,7 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 
 // Pico SDK headers
@@ -231,6 +232,9 @@ public:
     };
     static void AddCommandPWMChip(
         const char *commandName, const char *commandDesc, const PWMChipClass *classDesc);
+
+    // process asynchronous tasks
+    void Task();
     
     // process input from the PC
     void ProcessInputChar(char c);
@@ -245,6 +249,10 @@ public:
     void PutOutputFmt(const char *fmt, ...);
     void PutOutputFmtV(const char *fmt, va_list va);
 
+    // alias for PutOutputFmt
+    void Print(const char *fmt, ...);
+    void PrintV(const char *fmt, va_list va) { PutOutputFmtV(fmt, va); }
+
     // write to the output buffer, with newline translation
     void PutOutputChar(char c);
 
@@ -254,12 +262,15 @@ public:
     // is another buffered output character available?
     bool OutputReady() const { return outputRead != outputWrite; }
 
-    // how much output is available?
-    int OutputAvailable() const {
+    // how much output text is stored in the buffer?
+    int OutputBytesBuffered() const {
         return outputRead <= outputWrite ?
             outputWrite - outputRead :
             static_cast<int>(outputBuf.size() - (outputRead - outputWrite));
     }
+
+    // how much free space is in the buffer?
+    int OutputBufferBytesFree() const { return outputBuf.size() - OutputBytesBuffered(); }
 
     // get the next buffered output character
     char GetOutputChar() { return (outputRead != outputWrite) ? outputBuf[PostInc(outputRead)] : 0; }
@@ -272,7 +283,62 @@ public:
     // separate buffer segments).
     int CopyOutput(std::function<int(const uint8_t *dst, int len)> func, int len);
 
+    // Asynchronous command contination handler.
+    //
+    // A command handler can use a completion handler to carry out tasks
+    // that can't be conveniently executed in a single main loop
+    // iteration: tasks with a lot of output that need to wait for the
+    // buffer to clear; tasks that require more than one main loop
+    // iteration's worth of time to complete; or tasks that block on
+    // hardware polling.
+    //
+    // To set up asynchronous completion, define a concrete subclass of
+    // this class, instantiate it, and pass it to ContinueWith().  The
+    // console will hold onto a unique pointer to this object, deleting
+    // it when done.  On each main loop iteration, the console task
+    // handler will call the object's task handler to give it another
+    // time slice.  This continues until the handler returns false to
+    // indicate that it's done, or the user cancels the command with
+    // a Ctrl+C key press.
+    class Continuation
+    {
+    public:
+        // destruction
+        virtual ~Continuation() { }
+        
+        // Main task handler.  On each main loop, the console will call
+        // this to let the command handler continue its work.  Returns
+        // true if the command should continue executing, false if its
+        // work is done.
+        virtual bool Continue(CommandConsole *console) = 0;
+
+        // Cancel the command by user interrupt.  This is called when
+        // the user presses Ctrl+C while the command is active.  This is
+        // a notification only; it can't prevent the cancellation.  In
+        // most cases, it's not necessary to override this, since the
+        // destructor can usually take care of all necessary cleanup.
+        // This is meant for cases where the command might want to do
+        // something extra in case of explicit cancellation in lieu of
+        // its own determination that its work is complete.
+        virtual void OnUserCancel() { }
+    };
+
+    // Set a continuation handler.  The console takes ownership of
+    // the object, and deletes it when done.
+    void ContinueWith(Continuation *c) {
+        continuation.reset(c);
+    }
+
 protected:
+    // command continuation object
+    std::unique_ptr<Continuation> continuation;
+
+    // internal input character processing
+    void ProcessInputCharInternal(char c);
+
+    // process pending input
+    void ProcessPendingInput();
+
     // command line editing
     void DelChar();
     void DelLeft();
@@ -327,6 +393,12 @@ protected:
     // read and write indices in the output ring buffer
     int outputRead = 0;
     int outputWrite = 0;
+
+    // Input buffer.  This accumulates input characters when a command
+    // is executing asynchronously.  This is a circular buffer.
+    char inBuf[256];
+    int inBufWrite = 0;
+    int inBufCnt = 0;
 
     // command-line buffer
     char cmdBuf[256] = "";

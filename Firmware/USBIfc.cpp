@@ -1343,12 +1343,18 @@ bool USBIfc::HID::SendReport()
 void USBIfc::HID::Stats::Log(const ConsoleCommandContext *ctx, USBIfc::HID *hid)
 {
     ctx->Printf(
+        "  Configured:          %s\n", hid->configured ? "Yes" : "No");
+    if (!hid->configured)
+        return;
+
+    ctx->Printf(
+        "  Reports:             %s\n"
         "  HID interface:       %d\n"
         "  HID report ID:       %d\n"
-        "  Reports:             %s\n"
         "  Num reports started: %llu\n"
         "  Num completed:       %llu\n",
-        hid->ifcInstance, hid->reportID, hid->enabled ? "Enabled" : "Disabled",
+        hid->enabled ? "Enabled" : "Disabled",
+        hid->ifcInstance, hid->reportID,
         nReportsStarted, nReportsCompleted);
 
     if (nReportsCompleted != 0)

@@ -42,6 +42,13 @@ static struct {
     const char *textColor = "";    // ANSI type code for the main message text
 } logTypeName[32];
 
+// Prior session log buffer.  This is a static buffer in uninitialized storage
+// space, so that it's preserved across CPU resets, allowing us to recover the
+// tail end of the last session's log.  This can be helpful when diagnosing
+// crashes and unexpected watchdog resets, by letting us see what the software
+// was doing just before the crash.
+Logger::LogTail __uninitialized_ram(Logger::logTail);
+
 // Main logger
 int Log(int type, const char *f, ...)
 {
@@ -115,6 +122,27 @@ Logger::Logger()
     devices.emplace_back(&vendorInterfaceLogger);
     devices.emplace_back(&uartLogger);
     devices.emplace_back(&usbCdcLogger);
+}
+
+void Logger::Init()
+{
+    // if the cross-reset log preservation buffer has valid data, make a snapshot
+    if (logTail.IsValid())
+    {
+        // figure the copy length: the lesser of the actual data length available,
+        // or the size of the snapshot buffer
+        priorSessionLog.nBytes = std::min(logTail.nBytes, static_cast<int>(sizeof(priorSessionLog.buf)));
+
+        // copy from the write position backwards
+        for (int src = logTail.write, dst = priorSessionLog.nBytes, i = 0 ; i < priorSessionLog.nBytes ; ++i)
+        {
+            if (--src < 0) src = sizeof(logTail.buf) - 1;
+            priorSessionLog.buf[--dst] = logTail.buf[src];
+        }
+    }
+
+    // clear the log tail
+    logTail.Clear();
 }
 
 void Logger::SetDisplayModes(bool timestamps, bool typeCodes, bool colors)
@@ -401,11 +429,72 @@ void Logger::Put(char c)
     // add the character and bump the write pointer
     buf[PostInc(write)] = c;
 
+    // add it to the preserved-across-reset log tail buffer
+    logTail.Add(c);
+
     // update the reader views - they might need to discard the oldest
     // character if the buffer is now full from their perspective
     for (auto d : devices)
         d->OnPut();
 }
+
+void Logger::LogPriorSessionLog(int type)
+{
+    auto &l = priorSessionLog;
+    if (l.nBytes != 0)
+    {
+        // announce the start of the section
+        Log(type, "----- Tail end of prior session log follows -----\n");
+
+        // log the data
+        for (int lineStart = 0 ; lineStart < l.nBytes ; )
+        {
+            // find the end of this line
+            int lineEnd = lineStart;
+            for ( ; lineEnd < l.nBytes && l.buf[lineEnd] != '\n' && l.buf[lineEnd] != '\r' ; ++lineEnd) ;
+
+            // log this line
+            Log(type, "%.*s\n", static_cast<int>(lineEnd - lineStart), &l.buf[lineStart]);
+
+            // advance past the newline sequence
+            if (lineEnd + 1 < l.nBytes && l.buf[lineEnd] == '\r' && l.buf[lineEnd+1] == '\n')
+                lineEnd += 2;
+            else if (lineEnd < l.nBytes)
+                lineEnd += 1;
+
+            // move the line start to the new line
+            lineStart = lineEnd;
+        }
+
+        // announce the end of the section
+        Log(type, "----- End of prior session log -----\n");
+    }
+}
+
+int Logger::PrintPriorSessionLogLine(CommandConsole *console, int lineStart)
+{
+    // ignore if offset is out of range
+    auto &l = priorSessionLog;
+    if (lineStart < 0 || lineStart >= sizeof(l.buf) || lineStart > l.nBytes)
+        return -1;
+    
+    // find the bounds of the next line
+    int lineEnd = lineStart;
+    for ( ; lineEnd < l.nBytes && l.buf[lineEnd] != '\n' ; ++lineEnd) ;
+
+    // print the line
+    console->Print("%.*s\n", static_cast<int>(lineEnd - lineStart), &l.buf[lineStart]);
+
+    // advance past the newline sequence
+    if (lineEnd + 1 < l.nBytes && l.buf[lineEnd] == '\r' && l.buf[lineEnd] == '\n')
+        lineEnd += 2;
+    else if (lineEnd < l.nBytes)
+        lineEnd += 1;
+
+    // return the offset of the next line, or -1 if at EOF
+    return lineEnd < l.nBytes ? lineEnd : -1;
+}
+
 
 // --------------------------------------------------------------------------
 //
@@ -789,13 +878,16 @@ void Logger::UARTLogger::PrintStatus(const ConsoleCommandContext *c)
         "  Console:     %s mode, %u bytes buffered\n",
         dmaChannel, dmaChannel >= 0 ? (dma_channel_is_busy(dmaChannel) ? "Busy" : "Idle") : "N/A",
         console.IsForegroundMode() ? "Foreground" : "Background",
-        console.OutputAvailable());
+        console.OutputBytesBuffered());
 }
 
 // Periodic task.  The UART is quite slow, so we limit the amount we
 // send on each pass, to avoid blocking the main loop for too long.
 void Logger::UARTLogger::Task()
 {
+    // process console async tasks
+    console.Task();
+
     // check for input
     while (uart_is_readable(uart))
         console.ProcessInputChar(uart_getc(uart));
@@ -811,7 +903,7 @@ void Logger::UARTLogger::Task()
     console.SetForegroundMode(!loggingEnabled || read == logger.write);
 
     // send output from the command console first
-    if (int conAvail = console.OutputAvailable(); conAvail != 0)
+    if (int conAvail = console.OutputBytesBuffered(); conAvail != 0)
     {
         // send as much as we can
         int actual = console.CopyOutput([](const uint8_t *p, int n) { return uartLogger.Send(p, n); }, conAvail);
@@ -943,7 +1035,7 @@ void Logger::USBCDCLogger::PrintStatus(const ConsoleCommandContext *c)
         tud_cdc_n_connected(0) ? "Yes" : "No",
         tud_cdc_n_write_available(0),
         console.IsForegroundMode() ? "Foreground" : "Background",
-        console.OutputAvailable());
+        console.OutputBytesBuffered());
 }
 
 void Logger::USBCDCLogger::Task()
@@ -958,6 +1050,9 @@ void Logger::USBCDCLogger::Task()
         fifoState = FifoState::Inactive;
         return;
     }
+
+    // process console tasks
+    console.Task();
 
     // flush any pending output
     tud_cdc_n_write_flush(0);
@@ -1106,7 +1201,7 @@ void Logger::USBCDCLogger::Task()
     console.SetForegroundMode(!loggingEnabled || read == logger.write);
     
     // send output from the command console first
-    if (int conAvail = console.OutputAvailable(); conAvail != 0)
+    if (int conAvail = console.OutputBytesBuffered(); conAvail != 0)
     {
         // copy as much as we have space for
         int copy = std::min(conAvail, outAvail);

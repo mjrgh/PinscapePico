@@ -119,8 +119,95 @@ bool CommandConsole::Configure(const char *descName, bool enabled, int bufSize, 
     return enabled;
 }
 
+// perform period tasks
+void CommandConsole::Task()
+{
+    // check for a continuation
+    if (continuation != nullptr)
+    {
+        // invoke the continuation; remove it if it says it's done by returning false
+        if (!continuation->Continue(this))
+        {
+            // clear the continuation object
+            continuation.reset();
+
+            // show a new prompt if we're in the foreground
+            if (foregroundMode)
+                PutOutputStr(prompt);
+
+            // process pending input
+            ProcessPendingInput();
+        }
+    }
+}
+
 // process input from the PC
 void CommandConsole::ProcessInputChar(char c)
+{
+    // we can't process any input while an asynchronous command is still running
+    if (continuation != nullptr)
+    {
+        // process Ctrl+C out of band
+        if (c == 0x03)
+        {
+            // cancel the command
+            continuation->OnUserCancel();
+            continuation.reset();
+            
+            // clear any prior buffered data
+            inBufCnt = 0;
+            inBufWrite = 0;
+
+            // if in the foreground, show ^C and a new prompt
+            if (foregroundMode)
+            {
+                PutOutputStr("^C\n");
+                PutOutputStr(prompt);
+            }
+        }
+        else
+        {
+            // buffer the input, for processing after the current command finishes
+            inBuf[inBufWrite++] = c;
+            if (inBufWrite >= _countof(inBuf)) inBufWrite = 0;
+            if (++inBufCnt >= _countof(inBuf)) inBufCnt = _countof(inBuf);
+        }
+
+        // do no further processing
+        return;
+    }
+
+    // if there's any buffered text, process it first
+    ProcessPendingInput();
+
+    // now process this character
+    ProcessInputCharInternal(c);
+}
+
+void CommandConsole::ProcessPendingInput()
+{
+    if (inBufCnt != 0)
+    {
+        // get the starting read pointer
+        int r = inBufWrite - inBufCnt;
+        if (r < 0) r += _countof(inBuf);
+
+        // process one character at a time
+        for ( ; inBufCnt != 0 ; --inBufCnt)
+        {
+            // process this character
+            ProcessInputCharInternal(inBuf[r]);
+
+            // advance the read pointer
+            if (++r > _countof(inBuf))
+                r = 0;
+        }
+    }
+}
+
+// Internal processing for one input character.  This is called on
+// live and buffered input to process one character at a time.
+void CommandConsole::ProcessInputCharInternal(char c)
 {
     // if we're processing an escape sequence, and we timed out, stop here
     if (escState != EscState::None && time_us_64() >= escTimeout)
@@ -163,6 +250,22 @@ void CommandConsole::ProcessInputChar(char c)
         case 2:
             // Ctrl+B - left
             MoveLeft();
+            break;
+
+        case 3:
+            // Ctrl+C - cancel continuation command in progress
+            // empty the command buffer
+            cmdLen = 0;
+            cmdBuf[0] = 0;
+            col = 0;
+
+            // if in the foreground, echo a literal "^C" sequence, end the line,
+            // and display a new prompt
+            if (foregroundMode)
+            {
+                PutOutputStr("^C\n");
+                PutOutputStr(prompt);
+            }
             break;
 
         case 4:
@@ -811,6 +914,14 @@ void CommandConsole::PutOutputCharRaw(char c)
 }
 
 
+void CommandConsole::Print(const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    PutOutputFmtV(fmt, va);
+    va_end(va);
+}
+
 void CommandConsole::PutOutputFmt(const char *fmt, ...)
 {
     va_list va;
@@ -1195,8 +1306,9 @@ void CommandConsole::ProcessCommand()
     // start a new empty command in the history, for the next command entry
     AddHistory("");
 
-    // display the next prompt if we're in the foreground
-    if (foregroundMode)
+    // display the next prompt if we're in the foreground and there's no
+    // continuation handler in effect
+    if (foregroundMode && continuation == nullptr)
         PutOutputStr(prompt);
 }
 

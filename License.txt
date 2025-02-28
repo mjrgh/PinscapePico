@@ -67,6 +67,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----
 
+M0 Fault Dispatch
+By Dmitry.GR <me@dmitry.gr>
+https://dmitry.gr/?r=05.Projects&proj=27.%20m0FaultDispatch
+
+"The license is simple: This code is free for use in hobby and other non-commercial
+products. For commercial use, contact me <me@dmitry.gr>."
+
+-----
+
 Raspberry Pi Pico Pinout Diagram (in the Config Tool help)
 
 Excerpted from the Raspberry Pi Pico Datasheet

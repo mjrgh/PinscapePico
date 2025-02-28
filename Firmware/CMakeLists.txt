@@ -102,6 +102,8 @@ add_executable(
     Utils.cpp
     ButtonHelper.cpp
     MultiCore.cpp
+    FaultHandler.cpp
+    m0FaultDispatch.c
     ThunkManager.cpp
     FlashStorage.cpp
     ExpansionBoard.cpp

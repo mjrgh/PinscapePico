@@ -32,6 +32,7 @@
 #include "Pinscape.h"
 #include "Main.h"
 #include "MultiCore.h"
+#include "FaultHandler.h"
 #include "Utils.h"
 #include "Config.h"
 #include "FlashStorage.h"
@@ -93,6 +94,9 @@ CoreMainLoopStats mainLoopStats;
 volatile CoreMainLoopStats secondCoreLoopStats;
 volatile bool secondCoreLoopStatsResetRequested = false;
 
+// startup boot mode
+PicoReset::BootMode lastBootMode = PicoReset::BootMode::Unknown;
+
 // Debug/test variables
 DebugAndTestVars G_debugAndTestVars;
 
@@ -106,6 +110,7 @@ static void Command_reset(const ConsoleCommandContext *ctx);
 static void Command_version(const ConsoleCommandContext *ctx);
 static void Command_whoami(const ConsoleCommandContext *ctx);
 static void Command_devtest(const ConsoleCommandContext *ctx);
+static void Command_crashlog(const ConsoleCommandContext *ctx);
 
 // ---------------------------------------------------------------------------
 // 
@@ -114,6 +119,12 @@ static void Command_devtest(const ConsoleCommandContext *ctx);
 //
 int main()
 {
+    // Initialize the fault handler
+    faultHandler.Init();
+
+    // Intialize the main logger
+    logger.Init();
+
     // Add a startup banner at the top of the logger, with a couple of
     // blank lines for separation from previous material in the same window.
     // Turn off all of the decorations for this, so that it stands out.
@@ -134,13 +145,30 @@ int main()
     // crashed or froze, and the watchdog intervened by resetting the
     // Pico.  We use the watchdog scratch registers to store our status
     // at the time of the crash so that we can take corrective action.
-    auto lastBootMode = picoReset.GetBootMode();
+    lastBootMode = picoReset.GetBootMode();
+    bool unexpectedReset = false;
     if (watchdog_caused_reboot()
         && (lastBootMode == PicoReset::BootMode::SafeMode || lastBootMode == PicoReset::BootMode::FactoryMode))
     {
+        unexpectedReset = true;
         Log(LOG_INFO, "*** %s Mode engaged (due to unexpected watchdog reset, or by user request) ***\n",
             lastBootMode == PicoReset::BootMode::SafeMode ? "Safe" : "Factory");
     }
+
+    // Check for recorded crash data from before the reset.  If a
+    // crash frame was recorded, this will log it and clear the frame
+    // (so that we don't repeat it on the next reset, if no new crash
+    // occurs).  If no crash was recorded, this does nothing.  Note
+    // that we'll usually be in safe mode after a crash occurs, but
+    // there's no harm in logging the crash data unconditionally, so
+    // that we catch any unexpected cases where safe mode isn't
+    // triggered.
+    faultHandler.LogCrashData();
+
+    // If we have crash data, or we're in safe mode, log the prior
+    // session log tail
+    if (unexpectedReset || faultHandler.IsCrashLogValid())
+        logger.LogPriorSessionLog(LOG_INFO);
 
     // add our console commands
     CommandConsole::AddCommand(
@@ -178,10 +206,18 @@ int main()
     CommandConsole::AddCommand(
         "devtest", "special development testing functions",
         "devtest [options]\n"
+        "  --sleep <t>                pause for <t> milliseconds\n"
         "  --block-irq <t>            block IRQs for <t> milliseconds\n"
         "  --config-put-timeout <t>   simulate config write delay of <t> milliseconds\n"
-        "  --cdc-hw-stat              show USB hardware register status for CDC endpoints\n",
+        "  --cdc-hw-stat              show USB hardware register status for CDC endpoints\n"
+        "  --bus-fault                trigger a bus fault (unaligned write)\n"
+        "  --instr-fault              trigger an invalid instruction fault\n",
         Command_devtest);
+
+    CommandConsole::AddCommand(
+        "crashlog", "show crash log data from prior session",
+        "crashlog   (no options)\n",
+        Command_crashlog);
 
     // Set the boot mode to apply to the NEXT hardwaer reset, in case a
     // watchdog reset occurs during initialization or early in the main
@@ -761,6 +797,9 @@ static void MainLoop()
 // transitions as close to instantaneously as we can here).
 static void SecondCoreMain()
 {
+    // initialize the fault handler on this core
+    faultHandler.Init();
+
     // enter our main loop
     for (uint64_t t0 = time_us_64() ; ; )
     {
@@ -809,7 +848,8 @@ static void SecondCoreMain()
 void CommandConsole::ShowBanner()
 {
     PutOutputFmt(
-        "\n\033[0;1mPinscape Pico command console - Firmware v%d.%d.%d, build %s\033[0m\n",
+        "\n\033[0;1mPinscape Pico command console // Unit #%d, %s // Firmware v%d.%d.%d, build %s\033[0m\n",
+        unitID.unitNum, unitID.unitName.c_str(),
         VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, buildTimestamp);
 }
 
@@ -850,6 +890,20 @@ static void Command_loopstats(const ConsoleCommandContext *c)
 {
     const static auto Stats = [](const ConsoleCommandContext *c)
     {
+        char bootModeNameBuf[32]{ 0 };
+        const char *bootModeName = bootModeNameBuf;
+        switch (lastBootMode)
+        {
+        case PicoReset::BootMode::Unknown: bootModeName = "Unknown"; break;
+        case PicoReset::BootMode::FactoryMode: bootModeName = "Factory Mode"; break;
+        case PicoReset::BootMode::SafeMode: bootModeName = "Safe Mode"; break;
+        case PicoReset::BootMode::Normal: bootModeName = "Normal"; break;
+        default:
+            sprintf(bootModeNameBuf, "Unknown(%08lX)", static_cast<uint32_t>(lastBootMode));
+            bootModeName = bootModeNameBuf;
+            break;
+        }
+        
         auto &s = mainLoopStats;
         auto &s2 = secondCoreLoopStats;
         uint64_t now = time_us_64();
@@ -860,6 +914,8 @@ static void Command_loopstats(const ConsoleCommandContext *c)
         int ss = timeOfDay % 60;
         NumberFormatter<128> nf;
         c->Printf(
+            "Boot mode:      %s\n"
+            "\n"
             "Main loop statistics:\n"
             "  Uptime:       %s us (%d days, %d:%02d:%02d)\n"
             "  Primary core: %s iterations (since startup)\n"
@@ -874,6 +930,7 @@ static void Command_loopstats(const ConsoleCommandContext *c)
             "  Iterations:   %s (since last stats reset)\n"
             "  Average time: %llu us\n"
             "  Max time:     %lu us\n",
+            bootModeName,
             nf.Format("%llu", now), days, hh, mm, ss,
             nf.Format("%llu", s.nLoopsEver),
             nf.Format("%llu", s2.nLoopsEver),
@@ -1022,6 +1079,63 @@ static void Command_reset(const ConsoleCommandContext *c)
 
 // ---------------------------------------------------------------------------
 //
+// Console command - show crash log
+//
+void Command_crashlog(const ConsoleCommandContext *c)
+{
+    // make sure no further arguments are present
+    if (c->argc > 1)
+        return c->Usage();
+
+    // log the basic crash data
+    faultHandler.LogCrashDataTo(c->console);
+    
+    // log stack data - do this in a completion handler, since it
+    // could require waiting for the output buffer to clear as
+    // text is transmitted out
+    class LogHandler : public CommandConsole::Continuation
+    {
+    public:
+        bool Continue(CommandConsole *c)
+        {
+            // wait for space to clear in the output buffer
+            if (c->OutputBufferBytesFree() < 100)
+                return true;
+            
+            // check which section we're working on
+            if (stackLine >= 0)
+            {
+                // working on the stack - log the next line
+                if (!faultHandler.LogStackDataTo(c, stackLine++))
+                {
+                    // done - switch to log mode
+                    c->Print("\nTail end of prior session log (just before reset):\n");
+                    stackLine = -1;
+                }
+                return true;
+            }
+            else if (logOfs >= 0)
+            {
+                // working on the log
+                logOfs = logger.PrintPriorSessionLogLine(c, logOfs);
+                return true;
+            }
+            else
+            {
+                // done
+                return false;
+            }
+        }
+        int stackLine = 0;
+        int logOfs = 0;
+    };
+    c->Print("\nStack:\n");
+    c->console->ContinueWith(new LogHandler());
+}
+
+
+// ---------------------------------------------------------------------------
+//
 // Console command - development/debug tests
 //
 void Command_devtest(const ConsoleCommandContext *c)
@@ -1034,7 +1148,31 @@ void Command_devtest(const ConsoleCommandContext *c)
     for (int argi = 1 ; argi < c->argc ; ++argi)
     {
         const char *arg = c->argv[argi];
-        if (strcmp(arg, "--block-irq") == 0)
+        if (strcmp(arg, "--sleep") == 0)
+        {
+            if (argi + 1 >= c->argc)
+                return c->Printf("Missing time argument for --sleep\n");
+            int t = atoi(c->argv[++argi]);
+
+            // set up a continuation handler that pauses for <t> milliseconds
+            class WaitHandler : public CommandConsole::Continuation
+            {
+            public:
+                WaitHandler(int t) : tEnd(time_us_64() + t*1000) { }
+
+                bool Continue(CommandConsole *c) override
+                {
+                    // keep going until we reach the ending time
+                    return time_us_64() < tEnd;
+                }
+
+                // end time on system clock
+                uint64_t tEnd;
+            };
+            c->console->ContinueWith(new WaitHandler(t));
+            c->Printf("Pausing console input for %d milliseconds; press Ctrl+C to cancel...\n", t);
+        }
+        else if (strcmp(arg, "--block-irq") == 0)
         {
             // get the time
             if (argi + 1 >= c->argc)
@@ -1101,6 +1239,33 @@ void Command_devtest(const ConsoleCommandContext *c)
                 usb_dpram->ep_ctrl[0].out,
                 usb_dpram->ep_buf_ctrl[1].in,
                 usb_dpram->ep_buf_ctrl[1].out);
+        }
+        else if (strcmp(arg, "--bus-fault") == 0)
+        {
+            c->Printf("Triggering a bus write fault - CPU will reset\n");
+            struct
+            {
+                uint32_t x;   // 32-bit field to write unaligned
+                uint32_t y;   // extra padding, so that we don't ALSO corrupt the stack frame while we're at it
+            } s;
+            uint8_t *volatile p8 = reinterpret_cast<uint8_t*>(&s.x);
+            for (int i = 0 ; i < 4 ; ++i, ++p8)
+            {
+                uint32_t *volatile p32 = reinterpret_cast<uint32_t*>(p8);
+                *p32 = 1;
+            }
+        }
+        else if (strcmp(arg, "--instr-fault") == 0)
+        {
+            c->Printf("Triggering an invalid instruction fault - CPU will reset\n");
+
+            // set up some invalid instructions in RAM (opcode zero is invalid)
+            uint32_t funcData[] = { 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
+            intptr_t funcAddr = reinterpret_cast<intptr_t>(&funcData[0]) & ~static_cast<intptr_t>(0x00000001);
+            auto *funcPtr = reinterpret_cast<void(*)()>(funcAddr);
+
+            // call the function
+            funcPtr();
         }
         else
         {

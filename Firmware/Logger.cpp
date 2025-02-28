@@ -102,6 +102,21 @@ int LogV(int type, const char *f, va_list va)
     return result;
 }
 
+// Replacement for Pico SDK panic() - writes log, then executes a breakpoint
+// instruction to trigger a hard fault, to capture the stack.
+extern "C" void PinscapePanic(const char *msg, ...)
+{
+    // log the message
+    Log(LOG_ERROR, "SDK Panic: ");
+    va_list va;
+    va_start(va, msg);
+    LogV(LOG_ERROR, msg, va);
+    va_end(va);
+
+    // trigger a hard fault
+    __asm volatile ("bkpt #0");
+}
+
 Logger::Logger()
 {
     // set the initial buffer size
@@ -339,10 +354,72 @@ void Logger::Task()
 // Put a string to the buffer; translates '\n' to CR-LF
 void Logger::Puts(int typeCode, const char *s)
 {
+    // ignore empty strings
+    if (*s == 0)
+        return;
+    
     // buffer the string one character at a time, with newline
     // translation and line header insertion
     while (*s != 0)
     {
+        // if we're at column 0, add a line prefix
+        if (col == 0)
+        {
+            // reset colors if we're using them
+            if (showColors)
+            {
+                // reset and switch to text color
+                for (const char *p = "\033[0m" ; *p != 0 ; Put(*p++)) ;
+                for (const char *p = logTypeName[typeCode].textColor ; *p != 0 ; Put(*p++)) ;
+            }
+
+            // add the timestamp if desired
+            if (showTimestamps)
+            {
+                // Format the current wall clock time.  Note that if the wall
+                // clock time isn't known, the boot time is treated as 1/1/0000,
+                // (which is actually year 1 BC, proleptic Gregorian calendar,
+                // but has year value 0 in our internal numbering system). We'll
+                // just format it like that, because it's easily recognizable as
+                // a placeholder meaning that we don't know the real wall-clock
+                // time.  So no special cases are required for known vs unknown
+                // clock time.
+                DateTime dt;
+                timeOfDay.Get(dt);
+                char buf[32];
+                sprintf(buf, "%04d/%02d/%02d %02d:%02d:%02d ",
+                        dt.yyyy, dt.mon, dt.dd, dt.hh, dt.mm, dt.ss);
+                for (const char *p = buf ; *p != 0 ; Put(*p++), ++col) ;
+            }
+
+                // add the type code prefix if desired
+            if (showTypeCodes)
+            {
+                // set type color
+                if (showColors)
+                {
+                    for (const char *p = "\033[0m" ; *p != 0 ; Put(*p++)) ;
+                    for (const char *p = logTypeName[typeCode].typeColor ; *p != 0 ; Put(*p++)) ;
+                }
+
+                // write the type code string
+                int i = 0;
+                for (const char *p = logTypeName[typeCode].dispName ; *p != 0 ; Put(*p++), ++i, ++col) ;
+                Put(':'), ++i, ++col;
+
+                // reset to text color
+                if (showColors)
+                {
+                    for (const char *p = "\033[0m" ; *p != 0 ; Put(*p++)) ;
+                    for (const char *p = logTypeName[typeCode].textColor ; *p != 0 ; Put(*p++)) ;
+                }
+
+                // pad the type code out to a fixed width, so that the message text
+                // aligns on the same column in every message, for easier reading
+                for ( ; i < 9 ; Put(' '), ++i, ++col) ;
+            }
+        }
+
         // translate newlines
         char c = *s++;
         if (c == '\n')
@@ -356,64 +433,6 @@ void Logger::Puts(int typeCode, const char *s)
         }
         else
         {
-            // if we're at column 0, add a line prefix
-            if (col == 0)
-            {
-                // reset colors if we're using them
-                if (showColors)
-                {
-                    // reset and switch to text color
-                    for (const char *p = "\033[0m" ; *p != 0 ; Put(*p++)) ;
-                    for (const char *p = logTypeName[typeCode].textColor ; *p != 0 ; Put(*p++)) ;
-                }
-                
-                // add the timestamp if desired
-                if (showTimestamps)
-                {
-                    // Format the current wall clock time.  Note that if the wall
-                    // clock time isn't known, the boot time is treated as 1/1/0000,
-                    // (which is actually year 1 BC, proleptic Gregorian calendar,
-                    // but has year value 0 in our internal numbering system). We'll
-                    // just format it like that, because it's easily recognizable as
-                    // a placeholder meaning that we don't know the real wall-clock
-                    // time.  So no special cases are required for known vs unknown
-                    // clock time.
-                    DateTime dt;
-                    timeOfDay.Get(dt);
-                    char buf[32];
-                    sprintf(buf, "%04d/%02d/%02d %02d:%02d:%02d ",
-                            dt.yyyy, dt.mon, dt.dd, dt.hh, dt.mm, dt.ss);
-                    for (const char *p = buf ; *p != 0 ; Put(*p++), ++col) ;
-                }
-
-                // add the type code prefix if desired
-                if (showTypeCodes)
-                {
-                    // set type color
-                    if (showColors)
-                    {
-                        for (const char *p = "\033[0m" ; *p != 0 ; Put(*p++)) ;
-                        for (const char *p = logTypeName[typeCode].typeColor ; *p != 0 ; Put(*p++)) ;
-                    }
-
-                    // write the type code string
-                    int i = 0;
-                    for (const char *p = logTypeName[typeCode].dispName ; *p != 0 ; Put(*p++), ++i, ++col) ;
-                    Put(':'), ++i, ++col;
-
-                    // reset to text color
-                    if (showColors)
-                    {
-                        for (const char *p = "\033[0m" ; *p != 0 ; Put(*p++)) ;
-                        for (const char *p = logTypeName[typeCode].textColor ; *p != 0 ; Put(*p++)) ;
-                    }
-
-                    // pad the type code out to a fixed width, so that the message text
-                    // aligns on the same column in every message, for easier reading
-                    for ( ; i < 9 ; Put(' '), ++i, ++col) ;
-                }
-            }
-            
             // write the character
             Put(c);
 

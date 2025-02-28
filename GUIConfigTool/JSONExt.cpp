@@ -92,15 +92,12 @@ JSONParser::Value *JSONParserExt::SetType(Value *value, const char *path, Value:
 			SetType(value, Value::Type::Object);
 
 			// get the element at this property name, or add one if it doesn't exist
-			if (auto it = value->object->find(ele) ; it != value->object->end())
-				value = &it->second;
+			if (auto *prop = value->object->find(ele) ; prop != nullptr)
+				value = &prop->val;
 			else
 			{
 				Token tok;
-				value = &value->object->emplace(
-					std::piecewise_construct,
-					std::forward_as_tuple(ele),
-					std::forward_as_tuple(tok, Value::Type::Undefined))->second;
+				value = &value->object->emplace(this, ele, tok, Value::Type::Undefined)->val;
 			}
 		}
 		else if (delim == '[')
@@ -204,15 +201,15 @@ void JSONParserExt::Generate(std::ostream &s, const Value *value)
 		s << "{";
 		{
 			int n = 0;
-			for (auto &it : *value->object)
+			for (auto *prop = value->object->props ; prop != nullptr ; prop = prop->nxt)
 			{
 				// add a separator before the second and later elements
 				if (n++ > 0) s << ",";
 
 				// write the property name in quotes
 				s << '"';
-				const char *p = it.first.txt;
-				for (size_t i = 0, len = it.first.len ; i < len ; ++i)
+				const char *p = prop->name.txt;
+				for (size_t i = 0, len = prop->name.len ; i < len ; ++i)
 				{
 					// escape quotes and backslashes
 					char c = *p++;
@@ -224,7 +221,7 @@ void JSONParserExt::Generate(std::ostream &s, const Value *value)
 
 				// add the colon and generate the value recursively
 				s << ":";
-				Generate(s, &it.second);
+				Generate(s, &prop->val);
 			}
 		}
 		s << "}";
@@ -283,24 +280,24 @@ JSONParserExt::Path JSONParserExt::FindTextPtr(const char *p, Value **nodePtr)
 			// scan the object property list for a property enclosing the text position
 			{
 				PropValue *firstFollower = nullptr;
-				for (auto &ele : *val->object)
+				for (auto *ele = val->object->props ; ele != nullptr ; ele = ele->nxt)
 				{
-					if (NodeContainsText(&ele.second, p))
+					if (NodeContainsText(&ele->val, p))
 					{
 						// it's in this property - add the path element
-						path.path.emplace_back(val, ele.first.txt, ele.first.len);
+						path.path.emplace_back(val, ele->name.txt, ele->name.len);
 
 						// traverse to the next value
-						nextVal = &ele.second;
+						nextVal = &ele->val;
 						break;
 					}
 
 					// note the closest follower
-					if (p < ele.second.propTok.srcTxt)
+					if (p < ele->val.propTok.srcTxt)
 					{
 						// this item follows 'p'; see if it's the first (in source text order) so far
-						if (firstFollower == nullptr || ele.second.propTok.srcTxt < firstFollower->propTok.srcTxt)
-							firstFollower = &ele.second;
+						if (firstFollower == nullptr || ele->val.propTok.srcTxt < firstFollower->propTok.srcTxt)
+							firstFollower = &ele->val;
 					}
 				}
 

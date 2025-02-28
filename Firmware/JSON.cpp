@@ -29,6 +29,18 @@
 // default undefined value holder
 const JSONParser::Value JSONParser::undefValue;
 
+// destruction
+JSONParser::~JSONParser()
+{
+    // delete property pools
+    for (auto *p = propMapPropPool, *nxt = p ; p != nullptr ; p = nxt)
+    {
+        nxt = p->nxt;
+        delete p;
+    }
+}
+
+// parse in-memory source text
 void JSONParser::Parse(const char *src, size_t len)
 {
     // get a pointer to the end of the source text
@@ -868,17 +880,14 @@ bool JSONParser::ParseObject(Value &value, TokenizerState &ts)
 
         // if a property with the same name already exists, it's an error
         Value::StringWithLen propName(propTok.txt, propTok.len);
-        if (auto it = obj->find(propName) ; it != obj->end())
+        if (auto oldProp = obj->find(propName) ; oldProp != nullptr)
             errors.emplace_back(tok, "This property is already defined for this object (each property name must be unique within an object)");
 
         // Add the property to the object map.  Note that the object property
         // list is stored as a multimap, so we can store the new property even
         // if the name has already been defined in this object (which we just
         // flagged as an error if so).
-        PropValue *propVal = &obj->emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(propName),
-                std::forward_as_tuple(propTok, Value::Type::Undefined))->second;
+        PropValue *propVal = &obj->emplace(this, propName, propTok, Value::Type::Undefined)->val;
 
         // parse the ':', if we didn't find it already
         Token colonTok;
@@ -889,7 +898,7 @@ bool JSONParser::ParseObject(Value &value, TokenizerState &ts)
             ParseValue(*propVal, ts);
 
             // whatever follows the value is the delimiter token
-            PeekToken(propVal->delimTok, ts);
+            IfValueKeepSourceRef(PeekToken(propVal->delimTok, ts));
         }
         else
         {
@@ -918,7 +927,7 @@ bool JSONParser::ParseObject(Value &value, TokenizerState &ts)
             // the next property.
             if (colonTok.type == Token::Type::Identifier || colonTok.type == Token::Type::String)
             {
-                propVal->delimTok = colonTok;
+                IfValueKeepSourceRef(propVal->delimTok = colonTok);
                 continue;
             }
         }
@@ -1018,6 +1027,20 @@ bool JSONParser::ParseArray(Value &value, TokenizerState &ts)
     }
 }
 
+JSONParser::PropMap::Prop *JSONParser::AllocPropMapProp()
+{
+    // allocate another pool block if needed
+    if (propMapPropPool == nullptr || propMapPropPool->nextFree >= _countof(PropMapPropPool::props))
+    {
+        auto *newPool = new PropMapPropPool();
+        newPool->nxt = propMapPropPool;
+        propMapPropPool = newPool;
+    }
+
+    // allocate the next item
+    return &propMapPropPool->props[propMapPropPool->nextFree++];
+}
+
 const JSONParser::Value *JSONParser::Get(const char *expr) const
 {
     // evaluate the expression relative to the root node
@@ -1086,8 +1109,8 @@ const JSONParser::Value *JSONParser::Value::Get(const char *expr) const
         // the object's property map, parse the rest of the expression
         // against the property value; otherwise the result is
         // 'undefined'.
-        if (auto it = object->find(ele); it != object->end())
-            return it->second.Get(expr);
+        if (auto *prop = object->find(ele); prop != nullptr)
+            return prop->val.Get(expr);
         else
             return &undefValue;
 
@@ -1274,8 +1297,8 @@ void JSONParser::Value::ForEach(std::function<void(const StringWithLen &, const 
     if (type == Type::Object)
     {
         // invoke the callback for each property
-        for (auto &ele : *object)
-            callback(ele.first, &ele.second);
+        for (auto *ele = object->props ; ele != nullptr ; ele = ele->nxt)
+            callback(ele->name, &ele->val);
     }
 }
 

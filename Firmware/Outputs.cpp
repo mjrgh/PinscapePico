@@ -313,8 +313,10 @@ void OutputManager::Configure(JSONParser &json)
     // second pass.
     json.Get("outputs")->ForEach([&json](int index, const JSONParser::Value *value)
     {
-        // Parse the device type.  Use PWM mode by default for devices that
-        // can operate in digital or PWM mode.
+        // log extended debug info
+        Log(LOG_DEBUGEX, "Output configuration: parsing output #%d\n", index);
+
+        // get the common output parameters
         char jsonLocus[32];
         snprintf(jsonLocus, sizeof(jsonLocus), "outputs[%d]", index);
         auto *nameVal = value->Get("name");
@@ -323,6 +325,9 @@ void OutputManager::Configure(JSONParser &json)
         const char *pinoutLabel = nameVal->IsUndefined() ?
             Format("Output #%d", index + 1) :
             Format("Output #%d (%s)", index + 1, nameVal->String().c_str());
+
+        // Parse the device type.  Use PWM mode by default for devices that
+        // can operate in digital or PWM mode.
         Device *device = ParseDevice(jsonLocus, pinoutLabel, json, devSpec, true, false);
 
         // If we didn't manage to create a device, create a null device

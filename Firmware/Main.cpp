@@ -151,7 +151,7 @@ int main()
         && (lastBootMode == PicoReset::BootMode::SafeMode || lastBootMode == PicoReset::BootMode::FactoryMode))
     {
         unexpectedReset = true;
-        Log(LOG_INFO, "*** %s Mode engaged (due to unexpected watchdog reset, or by user request) ***\n",
+        Log(LOG_INFO, "*** %s Mode engaged (due to exception, watchdog timeout, or by user request) ***\n",
             lastBootMode == PicoReset::BootMode::SafeMode ? "Safe" : "Factory");
     }
 
@@ -394,9 +394,23 @@ int main()
 
 static void Configure(PicoReset::BootMode bootMode)
 {
+    // collect statistics - memory usage before the JSON load
+    static const auto HeapMemUsed = []()
+    {
+        extern char __StackLimit, __bss_end__;
+        size_t totalHeap = &__StackLimit - &__bss_end__;
+        struct mallinfo mi = mallinfo();
+        uint32_t memFree = static_cast<uint32_t>(totalHeap - mi.arena) + mi.fordblks;
+        return totalHeap - memFree;
+    };
+    G_debugAndTestVars.jsonMemUsage.before = HeapMemUsed();
+
     // load the configuration file from flash
     JSONParser json;
     bool configValid = config.Load(bootMode, json);
+
+    // collect statistics - memory usage after the JSON load
+    G_debugAndTestVars.jsonMemUsage.after = HeapMemUsed();
 
     // Configure the logger.  This is the first thing we configure
     // (after loading the configuration itself) so that the logger can
@@ -404,7 +418,10 @@ static void Configure(PicoReset::BootMode bootMode)
     logger.Configure(json);
 
     // note the config status for the log
-    Log(LOG_CONFIG, "Config file %s\n", configValid ? "loaded OK" : "not loaded, using defaults");
+    NumberFormatter<100> nf;
+    Log(LOG_CONFIG, "Config file %s; parsed JSON memory usage: %s bytes\n",
+        configValid ? "loaded OK" : "not loaded, using defaults",
+        nf.Format("%lu", static_cast<uint32_t>(G_debugAndTestVars.jsonMemUsage.after - G_debugAndTestVars.jsonMemUsage.before)));
 
     // get the Pinscape Pico unit identifiers
     auto const *id = json.Get("id");
@@ -649,7 +666,7 @@ static void Configure(PicoReset::BootMode bootMode)
 //
 static void MainLoop()
 {
-    // Main loop.
+    // Main Loop - primary core
     //
     // The main job of this outer loop is to invoke all of the asynchronous
     // tasks, and then go back and invoke them all again, repeating forever.
@@ -848,9 +865,10 @@ static void SecondCoreMain()
 void CommandConsole::ShowBanner()
 {
     PutOutputFmt(
-        "\n\033[0;1mPinscape Pico command console // Unit #%d, %s // Firmware v%d.%d.%d, build %s\033[0m\n",
-        unitID.unitNum, unitID.unitName.c_str(),
-        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, buildTimestamp);
+        "\n\033[0;1mPinscape Pico command console - Firmware v%d.%d.%d, build %s\033[0m\n"
+        "Unit #%d, %s\n",
+        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, buildTimestamp,
+        unitID.unitNum, unitID.unitName.c_str());
 }
 
 // ---------------------------------------------------------------------------
@@ -873,13 +891,17 @@ static void Command_memory(const ConsoleCommandContext *c)
         "  Malloc arena size:  %s\n"
         "  Arena in use:       %s\n"
         "  Arena free:         %s\n"
-        "  Total free space:   %s\n",
+        "  Total free space:   %s\n"
+        "  Parsed JSON size:   %s (heap used before load %s, after %s)\n",
         nf.Format("%lu", static_cast<uint32_t>(totalHeap)),
         nf.Format("%lu", static_cast<uint32_t>(totalHeap - mi.arena)),
         nf.Format("%lu", mi.arena),
         nf.Format("%lu", mi.uordblks),
         nf.Format("%lu", mi.fordblks),
-        nf.Format("%lu", static_cast<uint32_t>(totalHeap - mi.arena) + mi.fordblks));
+        nf.Format("%lu", static_cast<uint32_t>(totalHeap - mi.arena) + mi.fordblks),
+        nf.Format("%lu", static_cast<uint32_t>(G_debugAndTestVars.jsonMemUsage.after - G_debugAndTestVars.jsonMemUsage.before)),
+        nf.Format("%lu", G_debugAndTestVars.jsonMemUsage.before),
+        nf.Format("%lu", G_debugAndTestVars.jsonMemUsage.after));
 }
 
 // ---------------------------------------------------------------------------

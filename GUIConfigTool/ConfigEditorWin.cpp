@@ -901,13 +901,13 @@ void ConfigEditorWin::FindParsePosition(INT_PTR pos, JSONParserExt::Path &path,
                 {
                     // get the property element
                     subclassSelector = nullptr;
-                    auto it = ele.value->object->find(curProp->name);
-                    if (it != ele.value->object->end() && it->second.IsObject())
+                    auto *propEle = ele.value->object->find(curProp->name);
+                    if (propEle != nullptr && propEle->val.IsObject())
                     {
                         // search for the type selector property
-                        auto it2 = it->second.object->find(curObj->subclassIdPropName);
-                        if (it2 != it->second.object->end())
-                            subclassSelector = &it2->second;
+                        auto *propEle2 = propEle->val.object->find(curObj->subclassIdPropName);
+                        if (propEle2 != nullptr)
+                            subclassSelector = &propEle2->val;
                     }
                 }
 
@@ -3560,11 +3560,11 @@ void ConfigEditorWin::CheckSchemaObj(const JSONParser::Value &docObj, const JSON
     // check each property in the document object against the schema, to
     // validate the type and check value constraints (such as enumerated
     // values)
-    for (const auto &prop : *docObj.object)
+    for (const auto *prop = docObj.object->props ; prop != nullptr ; prop = prop->nxt)
     {
         // extract the name and value
-        std::string name(prop.first.txt, prop.first.len);
-        const auto &val = prop.second;
+        std::string name(prop->name.txt, prop->name.len);
+        const auto &val = prop->val;
 
         // look up the name in the schema object
         auto *schemaProp = schemaObj->FindProp(name.c_str(), &docObj);
@@ -3591,7 +3591,7 @@ void ConfigEditorWin::CheckSchemaObj(const JSONParser::Value &docObj, const JSON
             // scan for the property in the document object
             JSONParser::Value::StringWithLen name(schemaProp->name, strlen(schemaProp->name));
             auto *docProps = docObj.object;
-            if (docProps->find(name) == docProps->end())
+            if (docProps->find(name) == nullptr)
             {
                 if (nMissing++ > 0) missingProps.append(", ");
                 missingProps.append(std::string("\"") + schemaProp->name + "\"");

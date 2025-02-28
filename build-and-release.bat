@@ -1,6 +1,13 @@
 @echo off
 rem  Pinscape Pico Release Builder
 rem
+rem  Usage:
+rem    build-and-release <arguments>
+rem
+rem  Arguments:
+rem    --version <version-tag>    required; set the version tag for the zip files
+rem                               names, of the form "v1.2.3"
+rem
 rem  Prerequisites:
 rem  
 rem   * Visual Studio path/environment variables set (run path-to-VS\vcvars.bat)
@@ -25,6 +32,33 @@ goto main
   goto EOF
 
 :main
+
+rem  Parse arguments
+set rlsVersionTag=
+:optionLoop
+if not %1# == # (
+  if "%1" == "--version" (
+    if %2# == # (
+      echo Missing version tag for --version
+      goto EOF
+    )
+    set rlsVersionTag=%2
+    shift
+    shift
+  ) else (
+    echo Invalid option "%1"
+    goto EOF
+  )
+
+  goto optionLoop
+)
+
+rem  Check for mandatory arguments
+if %rlsVersionTag%# == # (
+  echo No version specified - use --version ^<tag^>
+  goto EOF
+)
+
 
 rem  Clean old builds
 echo ^>^>^> Removing old builds
@@ -60,7 +94,7 @@ msbuild PinscapePico.sln -t:Build -p:Configuration=Release;Platform=x64 -v:q -no
 if errorlevel 1 goto abort
 
 rem  Create the ZIP files
-call .\populate-release-zip.bat
+call .\populate-release-zip.bat %rlsVersionTag%
 if errorlevel 1 goto abort
 
 echo.

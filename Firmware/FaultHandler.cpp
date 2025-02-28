@@ -126,12 +126,23 @@ struct FaultData
         // write the crash data to the system log
         void Log()
         {
+            // log the CPU state
             ::Log(LOG_INFO, "CPU Hard Fault exception data: core: %d, cause: %s (code %d), extra data: %08lX, pc: %08lX\n",
                   core, cause > 0 && cause < _countof(causeName) ? causeName[cause] : "Invalid", cause, extraData, exc.pc);
             ::Log(LOG_INFO, ". r0: %08lX, r1: %08lX, r2:  %08lX, r3:  %08lX, r4:  %08lX, r5: %08lX, r6: %08lX, r7: %08lX\n",
                   exc.r0, exc.r1, exc.r2, exc.r3, regs.regs4_7[0], regs.regs4_7[1], regs.regs4_7[2], regs.regs4_7[3]);
             ::Log(LOG_INFO, ". r8: %08lX, r9: %08lX, r10: %08lX, r11: %08lX, r12: %08lX, sp: %08lX, lr: %08lX, sr: %08lX\n",
                   regs.regs8_11[0], regs.regs8_11[1], regs.regs8_11[2], regs.regs8_11[3], exc.r12, sp, exc.lr, exc.sr);
+
+            // log the captured stack
+            ::Log(LOG_INFO, "Stack dump at fault:\n");
+            for (int ofs = 0 ; ofs < stackDataBytes/4 ; )
+            {
+                ::Log(LOG_INFO, ". %08lX ", sp + ofs);
+                for (int i = 0 ; i < 8 && ofs < stackDataBytes/4 ; ++i, ++ofs)
+                    ::Log(LOG_INFO, " %08lX", stackData[ofs]);
+                ::Log(LOG_INFO, "\n");
+            }
         }
 
         // write the crash data to a command console

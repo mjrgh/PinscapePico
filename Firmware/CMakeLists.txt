@@ -72,6 +72,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 add_compile_definitions(PICO_FIRMWARE_BUILD=1)
 add_compile_definitions(PICO_MAX_SHARED_IRQ_HANDLERS=8)
+add_compile_definitions(PICO_PANIC_FUNCTION=PinscapePanic)
 
 # Disable -Wpsabi.  This is a warning about possible library ABI
 # incompatibilities in code that passes structs by value across

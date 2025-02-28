@@ -628,6 +628,9 @@ void Button::Configure(JSONParser &json)
     using Value = JSONParser::Value;
     json.Get("buttons")->ForEach([&json](int index, const Value *val)
     {
+        // log extended debug info
+        Log(LOG_DEBUGEX, "Button configuration: parsing button #%d\n", index);
+        
         // format the JSON locus (for log messages) and pin-out labels
         char jsonLocus[32];
         snprintf(jsonLocus, sizeof(jsonLocus), "Button[%d]", index);

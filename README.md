@@ -594,11 +594,15 @@ Released under a BSD 3-clause license - NO WARRANTY
 CRC++, Copyright (c) 2022, Daniel Bahr.  Distributed under a BSD
 3-clause license.
 
+M0 Fault Dispatch, by Dmitry.GR \<me@dmitry.gr\>.
+Distributed under a free/no-commercial-use license; see firmware/m0FaultDispatch.h
+in the source tree for the license text.
+
 Pico C++ SDK, Copyright 2020 by Raspberry Pi (Trading) ltd.
 Distributed under a BSD 3-clause license.
 
 Scintlla Edit Control, Copyright 1998-2021 by Neil Hodgson
-<neilh@scintilla.org>.  Distributed under a custom Python-like
+<neilh@scintilla.org>.  Distributed under a Python-like
 license; see Scintilla/License.txt in this source
 tree for the full license text.
 

@@ -6,21 +6,20 @@ Release build procedure
 - Run the build script in the root project folder - builds all binaries and
   creates the ZIP files:
 
-   build-and-release.bat
+   build-and-release.bat --version vX.Y.Z
 
 - Tag the release
 
-   tag vX.Y.Z
-   push --tags
+   git tag vX.Y.Z
+   git push --tags
 
 - Create the release on github.com
 
    - Follow the github.com workflow to create a new release from the new tag
    - Fill in the description text
    - Upload files:
-      - Rename releases/PinscapePico-YYYYMMDD.zip to PinscapePico-vX.Y.Z-YYYYMMDD.zip
-      - Upload same
-      - Upload releases/ButtonLatencyTester2-YYYYMMDD.zip
+      - Upload releases/PinscapePico-vX.Y.Z-YYYYMMDD.zip
+      - Upload releases/ButtonLatencyTester2-vX.Y.Z-YYYYMMDD.zip
    - Upload GUIConfigTool/Help/JSONConfigRef.html to mjrnet.org/pinscape/PinscapePico/Help
 
 
@@ -57,5 +56,5 @@ Manual build procedure
 
 - Build a zip bundle
 
-   build-release-zip
+   build-release-zip vX.Y.Z
 

@@ -17,32 +17,38 @@ All of the parts **except the LEDs** are available from [Mouser](https://mouser.
 
 The LEDs are a little harder to source in the US market.  The particular part
 used in the board layout is Xinglight XL-HD6070RGBC-A46L-BD, and none of the US
-distributors (Mouser, DigiKey, etc) stock these LEDs, or even anything in the same
-class.  They seem to only be available from Asian distributors, such as [LCSC](https://lcsc.com),
-and are also currently available on [AliExpress](https://aliexpress.us).  I couldn't
-any find exact matches on Amazon or eBay, but there are near matches that would
-fit the footprint - search for **3W RGB LED**, and look for the type with 6 leads
-that's **not** attached to a "star" heat sink base.  These parts on Amazon appears
-to be fully compatible, including using the same resistors as the Xinglight:
+distributors (Mouser, DigiKey, etc) stock these LEDs, or even anything in the
+same class.  They seem to only be available from Asian distributors, such as
+[LCSC](https://lcsc.com), and are also currently available on
+[AliExpress](https://aliexpress.us).  I couldn't any find exact matches on
+Amazon or eBay, but there are near matches that would fit the footprint - search
+for **3W RGB LED**, and look for the type with 6 leads that's **not** attached
+to a "star" heat sink base, 8mm diameter body, 14.5mm overall lead length.  The
+following Amazon listings (March 2025) appear to be compatible, including using
+the same resistors as the Xinglight:
 
 * Chanzon LED 3W RGB 6 pins, ASIN B01DBZIW8W
 
 * Vrabocry LED RGB, 3x1w 6pin RGB style, ASIN B0CXF5YTQ7
 
-<b>Important:</b>  If you substitute a different part that fits the footprint,
-you might have to adjust the resistor sizes.  Use an LED resistor calculator
-(several are available online) to calculate the required resistances from the
-<b>Vf</b> (forward voltage) and <b>If</b> (forward current) listed in the data
-sheet, using a 5V supply voltage.  In most cases, this should give you values
-around 10 Ohms for the Red channel, and about 5 Ohms for the Blue and Green
-channels.  If the results come out within an Ohm or two of these values, you
-can probably get away with using the same resistors listed in the BOM.  If
-the values are much different, however, you should select the appropriate
-replacement resistors.  You'll have to match the resistance value, the
-required minimum wattage (typically 1W for blue/green and 2W for red) and
-the "SMD case code", which is 2512 (that specifies the physical size of the
-resistor).  Note that there's a case code called "2512 Reversed" that's **not**
-compatible with regular 2512, so don't select one of those.
+Match these dimensions:
+
+<img src="led-size.png">
+
+<b>Different resistors might be required</b> if you substitute a different
+LED.  Consult the LED data sheet to get the forward voltage (V<sub>F</sub>) and
+forward current (I<sub>F</sub>) for each color channel, then plug these values
+into an LED resistor calculator (several are available online).  Enter 5V as the
+supply voltage.  The calculator should tell you the resistor size (Ohms and
+Watts) required for each color channel.  In most cases, this should give you
+values around 10 Ohms/2 Watts for the Red channel, and 5 Ohms/1 Watt for the
+Blue and Green channels.  If the results come to roughly these values (within an
+Ohm or so), you should be able to use the resistors listed in the BOM.  If not,
+select the appropriate replacement resistors.  You'll have to match the
+resistance value, the required minimum wattage (typically 1W for blue/green and
+2W for red) and the "SMD case code", which is 2512 (that specifies the physical
+size of the resistor).  Note that there's a case code called "2512 Reversed"
+that's **not** compatible with regular 2512, so don't select one of those.
 
 
 ## Physical layout
@@ -52,7 +58,7 @@ plywood or MDF, with this layout:
 
 <img src="flasher-layout.png">
 
-Each circular represents a 1/2"-diameter drill hole, spaced at 4" intervals.
+The circles represent 1/2"-diameter drill holes, spaced at 4" intervals.
 The overall panel dimensions are up to you.  If the panel will sit above the
 playfield TV at the back of the cabinet, make the width about 1/4" less than
 the overall inside cabinet width, so that it fits the width of the cabinet

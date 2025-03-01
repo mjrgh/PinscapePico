@@ -66,7 +66,7 @@ void AboutBox::OnCreateWindow()
 
     // edit box text
     const char *editBoxText =
-        "This project incorporates the following third-party open-source components:\r\n"
+        "This program incorporates the following third-party open-source components:\r\n"
         "\r\n"
         "CRC++, Copyright(c) 2022, Daniel Bahr. "
         "Distributed under a BSD 3-clause license.\r\n"

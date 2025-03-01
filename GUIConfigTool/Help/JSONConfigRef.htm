@@ -5065,16 +5065,17 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   native resolution.  LIS3DSH is a popular choice among microcontroller hobbyists
   because it's available on pre-soldered breakout boards from Adafruit, Sparkfun,
   and several other vendors.  Pinscape Pico can use this chip as the Nudge
-  device data source.  The chip is no longer in production, for now (2024),
-  breakout boards featuring the chip are available on eBay and Amazon.
+  device data source.  The chip is no longer in production, but for now (2025),
+  there are still listings for LIS3DSH breakout boards on eBay and Amazon.
   </p><p>
   <b>Important:</b> Note that the very similarly named LIS3DH and LIS3D<b>S</b>H are
   distinct devices that require different handling in the software.  If your
   chip is actually a LIS3DH, you must use the <tt><a href="#lis3dh">lis3dh</a></tt>
-  configuration rules instead.  Note also that some sellers on Amazon and eBay
-  are listing their boards as the -SH type when they're actually the -H type.
-  The Pinscape software will show an error in the startup log if it detects
-  that the wrong type is configured.
+  configuration rules instead.  Some of the eBay and Amazon sellers are reportedly
+  listing their boards as the -SH type, but are actually shipping the -H chip.
+  If you're not sure, you can check the Pinscape startup log to see if the chip is
+  responding at the expected I2C address; if it's not, try changing the configuration
+  settings to use the other chip type.
   </p><p>
   <img src="LIS3DSH-wiring.png" class="circuit-diagram">
   Wiring notes:

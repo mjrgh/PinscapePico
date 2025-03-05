@@ -3883,11 +3883,11 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="32.442" y="100.386" size="1.27" layer="25" rot="R270" align="center"/>
 <attribute name="VALUE" x="51.508" y="100.159" size="1.27" layer="27" rot="R180" align="center"/>
 </element>
-<element name="Q1" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="28.7" y="83.3" smashed="yes" rot="R90">
+<element name="Q1" library="BUK7575" package="TO220BV" value="STP19NF20" x="28.7" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="28.7" y="83.3" size="1.4" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="30.42" y="86.8548" size="1.27" layer="25" ratio="10"/>
 </element>
-<element name="R1" library="resistor" package="0204/5" value="4R7" x="32.4" y="75.1" smashed="yes">
+<element name="R1" library="resistor" package="0204/5" value="200R" x="32.4" y="75.1" smashed="yes">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="32.4" y="75.1" size="1.4" layer="27" display="off"/>
 <attribute name="NAME" x="31.5934" y="76.0684" size="0.9906" layer="25" ratio="10"/>
 <attribute name="VALUE" x="31.1664" y="74.5886" size="0.9906" layer="27" ratio="10"/>
@@ -3896,7 +3896,7 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="PARTNO" value="FDPF085N10A" x="35.4" y="83.4" size="1.4" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="37.02" y="86.9548" size="1.27" layer="25" ratio="10"/>
 </element>
-<element name="R2" library="resistor" package="0204/5" value="4R7" x="37.5" y="76.8" smashed="yes" rot="R180">
+<element name="R2" library="resistor" package="0204/5" value="200R" x="37.5" y="76.8" smashed="yes" rot="R180">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="37.5" y="76.8" size="1.4" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="38.4066" y="75.8316" size="0.9906" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="38.6336" y="77.3114" size="0.9906" layer="27" ratio="10" rot="R180"/>
@@ -3921,20 +3921,20 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="47.9" y="63.3" size="1.27" layer="25" rot="R180" align="center"/>
 <attribute name="VALUE" x="47.8" y="67.6" size="1" layer="27" rot="R180" align="center"/>
 </element>
-<element name="Q3" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="42" y="83.3" smashed="yes" rot="R90">
+<element name="Q3" library="BUK7575" package="TO220BV" value="STP19NF20" x="42" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="62" y="62.9" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="43.72" y="86.8548" size="1.27" layer="25" ratio="10"/>
 </element>
-<element name="R3" library="resistor" package="0204/5" value="4R7" x="45.7" y="75.1" smashed="yes">
+<element name="R3" library="resistor" package="0204/5" value="200R" x="45.7" y="75.1" smashed="yes">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="25.3" y="59.9" size="0.6" layer="27" display="off"/>
 <attribute name="NAME" x="44.8934" y="76.0684" size="0.9906" layer="25" ratio="10"/>
 <attribute name="VALUE" x="44.4664" y="74.5886" size="0.9906" layer="27" ratio="10"/>
 </element>
-<element name="Q4" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="48.8" y="83.3" smashed="yes" rot="R90">
+<element name="Q4" library="BUK7575" package="TO220BV" value="STP19NF20" x="48.8" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="77.3" y="83.3" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="50.42" y="86.9548" size="1.27" layer="25" ratio="10"/>
 </element>
-<element name="R4" library="resistor" package="0204/5" value="4R7" x="50.8" y="76.9" smashed="yes" rot="R180">
+<element name="R4" library="resistor" package="0204/5" value="200R" x="50.8" y="76.9" smashed="yes" rot="R180">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="50.8" y="105.4" size="0.6" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="51.8066" y="75.9316" size="0.9906" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="52.0336" y="77.4114" size="0.9906" layer="27" ratio="10" rot="R180"/>
@@ -3959,20 +3959,20 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="61" y="63.2" size="1.27" layer="25" rot="R180" align="center"/>
 <attribute name="VALUE" x="61.1" y="67.5" size="1" layer="27" rot="R180" align="center"/>
 </element>
-<element name="Q5" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="55.6" y="83.3" smashed="yes" rot="R90">
+<element name="Q5" library="BUK7575" package="TO220BV" value="STP19NF20" x="55.6" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="75.7" y="42.5" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="59.18" y="88.0452" size="1.27" layer="25" ratio="10" rot="R180"/>
 </element>
-<element name="R5" library="resistor" package="0204/5" value="4R7" x="58.8" y="75.1" smashed="yes">
+<element name="R5" library="resistor" package="0204/5" value="200R" x="58.8" y="75.1" smashed="yes">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="58.8" y="75.1" size="0.6" layer="27" display="off"/>
 <attribute name="NAME" x="58.1934" y="76.1684" size="0.9906" layer="25" ratio="10"/>
 <attribute name="VALUE" x="57.6664" y="74.5886" size="0.9906" layer="27" ratio="10"/>
 </element>
-<element name="Q6" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="62.4" y="83.3" smashed="yes" rot="R90">
+<element name="Q6" library="BUK7575" package="TO220BV" value="STP19NF20" x="62.4" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="90.9" y="83.3" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="66.18" y="87.9452" size="1.27" layer="25" ratio="10" rot="R180"/>
 </element>
-<element name="R6" library="resistor" package="0204/5" value="4R7" x="63.9" y="76.9" smashed="yes" rot="R180">
+<element name="R6" library="resistor" package="0204/5" value="200R" x="63.9" y="76.9" smashed="yes" rot="R180">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="82.2" y="105.4" size="0.6" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="64.6066" y="75.9316" size="0.9906" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="65.3336" y="77.4114" size="0.9906" layer="27" ratio="10" rot="R180"/>
@@ -3997,20 +3997,20 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="74.8" y="63.3" size="1.27" layer="25" rot="R180" align="center"/>
 <attribute name="VALUE" x="74.3" y="67.5" size="1" layer="27" rot="R180" align="center"/>
 </element>
-<element name="Q7" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="69.4" y="83.3" smashed="yes" rot="R90">
+<element name="Q7" library="BUK7575" package="TO220BV" value="STP19NF20" x="69.4" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="173.1" y="62.9" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="72.98" y="88.0452" size="1.27" layer="25" ratio="10" rot="R180"/>
 </element>
-<element name="R7" library="resistor" package="0204/5" value="4R7" x="72.1" y="75.2" smashed="yes">
+<element name="R7" library="resistor" package="0204/5" value="200R" x="72.1" y="75.2" smashed="yes">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="35.5" y="-28.5" size="0.6" layer="27" display="off"/>
 <attribute name="NAME" x="71.2934" y="76.0684" size="0.9906" layer="25" ratio="10"/>
 <attribute name="VALUE" x="70.7664" y="74.7886" size="0.9906" layer="27" ratio="10"/>
 </element>
-<element name="Q8" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="76.2" y="83.3" smashed="yes" rot="R90">
+<element name="Q8" library="BUK7575" package="TO220BV" value="STP19NF20" x="76.2" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="208.4" y="42.5" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="79.88" y="88.0452" size="1.27" layer="25" ratio="10" rot="R180"/>
 </element>
-<element name="R8" library="resistor" package="0204/5" value="4R7" x="77.2" y="77" smashed="yes" rot="R180">
+<element name="R8" library="resistor" package="0204/5" value="200R" x="77.2" y="77" smashed="yes" rot="R180">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="77.2" y="195.9" size="0.6" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="78.0066" y="76.0316" size="0.9906" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="78.4336" y="77.5114" size="0.9906" layer="27" ratio="10" rot="R180"/>
@@ -4103,20 +4103,20 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="87.5" y="63.3" size="1.27" layer="25" rot="R180" align="center"/>
 <attribute name="VALUE" x="87.5" y="67.3" size="1" layer="27" rot="R180" align="center"/>
 </element>
-<element name="Q9" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="83" y="83.3" smashed="yes" rot="R90">
+<element name="Q9" library="BUK7575" package="TO220BV" value="STP19NF20" x="83" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="103.8" y="62.2" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="86.68" y="88.0452" size="1.27" layer="25" ratio="10" rot="R180"/>
 </element>
-<element name="R14" library="resistor" package="0204/5" value="4R7" x="85.4" y="75.2" smashed="yes">
+<element name="R14" library="resistor" package="0204/5" value="200R" x="85.4" y="75.2" smashed="yes">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="62" y="56.9" size="0.6" layer="27" display="off"/>
 <attribute name="NAME" x="84.2934" y="76.1684" size="0.9906" layer="25" ratio="10"/>
 <attribute name="VALUE" x="83.9664" y="74.6886" size="0.9906" layer="27" ratio="10"/>
 </element>
-<element name="Q10" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="90.1" y="83.3" smashed="yes" rot="R90">
+<element name="Q10" library="BUK7575" package="TO220BV" value="STP19NF20" x="90.1" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="123.1" y="83.3" size="0.6" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="94.08" y="88.0452" size="1" layer="25" ratio="10" rot="R180"/>
 </element>
-<element name="R15" library="resistor" package="0204/5" value="4R7" x="90.5" y="77" smashed="yes" rot="R180">
+<element name="R15" library="resistor" package="0204/5" value="200R" x="90.5" y="77" smashed="yes" rot="R180">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="90.5" y="110" size="0.6" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="91.7066" y="75.9316" size="0.9906" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="91.8336" y="77.5114" size="0.9906" layer="27" ratio="10" rot="R180"/>
@@ -4151,20 +4151,20 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="100.8" y="63.4" size="1.27" layer="25" rot="R180" align="center"/>
 <attribute name="VALUE" x="100.7" y="67.3" size="1" layer="27" rot="R180" align="center"/>
 </element>
-<element name="Q11" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="96.7" y="83.3" smashed="yes" rot="R90">
+<element name="Q11" library="BUK7575" package="TO220BV" value="STP19NF20" x="96.7" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="117.4" y="62.2" size="1" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="100.6" y="87.9" size="1" layer="25" ratio="10" rot="R180"/>
 </element>
-<element name="R16" library="resistor" package="0204/5" value="4R7" x="98.6" y="75.2" smashed="yes">
+<element name="R16" library="resistor" package="0204/5" value="200R" x="98.6" y="75.2" smashed="yes">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="75.2" y="56.9" size="1" layer="27" display="off"/>
 <attribute name="NAME" x="97.2934" y="76.3684" size="0.9906" layer="25" ratio="10"/>
 <attribute name="VALUE" x="97.2664" y="74.6886" size="0.9906" layer="27" ratio="10"/>
 </element>
-<element name="Q12" library="BUK7575" package="TO220BV" value="FDPF085N10A" x="103.4" y="83.3" smashed="yes" rot="R90">
+<element name="Q12" library="BUK7575" package="TO220BV" value="STP19NF20" x="103.4" y="83.3" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="FDPF085N10A" x="136.4" y="83.3" size="1" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="104.92" y="86.9548" size="1" layer="25" ratio="10"/>
 </element>
-<element name="R17" library="resistor" package="0204/5" value="4R7" x="103.7" y="77" smashed="yes" rot="R180">
+<element name="R17" library="resistor" package="0204/5" value="200R" x="103.7" y="77" smashed="yes" rot="R180">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0" x="103.7" y="110" size="1" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="104.9066" y="75.8316" size="0.9906" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="105.0336" y="77.5114" size="0.9906" layer="27" ratio="10" rot="R180"/>

@@ -1,27 +1,19 @@
-Qty,Value,Parts,Description,PARTNO,Comments
-1,Pico-H,RASPBERRY_PI_PICO,Raspberry Pi Pico w/pin headers installed,SC0917,
-2,"0.1"" SOCK-HD 1X20",RASPBERRY_PI_PICO,"Socket Header, 20 position, 2.54mm pitch",61302011821,
-6,0.1uF,"C1, C2, C3, C4, C5, C6","Capacitor, 0.1uF, ceramic, SMD 1206",1206B104K500CT,
-1,30R,R1,"Resistor, 30 Ohm, SMD 1206",CR1206-FX-30R0ELF,
-1,39R,R2,"Resistor, 39 Ohm, SMD 1206",CR1206-FX-39R0ELF,
-1,130R,R3,"Resistor, 130 Ohm, SMD 1206",CR1206-FX-1300ELF,
-2,10K,"R4, R5","Resistor, 10K, SMD 1206",CR1206-JW-103ELF,
-2,4k,"R6, R7","Resistor, 4K, SMD 1206",RN73R2BTTD4001B25,
-1,ADS1115IDGSR,IC5,"16-Bit 860SPS 4-Ch Delta-Sigma ADC With PGA, Oscillator, Vref, Comparator, and I2C",595-ADS1115IDGSR,
-6,10K 4POS,"RN1, RN2, RN3, RN4, RN6, RN8","Chip Resistor Array 4 Single Resistor, 10K, SMD 0603 x 4",WA06X103JTL,Substitute: 742C083103JP
-1,RGB-LED-CA,LED1,"RGB LED, 5mA, common anode, SMD 3528 package",150141M173100,
-1,"0.1"" SOCK-HD 2x6",FRDM1,"Socket header, 0.1"" pitch, 2x6 position",61301221821,FRDM-KL25Z header socket
-2,"0.1"" SOCK-HD 2x8",FRDM1,"Socket header, 0.1"" pitch, 2x8 position",61301621821,FRDM-KL25Z header socket
-1,"0.1"" SOCK-HD 2x10",FRDM1,"Socket header, 0.1"" pitch, 2x10 position",61302021821,FRDM-KL25Z header socket
-1,LIS3DHTR,IC4,"Accelerometer 3-Axis 2g/16g 1.8V LGA16 STMicroelectronics LIS3DHTR Accelerometer IC, 3-axis, I2C, SPI 1.71  3.6 V, 16-Pin LGA",511-LIS3DHTR,
-1,"PCA9555APW,118",IC6,"NXP - PCA9555APW,118 - I/O EXPANDER, 16BIT, 400KHZ, TSSOP-24",771-PCA9555APW118,
-3,SN74HC165DR,"IC1, IC2, IC3",8-Bit Parallel-Load Shift Registers,595-SN74HC165DR,
-1,TS-1187A-B-A-B,SW1,"Pushbutton switch, SPST, SMD",TS18-5-25-SL-260-SMT-TR,
-,,,,,
-,,,,,
-,,,,,
-,,,,,
-,,,,,
-,,,,,
-,,,,,
-,,,,,
+Qty,Value,Parts,Description,PARTNO,Comments,ExtDescription
+1,Pico-H,RASPBERRY_PI_PICO,Raspberry Pi Pico w/pin headers installed,SC0917,,Raspberry Pi Pico w/pin headers installed (RASPBERRY_PI_PICO)
+2,"0.1"" SOCK-HD 1X20",RASPBERRY_PI_PICO,"Socket Header, 20 position, 2.54mm pitch",61302011821,,"Socket Header, 20 position, 2.54mm pitch (RASPBERRY_PI_PICO)"
+6,0.1uF,"C1, C2, C3, C4, C5, C6","Capacitor, 0.1uF, ceramic, SMD 1206",1206B104K500CT,,"Capacitor, 0.1uF, ceramic, SMD 1206 (C1, C2, C3, C4, C5, C6)"
+1,30R,R1,"Resistor, 30 Ohm, SMD 1206",CR1206-FX-30R0ELF,,"Resistor, 30 Ohm, SMD 1206 (R1)"
+1,39R,R2,"Resistor, 39 Ohm, SMD 1206",CR1206-FX-39R0ELF,,"Resistor, 39 Ohm, SMD 1206 (R2)"
+1,130R,R3,"Resistor, 130 Ohm, SMD 1206",CR1206-FX-1300ELF,,"Resistor, 130 Ohm, SMD 1206 (R3)"
+2,10K,"R4, R5","Resistor, 10K, SMD 1206",CR1206-JW-103ELF,,"Resistor, 10K, SMD 1206 (R4, R5)"
+2,4k,"R6, R7","Resistor, 4K, SMD 1206",RN73R2BTTD4001B25,,"Resistor, 4K, SMD 1206 (R6, R7)"
+1,ADS1115IDGSR,IC5,"16-Bit 860SPS 4-Ch Delta-Sigma ADC With PGA, Oscillator, Vref, Comparator, and I2C",595-ADS1115IDGSR,,"16-Bit 860SPS 4-Ch Delta-Sigma ADC With PGA, Oscillator, Vref, Comparator, and I2C (IC5)"
+6,10K 4POS,"RN1, RN2, RN3, RN4, RN6, RN8","Chip Resistor Array 4 Single Resistor, 10K, SMD 0603 x 4",WA06X103JTL,Substitute: 742C083103JP,"Chip Resistor Array 4 Single Resistor, 10K, SMD 0603 x 4 (RN1, RN2, RN3, RN4, RN6, RN8)"
+1,RGB-LED-CA,LED1,"RGB LED, 5mA, common anode, SMD 3528 package",150141M173100,,"RGB LED, 5mA, common anode, SMD 3528 package (LED1)"
+1,"0.1"" SOCK-HD 2x6",FRDM1,"Socket header, 0.1"" pitch, 2x6 position",61301221821,FRDM-KL25Z header socket,"Socket header, 0.1"" pitch, 2x6 position (FRDM1)"
+2,"0.1"" SOCK-HD 2x8",FRDM1,"Socket header, 0.1"" pitch, 2x8 position",61301621821,FRDM-KL25Z header socket,"Socket header, 0.1"" pitch, 2x8 position (FRDM1)"
+1,"0.1"" SOCK-HD 2x10",FRDM1,"Socket header, 0.1"" pitch, 2x10 position",61302021821,FRDM-KL25Z header socket,"Socket header, 0.1"" pitch, 2x10 position (FRDM1)"
+1,LIS3DHTR,IC4,"Accelerometer 3-Axis 2g/16g 1.8V LGA16 STMicroelectronics LIS3DHTR Accelerometer IC, 3-axis, I2C, SPI 1.71  3.6 V, 16-Pin LGA",511-LIS3DHTR,,"Accelerometer 3-Axis 2g/16g 1.8V LGA16 STMicroelectronics LIS3DHTR Accelerometer IC, 3-axis, I2C, SPI 1.71  3.6 V, 16-Pin LGA (IC4)"
+1,"PCA9555APW,118",IC6,"NXP - PCA9555APW,118 - I/O EXPANDER, 16BIT, 400KHZ, TSSOP-24",771-PCA9555APW118,,"NXP - PCA9555APW,118 - I/O EXPANDER, 16BIT, 400KHZ, TSSOP-24 (IC6)"
+3,SN74HC165DR,"IC1, IC2, IC3",8-Bit Parallel-Load Shift Registers,595-SN74HC165DR,,"8-Bit Parallel-Load Shift Registers (IC1, IC2, IC3)"
+1,TS-1187A-B-A-B,SW1,"Pushbutton switch, SPST, SMD",TS18-5-25-SL-260-SMT-TR,,"Pushbutton switch, SPST, SMD (SW1)"

@@ -1,5 +1,5 @@
-Qty,Value,Parts,Description,MOUSER_PART_NUMBER
-4,130R,"R1, R2, R3, R4","Resistor, 130 Ohm, axial, 2mm x 4mm",MF0204FTE52-130R
-4,1725672,"J1, J2, J3, J4","Phoenix Contact PCB terminal block, 4 way, 26-20 AWG, 2.54mm pitch",651-1725672
-1,61302011821,J5,"Socket Header, 20 position, 2.54mm pitch",710-61302011821
-8,PC817,"OK1, OK2, OK3, OK4, OK5, OK6, OK7, OK8","Optocoupler PC817 / LTV-817, DIP",PC817X2NSZ9F
+Qty,Value,Parts,Description,MOUSER_PART_NUMBER,ExtDescription
+4,130R,"R1, R2, R3, R4","Resistor, 130 Ohm, axial, 2mm x 4mm",MF0204FTE52-130R,"Resistor, 130 Ohm, axial, 2mm x 4mm (R1, R2, R3, R4)"
+4,1725672,"J1, J2, J3, J4","Phoenix Contact PCB terminal block, 4 way, 26-20 AWG, 2.54mm pitch",651-1725672,"Phoenix Contact PCB terminal block, 4 way, 26-20 AWG, 2.54mm pitch (J1, J2, J3, J4)"
+1,61302011821,J5,"Socket Header, 20 position, 2.54mm pitch",710-61302011821,"Socket Header, 20 position, 2.54mm pitch (J5)"
+8,PC817,"OK1, OK2, OK3, OK4, OK5, OK6, OK7, OK8","Optocoupler PC817 / LTV-817, DIP",PC817X2NSZ9F,"Optocoupler PC817 / LTV-817, DIP (OK1, OK2, OK3, OK4, OK5, OK6, OK7, OK8)"

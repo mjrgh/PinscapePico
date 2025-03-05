@@ -9799,16 +9799,16 @@ high speed (Philips)</description>
 <part name="JP4" library="pinhead" deviceset="PINHD-1X6" device=""/>
 <part name="IC1" library="SamacSys_Parts" deviceset="UCC27524P" device=""/>
 <part name="J4" library="SamacSys_Parts" deviceset="640445-9" device=""/>
-<part name="Q1" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q1" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R1" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R1" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="Q2" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R2" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R2" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C1" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
@@ -9818,16 +9818,16 @@ high speed (Philips)</description>
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
 </part>
 <part name="IC2" library="SamacSys_Parts" deviceset="UCC27524P" device=""/>
-<part name="Q3" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q3" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R3" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R3" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
-<part name="Q4" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q4" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R4" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R4" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C3" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
@@ -9837,16 +9837,16 @@ high speed (Philips)</description>
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
 </part>
 <part name="IC3" library="SamacSys_Parts" deviceset="UCC27524P" device=""/>
-<part name="Q5" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q5" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R5" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R5" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
-<part name="Q6" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q6" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R6" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R6" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C5" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
@@ -9856,16 +9856,16 @@ high speed (Philips)</description>
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0"/>
 </part>
 <part name="IC4" library="SamacSys_Parts" deviceset="UCC27524P" device=""/>
-<part name="Q7" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q7" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R7" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R7" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
-<part name="Q8" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q8" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R8" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R8" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C7" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
@@ -9902,16 +9902,16 @@ high speed (Philips)</description>
 <part name="J1" library="SamacSys_Parts" deviceset="30316-6002HB" device=""/>
 <part name="J12" library="pinhead" deviceset="PINHD-1X3" device=""/>
 <part name="IC5" library="SamacSys_Parts" deviceset="UCC27524P" device=""/>
-<part name="Q9" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q9" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R14" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R14" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
-<part name="Q10" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q10" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R15" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R15" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C11" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
@@ -9922,16 +9922,16 @@ high speed (Philips)</description>
 </part>
 <part name="J3" library="SamacSys_Parts" deviceset="640445-5" device=""/>
 <part name="IC6" library="SamacSys_Parts" deviceset="UCC27524P" device=""/>
-<part name="Q11" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q11" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R16" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R16" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
-<part name="Q12" library="BUK7575" deviceset="BUK7575-55A" device="" value="FDPF085N10A">
+<part name="Q12" library="BUK7575" deviceset="BUK7575-55A" device="" value="STP19NF20">
 <attribute name="PARTNO" value="FDPF085N10A"/>
 </part>
-<part name="R17" library="resistor" deviceset="R-US_" device="0204/5" value="4R7">
+<part name="R17" library="resistor" deviceset="R-US_" device="0204/5" value="200R">
 <attribute name="PARTNO" value="660-MFS1/4DCT52R47R0"/>
 </part>
 <part name="C13" library="rcl" deviceset="C-US" device="025-024X044" value="100nF">
@@ -11964,6 +11964,28 @@ identical</text>
 <text x="36.322" y="157.48" size="1.778" layer="91" align="center-left">KEY</text>
 <text x="132.08" y="175.26" size="1.778" layer="91" rot="MR0" align="center">High-power MOSFET drivers</text>
 <text x="36.322" y="119.38" size="1.778" layer="91" align="center-left">KEY</text>
+<text x="190.5" y="76.2" size="2.032" layer="91" align="top-left">Note: Gate resistor value of 200 Ohms is chosen
+to protect UCC27524P against damage due to
+excessive power dissipation during PWM switching.
+In principle, the gate resistor is primarily to suppress
+ringing, which only requires a small resistor in the 5
+to 10 Ohm range.  But practical testing shows that
+UCC27524P is vulnerable to overload when used
+with MOSFETs with high input capacitance (C[ISS]).
+200 Ohms appears safe for common FETs such as
+IRF540N.  Higher resistor values also increase
+MOSFET heating during PWM operation, due to
+increased switching time, so increasing this value
+above 200 Ohms should be avoided.
+</text>
+<text x="190.5" y="30.48" size="2.032" layer="91" align="top-left">Note: Many similar MOSFETs are available.  Choose
+a TO-220 package with G-D-S pin order and Absolute
+Maximum V[gs] of at least +/- 20V.  Low input
+capacitance (C[ISS]) and total gate charge (Q[g]) are
+also desirable.  Beyond that, choose based on the
+required Absolute Maximum values for drain current
+and voltage (I[D], V[DS]), which determine the limits
+for the output devices you can connect to the ports.</text>
 </plain>
 <instances>
 <instance part="IC1" gate="G$1" x="93.98" y="162.56"/>

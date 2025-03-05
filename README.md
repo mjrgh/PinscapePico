@@ -2,7 +2,7 @@
 
 Pinscape Pico is a comprehensive I/O controller for virtual pinball
 cabinets, designed for the Raspberry Pi Pico RP2040.  It handles nearly
-all of the common input and output devices in a virtual pin cab:
+all of the common input and output functions in a virtual pin cab:
 buttons and switches, accelerometer, mechanical plunger, and feedback
 devices such as lights, motors, and solenoids.  It can be used on a
 standalone Pico, and also with a wide range of peripheral devices

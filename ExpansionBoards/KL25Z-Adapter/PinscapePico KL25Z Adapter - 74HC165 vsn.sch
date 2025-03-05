@@ -10969,7 +10969,7 @@ the data sheet.</text>
 <approved hash="202,4,81.28,40.64,IC4,INT2,,,,"/>
 <approved hash="104,4,81.28,48.26,IC4,GND_2,GND,,,"/>
 <approved hash="104,4,66.04,66.04,IC4,VDD,3V3_PICO,,,"/>
-<approved hash="113,1,50.8,39.5393,RASPBERRY_PI_PICO,,,,,"/>
+<approved hash="113,1,50.8,43.3493,RASPBERRY_PI_PICO,,,,,"/>
 </errors>
 </schematic>
 </drawing>

@@ -96,13 +96,27 @@ void TimeOfDay::SetTime(const DateTime &dt, bool updateRTC)
 
 // Global reset data.  This is stored explicitly in an __unitialized_ram()
 // linker section, which the CRTL startup code leaves untouched during
-// program startup.  That leaves the contents of this area intact across
-// a Pico hardware reset, as long as the power isn't interrupted.
+// program startup.  That preserves the contents of this area across a
+// Pico hardware reset, as long as the power isn't interrupted.
+//
+// The absence of CRTL initialization on this RAM also means that we'll
+// see random data at these locations on the first run after a power-on
+// reset.  So we need a way to distinguish random startup data from
+// valid data preserved across a software reset.  To accomplish this, we
+// store a CRC-32 signature on the struct.  When we initialize the
+// struct prior to a reset, we compute the CRC-32 and store it alongside
+// the other struct data.  At startup, we re-compute the CRC-32, and see
+// if it matches the struct data.  If so, we assume that the struct
+// contains valid data preserved across a reset.  It's still possible in
+// a million-monkeys-writing-Shakespeare way that the random garbage in
+// RAM after a power-on reset just happens to have the correct CRC-32
+// value, but the odds of this are extremely small.  We can also further
+// reduce the odds by rejecting dates and times that are out of bounds.
 struct CrossResetData
 {
     // Wall clock date/time computed just before the reset.  Note that
     // we use intentionally unitialized values here, since we don't want
-    // the compiler to generate code to set these at startup.  Sontrary
+    // the compiler to generate code to set these at startup.  Contrary
     // to all normal coding practice, we actually WANT these to remain
     // uninitialized - that's really the whole point here!
     struct
@@ -176,8 +190,20 @@ void TimeOfDay::RestoreAfterReset()
     // orderly resets from power-on resets (when the uninitialized RAM
     // contents are expected to be randomized, hence the CRC-32 is
     // effectively certain not to match) or unexpected watchdog resets,
-    // where we didn't get a chance to save the information.
-    if (crc32 == crossResetData.crc32)
+    // where we didn't get a chance to save the information.  To further
+    // reduce the odds of a false positive, reject the struct if the
+    // month, day, hour, minute, or second values are out of range for
+    // well-formed date/time values.  (We could also require the year to
+    // be in some plausible range as well, say 2024 to 2100, but it
+    // seems better to leave that flexible, in case anyone has a use
+    // case where they want to set their system to a past or future
+    // date.)
+    if (crc32 == crossResetData.crc32
+        && crdt.mon >= 1 && crdt.mon <= 12
+        && crdt.dd >= 1 && crdt.dd <= 31
+        && crdt.hh >= 0 && crdt.hh <= 23
+        && crdt.mm >= 0 && crdt.mm <= 59
+        && crdt.ss >= 0 && crdt.ss <= 59)
     {
         // It looks valid - set the time to the saved time.  Note that
         // this isn't precisely accurate, since some non-zero amount of

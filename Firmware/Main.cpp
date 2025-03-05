@@ -865,8 +865,8 @@ static void SecondCoreMain()
 void CommandConsole::ShowBanner()
 {
     PutOutputFmt(
-        "\n\033[0;1mPinscape Pico command console - Firmware v%d.%d.%d, build %s\033[0m\n"
-        "Unit #%d, %s\n",
+        "\n\033[0;1mPinscape Pico command console - Firmware v%d.%d.%d, build %s\n"
+        "Unit #%d, %s\033[0m\n",
         VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, buildTimestamp,
         unitID.unitNum, unitID.unitName.c_str());
 }

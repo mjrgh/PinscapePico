@@ -96,11 +96,31 @@ struct DateTime
     // Local Time on the same date.
     int jdn = 0;
 
-    // calendar date
+    // Calendar date.  This is always expressed as a Gregorian calendar
+    // date, *even for historical dates before the Gregorian calendar
+    // came into use*.  Dates expressed in terms of a calendar before
+    // that calendar came into use are known as "proleptic" dates, and
+    // they're perfectly unambiguous as long as everyone understands
+    // which calendar they're relative to.  A calendar is just a system
+    // for labeling sequential days, so it can be projected forward and
+    // backward arbitrarily far in time.  You just have to be aware that
+    // the proleptic Gregorian date for a given day might not match the
+    // nominal date that people alive at the time would have used to
+    // refer to the same day in contemporary writings, because they
+    // would have written the date in terms of whichever calendar they
+    // were using at the time.  So if you wanted to compare a given
+    // Gregorian date against a date written down in a document from
+    // 1150 CE, say, you'd have to take the respective calendars into
+    // account by translating the date from the old document into its
+    // proleptic Gregorian equivalent.
+    //
+    // Dates BCE are represented as negative years.  We use the
+    // astronomer's convention that "year 0" is what most people would
+    // call the year 1 BCE, -1 is 2 BCE, -2 is 3 BCE, and so on.
     uint8_t mon = 0;    // month, 1-12
     uint8_t dd = 0;     // day of the month, 1-31
-    int16_t yyyy = 0;   // year on the modern Gregorian calendar; dates BCE
-                        // are expressed as negative values
+    int16_t yyyy = 0;   // year on the modern Gregorian calendar
+    
     // JDN conversions
     static int DateToJDN(int yyyy, int mon, int dd);
     static void JDNToDate(int16_t &yyyy, uint8_t &mon, uint8_t &dd, int jdn);

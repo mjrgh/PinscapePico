@@ -63,3 +63,11 @@ table.data td, table.data th {
     border: 1px solid #f0f0f0;
 }
 
+.illustration {
+    text-align: center;
+    margin: 1ex;
+}
+
+.illustration img {
+    margin: 1ex;
+}

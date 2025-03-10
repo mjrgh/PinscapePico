@@ -11976,7 +11976,7 @@ with MOSFETs with high input capacitance (C[ISS]).
 IRF540N.  Higher resistor values also increase
 MOSFET heating during PWM operation, due to
 increased switching time, so increasing this value
-above 200 Ohms should be avoided.
+above 200 Ohms is not recommended.
 </text>
 <text x="190.5" y="30.48" size="2.032" layer="91" align="top-left">Note: Many similar MOSFETs are available.  Choose
 a TO-220 package with G-D-S pin order and Absolute

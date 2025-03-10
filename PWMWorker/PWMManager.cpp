@@ -39,7 +39,7 @@ void PWMManager::InitGPIO(int gp)
     gpio_init(gp);
     gpio_set_function(gp, GPIO_FUNC_SIO);
     gpio_set_dir(gp, GPIO_IN);
-    
+
     // Get the PWM slice and channel corresponding to the GPIO
     int slice = pwm_gpio_to_slice_num(gp);
     int ch = pwm_gpio_to_channel(gp);

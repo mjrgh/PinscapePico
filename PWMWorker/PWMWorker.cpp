@@ -567,6 +567,29 @@ int main()
         gpio_set_input_enabled(gp, false);
         gpio_set_pulls(gp, false, false);
 
+        // Set fast slew rate.  Pico GPIOs can only drive small loads
+        // directly, so in most cases, outputs will be used as trigger
+        // inputs to amplifier circuits.  Many such circuits dissipate
+        // the most power during switching transitions between ON and OFF
+        // states, so faster transitions are usually better, so minimize
+        // switching power losses, and to reduce the risk of damage from
+        // overheating.  (The tradeoff is that fast slew can increase EMI
+        // emissions when driving light loads, so if that becomes a
+        // problem for anyone, we could make this configurable.  At the
+        // moment, I don't think it'll be a significant problem given our
+        // relatively low PWM frequencies, so I'd rather keep it simple
+        // and just make this a fixed setting.)
+        gpio_set_slew_rate(gp, GPIO_SLEW_RATE_FAST);
+
+        // Set high drive strength.  This is also for the sake of faster
+        // rise/all times on the PWM signal.  Most driver circuits have
+        // some input capacitance, so the rise/fall time is limited by
+        // the charging time for the input capacitance.  Higher drive
+        // strength increases the current that the GPIO can source and
+        // sink, which will speed up the charge/discharge cycle on the
+        // driver input.
+        gpio_set_drive_strength(gp, GPIO_DRIVE_STRENGTH_12MA);
+
         // initialize PWM on the port
         pwmManager.InitGPIO(gp);
     }
@@ -574,8 +597,13 @@ int main()
     // set initial I2C register values
     InitRegs();
 
-    // set the HWRESET bit in CTRL0 - this is set only after an actual hard
-    // reset, not after a software register reset, so InitRegs() doesn't set it
+    // Set the HWRESET bit in CTRL0.  By design, this bit is only set after
+    // a hardware reset, not a software register clear command, so that the
+    // host can determine if a hardware reset has occurred since it last
+    // checked.  InitRegs() is the common handler for hardware resets and
+    // software register clear commands, so it doesn't set the bit.  We thus
+    // have to set the bit explicitly on this path, which is only traversed
+    // during a hardware reset.
     i2cReg[REG_CTRL0] |= CTRL0_HWRESET;
     
     // Get our I2C slave address.  Use a default of 0x30, but allow this to be

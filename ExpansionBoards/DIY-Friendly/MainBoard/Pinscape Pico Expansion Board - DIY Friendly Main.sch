@@ -11969,8 +11969,8 @@ to protect UCC27524P against damage due to
 excessive power dissipation during PWM switching.
 In principle, the gate resistor is primarily to suppress
 ringing, which only requires a small resistor in the 5
-to 10 Ohm range.  But practical testing shows that
-UCC27524P is vulnerable to overload when used
+to 10 Ohm range.  But practical testing suggests that
+UCC27524P may be vulnerable to overload when used
 with MOSFETs with high input capacitance (C[ISS]).
 200 Ohms appears safe for common FETs such as
 IRF540N.  Higher resistor values also increase

@@ -4142,76 +4142,76 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="NAME" x="119.8" y="73.21" size="1" layer="25" rot="R180" align="center"/>
 <attribute name="VALUE" x="119.8" y="78.69" size="0.55" layer="27" rot="R180" align="center"/>
 </element>
-<element name="R21" library="resistor" package="R0603" value="4R7" x="101.3" y="83.1" smashed="yes" rot="R270">
+<element name="R21" library="resistor" package="R0603" value="200R" x="101.3" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="101.37" y="85.284" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R22" library="resistor" package="R0603" value="4R7" x="106.1" y="83.1" smashed="yes" rot="R270">
+<element name="R22" library="resistor" package="R0603" value="200R" x="106.1" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="106.17" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R23" library="resistor" package="R0603" value="4R7" x="109.9" y="83.1" smashed="yes" rot="R270">
+<element name="R23" library="resistor" package="R0603" value="200R" x="109.9" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="109.87" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R24" library="resistor" package="R0603" value="4R7" x="114.9" y="83.1" smashed="yes" rot="R270">
+<element name="R24" library="resistor" package="R0603" value="200R" x="114.9" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="116.484" y="83.33" size="0.8" layer="25" rot="R90" align="center"/>
 </element>
-<element name="R25" library="resistor" package="R0603" value="4R7" x="118.6" y="83.1" smashed="yes" rot="R270">
+<element name="R25" library="resistor" package="R0603" value="200R" x="118.6" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="118.57" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R26" library="resistor" package="R0603" value="4R7" x="123.4" y="83.1" smashed="yes" rot="R270">
+<element name="R26" library="resistor" package="R0603" value="200R" x="123.4" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="123.47" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R27" library="resistor" package="R0603" value="4R7" x="127.3" y="83.1" smashed="yes" rot="R270">
+<element name="R27" library="resistor" package="R0603" value="200R" x="127.3" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="127.37" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R28" library="resistor" package="R0603" value="4R7" x="132.3" y="83.1" smashed="yes" rot="R270">
+<element name="R28" library="resistor" package="R0603" value="200R" x="132.3" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="132.465" y="85.235" size="0.8" layer="25" align="center"/>
 </element>
-<element name="R13" library="resistor" package="R0603" value="4R7" x="66.5" y="83.1" smashed="yes" rot="R270">
+<element name="R13" library="resistor" package="R0603" value="200R" x="66.5" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="66.37" y="85.084" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R14" library="resistor" package="R0603" value="4R7" x="71.3" y="83.1" smashed="yes" rot="R270">
+<element name="R14" library="resistor" package="R0603" value="200R" x="71.3" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="71.4" y="85.2" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R15" library="resistor" package="R0603" value="4R7" x="75.1" y="83.1" smashed="yes" rot="R270">
+<element name="R15" library="resistor" package="R0603" value="200R" x="75.1" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="75.07" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R16" library="resistor" package="R0603" value="4R7" x="80" y="83.1" smashed="yes" rot="R270">
+<element name="R16" library="resistor" package="R0603" value="200R" x="80" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="79.97" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R17" library="resistor" package="R0603" value="4R7" x="83.9" y="83.1" smashed="yes" rot="R270">
+<element name="R17" library="resistor" package="R0603" value="200R" x="83.9" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="84.07" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R18" library="resistor" package="R0603" value="4R7" x="88.7" y="83.1" smashed="yes" rot="R270">
+<element name="R18" library="resistor" package="R0603" value="200R" x="88.7" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="88.77" y="85.284" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R19" library="resistor" package="R0603" value="4R7" x="92.6" y="83.1" smashed="yes" rot="R270">
+<element name="R19" library="resistor" package="R0603" value="200R" x="92.6" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="92.57" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R20" library="resistor" package="R0603" value="4R7" x="97.5" y="83.1" smashed="yes" rot="R270">
+<element name="R20" library="resistor" package="R0603" value="200R" x="97.5" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="97.67" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R5" library="resistor" package="R0603" value="4R7" x="32" y="83.1" smashed="yes" rot="R270">
+<element name="R5" library="resistor" package="R0603" value="200R" x="32" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="32.165" y="85.235" size="0.8" layer="25" align="center"/>
 </element>
-<element name="R6" library="resistor" package="R0603" value="4R7" x="36.8" y="83.1" smashed="yes" rot="R270">
+<element name="R6" library="resistor" package="R0603" value="200R" x="36.8" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="36.77" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R7" library="resistor" package="R0603" value="4R7" x="40.4" y="83.1" smashed="yes" rot="R270">
+<element name="R7" library="resistor" package="R0603" value="200R" x="40.4" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="40.77" y="85.084" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R8" library="resistor" package="R0603" value="4R7" x="45.2" y="83.1" smashed="yes" rot="R270">
+<element name="R8" library="resistor" package="R0603" value="200R" x="45.2" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="45.17" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R9" library="resistor" package="R0603" value="4R7" x="49.2" y="83.1" smashed="yes" rot="R270">
+<element name="R9" library="resistor" package="R0603" value="200R" x="49.2" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="49.27" y="85.084" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R10" library="resistor" package="R0603" value="4R7" x="53.9" y="83.1" smashed="yes" rot="R270">
+<element name="R10" library="resistor" package="R0603" value="200R" x="53.9" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="53.87" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R11" library="resistor" package="R0603" value="4R7" x="57.6" y="83.1" smashed="yes" rot="R270">
+<element name="R11" library="resistor" package="R0603" value="200R" x="57.6" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="57.67" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
-<element name="R12" library="resistor" package="R0603" value="4R7" x="62.6" y="83.1" smashed="yes" rot="R270">
+<element name="R12" library="resistor" package="R0603" value="200R" x="62.6" y="83.1" smashed="yes" rot="R270">
 <attribute name="NAME" x="62.67" y="85.184" size="0.8" layer="25" rot="R180" align="center"/>
 </element>
 <element name="IC15" library="SamacSys_Parts" package="QFN50P500X500X100-33N" value="TLC59116FIRHBR" x="53.3" y="65.9" smashed="yes" rot="R180">

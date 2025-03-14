@@ -1315,33 +1315,6 @@
 <wire x1="-0.3" y1="-1.45" x2="-0.3" y2="1.45" width="0.2" layer="21"/>
 <wire x1="-1.85" y1="1.5" x2="-0.65" y2="1.5" width="0.2" layer="21"/>
 </package>
-<package name="BATHLD001THM">
-<description>&lt;b&gt;BAT-HLD-001-THM-1&lt;/b&gt;&lt;br&gt;
-</description>
-<pad name="1" x="-10.4" y="1.5" drill="1" diameter="2.3"/>
-<pad name="2" x="-10.4" y="-1.6" drill="1" diameter="2.3"/>
-<pad name="3" x="10.4" y="-1.6" drill="1" diameter="2.3"/>
-<pad name="4" x="10.4" y="1.5" drill="1" diameter="2.3"/>
-<smd name="5" x="0" y="0" dx="17.8" dy="17.8" layer="1" roundness="100"/>
-<text x="0" y="0" size="1.27" layer="25" align="center">&gt;NAME</text>
-<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
-<wire x1="-10.55" y1="7.75" x2="10.55" y2="7.75" width="0.2" layer="51"/>
-<wire x1="10.55" y1="7.75" x2="10.55" y2="-7.75" width="0.2" layer="51"/>
-<wire x1="10.55" y1="-7.75" x2="-10.55" y2="-7.75" width="0.2" layer="51"/>
-<wire x1="-10.55" y1="-7.75" x2="-10.55" y2="7.75" width="0.2" layer="51"/>
-<wire x1="-12.1" y1="9.4" x2="12.1" y2="9.4" width="0.1" layer="51"/>
-<wire x1="12.1" y1="9.4" x2="12.1" y2="-9.4" width="0.1" layer="51"/>
-<wire x1="12.1" y1="-9.4" x2="-12.1" y2="-9.4" width="0.1" layer="51"/>
-<wire x1="-12.1" y1="-9.4" x2="-12.1" y2="9.4" width="0.1" layer="51"/>
-<wire x1="5" y1="7.75" x2="10.505" y2="7.75" width="0.1" layer="21"/>
-<wire x1="10.505" y1="7.75" x2="10.55" y2="3.5" width="0.1" layer="21"/>
-<wire x1="10.55" y1="-3.5" x2="10.55" y2="-7.75" width="0.1" layer="21"/>
-<wire x1="10.55" y1="-7.75" x2="5.5" y2="-7.75" width="0.1" layer="21"/>
-<wire x1="-5" y1="7.75" x2="-10.55" y2="7.75" width="0.1" layer="21"/>
-<wire x1="-10.55" y1="7.75" x2="-10.55" y2="3.5" width="0.1" layer="21"/>
-<wire x1="-10.55" y1="-3.5" x2="-10.55" y2="-7.75" width="0.1" layer="21"/>
-<wire x1="-10.55" y1="-7.75" x2="-5.5" y2="-7.75" width="0.1" layer="21"/>
-</package>
 <package name="RV3032C7">
 <description>&lt;b&gt;RV-3032-C7-1&lt;/b&gt;&lt;br&gt;
 </description>
@@ -1497,6 +1470,19 @@
 <wire x1="-1.5" y1="0" x2="-1.6" y2="0" width="0.1" layer="21" curve="180"/>
 <wire x1="-0.2" y1="0.4" x2="0.2" y2="0.4" width="0.2" layer="21"/>
 <wire x1="-0.2" y1="-0.4" x2="0.2" y2="-0.4" width="0.2" layer="21"/>
+</package>
+<package name="BH-123A-1">
+<description>&lt;b&gt;BAT-HLD-001-THM-1&lt;/b&gt;&lt;br&gt;
+</description>
+<pad name="-" x="-8.55" y="0" drill="0.9" diameter="1.9"/>
+<pad name="+" x="11.45" y="0" drill="0.9" diameter="1.9"/>
+<text x="-0.3" y="12.21" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<wire x1="10.8" y1="3.55" x2="12.35" y2="3.55" width="0.127" layer="21"/>
+<wire x1="12.35" y1="3.55" x2="12.35" y2="-3.55" width="0.127" layer="21"/>
+<wire x1="12.35" y1="-3.55" x2="10.8" y2="-3.55" width="0.127" layer="21"/>
+<wire x1="10.8" y1="-3.55" x2="10.8" y2="3.55" width="0.127" layer="21" curve="-323.45019"/>
+<text x="6" y="-0.2" size="5.08" layer="21" ratio="10">+</text>
 </package>
 </packages>
 <symbols>
@@ -2070,19 +2056,6 @@
 <pin name="NC" x="25.4" y="0" length="middle" direction="nc" rot="R180"/>
 <pin name="OUT" x="25.4" y="-2.54" length="middle" direction="out" rot="R180"/>
 </symbol>
-<symbol name="BAT-HLD-001-THM">
-<wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
-<wire x1="15.24" y1="-7.62" x2="15.24" y2="2.54" width="0.254" layer="94"/>
-<wire x1="15.24" y1="-7.62" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
-<wire x1="5.08" y1="2.54" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
-<text x="16.51" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
-<text x="16.51" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
-<pin name="1" x="0" y="0" length="middle"/>
-<pin name="2" x="0" y="-2.54" length="middle"/>
-<pin name="3" x="0" y="-5.08" length="middle"/>
-<pin name="4" x="20.32" y="0" length="middle" rot="R180"/>
-<pin name="5" x="20.32" y="-2.54" length="middle" rot="R180"/>
-</symbol>
 <symbol name="RV-3032-C7_32.768KHZ-2.5PPM-TA">
 <wire x1="5.08" y1="2.54" x2="30.48" y2="2.54" width="0.254" layer="94"/>
 <wire x1="30.48" y1="-10.16" x2="30.48" y2="2.54" width="0.254" layer="94"/>
@@ -2190,6 +2163,16 @@
 <vertex x="10.16" y="2.54"/>
 <vertex x="10.16" y="-2.54"/>
 </polygon>
+</symbol>
+<symbol name="BH-123A-1">
+<wire x1="-5.08" y1="2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
+<wire x1="5.08" y1="-2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
+<wire x1="5.08" y1="-2.54" x2="-5.08" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="2.54" x2="-5.08" y2="-2.54" width="0.254" layer="94"/>
+<text x="-5.08" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
+<text x="-5.08" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
+<pin name="+" x="-10.16" y="0" length="middle"/>
+<pin name="-" x="10.16" y="0" length="middle" rot="R180"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -2877,34 +2860,6 @@ Source: &lt;a href="http://www.ti.com/lit/gpn/tlv757p"&gt; Datasheet &lt;/a&gt;<
 </device>
 </devices>
 </deviceset>
-<deviceset name="BAT-HLD-001-THM" prefix="U">
-<description>&lt;b&gt;Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount&lt;/b&gt;&lt;p&gt;
-Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/BAT-HLD-001-THM.pdf"&gt; Datasheet &lt;/a&gt;</description>
-<gates>
-<gate name="G$1" symbol="BAT-HLD-001-THM" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="BATHLD001THM">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-<connect gate="G$1" pin="3" pad="3"/>
-<connect gate="G$1" pin="4" pad="4"/>
-<connect gate="G$1" pin="5" pad="5"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="DESCRIPTION" value="Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount" constant="no"/>
-<attribute name="HEIGHT" value="4.2mm" constant="no"/>
-<attribute name="MANUFACTURER_NAME" value="Linx Technologies" constant="no"/>
-<attribute name="MANUFACTURER_PART_NUMBER" value="BAT-HLD-001-THM" constant="no"/>
-<attribute name="MOUSER_PART_NUMBER" value="712-BAT-HLD-001-THM" constant="no"/>
-<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.com/Search/Refine.aspx?Keyword=712-BAT-HLD-001-THM" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="RV-3032-C7_32.768KHZ-2.5PPM-TA" prefix="IC">
 <description>&lt;b&gt;Real-Time Clock Module with I2C-Bus    RV-3032-C7&lt;/b&gt;&lt;p&gt;
 Source: &lt;a href="https://g.componentsearchengine.com/Datasheets/0/13169570.pdf"&gt; Datasheet &lt;/a&gt;</description>
@@ -3079,6 +3034,24 @@ Source: &lt;a href="https://www.diodes.com//assets/Datasheets/1N4148WT.pdf"&gt; 
 <attribute name="MOUSER_PART_NUMBER" value="621-1N4148WT" constant="no"/>
 <attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/Diodes-Incorporated/1N4148WT-7?qs=FITO%2F%2FQgYDlMYETivVNccQ%3D%3D" constant="no"/>
 </technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="BH-123A-1" prefix="U">
+<description>&lt;b&gt;Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/BAT-HLD-001-THM.pdf"&gt; Datasheet &lt;/a&gt;</description>
+<gates>
+<gate name="G$1" symbol="BH-123A-1" x="-10.16" y="0"/>
+</gates>
+<devices>
+<device name="" package="BH-123A-1">
+<connects>
+<connect gate="G$1" pin="+" pad="+"/>
+<connect gate="G$1" pin="-" pad="-"/>
+</connects>
+<technologies>
+<technology name=""/>
 </technologies>
 </device>
 </devices>
@@ -15057,7 +15030,6 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="R29" library="resistor" deviceset="R-US_" device="R0603" value="10K"/>
 <part name="R45" library="resistor" deviceset="R-US_" device="R0603" value="10K"/>
 <part name="C40" library="rcl" deviceset="C-US" device="C0402" value="100nF"/>
-<part name="U1" library="SamacSys_Parts" deviceset="BAT-HLD-001-THM" device=""/>
 <part name="GND30" library="supply1" deviceset="GND" device=""/>
 <part name="GND53" library="supply1" deviceset="GND" device=""/>
 <part name="C41" library="rcl" deviceset="C-US" device="C0402" value="100nF"/>
@@ -15120,6 +15092,7 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="D2" library="SamacSys_Parts" deviceset="1N4148WT-7" device=""/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
+<part name="BATT1" library="SamacSys_Parts" deviceset="BH-123A-1" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -21826,7 +21799,7 @@ provided that Vf is less than about 1.9V.</text>
 <sheet>
 <description>RTC (Real-time clock)</description>
 <plain>
-<text x="29.718" y="53.594" size="1.778" layer="91" rot="R180">3V CR2032</text>
+<text x="37.338" y="54.61" size="1.778" layer="91" align="center-right">3V CR2032</text>
 <text x="5.08" y="17.78" size="2.54" layer="91">I2C Addr 1101000x (68)</text>
 <text x="5.08" y="96.52" size="2.54" layer="91">Real-Time Clock/Calendar with battery backup (optional)</text>
 <text x="5.08" y="81.28" size="1.778" layer="91">These parts provide timekeeping for the Pico across CPU resets, and 
@@ -21840,14 +21813,11 @@ and battery holder unpopulated.</text>
 <attribute name="NAME" x="122.936" y="56.134" size="1.778" layer="95"/>
 <attribute name="VALUE" x="122.936" y="53.086" size="1.778" layer="96"/>
 </instance>
-<instance part="U1" gate="G$1" x="38.1" y="63.5" smashed="yes" rot="R270">
-<attribute name="VALUE" x="29.718" y="55.88" size="1.778" layer="96" rot="R180" align="center-left"/>
-</instance>
 <instance part="GND30" gate="1" x="58.42" y="30.48"/>
 <instance part="GND53" gate="1" x="119.38" y="40.64"/>
-<instance part="C41" gate="G$1" x="58.42" y="58.42" smashed="yes">
-<attribute name="NAME" x="61.468" y="57.658" size="1.778" layer="95"/>
-<attribute name="VALUE" x="61.468" y="55.372" size="1.778" layer="96"/>
+<instance part="C41" gate="G$1" x="58.42" y="53.34" smashed="yes">
+<attribute name="NAME" x="61.468" y="52.578" size="1.778" layer="95"/>
+<attribute name="VALUE" x="61.468" y="50.292" size="1.778" layer="96"/>
 </instance>
 <instance part="IC34" gate="G$1" x="76.2" y="66.04"/>
 <instance part="R46" gate="G$1" x="73.66" y="50.8" smashed="yes" rot="MR90">
@@ -21858,6 +21828,10 @@ and battery holder unpopulated.</text>
 <instance part="R49" gate="G$1" x="50.8" y="66.04" smashed="yes" rot="MR0">
 <attribute name="NAME" x="49.022" y="64.5414" size="1.778" layer="95" rot="MR180"/>
 <attribute name="VALUE" x="49.022" y="61.976" size="1.778" layer="96" rot="MR180"/>
+</instance>
+<instance part="BATT1" gate="G$1" x="40.64" y="50.8" smashed="yes" rot="R270">
+<attribute name="NAME" x="37.338" y="50.038" size="1.778" layer="95" rot="R180" align="center-left"/>
+<attribute name="VALUE" x="37.338" y="47.498" size="1.778" layer="96" rot="R180" align="center-left"/>
 </instance>
 </instances>
 <busses>
@@ -21879,14 +21853,14 @@ and battery holder unpopulated.</text>
 </net>
 <net name="GND" class="0">
 <segment>
-<pinref part="U1" gate="G$1" pin="5"/>
 <pinref part="GND30" gate="1" pin="GND"/>
-<wire x1="35.56" y1="43.18" x2="35.56" y2="38.1" width="0.1524" layer="91"/>
 <pinref part="C41" gate="G$1" pin="2"/>
-<wire x1="58.42" y1="53.34" x2="58.42" y2="38.1" width="0.1524" layer="91"/>
-<wire x1="58.42" y1="38.1" x2="35.56" y2="38.1" width="0.1524" layer="91"/>
+<wire x1="58.42" y1="48.26" x2="58.42" y2="38.1" width="0.1524" layer="91"/>
+<pinref part="BATT1" gate="G$1" pin="-"/>
+<wire x1="58.42" y1="38.1" x2="58.42" y2="33.02" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="40.64" x2="40.64" y2="38.1" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="38.1" x2="58.42" y2="38.1" width="0.1524" layer="91"/>
 <junction x="58.42" y="38.1"/>
-<wire x1="58.42" y1="33.02" x2="58.42" y2="38.1" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="C40" gate="G$1" pin="2"/>
@@ -21903,28 +21877,6 @@ and battery holder unpopulated.</text>
 <pinref part="R46" gate="G$1" pin="1"/>
 <wire x1="73.66" y1="45.72" x2="73.66" y2="43.18" width="0.1524" layer="91"/>
 <pinref part="GND58" gate="1" pin="GND"/>
-</segment>
-</net>
-<net name="N$72" class="0">
-<segment>
-<pinref part="U1" gate="G$1" pin="4"/>
-<wire x1="38.1" y1="43.18" x2="38.1" y2="40.64" width="0.1524" layer="91"/>
-<wire x1="38.1" y1="40.64" x2="43.18" y2="40.64" width="0.1524" layer="91"/>
-<wire x1="43.18" y1="40.64" x2="43.18" y2="66.04" width="0.1524" layer="91"/>
-<pinref part="U1" gate="G$1" pin="1"/>
-<wire x1="38.1" y1="63.5" x2="38.1" y2="66.04" width="0.1524" layer="91"/>
-<pinref part="U1" gate="G$1" pin="2"/>
-<wire x1="35.56" y1="63.5" x2="35.56" y2="66.04" width="0.1524" layer="91"/>
-<wire x1="38.1" y1="66.04" x2="35.56" y2="66.04" width="0.1524" layer="91"/>
-<pinref part="U1" gate="G$1" pin="3"/>
-<wire x1="33.02" y1="63.5" x2="33.02" y2="66.04" width="0.1524" layer="91"/>
-<junction x="35.56" y="66.04"/>
-<wire x1="43.18" y1="66.04" x2="38.1" y2="66.04" width="0.1524" layer="91"/>
-<junction x="38.1" y="66.04"/>
-<wire x1="35.56" y1="66.04" x2="33.02" y2="66.04" width="0.1524" layer="91"/>
-<pinref part="R49" gate="G$1" pin="2"/>
-<wire x1="43.18" y1="66.04" x2="45.72" y2="66.04" width="0.1524" layer="91"/>
-<junction x="43.18" y="66.04"/>
 </segment>
 </net>
 <net name="3V3_PERIPHERAL" class="0">
@@ -21951,10 +21903,18 @@ and battery holder unpopulated.</text>
 <pinref part="IC34" gate="G$1" pin="VBACKUP"/>
 <wire x1="58.42" y1="66.04" x2="76.2" y2="66.04" width="0.1524" layer="91"/>
 <pinref part="C41" gate="G$1" pin="1"/>
-<wire x1="58.42" y1="60.96" x2="58.42" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="58.42" y1="55.88" x2="58.42" y2="66.04" width="0.1524" layer="91"/>
 <pinref part="R49" gate="G$1" pin="1"/>
 <wire x1="55.88" y1="66.04" x2="58.42" y2="66.04" width="0.1524" layer="91"/>
 <junction x="58.42" y="66.04"/>
+</segment>
+</net>
+<net name="N$72" class="0">
+<segment>
+<pinref part="R49" gate="G$1" pin="2"/>
+<wire x1="45.72" y1="66.04" x2="40.64" y2="66.04" width="0.1524" layer="91"/>
+<pinref part="BATT1" gate="G$1" pin="+"/>
+<wire x1="40.64" y1="66.04" x2="40.64" y2="60.96" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
@@ -22025,11 +21985,11 @@ angles to the I2C traces to minimize coupling.</text>
 </sheets>
 <errors>
 <approved hash="104,9,55.88,66.04,IC30,VCC,5V,,,"/>
-<approved hash="104,2,66.04,45.72,IC28,VDDIO,3V3_PERIPHERAL,,,"/>
-<approved hash="104,2,66.04,35.56,IC28,GND_1,GND,,,"/>
-<approved hash="202,2,101.6,35.56,IC28,INT2,,,,"/>
-<approved hash="104,2,101.6,43.18,IC28,GND_2,GND,,,"/>
-<approved hash="104,2,86.36,60.96,IC28,VDD,3V3_PERIPHERAL,,,"/>
+<approved hash="104,2,50.8,53.34,IC28,VDDIO,3V3_PERIPHERAL,,,"/>
+<approved hash="104,2,50.8,43.18,IC28,GND_1,GND,,,"/>
+<approved hash="202,2,86.36,43.18,IC28,INT2,,,,"/>
+<approved hash="104,2,86.36,50.8,IC28,GND_2,GND,,,"/>
+<approved hash="104,2,71.12,68.58,IC28,VDD,3V3_PERIPHERAL,,,"/>
 <approved hash="104,1,264.16,50.8,IC33,IN,VBUS,,,"/>
 <approved hash="113,1,160.257,115.701,J17,,,,,"/>
 <approved hash="113,1,221.217,111.891,J19,,,,,"/>

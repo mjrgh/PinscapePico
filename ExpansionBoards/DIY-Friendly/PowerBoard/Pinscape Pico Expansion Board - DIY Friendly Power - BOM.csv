@@ -17,7 +17,7 @@ Qty,Value,Parts,Description,PARTNO,Comments,ExtDescription
 1,MTA156-6PIN-22AWG,PLUG_J3,"MTA156 IDC housing, 6 pin, 22 AWG",3-643819-6,,"MTA156 IDC housing, 6 pin, 22 AWG (PLUG_J3)"
 2,MTA156-9PIN,"J1, J2","Header,MTA156,straight,3.96mm,9way",571-6404459,,"Header,MTA156,straight,3.96mm,9way (J1, J2)"
 2,MTA156-9PIN-24AWG,"PLUG_J1, PLUG_J2","MTA156 IDC housing, 9 pin, 24 AWG",571-3-640429-9,,"MTA156 IDC housing, 9 pin, 24 AWG (PLUG_J1, PLUG_J2)"
-1,BAT-HLD-001-THM,BATT1,Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount,712-BAT-HLD-001-THM,,Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount (BATT1)
+1,BAT-HLD-001-THM,BATT1,"Adam Tech coin cell battery holder, 20mm, PC Pin",737-BH-123A-1,,"Adam Tech coin cell battery holder, 20mm, PC Pin (BATT1)"
 1,DS1307,IC13,"Real-time clock IC, DS1307, 8-Pin PDIP",700-DS1307,,"Real-time clock IC, DS1307, 8-Pin PDIP (IC13)"
 1,32.768kHz/12.5pF/35K,Y1,"Crystal, 32.768 kHZ, 12.5 PF, ESR 35K, through hole radial 2.8mm pitch",520-S-.32712.513XC,,"Crystal, 32.768 kHZ, 12.5 PF, ESR 35K, through hole radial 2.8mm pitch (Y1)"
 16,STP19NF20,"Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, Q14, Q15, Q16","Power MOSFET, TO-220-3 (G-D-S pin ordering)",STP19NF20,"N-channel, TO-220-3, G-D-S pin ordering, min +/-20V V[gs][max]; example substitutes: IPP180N10N3, FDPF08N10A, IRF540N","Power MOSFET, TO-220-3 (G-D-S pin ordering) (Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, Q14, Q15, Q16)"

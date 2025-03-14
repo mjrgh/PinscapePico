@@ -513,33 +513,6 @@
 <vertex x="12.6365" y="3.302"/>
 </polygon>
 </package>
-<package name="BATHLD001THM">
-<description>&lt;b&gt;BAT-HLD-001-THM-1&lt;/b&gt;&lt;br&gt;
-</description>
-<pad name="1" x="-10.4" y="1.5" drill="1" diameter="2.3"/>
-<pad name="2" x="-10.4" y="-1.6" drill="1" diameter="2.3"/>
-<pad name="3" x="10.4" y="-1.6" drill="1" diameter="2.3"/>
-<pad name="4" x="10.4" y="1.5" drill="1" diameter="2.3"/>
-<smd name="5" x="0" y="0" dx="17.8" dy="17.8" layer="1" roundness="100"/>
-<text x="0" y="0" size="1.27" layer="25" align="center">&gt;NAME</text>
-<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
-<wire x1="-10.55" y1="7.75" x2="10.55" y2="7.75" width="0.2" layer="51"/>
-<wire x1="10.55" y1="7.75" x2="10.55" y2="-7.75" width="0.2" layer="51"/>
-<wire x1="10.55" y1="-7.75" x2="-10.55" y2="-7.75" width="0.2" layer="51"/>
-<wire x1="-10.55" y1="-7.75" x2="-10.55" y2="7.75" width="0.2" layer="51"/>
-<wire x1="-12.1" y1="9.4" x2="12.1" y2="9.4" width="0.1" layer="51"/>
-<wire x1="12.1" y1="9.4" x2="12.1" y2="-9.4" width="0.1" layer="51"/>
-<wire x1="12.1" y1="-9.4" x2="-12.1" y2="-9.4" width="0.1" layer="51"/>
-<wire x1="-12.1" y1="-9.4" x2="-12.1" y2="9.4" width="0.1" layer="51"/>
-<wire x1="5" y1="7.75" x2="10.505" y2="7.75" width="0.1" layer="21"/>
-<wire x1="10.505" y1="7.75" x2="10.55" y2="3.5" width="0.1" layer="21"/>
-<wire x1="10.55" y1="-3.5" x2="10.55" y2="-7.75" width="0.1" layer="21"/>
-<wire x1="10.55" y1="-7.75" x2="5.5" y2="-7.75" width="0.1" layer="21"/>
-<wire x1="-5" y1="7.75" x2="-10.55" y2="7.75" width="0.1" layer="21"/>
-<wire x1="-10.55" y1="7.75" x2="-10.55" y2="3.5" width="0.1" layer="21"/>
-<wire x1="-10.55" y1="-3.5" x2="-10.55" y2="-7.75" width="0.1" layer="21"/>
-<wire x1="-10.55" y1="-7.75" x2="-5.5" y2="-7.75" width="0.1" layer="21"/>
-</package>
 <package name="DIP794W56P254L938H457Q8N">
 <description>&lt;b&gt;8 PDIP/1&lt;/b&gt;&lt;br&gt;
 </description>
@@ -605,6 +578,19 @@
 <wire x1="-1.2" y1="0" x2="-1.1" y2="0" width="0.1" layer="21" curve="180"/>
 <wire x1="-1.1" y1="0" x2="-1.1" y2="0" width="0.1" layer="21"/>
 <wire x1="-1.1" y1="0" x2="-1.2" y2="0" width="0.1" layer="21" curve="180"/>
+</package>
+<package name="BH-123A-1">
+<description>&lt;b&gt;BAT-HLD-001-THM-1&lt;/b&gt;&lt;br&gt;
+</description>
+<pad name="-" x="-8.55" y="0" drill="0.9" diameter="1.9"/>
+<pad name="+" x="11.45" y="0" drill="0.9" diameter="1.9"/>
+<text x="-0.3" y="12.21" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<wire x1="10.8" y1="3.55" x2="12.35" y2="3.55" width="0.127" layer="21"/>
+<wire x1="12.35" y1="3.55" x2="12.35" y2="-3.55" width="0.127" layer="21"/>
+<wire x1="12.35" y1="-3.55" x2="10.8" y2="-3.55" width="0.127" layer="21"/>
+<wire x1="10.8" y1="-3.55" x2="10.8" y2="3.55" width="0.127" layer="21" curve="-323.45019"/>
+<text x="6" y="-0.2" size="5.08" layer="21" ratio="10">+</text>
 </package>
 </packages>
 <symbols>
@@ -688,19 +674,6 @@
 <pin name="9" x="0" y="-20.32" length="middle"/>
 <pin name="10" x="0" y="-22.86" length="middle"/>
 </symbol>
-<symbol name="BAT-HLD-001-THM">
-<wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
-<wire x1="15.24" y1="-7.62" x2="15.24" y2="2.54" width="0.254" layer="94"/>
-<wire x1="15.24" y1="-7.62" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
-<wire x1="5.08" y1="2.54" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
-<text x="16.51" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
-<text x="16.51" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
-<pin name="1" x="0" y="0" length="middle"/>
-<pin name="2" x="0" y="-2.54" length="middle"/>
-<pin name="3" x="0" y="-5.08" length="middle"/>
-<pin name="4" x="20.32" y="0" length="middle" rot="R180"/>
-<pin name="5" x="20.32" y="-2.54" length="middle" rot="R180"/>
-</symbol>
 <symbol name="DS1307+">
 <wire x1="5.08" y1="2.54" x2="27.94" y2="2.54" width="0.254" layer="94"/>
 <wire x1="27.94" y1="-10.16" x2="27.94" y2="2.54" width="0.254" layer="94"/>
@@ -749,6 +722,16 @@
 <vertex x="8.89" y="-2.032"/>
 <vertex x="9.398" y="-3.048"/>
 </polygon>
+</symbol>
+<symbol name="BH-123A-1">
+<wire x1="-5.08" y1="2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
+<wire x1="5.08" y1="-2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
+<wire x1="5.08" y1="-2.54" x2="-5.08" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="2.54" x2="-5.08" y2="-2.54" width="0.254" layer="94"/>
+<text x="-5.08" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
+<text x="-5.08" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
+<pin name="+" x="-10.16" y="0" length="middle"/>
+<pin name="-" x="10.16" y="0" length="middle" rot="R180"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -902,34 +885,6 @@ Source: &lt;a href="https://datasheet.datasheetarchive.com/originals/distributor
 </device>
 </devices>
 </deviceset>
-<deviceset name="BAT-HLD-001-THM" prefix="U">
-<description>&lt;b&gt;Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount&lt;/b&gt;&lt;p&gt;
-Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/BAT-HLD-001-THM.pdf"&gt; Datasheet &lt;/a&gt;</description>
-<gates>
-<gate name="G$1" symbol="BAT-HLD-001-THM" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="BATHLD001THM">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-<connect gate="G$1" pin="3" pad="3"/>
-<connect gate="G$1" pin="4" pad="4"/>
-<connect gate="G$1" pin="5" pad="5"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="DESCRIPTION" value="Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount" constant="no"/>
-<attribute name="HEIGHT" value="4.2mm" constant="no"/>
-<attribute name="MANUFACTURER_NAME" value="Linx Technologies" constant="no"/>
-<attribute name="MANUFACTURER_PART_NUMBER" value="BAT-HLD-001-THM" constant="no"/>
-<attribute name="MOUSER_PART_NUMBER" value="712-BAT-HLD-001-THM" constant="no"/>
-<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.com/Search/Refine.aspx?Keyword=712-BAT-HLD-001-THM" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="DS1307+" prefix="IC">
 <description>&lt;b&gt;Real time clock,DS1307 56B RAM DIP8 Maxim DS1307+ Real Time Clock, Alarm, Calendar, Clock, 56B RAM, I2C, 5.5 V, 8-Pin PDIP&lt;/b&gt;&lt;p&gt;
 Source: &lt;a href="http://datasheets.maximintegrated.com/en/ds/DS1307.pdf"&gt; Datasheet &lt;/a&gt;</description>
@@ -1008,6 +963,24 @@ Source: &lt;a href="https://diotec.com/request/datasheet/2n2222a.pdf"&gt; Datash
 <attribute name="MOUSER_PART_NUMBER" value="637-2N2222A" constant="no"/>
 <attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/Diotec-Semiconductor/2N2222A?qs=OlC7AqGiEDmNlRSTGL2dYg%3D%3D" constant="no"/>
 </technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="BH-123A-1" prefix="U">
+<description>&lt;b&gt;Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/BAT-HLD-001-THM.pdf"&gt; Datasheet &lt;/a&gt;</description>
+<gates>
+<gate name="G$1" symbol="BH-123A-1" x="-10.16" y="0"/>
+</gates>
+<devices>
+<device name="" package="BH-123A-1">
+<connects>
+<connect gate="G$1" pin="+" pad="+"/>
+<connect gate="G$1" pin="-" pad="-"/>
+</connects>
+<technologies>
+<technology name=""/>
 </technologies>
 </device>
 </devices>
@@ -8458,7 +8431,6 @@ ULN and UDN Series&lt;p&gt;
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="IC12" library="uln-udn" deviceset="ULN2803A" device="" value="ULN2803A"/>
 <part name="J7" library="SamacSys_Parts" deviceset="1-640456-0" device=""/>
-<part name="BATT1" library="SamacSys_Parts" deviceset="BAT-HLD-001-THM" device=""/>
 <part name="IC13" library="SamacSys_Parts" deviceset="DS1307+" device=""/>
 <part name="Y1" library="SamacSys_Parts" deviceset="ECS-.327-12.5-13X-C" device=""/>
 <part name="J8" library="pinhead" deviceset="PINHD-1X8" device="/90"/>
@@ -8482,6 +8454,7 @@ ULN and UDN Series&lt;p&gt;
 </part>
 <part name="S1" library="switch-omron" deviceset="10-XX" device=""/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
+<part name="BATT1" library="SamacSys_Parts" deviceset="BH-123A-1" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -10906,51 +10879,29 @@ Series resistance (ESR) &lt;= 45K ohms</text>
 <text x="72.136" y="29.21" size="1.778" layer="91" align="center-left">I2C address $68</text>
 </plain>
 <instances>
-<instance part="BATT1" gate="G$1" x="40.64" y="30.48" smashed="yes" rot="R270">
-<attribute name="VALUE" x="32.258" y="22.86" size="1.778" layer="96" rot="R180" align="center-left"/>
-</instance>
 <instance part="IC13" gate="G$1" x="58.42" y="25.4" smashed="yes">
 <attribute name="NAME" x="72.136" y="34.036" size="1.778" layer="95" align="center-left"/>
 <attribute name="VALUE" x="72.136" y="31.496" size="1.778" layer="96" align="center-left"/>
 </instance>
 <instance part="Y1" gate="G$1" x="53.34" y="38.1"/>
+<instance part="BATT1" gate="G$1" x="35.56" y="20.32" smashed="yes" rot="R180">
+<attribute name="NAME" x="40.64" y="13.97" size="1.778" layer="95" rot="R180" align="center-left"/>
+<attribute name="VALUE" x="40.64" y="16.256" size="1.778" layer="96" rot="R180" align="center-left"/>
+</instance>
 </instances>
 <busses>
 </busses>
 <nets>
 <net name="GND" class="0">
 <segment>
-<pinref part="BATT1" gate="G$1" pin="5"/>
-<wire x1="38.1" y1="10.16" x2="38.1" y2="7.62" width="0.1524" layer="91"/>
-<label x="38.1" y="7.62" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="22.86" y="20.32" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="22.86" y1="20.32" x2="25.4" y2="20.32" width="0.1524" layer="91"/>
+<pinref part="BATT1" gate="G$1" pin="-"/>
 </segment>
 <segment>
 <pinref part="IC13" gate="G$1" pin="GND"/>
 <wire x1="58.42" y1="17.78" x2="55.88" y2="17.78" width="0.1524" layer="91"/>
 <label x="55.88" y="17.78" size="1.27" layer="95" rot="R180" xref="yes"/>
-</segment>
-</net>
-<net name="N$35" class="0">
-<segment>
-<pinref part="BATT1" gate="G$1" pin="3"/>
-<wire x1="35.56" y1="30.48" x2="35.56" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="33.02" x2="38.1" y2="33.02" width="0.1524" layer="91"/>
-<pinref part="BATT1" gate="G$1" pin="2"/>
-<wire x1="38.1" y1="33.02" x2="38.1" y2="30.48" width="0.1524" layer="91"/>
-<wire x1="38.1" y1="33.02" x2="40.64" y2="33.02" width="0.1524" layer="91"/>
-<junction x="38.1" y="33.02"/>
-<pinref part="BATT1" gate="G$1" pin="1"/>
-<wire x1="40.64" y1="33.02" x2="40.64" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="BATT1" gate="G$1" pin="4"/>
-<wire x1="40.64" y1="10.16" x2="40.64" y2="7.62" width="0.1524" layer="91"/>
-<wire x1="40.64" y1="7.62" x2="48.26" y2="7.62" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="7.62" x2="48.26" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="20.32" x2="48.26" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="33.02" x2="40.64" y2="33.02" width="0.1524" layer="91"/>
-<junction x="40.64" y="33.02"/>
-<pinref part="IC13" gate="G$1" pin="VBAT"/>
-<wire x1="58.42" y1="20.32" x2="48.26" y2="20.32" width="0.1524" layer="91"/>
-<junction x="48.26" y="20.32"/>
 </segment>
 </net>
 <net name="5V" class="0">
@@ -10990,6 +10941,13 @@ Series resistance (ESR) &lt;= 45K ohms</text>
 <wire x1="53.34" y1="38.1" x2="53.34" y2="22.86" width="0.1524" layer="91"/>
 <pinref part="IC13" gate="G$1" pin="X2"/>
 <wire x1="53.34" y1="22.86" x2="58.42" y2="22.86" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$35" class="0">
+<segment>
+<pinref part="IC13" gate="G$1" pin="VBAT"/>
+<pinref part="BATT1" gate="G$1" pin="+"/>
+<wire x1="58.42" y1="20.32" x2="45.72" y2="20.32" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>

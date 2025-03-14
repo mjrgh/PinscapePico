@@ -185,7 +185,7 @@
 <text x="8.4" y="55.9" size="1.8" layer="25" ratio="15" rot="SR0" align="center">PINSCAPE
 PICO</text>
 <text x="8.5" y="52.5" size="1.1" layer="25" ratio="20" rot="SR0" align="center">DIY POWER BOARD</text>
-<text x="8.4" y="51" size="1.1" layer="25" ratio="15" rot="SR0" align="center">REV 20250203</text>
+<text x="8.4" y="51" size="1.1" layer="25" ratio="15" rot="SR0" align="center">REV 20250312</text>
 <text x="29.5" y="98.3" size="1.8" layer="25" ratio="15" rot="SR0" align="center">HIGH POWER OUTPUTS 13-20</text>
 <text x="33.8" y="53.5" size="1.8" layer="25" ratio="15" rot="SR0" align="center">PWMWORKER 1</text>
 <text x="76.1" y="53.5" size="1.8" layer="25" ratio="15" rot="SR0" align="center">PWMWORKER 2</text>
@@ -217,7 +217,7 @@ PICO</text>
 <text x="91.5" y="7.5" size="1.2" layer="25" ratio="15" rot="SR0" align="center">32</text>
 <text x="127.6" y="35.5" size="1.4" layer="25" ratio="15" rot="SR0" align="center">5V</text>
 <text x="105.7" y="87.8" size="1.2" layer="25" ratio="15" rot="SR0" align="center">GND</text>
-<text x="101.6" y="49.3" size="2" layer="21" align="center">CR2032</text>
+<text x="102.7" y="51.8" size="2.25" layer="21" ratio="10" align="center">CR2032</text>
 <text x="18" y="88.3" size="1.2" layer="25" ratio="15" rot="SR0" align="center">14</text>
 <text x="26.3" y="88.3" size="1.2" layer="25" ratio="15" rot="SR0" align="center">15</text>
 <text x="30.6" y="88.3" size="1.2" layer="25" ratio="15" rot="SR0" align="center">16</text>
@@ -473,33 +473,6 @@ PICO</text>
 <vertex x="12.6365" y="3.302"/>
 </polygon>
 </package>
-<package name="BATHLD001THM">
-<description>&lt;b&gt;BAT-HLD-001-THM-1&lt;/b&gt;&lt;br&gt;
-</description>
-<pad name="1" x="-10.4" y="1.5" drill="1" diameter="2.3"/>
-<pad name="2" x="-10.4" y="-1.6" drill="1" diameter="2.3"/>
-<pad name="3" x="10.4" y="-1.6" drill="1" diameter="2.3"/>
-<pad name="4" x="10.4" y="1.5" drill="1" diameter="2.3"/>
-<smd name="5" x="0" y="0" dx="17.8" dy="17.8" layer="1" roundness="100"/>
-<text x="0" y="0" size="1.27" layer="25" align="center">&gt;NAME</text>
-<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
-<wire x1="-10.55" y1="7.75" x2="10.55" y2="7.75" width="0.2" layer="51"/>
-<wire x1="10.55" y1="7.75" x2="10.55" y2="-7.75" width="0.2" layer="51"/>
-<wire x1="10.55" y1="-7.75" x2="-10.55" y2="-7.75" width="0.2" layer="51"/>
-<wire x1="-10.55" y1="-7.75" x2="-10.55" y2="7.75" width="0.2" layer="51"/>
-<wire x1="-12.1" y1="9.4" x2="12.1" y2="9.4" width="0.1" layer="51"/>
-<wire x1="12.1" y1="9.4" x2="12.1" y2="-9.4" width="0.1" layer="51"/>
-<wire x1="12.1" y1="-9.4" x2="-12.1" y2="-9.4" width="0.1" layer="51"/>
-<wire x1="-12.1" y1="-9.4" x2="-12.1" y2="9.4" width="0.1" layer="51"/>
-<wire x1="5" y1="7.75" x2="10.505" y2="7.75" width="0.1" layer="21"/>
-<wire x1="10.505" y1="7.75" x2="10.55" y2="3.5" width="0.1" layer="21"/>
-<wire x1="10.55" y1="-3.5" x2="10.55" y2="-7.75" width="0.1" layer="21"/>
-<wire x1="10.55" y1="-7.75" x2="5.5" y2="-7.75" width="0.1" layer="21"/>
-<wire x1="-5" y1="7.75" x2="-10.55" y2="7.75" width="0.1" layer="21"/>
-<wire x1="-10.55" y1="7.75" x2="-10.55" y2="3.5" width="0.1" layer="21"/>
-<wire x1="-10.55" y1="-3.5" x2="-10.55" y2="-7.75" width="0.1" layer="21"/>
-<wire x1="-10.55" y1="-7.75" x2="-5.5" y2="-7.75" width="0.1" layer="21"/>
-</package>
 <package name="DIP794W56P254L938H457Q8N">
 <description>&lt;b&gt;8 PDIP/1&lt;/b&gt;&lt;br&gt;
 </description>
@@ -565,6 +538,19 @@ PICO</text>
 <wire x1="-1.2" y1="0" x2="-1.1" y2="0" width="0.1" layer="21" curve="180"/>
 <wire x1="-1.1" y1="0" x2="-1.1" y2="0" width="0.1" layer="21"/>
 <wire x1="-1.1" y1="0" x2="-1.2" y2="0" width="0.1" layer="21" curve="180"/>
+</package>
+<package name="BH-123A-1">
+<description>&lt;b&gt;BAT-HLD-001-THM-1&lt;/b&gt;&lt;br&gt;
+</description>
+<pad name="-" x="-8.55" y="0" drill="0.9" diameter="1.9"/>
+<pad name="+" x="11.45" y="0" drill="0.9" diameter="1.9"/>
+<text x="-0.3" y="12.21" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<wire x1="10.8" y1="3.55" x2="12.35" y2="3.55" width="0.127" layer="21"/>
+<wire x1="12.35" y1="3.55" x2="12.35" y2="-3.55" width="0.127" layer="21"/>
+<wire x1="12.35" y1="-3.55" x2="10.8" y2="-3.55" width="0.127" layer="21"/>
+<wire x1="10.8" y1="-3.55" x2="10.8" y2="3.55" width="0.127" layer="21" curve="-323.45019"/>
+<text x="6" y="-0.2" size="5.08" layer="21" ratio="10">+</text>
 </package>
 </packages>
 </library>
@@ -3585,16 +3571,6 @@ ULN and UDN Series&lt;p&gt;
 <attribute name="NAME" x="90.64" y="-0.555" size="1.27" layer="25" rot="R180" align="center"/>
 <attribute name="VALUE" x="102.773" y="1.4585" size="1" layer="27" rot="R180" align="center"/>
 </element>
-<element name="BATT1" library="SamacSys_Parts" package="BATHLD001THM" value="BAT-HLD-001-THM" x="101.4" y="36.5" smashed="yes" rot="R90">
-<attribute name="MANUFACTURER_PART_NUMBER" value="BAT-HLD-001-THM" x="101.4" y="36.5" size="1" layer="27" rot="R90" display="off"/>
-<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.com/Search/Refine.aspx?Keyword=712-BAT-HLD-001-THM" x="101.4" y="36.5" size="1" layer="27" rot="R90" display="off"/>
-<attribute name="DESCRIPTION" value="Coin Cell Battery Holders Bat Hld CR2032/2025 Through-hole Mount" x="101.4" y="36.5" size="1" layer="27" rot="R90" display="off"/>
-<attribute name="HEIGHT" value="4.2mm" x="101.4" y="36.5" size="1" layer="27" rot="R90" display="off"/>
-<attribute name="MOUSER_PART_NUMBER" value="712-BAT-HLD-001-THM" x="101.4" y="36.5" size="1" layer="27" rot="R90" display="off"/>
-<attribute name="MANUFACTURER_NAME" value="Linx Technologies" x="101.4" y="36.5" size="1" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="92.8" y="44" size="1.27" layer="25" rot="R270" align="center"/>
-<attribute name="VALUE" x="111.1" y="36.8" size="1.27" layer="27" rot="R90" align="center"/>
-</element>
 <element name="IC13" library="SamacSys_Parts" package="DIP794W56P254L938H457Q8N" value="DS1307+" x="57.8" y="25.1" smashed="yes" rot="R90">
 <attribute name="MANUFACTURER_PART_NUMBER" value="DS1307+" x="57.8" y="25.1" size="1" layer="27" rot="R90" display="off"/>
 <attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/Analog-Devices-Maxim-Integrated/DS1307%2b?qs=0Y9aZN%252BMVCVfCMpmynAtEg%3D%3D" x="57.8" y="25.1" size="1" layer="27" rot="R90" display="off"/>
@@ -3673,6 +3649,10 @@ ULN and UDN Series&lt;p&gt;
 <attribute name="OC_FARNELL" value="176432" x="54.5" y="42.2" size="1.2" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="12.248" y="37.917" size="1.27" layer="25" ratio="10" rot="R180" align="center"/>
 <attribute name="VALUE" x="17.18" y="39.152" size="1.27" layer="27" ratio="10" rot="R90"/>
+</element>
+<element name="BATT1" library="SamacSys_Parts" package="BH-123A-1" value="BH-123A-1" x="102.8" y="38.4" smashed="yes" rot="R270">
+<attribute name="NAME" x="102.6" y="24.81" size="1.27" layer="25" align="center"/>
+<attribute name="VALUE" x="104.7" y="38.3" size="1.27" layer="27" rot="R270" align="center"/>
 </element>
 </elements>
 <signals>
@@ -3765,10 +3745,9 @@ ULN and UDN Series&lt;p&gt;
 <contactref element="PICO2" pad="AGND"/>
 <contactref element="IC12" pad="9"/>
 <contactref element="J3" pad="1"/>
-<contactref element="BATT1" pad="5"/>
 <contactref element="IC13" pad="4"/>
-<via x="106.8" y="45.4" extent="1-16" drill="0.45"/>
-<via x="105.9" y="27.1" extent="1-16" drill="0.45"/>
+<via x="111.4" y="47" extent="1-16" drill="0.45"/>
+<via x="97.3" y="26.7" extent="1-16" drill="0.45"/>
 <contactref element="J3" pad="3"/>
 <contactref element="J3" pad="4"/>
 <wire x1="105.8" y1="93.7" x2="105.8" y2="91.6" width="1.5" layer="1"/>
@@ -3807,6 +3786,7 @@ ULN and UDN Series&lt;p&gt;
 <via x="88.6" y="41.6" extent="1-16" drill="0.45"/>
 <via x="88.5" y="44" extent="1-16" drill="0.45"/>
 <via x="88.5" y="48.8" extent="1-16" drill="0.45"/>
+<contactref element="BATT1" pad="-"/>
 </signal>
 <signal name="SDA">
 <wire x1="11.02" y1="32.48" x2="18.3" y2="25.2" width="0.4" layer="16"/>
@@ -4839,29 +4819,27 @@ ULN and UDN Series&lt;p&gt;
 <contactref element="IC10" pad="5"/>
 <contactref element="PICO2" pad="GP20"/>
 <wire x1="67.11" y1="37.93" x2="70.03" y2="37.93" width="0.4" layer="16"/>
-<wire x1="117.39" y1="48.1" x2="115.8" y2="48.1" width="0.4" layer="16"/>
 <wire x1="70.03" y1="37.93" x2="77.6" y2="45.5" width="0.4" layer="16"/>
 <wire x1="77.6" y1="45.5" x2="77.6" y2="53.4" width="0.4" layer="16"/>
 <wire x1="80.7" y1="56.5" x2="91.2" y2="56.5" width="0.4" layer="16"/>
-<wire x1="98.9" y1="48.8" x2="115.1" y2="48.8" width="0.4" layer="16"/>
-<wire x1="115.1" y1="48.8" x2="115.8" y2="48.1" width="0.4" layer="16"/>
 <wire x1="80.7" y1="56.5" x2="77.6" y2="53.4" width="0.4" layer="16"/>
-<wire x1="98.9" y1="48.8" x2="91.2" y2="56.5" width="0.4" layer="16"/>
+<wire x1="98.4" y1="49.3" x2="91.2" y2="56.5" width="0.4" layer="16"/>
+<wire x1="98.4" y1="49.3" x2="113.8" y2="49.3" width="0.4" layer="16"/>
+<wire x1="113.8" y1="49.3" x2="115" y2="48.1" width="0.4" layer="16"/>
+<wire x1="117.39" y1="48.1" x2="115" y2="48.1" width="0.4" layer="16"/>
 </signal>
 <signal name="LAMPCTL14">
 <contactref element="IC10" pad="6"/>
 <contactref element="PICO2" pad="GP21"/>
 <wire x1="67.11" y1="35.39" x2="69.99" y2="35.39" width="0.4" layer="16"/>
 <wire x1="78.6" y1="44" x2="69.99" y2="35.39" width="0.4" layer="16"/>
-<wire x1="117.39" y1="45.56" x2="115.66" y2="45.56" width="0.4" layer="16"/>
-<wire x1="115.66" y1="45.56" x2="112.5" y2="42.4" width="0.4" layer="16"/>
-<wire x1="112.5" y1="42.4" x2="100.6" y2="42.4" width="0.4" layer="16"/>
-<wire x1="100.6" y1="42.4" x2="94.3" y2="48.7" width="0.4" layer="16"/>
-<wire x1="94.3" y1="48.7" x2="94.3" y2="52.2" width="0.4" layer="16"/>
 <wire x1="90.8" y1="55.7" x2="81" y2="55.7" width="0.4" layer="16"/>
 <wire x1="78.6" y1="53.3" x2="78.6" y2="44" width="0.4" layer="16"/>
-<wire x1="90.8" y1="55.7" x2="94.3" y2="52.2" width="0.4" layer="16"/>
 <wire x1="81" y1="55.7" x2="78.6" y2="53.3" width="0.4" layer="16"/>
+<wire x1="101.9" y1="44.6" x2="90.8" y2="55.7" width="0.4" layer="16"/>
+<wire x1="117.39" y1="45.56" x2="115.26" y2="45.56" width="0.4" layer="16"/>
+<wire x1="115.26" y1="45.56" x2="114.3" y2="44.6" width="0.4" layer="16"/>
+<wire x1="114.3" y1="44.6" x2="101.9" y2="44.6" width="0.4" layer="16"/>
 </signal>
 <signal name="LAMPCTL15">
 <contactref element="IC10" pad="7"/>
@@ -4869,17 +4847,13 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="67.11" y1="30.31" x2="68.69" y2="30.31" width="0.4" layer="16"/>
 <wire x1="68.69" y1="30.31" x2="68.7" y2="30.3" width="0.4" layer="16"/>
 <wire x1="79.5" y1="42.8" x2="70" y2="33.3" width="0.4" layer="16"/>
-<wire x1="117.39" y1="43.02" x2="115.6" y2="43.02" width="0.4" layer="16"/>
 <wire x1="70" y1="31.6" x2="68.7" y2="30.3" width="0.4" layer="16"/>
 <wire x1="70" y1="33.3" x2="70" y2="31.6" width="0.4" layer="16"/>
 <wire x1="79.5" y1="42.8" x2="79.5" y2="53" width="0.4" layer="16"/>
 <wire x1="81.4" y1="54.9" x2="90.4" y2="54.9" width="0.4" layer="16"/>
-<wire x1="93.3" y1="52" x2="93.3" y2="48.4" width="0.4" layer="16"/>
-<wire x1="93.3" y1="48.4" x2="100.2" y2="41.5" width="0.4" layer="16"/>
-<wire x1="100.2" y1="41.5" x2="114.08" y2="41.5" width="0.4" layer="16"/>
-<wire x1="114.08" y1="41.5" x2="115.6" y2="43.02" width="0.4" layer="16"/>
-<wire x1="90.4" y1="54.9" x2="93.3" y2="52" width="0.4" layer="16"/>
 <wire x1="81.4" y1="54.9" x2="79.5" y2="53" width="0.4" layer="16"/>
+<wire x1="117.39" y1="43.02" x2="102.28" y2="43.02" width="0.4" layer="16"/>
+<wire x1="102.28" y1="43.02" x2="90.4" y2="54.9" width="0.4" layer="16"/>
 </signal>
 <signal name="LAMPCTL16">
 <contactref element="IC10" pad="8"/>
@@ -4889,14 +4863,12 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="84.89" y1="4.91" x2="83.19" y2="4.91" width="0.4" layer="1"/>
 <wire x1="78.8" y1="39.8" x2="78.8" y2="9.3" width="0.4" layer="1"/>
 <wire x1="78.8" y1="39.8" x2="79.9" y2="40.9" width="0.4" layer="1"/>
-<wire x1="117.39" y1="40.48" x2="99.72" y2="40.48" width="0.4" layer="16"/>
-<wire x1="99.72" y1="40.48" x2="92.5" y2="47.7" width="0.4" layer="16"/>
-<wire x1="92.5" y1="47.7" x2="92.5" y2="51.7" width="0.4" layer="16"/>
+<wire x1="117.39" y1="40.48" x2="103.72" y2="40.48" width="0.4" layer="16"/>
 <wire x1="90.1" y1="54.1" x2="81.8" y2="54.1" width="0.4" layer="16"/>
 <wire x1="80.3" y1="52.6" x2="80.3" y2="41.3" width="0.4" layer="16"/>
 <wire x1="80.3" y1="41.3" x2="79.9" y2="40.9" width="0.4" layer="16"/>
-<wire x1="90.1" y1="54.1" x2="92.5" y2="51.7" width="0.4" layer="16"/>
 <wire x1="81.8" y1="54.1" x2="80.3" y2="52.6" width="0.4" layer="16"/>
+<wire x1="103.72" y1="40.48" x2="90.1" y2="54.1" width="0.4" layer="16"/>
 </signal>
 <signal name="N$67">
 <contactref element="IC9" pad="18"/>
@@ -5084,13 +5056,11 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="77.3" y1="36.7" x2="77.3" y2="6.8" width="0.4" layer="1"/>
 <wire x1="117.39" y1="34.96" x2="113.24" y2="34.96" width="0.4" layer="16"/>
 <wire x1="113.24" y1="34.96" x2="110.4" y2="37.8" width="0.4" layer="16"/>
-<wire x1="110.4" y1="37.8" x2="101" y2="37.8" width="0.4" layer="16"/>
-<wire x1="101" y1="37.8" x2="91.6" y2="47.2" width="0.4" layer="16"/>
-<wire x1="91.6" y1="47.2" x2="91.6" y2="51.4" width="0.4" layer="16"/>
 <wire x1="89.7" y1="53.3" x2="82.4" y2="53.3" width="0.4" layer="16"/>
 <wire x1="81.2" y1="52.1" x2="81.2" y2="40.6" width="0.4" layer="16"/>
-<wire x1="89.7" y1="53.3" x2="91.6" y2="51.4" width="0.4" layer="16"/>
 <wire x1="82.4" y1="53.3" x2="81.2" y2="52.1" width="0.4" layer="16"/>
+<wire x1="110.4" y1="37.8" x2="105.2" y2="37.8" width="0.4" layer="16"/>
+<wire x1="105.2" y1="37.8" x2="89.7" y2="53.3" width="0.4" layer="16"/>
 </signal>
 <signal name="LAMPCTL18">
 <contactref element="IC11" pad="2"/>
@@ -5103,55 +5073,51 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="67.11" y1="17.61" x2="69.61" y2="17.61" width="0.4" layer="1"/>
 <wire x1="82.2" y1="40.2" x2="82.2" y2="51.8" width="0.4" layer="16"/>
 <wire x1="82.9" y1="52.5" x2="89.2" y2="52.5" width="0.4" layer="16"/>
-<wire x1="90.6" y1="51.1" x2="90.6" y2="46.5" width="0.4" layer="16"/>
-<wire x1="90.6" y1="46.5" x2="100.3" y2="36.8" width="0.4" layer="16"/>
-<wire x1="100.3" y1="36.8" x2="109.9" y2="36.8" width="0.4" layer="16"/>
+<wire x1="104.9" y1="36.8" x2="109.9" y2="36.8" width="0.4" layer="16"/>
 <wire x1="109.9" y1="36.8" x2="114.28" y2="32.42" width="0.4" layer="16"/>
 <wire x1="117.39" y1="32.42" x2="114.28" y2="32.42" width="0.4" layer="16"/>
-<wire x1="89.2" y1="52.5" x2="90.6" y2="51.1" width="0.4" layer="16"/>
 <wire x1="82.9" y1="52.5" x2="82.2" y2="51.8" width="0.4" layer="16"/>
+<wire x1="104.9" y1="36.8" x2="89.2" y2="52.5" width="0.4" layer="16"/>
 </signal>
 <signal name="LAMPCTL19">
 <contactref element="IC11" pad="3"/>
 <contactref element="PICO2" pad="GP15"/>
 <wire x1="117.39" y1="29.88" x2="114.92" y2="29.88" width="0.4" layer="16"/>
 <wire x1="114.92" y1="29.88" x2="109" y2="35.8" width="0.4" layer="16"/>
-<wire x1="109" y1="35.8" x2="99.7" y2="35.8" width="0.4" layer="16"/>
-<wire x1="99.7" y1="35.8" x2="89.5" y2="46" width="0.4" layer="16"/>
 <wire x1="84.89" y1="50.63" x2="88.07" y2="50.63" width="0.4" layer="16"/>
-<wire x1="88.07" y1="50.63" x2="89.5" y2="49.2" width="0.4" layer="16"/>
-<wire x1="89.5" y1="49.2" x2="89.5" y2="46" width="0.4" layer="16"/>
+<wire x1="109" y1="35.8" x2="102.9" y2="35.8" width="0.4" layer="16"/>
+<wire x1="102.9" y1="35.8" x2="88.07" y2="50.63" width="0.4" layer="16"/>
 </signal>
 <signal name="LAMPCTL20">
 <contactref element="IC11" pad="4"/>
 <contactref element="PICO2" pad="GP14"/>
 <wire x1="117.39" y1="27.34" x2="116.06" y2="27.34" width="0.4" layer="16"/>
 <wire x1="116.06" y1="27.34" x2="108.6" y2="34.8" width="0.4" layer="16"/>
-<wire x1="108.6" y1="34.8" x2="99.1" y2="34.8" width="0.4" layer="16"/>
-<wire x1="99.1" y1="34.8" x2="88.5" y2="45.4" width="0.4" layer="16"/>
-<wire x1="88.5" y1="46.8" x2="88.5" y2="45.4" width="0.4" layer="16"/>
 <wire x1="84.89" y1="48.09" x2="87.21" y2="48.09" width="0.4" layer="16"/>
-<wire x1="87.21" y1="48.09" x2="88.5" y2="46.8" width="0.4" layer="16"/>
+<wire x1="108.6" y1="34.8" x2="100.5" y2="34.8" width="0.4" layer="16"/>
+<wire x1="100.5" y1="34.8" x2="87.21" y2="48.09" width="0.4" layer="16"/>
 </signal>
 <signal name="LAMPCTL21">
 <contactref element="IC11" pad="5"/>
 <contactref element="PICO2" pad="GP13"/>
 <wire x1="117.39" y1="24.8" x2="117.1" y2="24.8" width="0.4" layer="16"/>
 <wire x1="117.1" y1="24.8" x2="108" y2="33.9" width="0.4" layer="16"/>
-<wire x1="108" y1="33.9" x2="97.6" y2="33.9" width="0.4" layer="16"/>
-<wire x1="97.6" y1="33.9" x2="88.49" y2="43.01" width="0.4" layer="16"/>
+<wire x1="108" y1="33.9" x2="101.4" y2="33.9" width="0.4" layer="16"/>
 <wire x1="84.89" y1="43.01" x2="88.49" y2="43.01" width="0.4" layer="16"/>
+<wire x1="101.4" y1="33.9" x2="97.6" y2="33.9" width="0.4" layer="16"/>
+<wire x1="97.6" y1="33.9" x2="88.49" y2="43.01" width="0.4" layer="16"/>
 </signal>
 <signal name="LAMPCTL22">
 <contactref element="IC11" pad="6"/>
 <contactref element="PICO2" pad="GP12"/>
 <wire x1="115" y1="25.6" x2="107.8" y2="32.8" width="0.4" layer="16"/>
-<wire x1="107.8" y1="32.8" x2="96.6" y2="32.8" width="0.4" layer="16"/>
+<wire x1="107.8" y1="32.8" x2="100.3" y2="32.8" width="0.4" layer="16"/>
 <wire x1="117.39" y1="22.26" x2="116.04" y2="22.26" width="0.4" layer="16"/>
 <wire x1="116.04" y1="22.26" x2="115" y2="23.3" width="0.4" layer="16"/>
 <wire x1="115" y1="23.3" x2="115" y2="25.6" width="0.4" layer="16"/>
-<wire x1="96.6" y1="32.8" x2="88.93" y2="40.47" width="0.4" layer="16"/>
 <wire x1="84.89" y1="40.47" x2="88.93" y2="40.47" width="0.4" layer="16"/>
+<wire x1="100.3" y1="32.8" x2="96.6" y2="32.8" width="0.4" layer="16"/>
+<wire x1="96.6" y1="32.8" x2="88.93" y2="40.47" width="0.4" layer="16"/>
 </signal>
 <signal name="LAMPCTL23">
 <contactref element="IC11" pad="7"/>
@@ -5307,31 +5273,6 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="89.7" y1="17.4" x2="92.8" y2="17.4" width="0.4" layer="1"/>
 <wire x1="92.8" y1="17.4" x2="93.68" y2="18.28" width="0.4" layer="1"/>
 </signal>
-<signal name="N$35">
-<contactref element="BATT1" pad="3"/>
-<contactref element="BATT1" pad="2"/>
-<contactref element="BATT1" pad="1"/>
-<contactref element="BATT1" pad="4"/>
-<contactref element="IC13" pad="3"/>
-<wire x1="103" y1="26.1" x2="99.9" y2="26.1" width="0.4" layer="1"/>
-<wire x1="103" y1="46.9" x2="108" y2="46.9" width="0.4" layer="1"/>
-<wire x1="108" y1="46.9" x2="111.1" y2="43.8" width="0.4" layer="1"/>
-<wire x1="111.1" y1="43.8" x2="111.1" y2="30" width="0.4" layer="1"/>
-<wire x1="111.1" y1="30" x2="107.2" y2="26.1" width="0.4" layer="1"/>
-<wire x1="103" y1="26.1" x2="107.2" y2="26.1" width="0.4" layer="1"/>
-<wire x1="103" y1="46.9" x2="99.9" y2="46.9" width="0.4" layer="1"/>
-<wire x1="59.07" y1="21.13" x2="59.07" y2="19.4" width="0.4" layer="1"/>
-<wire x1="60.7" y1="-0.3" x2="115.3" y2="-0.3" width="0.4" layer="1"/>
-<wire x1="116.6" y1="1" x2="116.6" y2="9.2" width="0.4" layer="1"/>
-<wire x1="113.8" y1="12" x2="113.8" y2="21.9" width="0.4" layer="1"/>
-<wire x1="113.8" y1="21.9" x2="109.6" y2="26.1" width="0.4" layer="1"/>
-<wire x1="107.2" y1="26.1" x2="109.6" y2="26.1" width="0.4" layer="1"/>
-<wire x1="60.7" y1="-0.3" x2="59.6" y2="0.8" width="0.4" layer="1"/>
-<wire x1="59.6" y1="0.8" x2="59.6" y2="18.87" width="0.4" layer="1"/>
-<wire x1="59.6" y1="18.87" x2="59.07" y2="19.4" width="0.4" layer="1"/>
-<wire x1="113.8" y1="12" x2="116.6" y2="9.2" width="0.4" layer="1"/>
-<wire x1="115.3" y1="-0.3" x2="116.6" y2="1" width="0.4" layer="1"/>
-</signal>
 <signal name="N$36">
 <contactref element="IC13" pad="1"/>
 <contactref element="Y1" pad="1"/>
@@ -5428,6 +5369,21 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="14.6" y1="34.4" x2="14.6" y2="38.7094" width="0.5" layer="1"/>
 <wire x1="14.6" y1="38.7094" x2="14.3606" y2="38.9488" width="0.5" layer="1"/>
 <wire x1="19.4" y1="29.6" x2="14.6" y2="34.4" width="0.5" layer="16"/>
+</signal>
+<signal name="N$35">
+<contactref element="IC13" pad="3"/>
+<contactref element="BATT1" pad="+"/>
+<wire x1="59.07" y1="21.13" x2="59.07" y2="19.23" width="0.4" layer="1"/>
+<wire x1="59.07" y1="19.23" x2="59.6" y2="18.7" width="0.4" layer="1"/>
+<wire x1="59.6" y1="18.7" x2="59.6" y2="0.9" width="0.4" layer="1"/>
+<wire x1="59.6" y1="0.9" x2="60.8" y2="-0.3" width="0.4" layer="1"/>
+<wire x1="60.8" y1="-0.3" x2="115.2" y2="-0.3" width="0.4" layer="1"/>
+<wire x1="115.2" y1="-0.3" x2="117" y2="1.5" width="0.4" layer="1"/>
+<wire x1="117" y1="1.5" x2="117" y2="9.3" width="0.4" layer="1"/>
+<wire x1="117" y1="9.3" x2="114.3" y2="12" width="0.4" layer="1"/>
+<wire x1="114.3" y1="12" x2="114.3" y2="21.6" width="0.4" layer="1"/>
+<wire x1="102.8" y1="26.95" x2="108.95" y2="26.95" width="0.4" layer="1"/>
+<wire x1="108.95" y1="26.95" x2="114.3" y2="21.6" width="0.4" layer="1"/>
 </signal>
 </signals>
 </board>

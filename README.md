@@ -1,12 +1,13 @@
 # <img src="logo-text.png">
 
 Pinscape Pico is a comprehensive I/O controller for virtual pinball
-cabinets, designed for the Raspberry Pi Pico RP2040.  It handles nearly
-all of the common input and output functions in a virtual pin cab:
-buttons and switches, accelerometer, mechanical plunger, and feedback
-devices such as lights, motors, and solenoids.  It can be used on a
-standalone Pico, and also with a wide range of peripheral devices
-that expand the Pico's hardware capabilities: accelerometers,
+cabinets, designed for the Raspberry Pi Pico RP2040.  It handles
+nearly all of the common input and output functions in a virtual pin
+cab: arcade-style pushbuttons and switches, accelerometer-based
+nudging, mechanical plunger position sensing, and feedback effect
+devices such as lights, shaker motors, fans, and solenoids.  It can be
+used on a standalone Pico, and also with a wide range of peripheral
+devices that expand the Pico's hardware capabilities: accelerometers,
 PWM/LED driver chips, shift registers, GPIO expanders, ADCs, and
 clock/calendar chips.  The project includes hardware designs for a
 number of expansion boards that implement particular collections of
@@ -25,6 +26,70 @@ Pinscape, plus some neat new tricks.  It's also a little more
 <a href="ScreenShots/ConfigToolEditor.png"><img src="ScreenShots/ConfigToolEditor-Thumb.png"></a>
 <a href="ScreenShots/ConfigToolButtons.png"><img src="ScreenShots/ConfigToolButtons-Thumb.png"></a>
 <a href="ScreenShots/ConfigToolOutputs.png"><img src="ScreenShots/ConfigToolOutputs-Thumb.png"></a>
+
+
+## What can you do with it?
+
+Here are some examples of how you can set up a Pinscape Pico system.
+There's a more comprehensive list of features a little later in this
+article, but it might help to start with some more concrete examples
+of what your overall system might look like.
+
+* <b>Button controller:</b> A really simple way to use Pinscape is as
+a button encoder, for connecting arcade pushbuttons to the PC.  The
+Pico is the only piece of hardware you need for this, since you can
+just connect the buttons directly to the Pico's GPIO ports.  The Pico
+has a total of 26 external GPIO pins, so you can connect up to 26
+buttons.  Each button can be mapped to the PC as a keyboard key, a
+gamepad button, or a variety of other options, and the Pico responds
+to button presses within microseconds, for very small latencies
+sending input to the PC.  (If you need more than 26 buttons, there are
+also options to add just about as many extra ports as you'd like by
+adding some external chips, but that's not required if you can make do
+with 26 buttons.)
+
+* <b>Accelerometer-based nudge device:</b>  A slightly more complex
+setup adds an accelerometer, to detect when you nudge the cabinet,
+so that the pinball simulator can apply the nudge force within the game.
+Analog nudging adds a wonderful extra dimension to video pinball
+that lets you interact with the game in a much more natural,
+physical way.  The Pico doesn't have a built-in accelerometer,
+though, so this setup requires adding an external accelerometer.
+Fortunately, Adafruit and Sparkfun make inexpensive (under $10)
+breakout boards for the popular LIS3DH chip, which is relatively
+easy to connect to the Pico and works well with Pinscape.  You
+can combine this with button inputs, too (although you'll only
+get 24 buttons in this case, because the accelerometer connection
+takes up two of the GPIOs).
+
+* <b>Plunger:</b> You can also add a mechanical plunger position
+sensor.  Apart from the plunger sensor itself, no other hardware
+is needed.  The simplest plunger sensor type is a slide potentiometer,
+which connects to the Pico with three wires.  You can combine this
+with the accelerometer and button functions as well.
+
+* <b>Feedback device controller:</b> Pinscape can act as a replacement
+for the LedWiz and its competitors - devices that control a fixed set
+of feedback devices, and do nothing else.  Pinscape can even emulate
+the original LedWiz USB interface, if you want it to, which makes it
+plug-and-play compatible with old LedWiz-based software.  To control
+feedback devices, though, you need to add some custom external
+hardware, because the Pico by itself can only control tiny amounts of
+power, just enough for a small LED.  So you need "booster" (amplifier)
+circuitry to control motors, solenoids, and bigger lights.  Pinscape
+is flexible enough to work with a wide range of booster circuits, so
+you can roll your own if you want, but you don't have to.  The
+Pinscape Pico project includes several "reference" expansion board
+designs, which are open-source circuit board layouts that anyone is
+free to build on their own, or to customize to fit specific
+requirements.
+
+* <b>Comprehensive I/O controller:</b> The reference expansion boards
+don't *just* control feedback devices.  They're designed as **all-in-one**
+boards that handle just about everything you'd need in a full-featured pin
+cab, including accelerometer, plunger, buttons, and feedback devices.
+So you can combine the features of a button encoder, nudge device, and
+feedback controller into a single Pico running Pinscape.
 
 
 ## Quick setup guide

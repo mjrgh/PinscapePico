@@ -21,7 +21,7 @@ Qty,Value,Parts,Description,PARTNO,Comments,ExtDescription
 1,2N2222A,Q16,"NPN transistor, 2N2222A, TO-92, 40V, 600mA",637-2N2222A,,"NPN transistor, 2N2222A, TO-92, 40V, 600mA (Q16)"
 1,2N5195G,Q15,"PNP transistor, 2N5195G, TO-225-3, 80V, 4A",2N5195G,,"PNP transistor, 2N5195G, TO-225-3, 80V, 4A (Q15)"
 1,2R5,R31,"Resistor, 2.5 Ohm, 1%, axial, 2mm x 4mm",MFR-25FTE52-2R49,,"Resistor, 2.5 Ohm, 1%, axial, 2mm x 4mm (R31)"
-1,"0.1"" PIN-HD 2X4",J9,"Shrouded pin header 0.1"" 2x4",737-BHR-16-VUA,,"Shrouded pin header 0.1"" 2x4 (J9)"
+1,"0.1"" PIN-HD 2X4",J9,"Shrouded pin header 0.1"" 2x4",737-BHR-08-VUA,,"Shrouded pin header 0.1"" 2x4 (J9)"
 1,"0.1"" IDC 2X4",PLUG_J9,"IDC housing, 0.1"", 2x4",737-FCS-16-SG,,"IDC housing, 0.1"", 2x4 (PLUG_J9)"
 1,"0.1"" PIN-HD 2X8",J1,"Shrouded pin header 0.1"" 2x8",737-BHR-16-VUA,,"Shrouded pin header 0.1"" 2x8 (J1)"
 1,"0.1"" IDC 2X8",PLUG_J9,"IDC housing, 0.1"", 2x8",737-FCS-08-SG,,"IDC housing, 0.1"", 2x8 (PLUG_J9)"

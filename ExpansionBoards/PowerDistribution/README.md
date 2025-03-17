@@ -90,6 +90,51 @@ wiring by providing enough ports that you won't have to improvise by
 tying multiple wires together.
 
 
+## Connectors
+
+This board uses three connector types:
+
+* <b>Molex MicroFit+: </b> These are used for most of the wiring to
+the external power supplies.  I chose these because they can handle
+high currents, the pins are all enclosed in plastic (which protects
+against accidental short circuits if you drop a screwdriver or
+anything like that), and each connector is designed so that you can't
+plug in the wrong cable, and you can't plug in the right cable in the
+wrong direction.  This makes maintenance work easier, since you don't
+have to remember which cable goes where - each cable only fits in one
+header.
+ 
+  These connectors use crimp-pin housings, which makes them a little bit
+  of work to assemble, so I only used them for the connections to the
+  power supplies.
+
+* <b>TE Connectivity MTA-156:</b> These are used for the power
+distribution side, to carry power and ground to your devices and other
+circuit boards.  These are large connectors designed for high
+currents, and they have "ramps" that prevent plugging in the connector
+in the wrong direction.  I used different pin counts for each header
+of this type, which should make it fairly obvious which plug goes with
+which header.  (These connectors don't have the unique geometries of
+the MicroFit+ connectors that prevent mismatched connections, but the
+different sizes should still make it easy to avoid mistakes.)
+
+  The wire plugs for these use IDC termination, which is fairly fast
+  and easy to assemble.  The only thing to watch out for is that each
+  connector only works with one wire gauge, so you have to be sure to
+  use the right wire type.
+
+* <b>Mate-N-Lok:</b> This is a specialty connector that PC power
+supplies have used since the beginning of time for the floppy disk
+connector plugs.  There are two headers of this type on the board: one
+where you can plug in the primary PC power supply (for sensing when
+the main PC is on), and a second where you can connect a separate
+ATX-style power supply for powering 5V and 12V feedback devices.
+These are extremely easy to connect to PC power supplies, since all
+ATX supplies come with a set of the floppy connectors ready to use.
+
+
+
+
 ## Ground interconnects
 
 This board connects all of the power supply grounds together, and

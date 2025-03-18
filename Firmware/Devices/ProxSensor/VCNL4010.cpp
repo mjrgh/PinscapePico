@@ -10,6 +10,7 @@
 // Pico SDK headers
 #include <pico/stdlib.h>
 #include <pico/time.h>
+#include <hardware/watchdog.h>
 
 // local project headers
 #include "Pinscape.h"
@@ -25,7 +26,7 @@ VCNL4010 *vcnl4010 = nullptr;
 
 // construction
 VCNL4010::VCNL4010(int iredCurrent, int gpInt) :
-    I2CDevice(i2cAddr),
+    I2CDevice(0x13),
     iredCurrent(iredCurrent),
     gpInt(gpInt)
 {
@@ -128,23 +129,42 @@ void VCNL4010::SendInitCommands(i2c_inst_t *i2c)
     // Read the Product ID/Revision register.  This is purely for
     // logging purposes, as a troubleshooting aid to verify that the
     // chip is connected and responding to commands.
-    bool ok = true;
+    //
+    // The device can take up to 2.5ms to start up after a reset,
+    // so allow a few milliseconds of failures before giving up.
+    bool ok = false;
     uint8_t prodIdRev = 0x00;
+    for (int i = 0 ; i < 10 ; ++i)
     {
+        // try reading the register
         uint8_t buf[] = { 0x81 };
-        if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), true, 1000) != _countof(buf)
-            || i2c_read_timeout_us(i2c, i2cAddr, buf, 1, false, 1000) != 1)
-            ok = false;
-
-        if (ok)
+        if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), true, 1000) == _countof(buf)
+            && i2c_read_timeout_us(i2c, i2cAddr, buf, 1, false, 1000) == 1)
+        {
+            // success - retrieve the product ID code and stop looping
             prodIdRev = buf[0];
+            ok = true;
+            break;
+        }
+
+        // pause briefly before retrying
+        watchdog_update();
+        sleep_us(1000);
     }
+
+    // log for debugging in the product code read failed
+    if (!ok)
+        Log(LOG_DEBUG, "VCNL4010 ProductID register (0x81) read failed\n");
     
     // disable all self-timed modes
     {
         static const uint8_t buf[] = { 0x80, 0x00 };
         int result = i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000);
-        ok = ok && (result == _countof(buf));
+        if (result != _countof(buf))
+        {
+            Log(LOG_DEBUG, "VCNL4010 Mode register (0x80) write failed\n");
+            ok = false;
+        }
     }
 
     // Set the proximity sampling rate to the fastest available rate of
@@ -156,7 +176,11 @@ void VCNL4010::SendInitCommands(i2c_inst_t *i2c)
     {
         static const uint8_t buf[] = { 0x82, 0x07 };
         int result = i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000);
-        ok = ok && (result == _countof(buf));
+        if (result != _countof(buf))
+        {
+            Log(LOG_DEBUG, "VCNL4010 Sampling rate register (0x82) write failed\n");
+            ok = false;
+        }
     }
 
     // Set the current for the IR LED (the light source for proximity
@@ -178,7 +202,11 @@ void VCNL4010::SendInitCommands(i2c_inst_t *i2c)
     {
         const uint8_t buf[] = { 0x83, static_cast<uint8_t>(curRegByte) };
         int result = i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000);
-        ok = ok && (result == _countof(buf));
+        if (result != _countof(buf))
+        {
+            Log(LOG_DEBUG, "VCNL4010 IRED current register (0x83) write failed\n");
+            ok = false;
+        }
     }
 
     // Enable PROX_ready interrupts (INT_PROX_ready_EN, bit 0x08 in
@@ -188,7 +216,11 @@ void VCNL4010::SendInitCommands(i2c_inst_t *i2c)
     {
         static const uint8_t buf[] = { 0x89, 0x08 };
         int result = i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000);
-        ok = ok && (result == _countof(buf));
+        if (result != _countof(buf))
+        {
+            Log(LOG_DEBUG, "VCNL4010 PROX_ready interrupts (0x89) write failed\n");
+            ok = false;
+        }
     }
 
     // enable self-timed proximity measurements
@@ -196,12 +228,18 @@ void VCNL4010::SendInitCommands(i2c_inst_t *i2c)
     {
         static const uint8_t buf[] = { 0x80, 0x03 };
         int result = i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000);
-        ok = ok && (result == _countof(buf));
+        if (result != _countof(buf))
+        {
+            Log(LOG_DEBUG, "VCNL4010 PROX_EN register (0x80) write failed\n");
+            ok = false;
+        }
     }
 
     // report the result
-    Log(ok ? LOG_CONFIG : LOG_ERROR, "VCNL4010 device initialization %s; Product ID %d, Rev %d, IR current %d mA\n",
-        ok ? "OK" : "failed", prodIdRev >> 4, prodIdRev & 0x0F, curRegByte*10);
+    Log(ok ? LOG_CONFIG : LOG_ERROR, "VCNL4010 device initialization %s; I2C%d addr 0x%02x, Product ID %d, Rev %d, IR current %d mA\n",
+        ok ? "OK" : "failed",
+        i2c_hw_index(i2c), i2cAddr,
+        prodIdRev >> 4, prodIdRev & 0x0F, curRegByte*10);
 }
 
 // IRQ handler.  Our I2C connection is shared with other devices and

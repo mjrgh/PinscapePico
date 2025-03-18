@@ -77,12 +77,6 @@ void I2C::Configure(JSONParser &json)
                 Log(LOG_ERROR, "I2C%d: SDA/SCL pins invalid or undefined\n", n);
                 return;
             }
-            else if (!gpioManager.Claim(Format("I2C%d SDA", n), sda)
-                     || !gpioManager.Claim(Format("I2C%d SCL", n), scl))
-            {
-                // error already logged
-                return;
-            }
 
             // validate that SDA and SCL can actually be mapped to this I2C unit
             //                              0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28
@@ -168,6 +162,15 @@ I2C::~I2C()
 
 void I2C::Init()
 {
+    // assign the GPIO ports
+    int busNum = i2c_hw_index(i2c);
+    if (!gpioManager.Claim(Format("I2C%d SDA", busNum), sda)
+        || !gpioManager.Claim(Format("I2C%d SCL", busNum), scl))
+    {
+        // error already logged
+        return;
+    }
+    
     // initialize the SDK hardware struct
     i2c_init(i2c, baudRate);
 
@@ -216,7 +219,7 @@ void I2C::Init()
     // success
     initialized = true;
     Log(LOG_CONFIG, "I2C%d configured on SDA=GP%d, SCL=GP%d; speed: %d; DMA channels: TX %d, RX %d\n",
-        i2c_hw_index(i2c), sda, scl, baudRate, dmaChannelTx, dmaChannelRx);
+        busNum, sda, scl, baudRate, dmaChannelTx, dmaChannelRx);
 }
 
 void I2C::Add(I2CDevice *device)

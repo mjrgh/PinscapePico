@@ -1,7 +1,7 @@
 Qty,Value,Parts,Description,PARTNO,Comments,ExtDescription
 2,B3F-1000,"S1, S2","Omron pushbutton switch, SPST, through-hole",B3F-1000,,"Omron pushbutton switch, SPST, through-hole (S1, S2)"
 4,"0.1"" SOCK-HD 1X6","JP1, JP2, JP3, JP4","Pin Socket Header, 1x6",61300611821,,"Pin Socket Header, 1x6 (JP1, JP2, JP3, JP4)"
-1,"0.1"" PIN-HD 1X3",J12,"Pin Header, 1x3",2PH1-03-UA,,"Pin Header, 1x3 (J12)"
+1,"0.1"" PIN-HD 1X3",J12,"Pin Header, 1x3",G800WC305018EU,"Generic part; use any generic 0.1"" pin strip, 3-position or breakaway/cut-to-length type","Pin Header, 1x3 (J12)"
 4,"0.1"" SOCK-HD 1X20","PICO1, PICO2","Socket Header, 20 position, 2.54mm pitch",61302011821,,"Socket Header, 20 position, 2.54mm pitch (PICO1, PICO2)"
 2,Pico-H,"PICO1, PICO2",Raspberry Pi Pico w/pin headers installed,SC0917,,"Raspberry Pi Pico w/pin headers installed (PICO1, PICO2)"
 4,MTA100-10PIN,"J5, J6, J7, J8",10 way MTA100 straight friction lock header,1-640456-0,,"10 way MTA100 straight friction lock header (J5, J6, J7, J8)"

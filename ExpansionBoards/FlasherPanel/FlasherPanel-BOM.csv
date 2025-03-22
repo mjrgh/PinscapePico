@@ -1,7 +1,7 @@
-Qty,Value,Parts,Description,PARTNO,ExtDescription
-1,"0.1"" PIN-HD 2X8",H1,"Shrouded pin header 0.1"" 2x8",737-BHR-16-VUA,"Shrouded pin header 0.1"" 2x8 (H1)"
-1,"0.1"" IDC 2X8",PLUG_H1,"IDC housing, 0.1"", 2x8",737-FCS-16-SG,"IDC housing, 0.1"", 2x8 (PLUG_H1)"
-5,RGB-LED,"U1, U2, U3, U4, U5","LED, RGB, 350 mA, 6070 case, 6 pin, Xinglight",XL-HD6070RGBC-A46L-BD,"LED, RGB, 350 mA, 6070 case, 6 pin, Xinglight (U1, U2, U3, U4, U5)"
-5,5.6Ohm/1W,"R1, R4, R7, R10, R13","Resistor, 5.6 Ohm, 1W, SMD 2512",603-AC2512FK-075R6L,"Resistor, 5.6 Ohm, 1W, SMD 2512 (R1, R4, R7, R10, R13)"
-5,5.1Ohm/1W,"R2, R5, R8, R11, R14","Resistor, 5.1 Ohm, 1W, SMD 2512",603-RC2512FK-075R1L,"Resistor, 5.1 Ohm, 1W, SMD 2512 (R2, R5, R8, R11, R14)"
-5,9.1Ohm/1W,"R3, R6, R9, R12, R15","Resistor, 9.1 Ohm, 2W, SMD 2512",CRM2512-JW-9R1ELF,"Resistor, 9.1 Ohm, 2W, SMD 2512 (R3, R6, R9, R12, R15)"
+Qty,Value,Parts,Description,PARTNO,Notes,ExtDescription
+1,"0.1"" PIN-HD 2X8",H1,"Shrouded pin header 0.1"" 2x8",737-BHR-16-VUA,,"Shrouded pin header 0.1"" 2x8 (H1)"
+1,"0.1"" IDC 2X8",PLUG_H1,"IDC housing, 0.1"", 2x8",737-FCS-16-SG,,"IDC housing, 0.1"", 2x8 (PLUG_H1)"
+5,RGB-LED,"U1, U2, U3, U4, U5","LED, RGB, 350 mA, 6070 case, 6 pin, Xinglight",XL-HD6070RGBC-A46L-BD,"Substitutes: Amazon ASIN B0CXF5YTQ7, B01DBZIW8W","LED, RGB, 350 mA, 6070 case, 6 pin, Xinglight (U1, U2, U3, U4, U5)"
+5,5.6Ohm/1W,"R1, R4, R7, R10, R13","Resistor, 5.6 Ohm, 1W, SMD 2512",603-AC2512FK-075R6L,,"Resistor, 5.6 Ohm, 1W, SMD 2512 (R1, R4, R7, R10, R13)"
+5,5.1Ohm/1W,"R2, R5, R8, R11, R14","Resistor, 5.1 Ohm, 1W, SMD 2512",603-RC2512FK-075R1L,,"Resistor, 5.1 Ohm, 1W, SMD 2512 (R2, R5, R8, R11, R14)"
+5,9.1Ohm/1W,"R3, R6, R9, R12, R15","Resistor, 9.1 Ohm, 2W, SMD 2512",CRM2512-JW-9R1ELF,,"Resistor, 9.1 Ohm, 2W, SMD 2512 (R3, R6, R9, R12, R15)"

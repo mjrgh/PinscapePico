@@ -91,10 +91,6 @@ CONNECT ONLY SMPS *OR* ATX</text>
 <wire x1="37.156" y1="15.24" x2="101.092" y2="15.24" width="0.6096" layer="25"/>
 <text x="146.558" y="13.462" size="1.27" layer="25" align="center">COIN DOOR
 INTERLOCK</text>
-<text x="40.382" y="4.98" size="0.635" layer="25" rot="R180" align="center">LINE
-HOT</text>
-<text x="43.43" y="4.98" size="0.635" layer="25" rot="R180" align="center">LINE
-NEU</text>
 <text x="60.478" y="4.88" size="0.635" layer="25" rot="R180" align="center">+12V</text>
 <text x="84.582" y="3.302" size="0.635" layer="25" rot="R180" align="center">GND</text>
 <text x="89.916" y="3.302" size="0.635" layer="25" rot="R180" align="center">GND</text>
@@ -131,7 +127,6 @@ PICO AUX</text>
 <wire x1="74.4" y1="15.2" x2="74.4" y2="1.9" width="0.6096" layer="25"/>
 <text x="137.496" y="5.326" size="0.635" layer="25" rot="R180" align="center">-48V</text>
 <text x="63.478" y="4.88" size="0.635" layer="25" rot="R180" align="center">-12V</text>
-<text x="46.262" y="5.48" size="0.635" layer="25" rot="R180" align="center">GND</text>
 <text x="51.882" y="4.38" size="0.635" layer="25" rot="R180" align="center">LINE
 HOT</text>
 <text x="54.83" y="4.38" size="0.635" layer="25" rot="R180" align="center">LINE

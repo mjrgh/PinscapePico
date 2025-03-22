@@ -14,7 +14,7 @@ Qty,Value,Parts,Description,PARTNO,Comments,ExtDescription
 1,MicroFit Plug 5P,PLUG_J2,"Molex Micro-Fit+ wire housing, 5 Ckt, black",538-215759-1005,,"Molex Micro-Fit+ wire housing, 5 Ckt, black (PLUG_J2)"
 1,MicroFit Hdr 5P,J3,"Molex Micro-Fit+ vertical header, 5 Ckt, red",538-216571-1025,,"Molex Micro-Fit+ vertical header, 5 Ckt, red (J3)"
 1,MicroFit Plug 5P,PLUG_J3,"Molex Micro-Fit+ wire housing, 5 Ckt, red",538-215759-1025,,"Molex Micro-Fit+ wire housing, 5 Ckt, red (PLUG_J3)"
-1,MicroFit Hdr 5P,J5,"Molex Micro-Fit+ vertical header, 10 Ckt",538-215922-1001,,"Molex Micro-Fit+ vertical header, 10 Ckt (J5)"
+1,MicroFit Hdr 5P,J5,"Molex Micro-Fit+ vertical header, 10 Ckt",538-206832-1001,,"Molex Micro-Fit+ vertical header, 10 Ckt (J5)"
 1,MicroFit Plug 5P,PLUG_J5,"Molex Micro-Fit+ wire housing, 10 Ckt",538-206461-1000,,"Molex Micro-Fit+ wire housing, 10 Ckt (PLUG_J5)"
 25,MicroFit Crimp Pin,,"Molex Micro-Fit+ crimp pins, tin plating, 24-20 AWG",206460-0021,Select according to desired wire gauge,"Molex Micro-Fit+ crimp pins, tin plating, 24-20 AWG ()"
 25,MicroFit Crimp Pin,,"Molex Micro-Fit+ crimp pins, tin plating, 18 AWG",206460-0031,Select according to desired wire gauge,"Molex Micro-Fit+ crimp pins, tin plating, 18 AWG ()"

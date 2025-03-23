@@ -2434,26 +2434,22 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <signal name="LINE_HOT">
 <contactref element="J3" pad="5"/>
 <contactref element="K1" pad="3"/>
-<wire x1="125.644" y1="6.648" x2="123.468" y2="4.472" width="1.778" layer="1"/>
-<wire x1="123.468" y1="4.472" x2="109.22" y2="4.572" width="1.778" layer="1"/>
-<wire x1="106.872" y1="8.128" x2="106.872" y2="6.92" width="1.778" layer="1"/>
-<wire x1="106.872" y1="6.92" x2="108.966" y2="4.826" width="1.778" layer="1"/>
-<wire x1="108.966" y1="4.826" x2="109.22" y2="4.572" width="1.778" layer="1"/>
-<wire x1="106.934" y1="2.794" x2="108.966" y2="4.826" width="1.778" layer="1"/>
-<contactref element="J2" pad="5"/>
-<wire x1="125.644" y1="6.648" x2="125.644" y2="8.128" width="1.778" layer="1"/>
 <contactref element="J5" pad="5"/>
 <contactref element="J5" pad="10"/>
 <wire x1="40.6" y1="10.4" x2="40.6" y2="21.956" width="1.778" layer="1"/>
 <wire x1="51.7" y1="10.3" x2="51.7" y2="7.3" width="1.778" layer="1"/>
 <wire x1="51.7" y1="7.3" x2="43.7" y2="7.3" width="1.778" layer="1"/>
 <wire x1="43.7" y1="7.3" x2="40.6" y2="10.4" width="1.778" layer="1"/>
-<wire x1="106.934" y1="2.794" x2="106.894" y2="2.794" width="1.778" layer="1"/>
-<wire x1="106.894" y1="2.794" x2="106.1" y2="2" width="1.778" layer="1"/>
-<wire x1="106.1" y1="2" x2="55.4" y2="2" width="1.778" layer="1"/>
+<wire x1="144" y1="2" x2="103.3" y2="2" width="1.778" layer="1"/>
+<wire x1="103.3" y1="2" x2="55.4" y2="2" width="1.778" layer="1"/>
 <wire x1="55.4" y1="2" x2="51.7" y2="5.7" width="1.778" layer="1"/>
 <wire x1="51.7" y1="7.3" x2="51.7" y2="5.7" width="1.778" layer="1"/>
 <wire x1="40.6" y1="21.956" x2="34.02" y2="28.536" width="1.778" layer="1"/>
+<contactref element="J1" pad="1"/>
+<wire x1="144" y1="2" x2="147.828" y2="5.828" width="1.778" layer="1"/>
+<wire x1="147.828" y1="8.128" x2="147.828" y2="5.828" width="1.778" layer="1"/>
+<wire x1="106.872" y1="8.128" x2="106.872" y2="5.572" width="1.778" layer="1"/>
+<wire x1="106.872" y1="5.572" x2="103.3" y2="2" width="1.778" layer="1"/>
 </signal>
 <signal name="LINE_NEUTRAL">
 <contactref element="J3" pad="4"/>
@@ -2559,12 +2555,12 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="N$1">
 <contactref element="J2" pad="2"/>
-<contactref element="J1" pad="2"/>
-<wire x1="134.644" y1="8.128" x2="134.644" y2="6.302" width="1.778" layer="1"/>
-<wire x1="134.644" y1="6.302" x2="136.374" y2="4.572" width="1.778" layer="1"/>
-<wire x1="136.374" y1="4.572" x2="142.748" y2="4.572" width="1.778" layer="1"/>
-<wire x1="144.828" y1="8.128" x2="144.828" y2="6.652" width="1.778" layer="1"/>
-<wire x1="144.828" y1="6.652" x2="142.748" y2="4.572" width="1.778" layer="1"/>
+<contactref element="RT1" pad="1"/>
+<wire x1="157.48" y1="37.084" x2="157.48" y2="26.38" width="3" layer="1"/>
+<wire x1="157.48" y1="26.38" x2="153.1" y2="22" width="3" layer="1"/>
+<wire x1="153.1" y1="22" x2="143.8" y2="22" width="3" layer="1"/>
+<wire x1="143.8" y1="22" x2="134.644" y2="12.844" width="3" layer="1"/>
+<wire x1="134.644" y1="8.128" x2="134.644" y2="12.844" width="3" layer="1"/>
 </signal>
 <signal name="LINE_HOT_IN">
 <contactref element="K1" pad="2"/>
@@ -2575,17 +2571,20 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="28.036" y1="21.936" x2="23.114" y2="17.014" width="1.778" layer="1"/>
 <wire x1="23.114" y1="5.334" x2="23.114" y2="17.014" width="1.778" layer="1"/>
 </signal>
-<signal name="N$2">
-<contactref element="J1" pad="1"/>
-<contactref element="RT1" pad="1"/>
-<wire x1="157.48" y1="37.084" x2="157.48" y2="17.78" width="3" layer="1"/>
-<wire x1="157.48" y1="17.78" x2="147.828" y2="8.128" width="3" layer="1"/>
-</signal>
 <signal name="N$3">
 <contactref element="LED1" pad="A"/>
 <contactref element="R1" pad="1"/>
 <wire x1="152.4" y1="60.706" x2="154.94" y2="60.706" width="1.778" layer="1"/>
 <wire x1="154.94" y1="60.706" x2="157.734" y2="57.912" width="1.778" layer="1"/>
+</signal>
+<signal name="N$4">
+<contactref element="J2" pad="5"/>
+<contactref element="J1" pad="2"/>
+<wire x1="125.644" y1="8.128" x2="125.644" y2="6.356" width="1.778" layer="1"/>
+<wire x1="125.644" y1="6.356" x2="127.5" y2="4.5" width="1.778" layer="1"/>
+<wire x1="127.5" y1="4.5" x2="142.6" y2="4.5" width="1.778" layer="1"/>
+<wire x1="144.828" y1="8.128" x2="144.828" y2="6.728" width="1.778" layer="1"/>
+<wire x1="142.6" y1="4.5" x2="144.828" y2="6.728" width="1.778" layer="1"/>
 </signal>
 </signals>
 <errors>

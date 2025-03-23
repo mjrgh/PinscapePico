@@ -101,6 +101,7 @@ Siemens, Hewlett-Packard, Texas Instuments, Sharp, Motorola&lt;p&gt;
 <pad name="4" x="-1.27" y="3.81" drill="0.8128" shape="offset" rot="R90"/>
 <text x="4.191" y="-2.921" size="1.27" layer="27" ratio="10" rot="R90">&gt;VALUE</text>
 <text x="-2.921" y="-2.667" size="1.27" layer="25" ratio="10" rot="R90">&gt;NAME</text>
+<circle x="-1.27" y="-1.905" radius="0.5388125" width="0.254" layer="21"/>
 </package>
 </packages>
 </library>

@@ -18,6 +18,7 @@ Qty,Value,Parts,Description,PARTNO,Comments,ExtDescription
 1,MicroFit Plug 5P,PLUG_J5,"Molex Micro-Fit+ wire housing, 10 Ckt",538-206461-1000,,"Molex Micro-Fit+ wire housing, 10 Ckt (PLUG_J5)"
 25,MicroFit Crimp Pin,,"Molex Micro-Fit+ crimp pins, tin plating, 24-20 AWG",206460-0021,Select according to desired wire gauge,"Molex Micro-Fit+ crimp pins, tin plating, 24-20 AWG ()"
 25,MicroFit Crimp Pin,,"Molex Micro-Fit+ crimp pins, tin plating, 18 AWG",206460-0031,Select according to desired wire gauge,"Molex Micro-Fit+ crimp pins, tin plating, 18 AWG ()"
+1,1N4007,D1,"Diode, general-purpose rectifier, through-hole DO-41 package",1N4007,,"Diode, general-purpose rectifier, through-hole DO-41 package (D1)"
 1,270R,R3,"Resistor, 270 Ohm, axial, 2mm x 4mm",CFR25SJT-26-270R,,"Resistor, 270 Ohm, axial, 2mm x 4mm (R3)"
 2,350211-1,"J4, J8","Mate-N-Lok PCB header, 4-pos straight (PC ATX floppy disk connector, male)",571-3502111,,"Mate-N-Lok PCB header, 4-pos straight (PC ATX floppy disk connector, male) (J4, J8)"
 1,571-6404452,J12,"MTA-156 pin header, 2 position",571-6404452,,"MTA-156 pin header, 2 position (J12)"

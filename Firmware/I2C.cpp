@@ -115,21 +115,21 @@ void I2C::Configure(JSONParser &json)
                     if (!ena->IsBool() && !ena->IsUndefined())
                         Log(LOG_WARNING, "i2c%d.enable is invalid; must be true, false, or \"on-demand\", enabling by default\n", n);
                 }
-            }
 
-            // add a console command
-            CommandConsole::AddCommand(
-                n == 0 ? "i2c0" : "i2c1", "I2C bus interface test functions",
-                "i2cX [options]\n"
-                "options:\n"
-                "  --bus-clear               initiate a bus-clear operation (to clear a stuck-SDA condition)\n"
-                "  --bus-scan                scan the bus for devices\n"
-                "  -s, --stats               show statistics\n"
-                "  --tx <addr> <bytes>       ad hoc send to <addr>, comma-separated byte list\n"
-                "  --rx <addr> <bytes> <len> ad hoc read from <addr>, comma-separated bytes to send\n"
-                IF_I2C_DEBUG("  --dump <n>                display recent captured transaction data (newest to oldest)\n")
-                IF_I2C_DEBUG("  --capture-filter <addrs>  limit capture (for --dump) to comma-separated address list, '*' for all\n"),
-                [](const ConsoleCommandContext *ctx){ reinterpret_cast<I2C*>(ctx->ownerContext)->Command_main(ctx); }, inst[n]);
+                // add a console command
+                CommandConsole::AddCommand(
+                    n == 0 ? "i2c0" : "i2c1", "I2C bus interface test functions",
+                    "i2cX [options]\n"
+                    "options:\n"
+                    "  --bus-clear               initiate a bus-clear operation (to clear a stuck-SDA condition)\n"
+                    "  --bus-scan                scan the bus for devices\n"
+                    "  -s, --stats               show statistics\n"
+                    "  --tx <addr> <bytes>       ad hoc send to <addr>, comma-separated byte list\n"
+                    "  --rx <addr> <bytes> <len> ad hoc read from <addr>, comma-separated bytes to send\n"
+                    IF_I2C_DEBUG("  --dump <n>                display recent captured transaction data (newest to oldest)\n")
+                    IF_I2C_DEBUG("  --capture-filter <addrs>  limit capture (for --dump) to comma-separated address list, '*' for all\n"),
+                    [](const ConsoleCommandContext *ctx){ reinterpret_cast<I2C*>(ctx->ownerContext)->Command_main(ctx); }, inst[n]);
+            }
         }
     };
     ConfigBus(0, "i2c0");
@@ -936,6 +936,9 @@ void I2C::Command_main(const ConsoleCommandContext *c)
 {
     if (c->argc <= 1)
         return c->Usage();
+
+    if (!initialized)
+        return c->Printf("I2C%d is not enabled for this session\n", busNum);
 
     const char *cmd = c->argv[0];
     for (int i = 1 ; i < c->argc ; ++i)

@@ -18,8 +18,8 @@ but it's all new code, not a port of the KL25Z software.  The Pico is
 a more powerful platform than the KL25Z, so I wanted to make a fresh
 start to take advantage of the Pico's expanded capabilities.  Pinscape
 Pico has all (I'm pretty sure) of the features of the original KL25Z
-Pinscape, plus some neat new tricks.  It's also a little more
-"technical" than the KL25Z system, but also more powerful and flexible.
+Pinscape, plus some neat new tricks.  It's a little more "technical"
+than the KL25Z system, but also more powerful and flexible.
 
 
 <a href="ScreenShots/ConfigToolMain.png"><img src="ScreenShots/ConfigToolMain-Thumb.png"></a>
@@ -175,7 +175,7 @@ shift buttons can be defined, to allow for shift "chords" (analogous to PC key c
 "computed" sources that let you combine DOF ports, control multiple things with one DOF port,
 control ports based on timed events or internal device events, and all sorts of other things
 
-* DOF support, via Pinscape Pico device recognition in DOF (present in unified R3++ DOF releases since late 2024)
+* Native DOF support, via Pinscape Pico device recognition in DOF (present in unified R3++ DOF releases since late 2024)
 
 * Support for legacy LedWiz-only applications, via two levels of emulation:
   <ul>

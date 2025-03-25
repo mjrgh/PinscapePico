@@ -3058,6 +3058,22 @@ outputs [object] optional
   controller chips, such as the various PWM controller chips, a GPIO
   extender chip, or a shift register chip.
 
+  <b>WARNING:</b> Pico GPIO ports are for low-power 3.3V devices only.
+  Never connect a motor, solenoid, incandescent lamp, or high-current LED
+  directly to a Pico GPIO port, and never connect any device with a power
+  supply voltage greater than 3.3V.  Connecting high-voltage or high-current
+  devices to a GPIO port runs the risk of damaging or destroying the Pico.
+  The Pico can directly control <b>small</b> LEDs, that run on 10mA or less,
+  but nothing more powerful than that.  For anything more, you <b>must</b>
+  use some kind of booster/amplifier circuit.  One solution is to use the
+  reference Expansion Boards, which provide built-in booster circuits for
+  devices at different power levels.  You can also find pre-built generic
+  driver boards on Amazon and eBay - a good search term is "MOSFET board".
+  Or you can build an amplifier circuit yourself.  The
+  <a href="http://mjrnet.org/pinscape/PWMWorker/DataSheet/PWMWorkerDataSheet.htm">PWM Worker Data Sheet</a>
+  shows several general-purpose amplifier circuit designs that work with
+  the Pico and are fairly easy to build.
+
 outputs[].device object required
   Selects the physical output port associated with this logical DOF port.
 

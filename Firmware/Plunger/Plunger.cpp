@@ -47,10 +47,6 @@ Plunger::Plunger()
 //
 //   autoZero: false,      // auto-zero the plunger after a period of inactivity; default false
 //   autoZeroTime: 5000,   // auto-zero inactivity time, in milliseconds; default 5000
-//
-//   powerLaw: 2,          // for proximity sensors only (VCNL4010/VSNL4020): power law exponent
-//                         // (X) for distance (R) vs intensity (I) calculation, I = c/R^X;
-//                         // default is 2, non-integer floating-point values are allowed
 // }
 //
 // "source" specifies the sensor type used as the data source for the
@@ -207,6 +203,7 @@ void Plunger::Configure(JSONParser &json)
 
         // successful configuration - initialize the plunger
         Init();
+        Log(LOG_CONFIG, "Plunger configured, sensor data source is %s\n", sensor->FriendlyName());
     }
 }
 

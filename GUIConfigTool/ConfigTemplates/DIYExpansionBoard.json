@@ -134,6 +134,7 @@
             tx: 16,           // TX on GPIO 16
             rx: 17,           // RX on GPIO 17
             baud: 115200,     // baud rate on the port
+			logging: true,    // enable logging on this port
             console: {
                 enable: true,    // enable the interactive command line on this port
                 bufSize: 8192,   // buffer size for console output
@@ -221,7 +222,7 @@
         // lots of other features also want a piece of that.  Something
         // around 8K works pretty well, providing a cushion for the log
         // without crowding out any other features.
-        bufSize: 16384,
+        bufSize: 32768,
 
         // Include timestamps, type codes, and color coding in log
         // messages?  The timestamps and type codes (which announce the
@@ -448,205 +449,205 @@
     buttons: [
         // Button #0
         { 
-            source: { type: "74hc165", chip: 0, port: "A" },
+            source: { type: "74hc165", chip: 0, port: "A", active: "low", },
             action: { type: "key", key: "left shift" },  // Left Shift = left flipper button
         },
 
         // Button #1
         { 
-            source: { type: "74hc165", chip: 0, port: "B" },
+            source: { type: "74hc165", chip: 0, port: "B", active: "low", },
             action: { type: "key", key: "right shift" }, // Right Shift = right flipper button
         },
 
 
         // Button #2
         { 
-            source: { type: "74hc165", chip: 0, port: "C" },
+            source: { type: "74hc165", chip: 0, port: "C", active: "low", },
             action: { type: "key", key: "left windows" }, // Left Windows key = left 2nd flipper switch (for double-leaf switches)
         },
 
         // Button #3
         { 
-            source: { type: "74hc165", chip: 0, port: "D" },
+            source: { type: "74hc165", chip: 0, port: "D", active: "low", },
             action: { type: "key", key: "right alt" }, // Right Alt key = right 2nd flipper switch (for double-leaf switches)
         },
 
 
         // Button #4
         { 
-            source: { type: "74hc165", chip: 0, port: "H" },
+            source: { type: "74hc165", chip: 0, port: "H", active: "low", },
             action: { type: "key", key: "left ctrl" }, // Left Ctrl = left MagnaSave button
         },
 
 
         // Button #5
         { 
-            source: { type: "74hc165", chip: 0, port: "G" },
+            source: { type: "74hc165", chip: 0, port: "G", active: "low", },
             action: { type: "key", key: "right ctrl" }, // Right Ctrl = right MagnaSave button
         },
 
         // Button #6
         { 
-            source: { type: "74hc165", chip: 0, port: "F" },
+            source: { type: "74hc165", chip: 0, port: "F", active: "low", },
             action: { type: "key", key: "1" },     // "1" = Start button
         },
 
 
         // Button #7
         { 
-            source: { type: "74hc165", chip: 0, port: "E" },
+            source: { type: "74hc165", chip: 0, port: "E", active: "low", },
             action: { type: "key", key: "esc" },   // "Esc" = Exit button
         },
 
 
         // Button #8
         { 
-            source: { type: "74hc165", chip: 1, port: "A" },
+            source: { type: "74hc165", chip: 1, port: "A", active: "low", },
             action: { type: "key", key: "3" },     // "3" = left coin chute switch
         },
 
 
         // Button #9
         { 
-            source: { type: "74hc165", chip: 1, port: "B" },
+            source: { type: "74hc165", chip: 1, port: "B", active: "low", },
             action: { type: "key", key: "4" },     // "4" = middle coin chute switch
         },
 
 
         // Button #10
         { 
-            source: { type: "74hc165", chip: 1, port: "C" },
+            source: { type: "74hc165", chip: 1, port: "C", active: "low", },
             action: { type: "key", key: "5" },     // "5" = right coin chute switch
         },
 
 
         // Button #11
         { 
-            source: { type: "74hc165", chip: 1, port: "D" },
+            source: { type: "74hc165", chip: 1, port: "D", active: "low", },
             action: { type: "key", key: "6" },     // "6" = fourth coin chute/dollar bill acceptor switch
         },
 
 
         // Button #12
         { 
-            source: { type: "74hc165", chip: 1, port: "H" },
+            source: { type: "74hc165", chip: 1, port: "H", active: "low", },
             action: { type: "key", key: "enter" }, // Enter = Launch Ball
         },
 
 
         // Button #13
         { 
-            source: { type: "74hc165", chip: 1, port: "G" },
+            source: { type: "74hc165", chip: 1, port: "G", active: "low", },
             action: { type: "key", key: "0" },     // "0" = operator control panel enter/select
         },
 
 
         // Button #14
         { 
-            source: { type: "74hc165", chip: 1, port: "F" },
+            source: { type: "74hc165", chip: 1, port: "F", active: "low", },
             action: { type: "key", key: "9" },     // "9" = operator control panel next/up
         },
 
 
         // Button #15
         { 
-            source: { type: "74hc165", chip: 1, port: "E" },
+            source: { type: "74hc165", chip: 1, port: "E", active: "low", },
             action: { type: "key", key: "8" },     // "8" = operator control panel previous/down
         },
 
         // Button #16
         { 
-            source: { type: "74hc165", chip: 2, port: "A" },
+            source: { type: "74hc165", chip: 2, port: "A", active: "low", },
             action: { type: "key", key: "7" },     // "7" = operator control panel cancel/exit
         },
 
         // Button #17
         { 
-            source: { type: "74hc165", chip: 2, port: "B" },
+            source: { type: "74hc165", chip: 2, port: "B", active: "low", },
             action: { type: "key", key: "end" },   // End = coin door open/closed switch
         },
 
         // Button #18
         { 
-            source: { type: "74hc165", chip: 2, port: "C" },
+            source: { type: "74hc165", chip: 2, port: "C", active: "low", },
             action: { type: "key", key: "2" },     // "2" = Extra Ball/Buy-In Button
         },
 
         // Button #19
         { 
-            source: { type: "74hc165", chip: 2, port: "D" },
+            source: { type: "74hc165", chip: 2, port: "D", active: "low", },
             action: { type: "key", key: "T" },     // "T" = tilt bot
         },
 
         // Button #20
         { 
-            source: { type: "74hc165", chip: 2, port: "H" },
+            source: { type: "74hc165", chip: 2, port: "H", active: "low", },
             action: { type: "key", key: "home" },  // Home = slam tilt switch
         },
 
         // Button #21
         { 
-            source: { type: "74hc165", chip: 2, port: "G" },
+            source: { type: "74hc165", chip: 2, port: "G", active: "low", },
             action: { type: "key", key: "+" },     // VP Volume Up
         },
 
         // Button #22
         { 
-            source: { type: "74hc165", chip: 2, port: "F" },
+            source: { type: "74hc165", chip: 2, port: "F", active: "low", },
             action: { type: "key", key: "-" },     // VP Volume Down
         },
 
         // Button #23
         { 
-            source: { type: "74hc165", chip: 2, port: "E" },
+            source: { type: "74hc165", chip: 2, port: "E", active: "low", },
             action: { type: "gamepad", button: 1 }, // gamepad button 1 (no pre-assigned meaning)
         },
 
         // Button #24
         { 
-            source: { type: "74hc165", chip: 3, port: "A" },
+            source: { type: "74hc165", chip: 3, port: "A", active: "low", },
             action: { type: "gamepad", button: 2 }, // gamepad button 2 (no pre-assigned meaning)
         },
 
         // Button #25
         { 
-            source: { type: "74hc165", chip: 3, port: "B" },
+            source: { type: "74hc165", chip: 3, port: "B", active: "low", },
             action: { type: "gamepad", button: 3 }, // gamepad button 3 (no pre-assigned meaning)
         },
 
         // Button #26
         { 
-            source: { type: "74hc165", chip: 3, port: "C" },
+            source: { type: "74hc165", chip: 3, port: "C", active: "low", },
             action: { type: "gamepad", button: 4 }, // gamepad button 4 (no pre-assigned meaning)
         },
 
         // Button #27
         { 
-            source: { type: "74hc165", chip: 3, port: "D" },
+            source: { type: "74hc165", chip: 3, port: "D", active: "low", },
             action: { type: "gamepad", button: 5 }, // gamepad button 5 (no pre-assigned meaning)
         },
 
         // Button #28
         { 
-            source: { type: "74hc165", chip: 3, port: "H" },
+            source: { type: "74hc165", chip: 3, port: "H", active: "low", },
             action: { type: "gamepad", button: 6 }, // gamepad button 6 (no pre-assigned meaning)
         },
 
         // Button #29
         { 
-            source: { type: "74hc165", chip: 3, port: "G" },
+            source: { type: "74hc165", chip: 3, port: "G", active: "low", },
             action: { type: "gamepad", button: 7 }, // gamepad button 7 (no pre-assigned meaning)
         },
 
         // Button #30
         { 
-            source: { type: "74hc165", chip: 3, port: "F" },
+            source: { type: "74hc165", chip: 3, port: "F", active: "low", },
             action: { type: "gamepad", button: 8 }, // gamepad button 8 (no pre-assigned meaning)
         },
 
         // Button #31
         { 
-            source: { type: "74hc165", chip: 3, port: "E" },
+            source: { type: "74hc165", chip: 3, port: "E", active: "low", },
             action: { type: "gamepad", button: 9 }, // gamepad button 9 (no pre-assigned meaning)
         },
     ],
@@ -1121,7 +1122,7 @@
     ads1115: {
         i2c: 1,                 // I2C bus 1
         addr: 0x48,             // I2C address, set on the chip via pin inputs, 0x48 to 0x4B
-        ready: 11,              // READY pin GPIO
+        ready: 26,              // READY pin GPIO
         channel: "AIN0/AIN3",   // plunger input = differential signal AIN0-AIN3
         voltageRange: 2.048,    // voltage range +/- 2.048V from the +1.65V AIN3 reference
     },
@@ -1302,8 +1303,8 @@
     // 
     tvon: {
         powerDetect: {
-            sense: 26,
-            set: 27,
+            sense: 11,
+            set: 10,
         },
 
         // Delay time after system-wide power-on is detected, in

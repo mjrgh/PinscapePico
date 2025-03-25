@@ -828,7 +828,7 @@ void Logger::UARTLogger::Configure(JSONParser &json)
 
         // The pin assignments are valid.  Initialize the UART.
         int baud = uc->Get("baud")->Int(115200);
-        Init(utx == 0 ? uart0 : uart1, utx, urx, baud);
+        Init(utx == 0 ? uart0 : uart1, tx, rx, baud);
     }
 }
 
@@ -863,7 +863,9 @@ void Logger::UARTLogger::Init(uart_inst_t *uart, int gpTx, int gpRx, int baud)
         dma_channel_configure(dmaChannel, &cfg, &uart_get_hw(uart)->dr, dmaBuf, DMA_BUF_SIZE, false);
 
         // log it
-        Log(LOG_CONFIG, "UART serial port TX configured on DMA channel %d\n", dmaChannel);
+        char rxDesc[24] = "";
+        if (gpRx >= 0) sprintf(rxDesc, ", RX=GP%d", gpRx);
+        Log(LOG_CONFIG, "UART serial port TX configured UART, TX=GP%d%s, DMA channel %d\n", gpTx, rxDesc, dmaChannel);
     }
 }
 

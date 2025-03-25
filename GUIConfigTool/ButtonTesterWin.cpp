@@ -2023,15 +2023,17 @@ bool ButtonTesterWin::OnSysKeyUp(WPARAM vkey, LPARAM flags)
     return OnKeyUp(vkey, flags);
 }
 
-void ButtonTesterWin::OnActivate(WPARAM code, HWND other)
+void ButtonTesterWin::OnActivateUI(bool isAppActivate)
 {
     // do the base class work
-    __super::OnActivate(code, other);
+    __super::OnActivateUI(isAppActivate);
 
-    // If activating, refresh activate keys.  We keep track via
-    // WM_KEYUP/WM_KEYDOWN when we're in the foreground, but that
-    // only works when we have focus, so we have to re-sync with
-    // the current keyboard state when we've been in the background.
+    // Refresh key status.  We keep track of which keys are pressed via
+    // WM_KEYUP/WM_KEYDOWN, but that only works when the application is
+    // in the foreground and we have focus, so we'll miss any updates
+    // that happen while another application is in the foreground.  We
+    // thus have to re-sync with the live keyboard state when we switch
+    // from background to foreground.
     RefreshKeysDown();
 }
 

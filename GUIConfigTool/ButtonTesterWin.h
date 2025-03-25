@@ -80,13 +80,15 @@ namespace PinscapePico
 
 		// window message handlers
 		virtual void OnCreateWindow() override;
-		virtual void OnActivate(WPARAM code, HWND other) override;
 		virtual bool OnKeyDown(WPARAM vkey, LPARAM flags) override;
 		virtual bool OnKeyUp(WPARAM vkey, LPARAM flags) override;
 		virtual bool OnSysKeyDown(WPARAM vkey, LPARAM flags) override;
 		virtual bool OnSysKeyUp(WPARAM vkey, LPARAM flags) override;
 		virtual void OnSizeWindow(WPARAM type, WORD width, WORD height) override;
 		virtual bool OnSysCommand(WPARAM id, WORD x, WORD y, LRESULT &lresult) override;
+
+		// tab window overrides
+		virtual void OnActivateUI(bool isAppActivate) override;
 
 		// device removal notification handler
 		virtual bool OnDeviceRemoveComplete(DEV_BROADCAST_HDR *hdr) override;

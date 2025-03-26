@@ -865,7 +865,8 @@ void Logger::UARTLogger::Init(uart_inst_t *uart, int gpTx, int gpRx, int baud)
         // log it
         char rxDesc[24] = "";
         if (gpRx >= 0) sprintf(rxDesc, ", RX=GP%d", gpRx);
-        Log(LOG_CONFIG, "UART serial port TX configured UART, TX=GP%d%s, DMA channel %d\n", gpTx, rxDesc, dmaChannel);
+        Log(LOG_CONFIG, "Serial port configured on UART%d, TX=GP%d%s, DMA channel %d\n",
+            uart_get_index(uart), gpTx, rxDesc, dmaChannel);
     }
 }
 

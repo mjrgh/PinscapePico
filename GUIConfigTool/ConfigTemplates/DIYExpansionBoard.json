@@ -901,9 +901,9 @@
             device: { type: "workerPico", unit: 0, port: 12 },
         },
 
-        // Output #44 -  Flasher #16 (main board)
+        // Output #44 -  Flasher #16/Strobe (main board)
         {
-            device: { type: "workerPico", unit: 0, port: 11 },
+            device: { type: "workerPico", unit: 0, port: 15 },
         },
 
         // Output #45 - Lamp #1 (power board)

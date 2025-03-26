@@ -118,30 +118,38 @@ Pin #1 is also marked on the circuit board with a pair of arrows.
 
 ## SMD parts
 
-This board uses SMD parts for the LEDs and resistors.  Suitable LEDs are
-only available in SMD form, so there was no option to make this part any
-friendlier for hand-soldering.  I chose to use the SMD resistors to keep
-the board flatter, to make it easier to mount to the flasher panel; through-hole
-parts always have little nubs that stick up from the back, which makes the
-board harder to mount flush.  As SMD parts go, these resistors are quite
-easy to work with, because they're fairly large.
+This board uses SMD parts for the LEDs and resistors.  Suitable LEDs
+are only available in SMD form, so there was no option to make this
+part any friendlier for hand-soldering.  I chose to use the SMD
+resistors to keep the board flatter, to make it easier to mount to the
+flasher panel; through-hole parts always have little nubs that stick
+up from the back, which makes the board harder to mount flush.
 
-You should be able to solder them by hand with a soldering iron and
-the same solder you'd use for through-hole parts, but if you have
-solder paste and a heat gun available, that's probably even easier.
-Just put a dab of solder paste on each pad, then position each
-resistor on top of the paste (tweezers help with that), pressing it
-down gently to make sure it sticks.  Then hit it with the heat gun
-until the solder paste melts and turns shiny.
+As SMD parts go, these resistors and LEDs are quite easy to work with,
+because they're fairly large.  In fact, they're big enough that you
+can solder them with a conventional soldering iron, and that might
+even be a little easier than using solder paste and a heat gun (which
+is usually the preferred way to solder SMD parts).  This technique
+worked well for me when I assembled a couple of samples of these boards:
 
-To solder with a regular soldering iron, melt a little solder onto
-a pad, I think the easiest technique is to attach one pad first to
-lock the resistor in place, then solder the other pad.  Melt a little
-solder onto the first pad, then, with the solder still liquid, move the
-resistor into position.  Once it's positioned properly over both
-pads, let the solder cool and solidify.  The first pad will hold the
-resistor in place, so now just heat the other pad and melt some solder
-one it to complete the job.  You can use the same technique to attach
-the LEDs, starting with one pad to lock the LED in place, and then
-soldering the other pads one at a time.
+* Position the part (resistor or LED)
+
+* Use a piece of masking tape to hold the part in place, leaving one
+pad exposed for soldering
+
+* Solder the exposed pad
+
+* Remove the tape - the solder on the first pad should lock the part
+in position now
+
+* Solder the other pad(s)
+
+Make sure that the part is nice and flat against the board when you
+first tape it down, with all of the pads properly positioned, because
+the solder on the first pad will lock in this position once applied.
+When you remove the tape, the part should be securely attached by the
+first solder joint, so it should just be a simple matter of soldering
+the remaining pads.  If the part isn't aligned properly when you
+remove the tape, just un-solder the first pad, remove the part, and
+try again from the first step.
 

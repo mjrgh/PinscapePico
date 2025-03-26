@@ -176,6 +176,7 @@ view these in a spreadsheet program like Microsoft Excel, Apple Numbers,
 or Google Sheets, and Mouser and Digikey will accept these as uploads
 to construct shopping carts without a lot of manual data entry.
 
+
 ## BOM Notes
 
 <b>Gate driver resistors (R1, R2, etc):</b> The BOM specifies three
@@ -213,17 +214,96 @@ number of different wire types you use so you can buy big spools of a
 few types, rather than lots of little spools.
 
 
-## Credits
+## Errata in revisions prior to 20250326
 
-A big thanks to RickH at vpforums, who reviewed some of the early
-designs, caught a number of errors, and offered some great ideas for
-improvements.  He also advanced the project immensely by taking the
-leap and being first to order physical boards, and generously sending
-me a set to test out.
+The early versions of the board, prior to rev 20250326, had some
+design errors that I found during practical testing.  In my eagerness
+to make the plans available as soon as possible, I published the board
+designs when I considered them complete at the design level, but prior
+to physical build testing, so I missed a few details that only became
+apparent in the physical build.
 
-Thanks also to DDH69 at vpforums for his early building and testing
-of some of the key design elements, and his detailed debugging work
-tracking down problems in the MOSFET driver circuit design.
+You can find the board revision stamped onto the silkscreen - look for
+a small legend saying "Rev 20250326" (for example), adjacent to the
+legend showing the name of the board.  The revision identifier is simply
+the date of the design file, in a cleverly encoded YEAR MONTH DAY format.
+
+
+<b>CR2032 battery holder:</b> The coin cell battery on the early
+boards is a side-entry clip type, where you have to slide the battery
+in and out of the holder through an opening in the side.  I didn't
+leave enough clearance next to the clip for this maneuver, though; the
+Darlington chips IC10 and IC11 are in the way of the path of the
+battery.  The battery clip has enough "give" that it's still possible
+to coerce the battery in and out, but it requires a bit of brute
+force, which doesn't feel comfortable when working with delicate
+electronics.
+
+Workarounds: No workaround is outright necessary, since you can still
+safely get the battery in and out with a little effort - and you should
+only have to do this once every three or four years anyway, since the
+battery should last at least that long.  If you do want something
+a little easier to deal with come battery replacement time, the best
+workaround I've been able to come up with is to substitute a free-standing CR2032 battery holder, 
+such as [Eagle Plastic Devices 120-0110-GR](https://www.mouser.com/ProductDetail/122-0110-GR).
+Similar devices are available on Amazon.  Solder the red wire to one of
+positive post pads for BATT1 on the circuit board, and solder the
+black wire to BATT1's large round central ground pad.
+
+Fix: In later versions of the board, the clip battery holder is
+replaced with a top-loading type that doesn't require any side
+clearance.
+
+
+<b>DS1307 power supply:</b>  The VCC (power supply) pin on the DS1307
+chip on the Power Board is incorrectly wired to the secondary PSU 5V
+supply.  This should be wired instead to the USB 5V from the main Pico.
+The chip will technically work fine on either 5V supply, but the reason
+it should have been wired to the USB supply instead is that we want this
+chip to always power up simultaneously with the main Pico, and this
+might not happen if the chip takes it power from the secondary PSU,
+since the secondary PSU in a pin cab is often set up so that it only
+switches on *after* the main PC powers up.
+
+The problem this causes is that the main Pico might be unable to
+determine the date and time during initial startup from a cold boot.
+If your Pinscape configuration depends upon time-of-day features
+on the Pico side immediately after startup, those features might
+not work properly.  As soon as any PC software connects to the Pico,
+the Pico will be able to get the time of day from the PC side, so
+this will only affect functionality right after startup, before
+any PC software gets involved.
+
+Workaround: You can correct this by cutting the trace on the board
+from pin DS1307 pin 8 (VCC) to the secondary supply 5V line, and
+then soldering a jumper wire from DS1307 pin 8 to any convenient
+point on the VBUS network, such as the anode ("+" side) of D1.
+Make absolutely sure that there's no continuity between DS1307 pin 8
+and the secondary supply 5V after you cut the trace, since cross-wiring
+the secondary 5V to VBUS would be bad.
+
+Fix: In later versions of the board, the power supply wiring to
+the chip is corrected to connect to the main Pico USB power.
+
+<b>Flasher header:</b>  The "pin 1 arrow" reference point and shroud
+notch orientation marked on the silkscreen for the main board
+Flashers header J1 are rotated 180 degrees from what they should
+be to match the original Pinscape KL25Z expansion boards.  My intention
+was to make this header exactly match the KL25Z port, so that you
+could move your flasher cable over from the KL25Z boards without
+rewiring anything.  I got it half right: the pin layout is the same,
+so you can plug in the existing cabling as intended, but the markings
+on the board are reversed from how they're marked on the KL25Z board.
+
+Workaround: If you're installing a shrouded header, install it with
+the notch facing the **inside** of the board, opposite to the markings
+on the board showing the notch on the **outside edge** of the board.
+When plugging in the cable, orient the plug with the "pin 1" side
+(which you might have marked with a red stripe on the cable) facing J2.
+
+Fix: In later versions of the board, the silkscreen markings are
+rotated to match the KL25Z markings.
+
 
 ## Versions
 
@@ -1063,4 +1143,25 @@ from the edge of the board in this version.  That's likely to get in
 the way of the USB cable for a direct-soldered Pico.  Using the
 sockets lifts the Pico vertically above the board enough that it
 leaves room for the USB cable.
+
+
+
+## Copyright and license
+
+The board schematics and layouts, and all of the associated files and
+documentation, are Copyright 2025 Michael J Roberts, and released
+under an open source license (BDS 3-clause) with NO WARRANTY.
+
+
+## Credits
+
+A big thanks to RickH at vpforums, who reviewed some of the early
+designs, caught a number of errors, and offered some great ideas for
+improvements.  He also took the leap to order a set of physical boards
+once I had the initial design finished, and generously sent me a set
+to test out.
+
+Thanks also to DDH69 at vpforums for his early building and testing
+of some of the key design elements, and his detailed debugging work
+tracking down some overload risks with the TI MOSFET driver chips.
 

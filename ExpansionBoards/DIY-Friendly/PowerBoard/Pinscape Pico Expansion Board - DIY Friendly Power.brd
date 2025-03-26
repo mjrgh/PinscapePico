@@ -185,7 +185,7 @@
 <text x="8.4" y="55.9" size="1.8" layer="25" ratio="15" rot="SR0" align="center">PINSCAPE
 PICO</text>
 <text x="8.5" y="52.5" size="1.1" layer="25" ratio="20" rot="SR0" align="center">DIY POWER BOARD</text>
-<text x="8.4" y="51" size="1.1" layer="25" ratio="15" rot="SR0" align="center">REV 20250312</text>
+<text x="8.4" y="51" size="1.1" layer="25" ratio="15" rot="SR0" align="center">REV 20250325</text>
 <text x="29.5" y="98.3" size="1.8" layer="25" ratio="15" rot="SR0" align="center">HIGH POWER OUTPUTS 13-20</text>
 <text x="33.8" y="53.5" size="1.8" layer="25" ratio="15" rot="SR0" align="center">PWMWORKER 1</text>
 <text x="76.1" y="53.5" size="1.8" layer="25" ratio="15" rot="SR0" align="center">PWMWORKER 2</text>
@@ -484,8 +484,8 @@ PICO</text>
 <pad name="6" x="3.97" y="-1.27" drill="0.76" diameter="1.16"/>
 <pad name="7" x="3.97" y="1.27" drill="0.76" diameter="1.16"/>
 <pad name="8" x="3.97" y="3.81" drill="0.76" diameter="1.16"/>
-<text x="0" y="0" size="1.27" layer="25" align="center">&gt;NAME</text>
-<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<text x="6.35" y="0" size="1.27" layer="25" rot="R270" align="center">&gt;NAME</text>
+<text x="-1.27" y="0" size="1.27" layer="27" rot="R90" align="center">&gt;VALUE</text>
 <wire x1="-4.96" y1="5.205" x2="4.96" y2="5.205" width="0.05" layer="51"/>
 <wire x1="4.96" y1="5.205" x2="4.96" y2="-5.205" width="0.05" layer="51"/>
 <wire x1="4.96" y1="-5.205" x2="-4.96" y2="-5.205" width="0.05" layer="51"/>
@@ -497,6 +497,7 @@ PICO</text>
 <wire x1="-3.935" y1="3.685" x2="-2.665" y2="4.955" width="0.1" layer="51"/>
 <wire x1="-4.55" y1="4.955" x2="3.935" y2="4.955" width="0.2" layer="21"/>
 <wire x1="-3.935" y1="-4.955" x2="3.935" y2="-4.955" width="0.2" layer="21"/>
+<wire x1="0.762" y1="4.826" x2="-1.016" y2="4.826" width="0.2286" layer="21" curve="-180"/>
 </package>
 <package name="ECS32712513XC">
 <description>&lt;b&gt;ECS-.327-12.5-13X-C-3&lt;/b&gt;&lt;br&gt;
@@ -3772,7 +3773,7 @@ ULN and UDN Series&lt;p&gt;
 <via x="89.5" y="26.6" extent="1-16" drill="0.45"/>
 <via x="89.5" y="29.1" extent="1-16" drill="0.45"/>
 <via x="89.4" y="32.2" extent="1-16" drill="0.45"/>
-<via x="49.7" y="10.7" extent="1-16" drill="0.45"/>
+<via x="49.5" y="11.1" extent="1-16" drill="0.45"/>
 <via x="48.3" y="13.1" extent="1-16" drill="0.45"/>
 <via x="48.1" y="15.8" extent="1-16" drill="0.45"/>
 <via x="47.9" y="18.7" extent="1-16" drill="0.45"/>
@@ -3787,6 +3788,7 @@ ULN and UDN Series&lt;p&gt;
 <via x="88.5" y="44" extent="1-16" drill="0.45"/>
 <via x="88.5" y="48.8" extent="1-16" drill="0.45"/>
 <contactref element="BATT1" pad="-"/>
+<via x="60.4" y="27" extent="1-16" drill="0.45"/>
 </signal>
 <signal name="SDA">
 <wire x1="11.02" y1="32.48" x2="18.3" y2="25.2" width="0.4" layer="16"/>
@@ -3855,6 +3857,12 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="22.2" y1="0.2" x2="46.7" y2="0.2" width="1" layer="1"/>
 <wire x1="48.1" y1="2.7" x2="48.1" y2="1.6" width="1" layer="1"/>
 <wire x1="48.1" y1="1.6" x2="46.7" y2="0.2" width="1" layer="1"/>
+<contactref element="IC13" pad="8"/>
+<wire x1="48.1" y1="2.7" x2="48.1" y2="8" width="0.4" layer="1"/>
+<wire x1="48.1" y1="8" x2="51.6" y2="11.5" width="0.4" layer="1"/>
+<wire x1="51.6" y1="11.5" x2="51.6" y2="22.7" width="0.4" layer="1"/>
+<wire x1="51.6" y1="22.7" x2="53.99" y2="25.09" width="0.4" layer="1"/>
+<wire x1="53.99" y1="29.07" x2="53.99" y2="25.09" width="0.4" layer="1"/>
 </signal>
 <signal name="5V">
 <contactref element="J4" pad="1"/>
@@ -3874,20 +3882,9 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="129.83" y1="35.23" x2="128.7" y2="34.1" width="2" layer="16"/>
 <wire x1="128.7" y1="34.1" x2="128.7" y2="10.6" width="2" layer="16"/>
 <wire x1="114.33" y1="3.3" x2="121.4" y2="3.3" width="2" layer="16"/>
-<contactref element="IC13" pad="8"/>
 <wire x1="125.6" y1="91.63" x2="129.4" y2="87.83" width="2" layer="1"/>
 <contactref element="J3" pad="6"/>
 <wire x1="125.6" y1="93.7" x2="125.6" y2="91.63" width="2" layer="1"/>
-<wire x1="114.33" y1="3.3" x2="114.33" y2="1.83" width="0.4" layer="1"/>
-<wire x1="61.1" y1="0.4" x2="112.9" y2="0.4" width="0.4" layer="1"/>
-<wire x1="60.4" y1="23.7" x2="58.3" y2="25.8" width="0.4" layer="16"/>
-<wire x1="53.99" y1="29.07" x2="53.99" y2="27.31" width="0.4" layer="16"/>
-<wire x1="53.99" y1="27.31" x2="55.5" y2="25.8" width="0.4" layer="16"/>
-<wire x1="55.5" y1="25.8" x2="58.3" y2="25.8" width="0.4" layer="16"/>
-<wire x1="60.4" y1="1.1" x2="61.1" y2="0.4" width="0.4" layer="1"/>
-<wire x1="60.4" y1="23.7" x2="60.4" y2="1.1" width="0.4" layer="1"/>
-<via x="60.4" y="23.7" extent="1-16" drill="0.45"/>
-<wire x1="112.9" y1="0.4" x2="114.33" y2="1.83" width="0.4" layer="1"/>
 <wire x1="128.7" y1="10.6" x2="121.4" y2="3.3" width="2" layer="16"/>
 </signal>
 <signal name="SDA1">
@@ -5321,9 +5318,7 @@ ULN and UDN Series&lt;p&gt;
 <contactref element="S2" pad="4"/>
 <contactref element="Q17" pad="3"/>
 <contactref element="PICO2" pad="RUN"/>
-<wire x1="55.2" y1="24.6" x2="55.2" y2="30.2" width="0.4" layer="1"/>
-<wire x1="55.2" y1="30.2" x2="56.1" y2="31.1" width="0.4" layer="1"/>
-<wire x1="56.1" y1="31.1" x2="62.4" y2="31.1" width="0.4" layer="1"/>
+<wire x1="58.7" y1="31.1" x2="62.4" y2="31.1" width="0.4" layer="1"/>
 <wire x1="62.4" y1="31.1" x2="63.7" y2="29.8" width="0.4" layer="1"/>
 <wire x1="63.7" y1="29.8" x2="63.7" y2="28.6" width="0.4" layer="1"/>
 <wire x1="67.11" y1="27.77" x2="64.53" y2="27.77" width="0.4" layer="1"/>
@@ -5332,9 +5327,11 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="62.9606" y1="34.0488" x2="62.9606" y2="31.6606" width="0.4" layer="1"/>
 <wire x1="62.9606" y1="31.6606" x2="62.4" y2="31.1" width="0.4" layer="1"/>
 <wire x1="52.72" y1="12.3" x2="52.72" y2="22.12" width="0.4" layer="1"/>
-<wire x1="55.2" y1="24.6" x2="52.72" y2="22.12" width="0.4" layer="1"/>
 <wire x1="52.72" y1="12.3" x2="52.72" y2="10.83" width="0.4" layer="1"/>
 <wire x1="52.72" y1="10.83" x2="49.69" y2="7.8" width="0.4" layer="1"/>
+<wire x1="58.7" y1="31.1" x2="57.7" y2="30.1" width="0.4" layer="1"/>
+<wire x1="57.7" y1="30.1" x2="57.7" y2="27.1" width="0.4" layer="1"/>
+<wire x1="57.7" y1="27.1" x2="52.72" y2="22.12" width="0.4" layer="1"/>
 </signal>
 <signal name="N$41">
 <contactref element="R18" pad="2"/>

@@ -524,8 +524,8 @@
 <pad name="6" x="3.97" y="-1.27" drill="0.76" diameter="1.16"/>
 <pad name="7" x="3.97" y="1.27" drill="0.76" diameter="1.16"/>
 <pad name="8" x="3.97" y="3.81" drill="0.76" diameter="1.16"/>
-<text x="0" y="0" size="1.27" layer="25" align="center">&gt;NAME</text>
-<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<text x="6.35" y="0" size="1.27" layer="25" rot="R270" align="center">&gt;NAME</text>
+<text x="-1.27" y="0" size="1.27" layer="27" rot="R90" align="center">&gt;VALUE</text>
 <wire x1="-4.96" y1="5.205" x2="4.96" y2="5.205" width="0.05" layer="51"/>
 <wire x1="4.96" y1="5.205" x2="4.96" y2="-5.205" width="0.05" layer="51"/>
 <wire x1="4.96" y1="-5.205" x2="-4.96" y2="-5.205" width="0.05" layer="51"/>
@@ -537,6 +537,7 @@
 <wire x1="-3.935" y1="3.685" x2="-2.665" y2="4.955" width="0.1" layer="51"/>
 <wire x1="-4.55" y1="4.955" x2="3.935" y2="4.955" width="0.2" layer="21"/>
 <wire x1="-3.935" y1="-4.955" x2="3.935" y2="-4.955" width="0.2" layer="21"/>
+<wire x1="0.762" y1="4.826" x2="-1.016" y2="4.826" width="0.2286" layer="21" curve="-180"/>
 </package>
 <package name="ECS32712513XC">
 <description>&lt;b&gt;ECS-.327-12.5-13X-C-3&lt;/b&gt;&lt;br&gt;
@@ -10904,13 +10905,6 @@ Series resistance (ESR) &lt;= 45K ohms</text>
 <label x="55.88" y="17.78" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
-<net name="5V" class="0">
-<segment>
-<pinref part="IC13" gate="G$1" pin="VCC"/>
-<wire x1="91.44" y1="25.4" x2="93.98" y2="25.4" width="0.1524" layer="91"/>
-<label x="93.98" y="25.4" size="1.27" layer="95" xref="yes"/>
-</segment>
-</net>
 <net name="SCL" class="0">
 <segment>
 <pinref part="IC13" gate="G$1" pin="SCL"/>
@@ -10948,6 +10942,13 @@ Series resistance (ESR) &lt;= 45K ohms</text>
 <pinref part="IC13" gate="G$1" pin="VBAT"/>
 <pinref part="BATT1" gate="G$1" pin="+"/>
 <wire x1="58.42" y1="20.32" x2="45.72" y2="20.32" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="VBUS" class="0">
+<segment>
+<pinref part="IC13" gate="G$1" pin="VCC"/>
+<wire x1="91.44" y1="25.4" x2="93.98" y2="25.4" width="0.1524" layer="91"/>
+<label x="93.98" y="25.4" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>

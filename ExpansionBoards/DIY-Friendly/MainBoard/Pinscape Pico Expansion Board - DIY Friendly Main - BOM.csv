@@ -57,5 +57,5 @@ Qty,Value,Parts,Description,PARTNO,Comments,ExtDescription
 4,ULN2803A,"IC7, IC8, IC9, IC10","Darlington NPN transistor array, 500mA/ch",ULN2803A,,"Darlington NPN transistor array, 500mA/ch (IC7, IC8, IC9, IC10)"
 1,ADS1115,,Adafruit ADS1115 STEMMA module,485-1085,,Adafruit ADS1115 STEMMA module ()
 1,LIS3DH,,Adafruit LIS3DH STEMMA module,485-2809,,Adafruit LIS3DH STEMMA module ()
-1,TSAL6400,,"Vishay IR emitter, 940nm, T-1.75, TSAL6400",TSAL6400,"IR emitter LED, connects to J11 for off-board placement","Vishay IR emitter, 940nm, T-1.75, TSAL6400 ()"
-0,VSLB4940,,"Vishay IR emitter, 940nm, T-1, VSLB4940",VSLB4940,"Alternate IR emitter LED, connects to J11 for off-board placement","Vishay IR emitter, 940nm, T-1, VSLB4940 ()"
+1,VSLB4940,,"Vishay IR emitter, 940nm, T-1, VSLB4940",VSLB4940,"IR emitter LED, connects to J11 for off-board placement","Vishay IR emitter, 940nm, T-1, VSLB4940 ()"
+0,TSAL6400,,"Vishay IR emitter, 940nm, T-1.75, TSAL6400",TSAL6400,"IR emitter LED, connects to J11 for off-board placement (alternate, if VSLB4940 isn't available)","Vishay IR emitter, 940nm, T-1.75, TSAL6400 ()"

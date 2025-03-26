@@ -180,23 +180,29 @@ to construct shopping carts without a lot of manual data entry.
 ## BOM Notes
 
 <b>Gate driver resistors (R1, R2, etc):</b> The BOM specifies three
-options for these resistors.  My original design calls for a very
-resistance value (4.7 Ohms - just plain Ohms, <i>not</i> K Ohms),
-selected for fast MOSFET switching.  However, some early experiences
-suggest that a higher value is needed to protect the UCC27524P driver
-chip from excessive power draw when using a MOFSET with a higher gate
-charge.  The highest value listed in the alternatives, 200 Ohms, is
-the safest in this sense, but it slows down the MOSFET switching
-times, which might have the undesirable trade-off of making the MOSFET
-run hot during PWM operation.  The middle value, 47 Ohms, is mostly
-there for experimental purposes.  Further testing is required; at
-the moment, the 200 Ohm is probably the safest choice.
+options for these resistors.  The recommended value is 200 Ohm.  Line
+items for 4.7 Ohms and 47 Ohms are also included for reference, with
+zero quantity.  The tradeoff in choosing a resistor value is that
+lower values yield faster MOSFET switching transitions during PWM
+operation, reducing MOSFET heating, but higher values are more
+protective of the UCC27524P gate driver chip.  According to the
+UCC27524 data sheet, the chip should be compatible with very low gate
+resistor values, as low as zero Ohms, but early testing suggested that
+there's a risk of overloading the chip when a MOSFET with high gate
+capacitance is combined with a small gate resistor.  The recommended
+200 Ohms appears to be a good middle ground that yields cool MOSFET
+operation without risk of UCC27524 damage, even for high-capacitance
+MOSFETs.
 
 <b>IR emitter:</b> Two IR emitters are listed.  You only need one.
-I've tested with TSAL6400 in the past.  VSLB4940 is a newer part with
-higher luminosity, so it might improve transmission range somewhat.  I
-still need to test it, though, so I'm leaving the older tested part in
-the list for now.
+TSAL6400 is the one specified for the original KL25Z boards, so it's a
+known quantity.  VSLB4940 is a newer part with higher luminosity
+specs, it might improve transmission range somewhat.  It works well in
+my initial testing, yielding at least 10 feet of transmission range
+with the random consumer electronics gear I tried it with, so I'm
+recommending it as the reference part.  I'm leaving TSAL6400 in the BOM
+with quantity zero for reference, and as a backup in case VSLB4940 isn't
+readily available when you go shopping.
 
 <b>MTA-156 and MTA-100 connectors:</b> The BOM includes the pin header
 <b>and</b> matching IDC wire housing for each connector.  The wire
@@ -244,7 +250,7 @@ safely get the battery in and out with a little effort - and you should
 only have to do this once every three or four years anyway, since the
 battery should last at least that long.  If you do want something
 a little easier to deal with come battery replacement time, the best
-workaround I've been able to come up with is to substitute a free-standing CR2032 battery holder, 
+workaround I've been able to come up with is to substitute a free-standing CR2032 battery holder,
 such as [Eagle Plastic Devices 120-0110-GR](https://www.mouser.com/ProductDetail/122-0110-GR).
 Similar devices are available on Amazon.  Solder the red wire to one of
 positive post pads for BATT1 on the circuit board, and solder the

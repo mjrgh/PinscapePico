@@ -66,7 +66,7 @@ so it should be easy to adapt in most cases.
 panel in a standard-width pin cab, to provide all of the electronics and
 wiring to the flashers, including the five high-current (350mA) RGB LEDs.
 It uses a 16-wire ribbon cable connector that matches the layout of the
-Flasher port on the Pisncape Pico and KL25Z expansion boards, to make the
+Flasher port on the Pinscape Pico and KL25Z expansion boards, to make the
 wiring between the controller and panel very easy and neat.  Like the Power
 Distribution board, this one is designed to replace ad hoc wiring to make
 your build a little tidier, and it can be used with any I/O controller.
@@ -94,3 +94,9 @@ parts, such as transistors and IC chips, it can be more difficult to select
 substitutes; ask on the forums if you're in doubt, and hopefully someone
 with an electronics background can point you in the right direction.
 
+
+## Copyright and license
+
+The expansion board material is released under the same copyright and
+license terms as the rest of the Pinscape Pico project.  Copyright 2025
+Michael J Roberts; released under a BSD 3-clause license with NO WARRANTY.

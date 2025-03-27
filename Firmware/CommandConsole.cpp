@@ -1647,8 +1647,9 @@ void CommandConsole::Command_pwmchip(const ConsoleCommandContext *c)
         bool foundcs = false;
         for (const char *cs = cls->selectOpt ; ; )
         {
-            const char *t = strchr(cs, '\t');
-            if (t == nullptr)
+            const char *t = cs;
+            for ( ; *t != 0 && *t != ' ' && *t != '\t' && *t != '\n' ; ++t) ;
+            if (*t == 0)
                 break;
 
             size_t len = t - cs;

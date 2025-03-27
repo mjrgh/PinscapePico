@@ -93,70 +93,51 @@ so comprehensive that no one would really need other options.  It
 simplifies the design, and it simplifies everyone's planning and
 setup process.
 
-### No hardware chime timers
 
-The Pinscape KL25Z expansion boards included the Chime Board option,
-which had ports with hardware timers to protect against software
-faults that locked ports on, potentially damaging high-current coils
-of the sort used in replay knockers and chime units.  This board set
-doesn't have any such hardware-protected ports.  To make up for it,
-the Pinscape Pico software has equivalent timer protection that can be
-configured on a port-by-port basis.  In addition, the software and
-hardware both have fail-safe features that are designed to protect
-against faults at the Pinscape Pico firmware level, where the software
-timers are implemented:
+## Features
 
-* The Pinscape Pico firmware programs the Pico's hardware "watchdog"
-unit to reset the Pico in the event the software ever stops functioning
-for more than a few milliseconds.  The watchdog is an independent
-hardware unit on the Pico that forces a hard reset if the software
-stops sending it messages saying "I'm not dead yet" for more than
-a programmed time limit, so it's very good at detecting software
-faults and forcing the Pico into a hard reset.
+* 32 button inputs, using shift register chips for extremely low latency
+scans (order of 10 microseconds)
 
-* The expansion board hardware is designed so that all ports turn off
-instantly and deterministically when the Pico is in a hardware reset
-condition.
+* Accelerometer (LIS3DH), installed via a pre-assembled module
+available from Adafruit (no need to hand-solder the tiny SMD chip),
+for nudge sensing
 
-These features work together as a backstop against failures in the
-Pinscape software that monitors the port time limiters.  As long as
-the software is functioning correctly, it should take care of applying
-the programmed time limits set by the flipper logic/chime logic
-configuration options in the output port setup.  If the software ever
-gets stuck in such a way that it can no longer apply the software time
-limiters, it will also be unable to send "not dead yet" messages to
-the watchdog hardware, so the watchdog will rapidly reset the Pico at
-the CPU level.  And once the Pico resets, the physical output port
-controllers on the board go into their default power-on condition,
-which turns off all of the output ports.
+* An optional ADC (analog-to-digital converter, ADS1115), installed
+via a pre-assembled module available from Adafruit, for high-precision
+analog input from a potentiometer-based plunger (improving on the Pico's
+mediocre built-in ADC)
 
-The secondary "PWM Worker" Picos on these boards add yet another layer
-of protection, which is that they *also* have their own software
-timers that they apply to every port.  The main Pico sends the PWM
-Worker Picos its settings for the flipper logic/chime logic timers,
-so that the secondary Picos can apply their own time limitation to
-the ports.  So even if the main Pico stops working and all of the
-other fail-safe measures somehow don't kick in, the ports controlled
-by the secondary Picos are still protected by their own independent
-timers.
+* 28 MOSFET outputs for high-current feedback devices, such as motors,
+solenoids, and standard LED strips
 
-Nothing is quite as perfectly predictable as a dedicated hardware
-timer like on the old Chime boards, but I've tried to carefully design
-the new system to be as close as possible.  The benefit is that
-omitting the hardware timers saves a lot of board space, parts cost,
-and assembly work.  The timer circuits required about ten additional
-components per output port, which is why I could only fit 8 output
-ports on each Chime board.  I think this new design comes very close
-to the same level of protection, at lower cost, and with greater
-flexibility (in that each port's protection parameters can be
-individually configured).
+* 16 flasher/strobe ports for high-current LEDs, up to 1A per port,
+for driving the 3W RGB LEDs typically used for flasher panels plus
+a strobe LED
 
+* 32 medium-current ports, up to 500mA per port, for driving almost
+any sort of lamp (small incandescent or LED bulbs like those used in
+lighted pushbuttons, small LEDs, large LEDs), relays and contactors,
+and anything else that runs on less than 500mA
 
-### No support for smart light strips
+* All output ports have full PWM control, with configurable PWM
+frequencies up to 65000 Hz
 
-The one big virtual pin cab feature that these boards don't support is
-"smart" light strips, with individually addressable LEDs, such as
-WS2812B strips.  You still need a separate controller for that.
+* Plunger input port, pin-compatible with the original Pinscape KL25Z
+plunger port; just plug in your existing Pinscape plunger
+
+* IR transmitter and receiver, with the sensor and transmitter on
+small separate boards (connected to the main board with cables), so
+that can be positioned anywhere in (or outside) the cabinet, to place
+them in line-of-sight with the devices they're communicating with
+
+* Power-sensing circuit for the Pinscape TV ON function (to help you
+implement seamless one-button startup of the whole pin cab, even when
+using TVs that don't remember their power state)
+
+* Real-time clock/calendar chip with battery backup, for time-keeping
+across Pico resets, even when the board is unpowered
+
 
 ## Files
 
@@ -210,48 +191,55 @@ housings are IDC type, which is fast and easy to wire - but note that
 it requires a <b>specific wire gauge</b> for each housing.  I chose a
 mix of 24 AWG and 22 AWG connectors - 24 AWG for low-power wiring like
 buttons and lamps, and 22 AWG for the high-power MOSFET outputs.  The
-MTA-156 and MTA-100 product lines do have equivalent connectors in
-other wire gauges, though, and they're all compatible with the same
-pin headers, so you can easily substitute parts for different wire
-gauge as desired.  I chose 22 and 24 because they're perfectly
-adequate for the respective jobs, and it's easy to source wire in
-those sizes.  From a cost perspective, it's better to minimize the
-number of different wire types you use so you can buy big spools of a
-few types, rather than lots of little spools.
+MTA-156 and MTA-100 product lines also include mating connectors for a
+range of other wire gauges, so if 22 and 24 AWG aren't right for your
+needs, you can substitute the corresponding MTA connectors for your
+desired gauge.  The **headers** are independent of wire gauge, so you
+don't need to change those - it's the **IDC housings** that go with a
+specific gauge.  I chose 22 and 24 because they're perfectly adequate
+for the respective jobs, and it's easy to source wire in those sizes.
+From a cost perspective, it's better to minimize the number of
+different wire types you use so you can buy big spools of a few types,
+rather than lots of little spools.
 
 
 ## Errata in revisions prior to 20250326
 
 The early versions of the board, prior to rev 20250326, had some
-design errors that I found during practical testing.  In my eagerness
-to make the plans available as soon as possible, I published the board
-designs when I considered them complete at the design level, but prior
-to physical build testing, so I missed a few details that only became
-apparent in the physical build.
+design errors that I discovered during practical testing.  In my
+eagerness to make the plans available as soon as possible, I published
+the board designs when I considered them complete, even before I did
+any physical build testing.  So I missed a few details that only
+became apparent in the physical build.
 
-You can find the board revision stamped onto the silkscreen - look for
-a small legend saying "Rev 20250326" (for example), adjacent to the
-legend showing the name of the board.  The revision identifier is simply
-the date of the design file, in a cleverly encoded YEAR MONTH DAY format.
+To determine if you're using boards affected by these errata, look for
+the revision number printed on the top side of the circuit board.
+It's a small legend saying something like "Rev 20250326", adjacent to
+the legend showing the name of the board.  The revision identifier is
+simply the date of the last significant change, as you might have
+guessed from the YEAR MONTH DAY format.  If the Rev number printed on
+your copy of the board is 20250326 or later, the errors below have
+already been fixed, and you can ignore this section.
 
-
-<b>CR2032 battery holder:</b> The coin cell battery on the early
-boards is a side-entry clip type, where you have to slide the battery
-in and out of the holder through an opening in the side.  I didn't
-leave enough clearance next to the clip for this maneuver, though; the
-Darlington chips IC10 and IC11 are in the way of the path of the
-battery.  The battery clip has enough "give" that it's still possible
-to coerce the battery in and out, but it requires a bit of brute
-force, which doesn't feel comfortable when working with delicate
-electronics.
+<b>CR2032 battery insertion/removal:</b> The coin cell battery on the
+early boards is a side-entry clip type, where you have to slide the
+battery in and out of the holder through an opening in the side.  I
+didn't leave enough clearance next to the clip for this maneuver,
+though; the Darlington chips IC10 and IC11 are in the way of the path
+of the battery.  The battery clip has enough "give" that it's still
+possible to coerce the battery in and out by tilting it up over the
+top of the Darlington chips that get in the way, but this requires a
+bit of brute force, which doesn't feel comfortable when working with
+delicate electronics.  This will it inconvenient to replace the
+battery when it eventually runs out of power.  On the plus side, that
+should take a few years, since the battery is only powering the clock
+chip, which draws very little power.
 
 Workarounds: No workaround is outright necessary, since you can still
-safely get the battery in and out with a little effort - and you should
-only have to do this once every three or four years anyway, since the
-battery should last at least that long.  If you do want something
-a little easier to deal with come battery replacement time, the best
-workaround I've been able to come up with is to substitute a free-standing CR2032 battery holder,
-such as [Eagle Plastic Devices 120-0110-GR](https://www.mouser.com/ProductDetail/122-0110-GR).
+safely get the battery in and out with a little effort.  If you don't
+like the idea of forcing the battery in and out, though, I can suggest
+one workaround:  don't install the clip, but instead substitute a
+free-standing CR2032 battery holder, such as [Eagle Plastic Devices 120-0110-GR](https://www.mouser.com/ProductDetail/122-0110-GR).
 Similar devices are available on Amazon.  Solder the red wire to one of
 positive post pads for BATT1 on the circuit board, and solder the
 black wire to BATT1's large round central ground pad.
@@ -261,32 +249,35 @@ replaced with a top-loading type that doesn't require any side
 clearance.
 
 
-<b>DS1307 power supply:</b>  The VCC (power supply) pin on the DS1307
+<b>DS1307 power supply:</b> The VCC (power supply) pin on the DS1307
 chip on the Power Board is incorrectly wired to the secondary PSU 5V
-supply.  This should be wired instead to the USB 5V from the main Pico.
-The chip will technically work fine on either 5V supply, but the reason
-it should have been wired to the USB supply instead is that we want this
-chip to always power up simultaneously with the main Pico, and this
-might not happen if the chip takes it power from the secondary PSU,
-since the secondary PSU in a pin cab is often set up so that it only
-switches on *after* the main PC powers up.
+supply.  This should be wired instead to the USB 5V from the main
+Pico.  The chip will technically work fine on either 5V supply, but it
+should have been wired to the USB power to ensure that it powers up
+simultaneously with the main Pico.  Its startup time might be delayed
+when connected to the secondary PSU power, since the secondary PSU in
+a pin cab is often set up so that it only switches on *after* the main
+PC powers up.
 
 The problem this causes is that the main Pico might be unable to
-determine the date and time during initial startup from a cold boot.
-If your Pinscape configuration depends upon time-of-day features
-on the Pico side immediately after startup, those features might
-not work properly.  As soon as any PC software connects to the Pico,
-the Pico will be able to get the time of day from the PC side, so
-this will only affect functionality right after startup, before
-any PC software gets involved.
+determine the date and time during initial startup from a cold boot,
+in cases where the clock chip isn't yet powered up by the time the
+Pico is going through its startup processing.  If your Pinscape
+configuration depends upon time-of-day features on the Pico side
+immediately after startup, those features might not work properly.  As
+soon as any PC software connects to the Pico, the Pico will be able to
+get the time of day from the PC side, so this will only affect
+functionality right after startup, before any PC software gets
+involved.
 
-Workaround: You can correct this by cutting the trace on the board
-from pin DS1307 pin 8 (VCC) to the secondary supply 5V line, and
-then soldering a jumper wire from DS1307 pin 8 to any convenient
-point on the VBUS network, such as the anode ("+" side) of D1.
-Make absolutely sure that there's no continuity between DS1307 pin 8
-and the secondary supply 5V after you cut the trace, since cross-wiring
-the secondary 5V to VBUS would be bad.
+Workaround: If you don't mind doing some surgery on the board, you can
+correct this by cutting the trace on the board between pin DS1307 pin 8
+(VCC) and the secondary supply 5V line, and then soldering a jumper
+wire from DS1307 pin 8 to any convenient point on the VBUS network,
+such as the anode ("+" side) of D1.  Make absolutely sure that there's
+no continuity between DS1307 pin 8 and the secondary supply 5V after
+you cut the trace, since cross-wiring the secondary 5V to VBUS would
+be bad.
 
 Fix: In later versions of the board, the power supply wiring to
 the chip is corrected to connect to the main Pico USB power.
@@ -308,7 +299,7 @@ When plugging in the cable, orient the plug with the "pin 1" side
 (which you might have marked with a red stripe on the cable) facing J2.
 
 Fix: In later versions of the board, the silkscreen markings are
-rotated to match the KL25Z markings.
+rotated to match the KL25Z board markings.
 
 
 ## Versions
@@ -343,50 +334,6 @@ the future.  The through-hole sockets are generic commodity parts made
 by multiple manufacturers, so they should be easy to source
 indefinitely.
 
-
-## Features
-
-* 32 button inputs, using shift register chips for extremely low latency
-scans (order of 10 microseconds)
-
-* Accelerometer (LIS3DH), installed via a pre-assembled module
-available from Adafruit (no need to hand-solder the tiny SMD chip),
-for nudge sensing
-
-* An optional ADC (analog-to-digital converter, ADS1115), installed
-via a pre-assembled module available from Adafruit, for high-precision
-analog input from a potentiometer-based plunger (improving on the Pico's
-rather poor built-in ADC)
-
-* 28 MOSFET outputs for high-current feedback devices, such as motors,
-solenoids, and standard LED strips
-
-* 16 flasher/strobe ports for high-current LEDs, up to 1A per port,
-for driving the 3W RGB LEDs typically used for flasher panels plus
-a strobe LED
-
-* 32 medium-current ports, up to 500mA per port, for driving almost
-any sort of lamp (small incandescent or LED bulbs like those used in
-lighted pushbuttons, small LEDs, large LEDs), relays and contactors,
-and anything else that runs on less than 500mA
-
-* All output ports have full PWM control, with configurable PWM
-frequencies up to 65000 Hz
-
-* Plunger input port, pin-compatible with the original Pinscape KL25Z
-plunger port; just plug in your existing Pinscape plunger
-
-* IR transmitter and receiver, with the sensor and transmitter on
-small separate boards (connected to the main board with cables), so
-that can be positioned anywhere in (or outside) the cabinet, to place
-them in line-of-sight with the devices they're communicating with
-
-* Power-sensing circuit for the Pinscape TV ON function (to help you
-implement seamless one-button startup of the whole pin cab, even when
-using TVs that don't remember their power state)
-
-* Real-time clock/calendar chip with battery backup, for time-keeping
-across Pico resets, even when the board is unpowered
 
 ## How to connect devices
 
@@ -435,8 +382,10 @@ none of them have to be connected to specific buttons.
 ### Button lamps
 
 For pushbuttons that have built-in lamps, you should think of the
-lamp as a separate device from the button, and just wire it to one
-of the lamp ports as though it were a standalone lamp.
+lamp as a whole separate device from the button.  Wire the button's **switch**
+to a Pinscape button port, just like any button without a lamp.
+And separately, wire the button's **lamp** to a Pinscape lamp port, as
+though it were just a lamp without a button attached.
 
 ### Lamps
 
@@ -449,21 +398,29 @@ For LEDs, you must also connect a current-limiting resistor in series
 with the LED.  Some LEDs have the necessary resistor built in.  See
 [LED resistors](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=ledResistors).
 
-The lamp ports are nominally for LEDs and incandescent lights, but you
-can actually use them with any kind of device as long as its current
-draw is below 500mA.  That's enough for most small relays and many
-contactors, for example.  Be sure to use a [flyback diode](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=diodes)
-for anything mechanical (relay, contactor, motor).  Diodes aren't
-needed for LEDs or incandescent bulbs.
+Even though the lamp ports are called "lamp ports", they're really
+not limited to lamps.  They can can handle any sort of device, as long as its
+current draw is below 500mA.  The only reason we call them "lamp ports"
+is that lamps are the most common devices in a pin cab that fit within
+the 500mA limit, so we expect that these ports will mostly be used
+with lighting devices.  But 500mA is enough for many
+relays, contactors, and even smallish solenoids.  If you connect anything
+mechanical, be sure to use a [flyback diode](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=diodes).
+Diodes aren't needed for LEDs or incandescent bulbs.
 
-Each lamp port includes a 5V terminal, which can be used as the power
-supply for lamps and LEDs.  The 5V terminal just connects straight back
-to the secondary power supply 5V input to the board, so there's nothing
-special about it; it's just there as a convenience, to give you another
-place to connect to the 5V supply.  You don't have to use this terminal
-for any of the lamps, and more importantly, you don't have to use 5V
-for the lamps - each lamp can be connected to whatever voltage it
-requires, as long as that doesn't exceed 40V.
+Each lamp header includes one pin that's connected to 5V power.  This
+is purely for wiring convenience - you can use it as the power source
+for lamps and LEDs connect to the same header.  The 5V terminal just
+connects straight back to the secondary power supply 5V input to the
+board, so there's nothing special about it; it's just there as a
+convenience, to give you another place to connect to the 5V supply.
+You don't have to use this terminal for any of the lamps, and more
+importantly, these ports aren't limited to 5V lamps.  Each lamp can
+be connected to whatever power supply voltage it requires, up to 40V.
+And you're free to connect devices with different voltage levels to the
+same header - it's fine to connect a 12V LED strip alongside a 6.3V
+incandescent lamp, and a 24V contactor next to that, all on the same
+lamp header.
 
 ### Flashers and strobe
 
@@ -887,6 +844,87 @@ Most power MOSFETs will qualify, but check carefully if you find
 one that's labeled as a "logic" MOSFETs.  Those are specially designed
 to be switched by lower gate voltages, and might have a Vgs limit
 of 10V or below, which isn't suitable for this board.
+
+
+## Missing features
+
+I like to claim that this board set is a "comprehensive" virtual pinball
+I/O controller, but that's not 100% accurate.  There are a few specialized
+functions that it lacks, but for good reasons, as explained below.
+
+### No support for smart light strips
+
+The one big virtual pin cab feature that these boards don't support is
+"smart" light strips, with individually addressable LEDs, such as
+WS2812B strips.  You still need a separate controller for that.
+Pinscape Pico itself doesn't have any smart light strip support at
+the software level, so it didn't make any sense to include such
+a thing on these boards.
+
+
+### What happened to the "Chime" boards from the old KL25Z set?
+
+The Pinscape KL25Z expansion boards included the option to add Chime
+Boards.  The Chime Boards were basically MOSFET Power Board ports, with
+the added feature of a **hardware time limiter** on each port that
+prevented the port from being activated for more than a couple of
+seconds at a time.  The point of the time limiter was to protect
+pinball coils and other high-power solenoids from damage in cases
+where a software fault on the PC caused the coil to be locked on.
+Pinball coils typically can't tolerate continuous activation for
+more than a second or two - they'll overheat and melt if you try.
+
+This board set doesn't have any such hardware-protected ports.  To
+make up for it, the Pinscape Pico software has equivalent timer
+protection that can be configured on a port-by-port basis.  In
+addition, the software and hardware both have fail-safe features that
+are designed to protect against faults at the Pinscape Pico firmware
+level, where the software timers are implemented:
+
+* The Pinscape Pico firmware programs the Pico's hardware "watchdog"
+unit to reset the Pico in the event the software ever stops functioning
+for more than a few milliseconds.  The watchdog is an independent
+hardware unit on the Pico that forces a hard reset if the software
+stops sending it messages saying "I'm not dead yet" for more than
+a programmed time limit, so it's very good at detecting software
+faults and forcing the Pico into a hard reset.
+
+* The expansion board hardware is designed so that all ports turn off
+instantly and deterministically when the Pico is in a hardware reset
+condition.
+
+These features work together as a backstop against failures in the
+Pinscape software that monitors the port time limiters.  As long as
+the software is functioning correctly, it should take care of applying
+the programmed time limits set by the flipper logic/chime logic
+configuration options in the output port setup.  If the software ever
+gets stuck in such a way that it can no longer apply the software time
+limiters, it will also be unable to send "not dead yet" messages to
+the watchdog hardware, so the watchdog will rapidly reset the Pico at
+the CPU level.  And once the Pico resets, the physical output port
+controllers on the board go into their default power-on condition,
+which turns off all of the output ports.
+
+The secondary "PWM Worker" Picos on these boards add yet another layer
+of protection, which is that they *also* have their own software
+timers that they apply to every port.  The main Pico sends the PWM
+Worker Picos its settings for the flipper logic/chime logic timers,
+so that the secondary Picos can apply their own time limitation to
+the ports.  So even if the main Pico stops working and all of the
+other fail-safe measures somehow don't kick in, the ports controlled
+by the secondary Picos are still protected by their own independent
+timers.
+
+Nothing is quite as perfectly predictable as a dedicated hardware
+timer like on the old Chime boards, but I've tried to carefully design
+the new system to be as close as possible.  The benefit is that
+omitting the hardware timers saves a lot of board space, parts cost,
+and assembly work.  The timer circuits required about ten additional
+components per output port, which is why I could only fit 8 output
+ports on each Chime board.  I think this new design comes very close
+to the same level of protection, at lower cost, and with greater
+flexibility (in that each port's protection parameters can be
+individually configured).
 
 
 ## Design notes

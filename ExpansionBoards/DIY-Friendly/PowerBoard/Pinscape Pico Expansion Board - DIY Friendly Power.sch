@@ -10872,22 +10872,37 @@ for the output devices you can connect to the ports.</text>
 <sheet>
 <description>Real-Time Clock</description>
 <plain>
-<text x="60.96" y="50.8" size="2.54" layer="91" align="center">Real-Time Clock</text>
-<text x="96.52" y="43.18" size="1.778" layer="91" align="center-left">Crystal selection:
+<text x="22.86" y="99.06" size="2.54" layer="91" align="center">Real-Time Clock</text>
+<text x="86.36" y="33.02" size="1.778" layer="91" align="center-left">Crystal selection:
 32.768 kHz
 12.5 pF load capacitance
 Series resistance (ESR) &lt;= 45K ohms</text>
-<text x="72.136" y="29.21" size="1.778" layer="91" align="center-left">I2C address $68</text>
+<text x="61.976" y="19.05" size="1.778" layer="91" align="center-left">I2C address $68</text>
+<text x="7.62" y="48.26" size="2.032" layer="91">Layout Notes:
+
+1. Keep traces between X1-X2 pins and crystal pads as short as possible.
+
+2. Board layout should include a "guard ring" on the TOP layer, consisting
+of a dummy trace surrounding the X1-X2 pins, the corresponding crystal
+pads, and the traces in between.
+
+3. The BOTTOM layer should include an ISOLATED ground plane covering
+the guard ring area and extending to the GND pin on the chip (pin 4).
+This MUST be isolated from the main bottom layer ground plane by
+another dummy trace surrounding the area.
+
+See DS1307 Application Note 58, Crystal Considerations for Dallas
+Real-Time Clocks.</text>
 </plain>
 <instances>
-<instance part="IC13" gate="G$1" x="58.42" y="25.4" smashed="yes">
-<attribute name="NAME" x="72.136" y="34.036" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="72.136" y="31.496" size="1.778" layer="96" align="center-left"/>
+<instance part="IC13" gate="G$1" x="48.26" y="15.24" smashed="yes">
+<attribute name="NAME" x="61.976" y="23.876" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="61.976" y="21.336" size="1.778" layer="96" align="center-left"/>
 </instance>
-<instance part="Y1" gate="G$1" x="53.34" y="38.1"/>
-<instance part="BATT1" gate="G$1" x="35.56" y="20.32" smashed="yes" rot="R180">
-<attribute name="NAME" x="40.64" y="13.97" size="1.778" layer="95" rot="R180" align="center-left"/>
-<attribute name="VALUE" x="40.64" y="16.256" size="1.778" layer="96" rot="R180" align="center-left"/>
+<instance part="Y1" gate="G$1" x="43.18" y="27.94"/>
+<instance part="BATT1" gate="G$1" x="25.4" y="10.16" smashed="yes" rot="R180">
+<attribute name="NAME" x="30.48" y="3.81" size="1.778" layer="95" rot="R180" align="center-left"/>
+<attribute name="VALUE" x="30.48" y="6.096" size="1.778" layer="96" rot="R180" align="center-left"/>
 </instance>
 </instances>
 <busses>
@@ -10895,60 +10910,60 @@ Series resistance (ESR) &lt;= 45K ohms</text>
 <nets>
 <net name="GND" class="0">
 <segment>
-<label x="22.86" y="20.32" size="1.27" layer="95" rot="R180" xref="yes"/>
-<wire x1="22.86" y1="20.32" x2="25.4" y2="20.32" width="0.1524" layer="91"/>
+<label x="12.7" y="10.16" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="12.7" y1="10.16" x2="15.24" y2="10.16" width="0.1524" layer="91"/>
 <pinref part="BATT1" gate="G$1" pin="-"/>
 </segment>
 <segment>
 <pinref part="IC13" gate="G$1" pin="GND"/>
-<wire x1="58.42" y1="17.78" x2="55.88" y2="17.78" width="0.1524" layer="91"/>
-<label x="55.88" y="17.78" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="48.26" y1="7.62" x2="45.72" y2="7.62" width="0.1524" layer="91"/>
+<label x="45.72" y="7.62" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SCL" class="0">
 <segment>
 <pinref part="IC13" gate="G$1" pin="SCL"/>
-<wire x1="91.44" y1="20.32" x2="93.98" y2="20.32" width="0.1524" layer="91"/>
-<label x="93.98" y="20.32" size="1.27" layer="95" xref="yes"/>
+<wire x1="81.28" y1="10.16" x2="83.82" y2="10.16" width="0.1524" layer="91"/>
+<label x="83.82" y="10.16" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="SDA" class="0">
 <segment>
 <pinref part="IC13" gate="G$1" pin="SDA"/>
-<wire x1="91.44" y1="17.78" x2="93.98" y2="17.78" width="0.1524" layer="91"/>
-<label x="93.98" y="17.78" size="1.27" layer="95" xref="yes"/>
+<wire x1="81.28" y1="7.62" x2="83.82" y2="7.62" width="0.1524" layer="91"/>
+<label x="83.82" y="7.62" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="N$36" class="0">
 <segment>
 <pinref part="IC13" gate="G$1" pin="X1"/>
-<wire x1="58.42" y1="25.4" x2="55.88" y2="25.4" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="25.4" x2="55.88" y2="30.48" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="30.48" x2="63.5" y2="30.48" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="15.24" x2="45.72" y2="15.24" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="15.24" x2="45.72" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="20.32" x2="53.34" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="Y1" gate="G$1" pin="CRYSTAL_1"/>
-<wire x1="63.5" y1="30.48" x2="63.5" y2="38.1" width="0.1524" layer="91"/>
+<wire x1="53.34" y1="20.32" x2="53.34" y2="27.94" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$37" class="0">
 <segment>
 <pinref part="Y1" gate="G$1" pin="CRYSTAL_2"/>
-<wire x1="53.34" y1="38.1" x2="53.34" y2="22.86" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="27.94" x2="43.18" y2="12.7" width="0.1524" layer="91"/>
 <pinref part="IC13" gate="G$1" pin="X2"/>
-<wire x1="53.34" y1="22.86" x2="58.42" y2="22.86" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="12.7" x2="48.26" y2="12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$35" class="0">
 <segment>
 <pinref part="IC13" gate="G$1" pin="VBAT"/>
 <pinref part="BATT1" gate="G$1" pin="+"/>
-<wire x1="58.42" y1="20.32" x2="45.72" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="10.16" x2="35.56" y2="10.16" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="VBUS" class="0">
 <segment>
 <pinref part="IC13" gate="G$1" pin="VCC"/>
-<wire x1="91.44" y1="25.4" x2="93.98" y2="25.4" width="0.1524" layer="91"/>
-<label x="93.98" y="25.4" size="1.27" layer="95" xref="yes"/>
+<wire x1="81.28" y1="15.24" x2="83.82" y2="15.24" width="0.1524" layer="91"/>
+<label x="83.82" y="15.24" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>

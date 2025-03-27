@@ -185,7 +185,7 @@
 <text x="8.4" y="55.9" size="1.8" layer="25" ratio="15" rot="SR0" align="center">PINSCAPE
 PICO</text>
 <text x="8.5" y="52.5" size="1.1" layer="25" ratio="20" rot="SR0" align="center">DIY POWER BOARD</text>
-<text x="8.4" y="51" size="1.1" layer="25" ratio="15" rot="SR0" align="center">REV 20250325</text>
+<text x="8.4" y="51" size="1.1" layer="25" ratio="15" rot="SR0" align="center">REV 20250326</text>
 <text x="29.5" y="98.3" size="1.8" layer="25" ratio="15" rot="SR0" align="center">HIGH POWER OUTPUTS 13-20</text>
 <text x="33.8" y="53.5" size="1.8" layer="25" ratio="15" rot="SR0" align="center">PWMWORKER 1</text>
 <text x="76.1" y="53.5" size="1.8" layer="25" ratio="15" rot="SR0" align="center">PWMWORKER 2</text>
@@ -3777,7 +3777,7 @@ ULN and UDN Series&lt;p&gt;
 <via x="48.3" y="13.1" extent="1-16" drill="0.45"/>
 <via x="48.1" y="15.8" extent="1-16" drill="0.45"/>
 <via x="47.9" y="18.7" extent="1-16" drill="0.45"/>
-<via x="52.6" y="26.1" extent="1-16" drill="0.45"/>
+<via x="55.2" y="26.2" extent="1-16" drill="0.45"/>
 <via x="68.9" y="33.8" extent="1-16" drill="0.45"/>
 <via x="68.9" y="36.7" extent="1-16" drill="0.45"/>
 <via x="69" y="39.2" extent="1-16" drill="0.45"/>
@@ -3789,6 +3789,14 @@ ULN and UDN Series&lt;p&gt;
 <via x="88.5" y="48.8" extent="1-16" drill="0.45"/>
 <contactref element="BATT1" pad="-"/>
 <via x="60.4" y="27" extent="1-16" drill="0.45"/>
+<via x="58.5" y="24.8" extent="1-16" drill="0.45"/>
+<wire x1="61.61" y1="21.13" x2="61.6" y2="21.13" width="0.4" layer="1"/>
+<wire x1="61.6" y1="21.13" x2="61.6" y2="22.3" width="0.2" layer="1"/>
+<wire x1="61.6" y1="22.3" x2="57.6" y2="22.3" width="0.2" layer="1"/>
+<wire x1="57.6" y1="22.3" x2="53" y2="22.3" width="0.2" layer="1"/>
+<wire x1="53" y1="22.3" x2="53" y2="16.5" width="0.2" layer="1"/>
+<wire x1="53" y1="16.5" x2="57.6" y2="16.5" width="0.2" layer="1"/>
+<wire x1="57.6" y1="16.5" x2="57.6" y2="22.3" width="0.2" layer="1"/>
 </signal>
 <signal name="SDA">
 <wire x1="11.02" y1="32.48" x2="18.3" y2="25.2" width="0.4" layer="16"/>
@@ -3832,16 +3840,20 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="28.04" y1="22.66" x2="29.9" y2="20.8" width="0.4" layer="16"/>
 <wire x1="29.9" y1="20.8" x2="29.9" y2="3.3" width="0.4" layer="16"/>
 <wire x1="29.9" y1="3.3" x2="34.2" y2="-1" width="0.4" layer="16"/>
-<wire x1="54" y1="14.2" x2="55.4" y2="15.6" width="0.4" layer="16"/>
-<wire x1="55.4" y1="15.6" x2="60.5" y2="15.6" width="0.4" layer="16"/>
-<wire x1="60.5" y1="15.6" x2="63.1" y2="18.2" width="0.4" layer="16"/>
-<wire x1="63.1" y1="18.2" x2="63.1" y2="22" width="0.4" layer="16"/>
-<wire x1="63.1" y1="22" x2="63.8" y2="22.7" width="0.4" layer="16"/>
-<wire x1="63.8" y1="22.7" x2="67.1" y2="22.7" width="0.4" layer="16"/>
 <wire x1="67.1" y1="22.7" x2="67.11" y2="22.69" width="0.4" layer="16"/>
-<wire x1="54" y1="14.2" x2="54" y2="2.3" width="0.4" layer="16"/>
+<wire x1="54" y1="7.2" x2="54" y2="2.3" width="0.4" layer="16"/>
 <wire x1="34.2" y1="-1" x2="50.7" y2="-1" width="0.4" layer="16"/>
 <wire x1="50.7" y1="-1" x2="54" y2="2.3" width="0.4" layer="16"/>
+<wire x1="54" y1="7.2" x2="56.5" y2="9.7" width="0.4" layer="16"/>
+<wire x1="56.5" y1="9.7" x2="58.9" y2="9.7" width="0.4" layer="16"/>
+<wire x1="58.9" y1="9.7" x2="62.9" y2="13.7" width="0.4" layer="16"/>
+<wire x1="62.9" y1="13.7" x2="63.1" y2="13.9" width="0.4" layer="16"/>
+<wire x1="67.1" y1="22.7" x2="64.6" y2="22.7" width="0.4" layer="16"/>
+<wire x1="64.6" y1="22.7" x2="63.4" y2="21.5" width="0.4" layer="16"/>
+<wire x1="63.4" y1="21.5" x2="63.4" y2="19.5" width="0.4" layer="16"/>
+<wire x1="63.4" y1="19.5" x2="63.4" y2="19.4" width="0.4" layer="16"/>
+<wire x1="63.4" y1="19.4" x2="63.4" y2="14.2" width="0.4" layer="16"/>
+<wire x1="63.4" y1="14.2" x2="63.1" y2="13.9" width="0.4" layer="16"/>
 </signal>
 <signal name="VBUS">
 <contactref element="D1" pad="2"/>
@@ -3858,11 +3870,11 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="48.1" y1="2.7" x2="48.1" y2="1.6" width="1" layer="1"/>
 <wire x1="48.1" y1="1.6" x2="46.7" y2="0.2" width="1" layer="1"/>
 <contactref element="IC13" pad="8"/>
-<wire x1="48.1" y1="2.7" x2="48.1" y2="8" width="0.4" layer="1"/>
-<wire x1="48.1" y1="8" x2="51.6" y2="11.5" width="0.4" layer="1"/>
-<wire x1="51.6" y1="11.5" x2="51.6" y2="22.7" width="0.4" layer="1"/>
-<wire x1="51.6" y1="22.7" x2="53.99" y2="25.09" width="0.4" layer="1"/>
-<wire x1="53.99" y1="29.07" x2="53.99" y2="25.09" width="0.4" layer="1"/>
+<wire x1="48.1" y1="2.7" x2="48.1" y2="8.1" width="0.4" layer="1"/>
+<wire x1="51.4" y1="11.5" x2="51.4" y2="25.9" width="0.4" layer="1"/>
+<wire x1="48.1" y1="8.1" x2="51.4" y2="11.5" width="0.4" layer="1"/>
+<wire x1="53.99" y1="28.49" x2="51.4" y2="25.9" width="0.4" layer="1"/>
+<wire x1="53.99" y1="29.07" x2="53.99" y2="28.49" width="0.4" layer="1"/>
 </signal>
 <signal name="5V">
 <contactref element="J4" pad="1"/>
@@ -4683,11 +4695,11 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="113" y1="60.4" x2="113" y2="68.8" width="0.4" layer="1"/>
 <wire x1="117.29" y1="71.3" x2="115.5" y2="71.3" width="0.4" layer="1"/>
 <wire x1="115.5" y1="71.3" x2="113" y2="68.8" width="0.4" layer="1"/>
-<wire x1="48.3" y1="20.5" x2="48.3" y2="27.1" width="0.4" layer="1"/>
-<wire x1="48.3" y1="27.1" x2="50.5" y2="29.3" width="0.4" layer="1"/>
+<wire x1="48.3" y1="20.5" x2="48.3" y2="27.2" width="0.4" layer="1"/>
+<wire x1="48.3" y1="27.2" x2="50.5" y2="29.4" width="0.4" layer="1"/>
 <wire x1="50.5" y1="35.1" x2="53.8" y2="38.4" width="0.4" layer="1"/>
 <wire x1="53.8" y1="38.4" x2="53.8" y2="46.1" width="0.4" layer="1"/>
-<wire x1="50.5" y1="35.1" x2="50.5" y2="29.3" width="0.4" layer="1"/>
+<wire x1="50.5" y1="35.1" x2="50.5" y2="29.4" width="0.4" layer="1"/>
 <wire x1="53.8" y1="46.1" x2="59.6" y2="51.9" width="0.4" layer="1"/>
 <wire x1="109.8" y1="57.1" x2="98.9" y2="57.1" width="0.4" layer="16"/>
 <wire x1="98.9" y1="57.1" x2="94.3" y2="61.7" width="0.4" layer="16"/>
@@ -4707,11 +4719,11 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="117.29" y1="68.76" x2="115.96" y2="68.76" width="0.4" layer="1"/>
 <wire x1="115.96" y1="68.76" x2="113.9" y2="66.7" width="0.4" layer="1"/>
 <wire x1="45.84" y1="15.04" x2="49.1" y2="18.3" width="0.4" layer="1"/>
-<wire x1="49.1" y1="18.3" x2="49.1" y2="26.8" width="0.4" layer="1"/>
-<wire x1="49.1" y1="26.8" x2="51.2" y2="28.9" width="0.4" layer="1"/>
+<wire x1="49.1" y1="18.3" x2="49.1" y2="26.9" width="0.4" layer="1"/>
+<wire x1="49.1" y1="26.9" x2="51.2" y2="29" width="0.4" layer="1"/>
 <wire x1="51.2" y1="34.6" x2="54.7" y2="38.1" width="0.4" layer="1"/>
 <wire x1="54.7" y1="38.1" x2="54.7" y2="45.9" width="0.4" layer="1"/>
-<wire x1="51.2" y1="34.6" x2="51.2" y2="28.9" width="0.4" layer="1"/>
+<wire x1="51.2" y1="34.6" x2="51.2" y2="29" width="0.4" layer="1"/>
 <wire x1="54.7" y1="45.9" x2="59.6" y2="50.8" width="0.4" layer="1"/>
 <wire x1="109.8" y1="55.9" x2="99.1" y2="55.9" width="0.4" layer="16"/>
 <wire x1="99.1" y1="55.9" x2="94" y2="61" width="0.4" layer="16"/>
@@ -4727,18 +4739,18 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="114.6" y1="64.6" x2="114.6" y2="59.4" width="0.4" layer="1"/>
 <wire x1="114.6" y1="59.4" x2="109.8" y2="54.6" width="0.4" layer="1"/>
 <via x="109.8" y="54.6" extent="1-16" drill="0.45"/>
-<wire x1="50" y1="16.2" x2="50" y2="26.4" width="0.4" layer="1"/>
-<wire x1="50" y1="26.4" x2="52" y2="28.6" width="0.4" layer="1"/>
+<wire x1="49.9" y1="16.2" x2="49.9" y2="26.6" width="0.4" layer="1"/>
 <wire x1="52" y1="34.1" x2="55.6" y2="37.7" width="0.4" layer="1"/>
 <wire x1="55.6" y1="37.7" x2="55.6" y2="45.6" width="0.4" layer="1"/>
-<wire x1="52" y1="34.1" x2="52" y2="28.6" width="0.4" layer="1"/>
+<wire x1="52" y1="34.1" x2="52" y2="28.7" width="0.4" layer="1"/>
 <wire x1="109.8" y1="54.6" x2="99.3" y2="54.6" width="0.4" layer="16"/>
 <wire x1="99.3" y1="54.6" x2="93.6" y2="60.3" width="0.4" layer="16"/>
 <wire x1="93.6" y1="60.3" x2="70.3" y2="60.3" width="0.4" layer="16"/>
 <wire x1="70.3" y1="60.3" x2="59.6" y2="49.6" width="0.4" layer="16"/>
 <wire x1="55.6" y1="45.6" x2="59.6" y2="49.6" width="0.4" layer="1"/>
-<wire x1="43.34" y1="12.5" x2="46.1" y2="12.5" width="0.4" layer="1"/>
-<wire x1="46.1" y1="12.5" x2="50" y2="16.2" width="0.4" layer="1"/>
+<wire x1="43.34" y1="12.5" x2="46.2" y2="12.5" width="0.4" layer="1"/>
+<wire x1="49.9" y1="26.6" x2="52" y2="28.7" width="0.4" layer="1"/>
+<wire x1="46.2" y1="12.5" x2="49.9" y2="16.2" width="0.4" layer="1"/>
 </signal>
 <signal name="LAMPCTL8">
 <contactref element="PICO1" pad="GP2"/>
@@ -4749,18 +4761,18 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="115.3" y1="58.9" x2="115.3" y2="62.8" width="0.4" layer="1"/>
 <wire x1="117.29" y1="63.68" x2="116.18" y2="63.68" width="0.4" layer="1"/>
 <wire x1="116.18" y1="63.68" x2="115.3" y2="62.8" width="0.4" layer="1"/>
-<wire x1="50.8" y1="14.1" x2="50.8" y2="26.2" width="0.4" layer="1"/>
-<wire x1="50.8" y1="26.2" x2="52.8" y2="28.3" width="0.4" layer="1"/>
+<wire x1="50.6" y1="14" x2="50.6" y2="26.2" width="0.4" layer="1"/>
 <wire x1="56.4" y1="37.1" x2="56.4" y2="45.2" width="0.4" layer="1"/>
 <wire x1="56.4" y1="37.1" x2="52.8" y2="33.5" width="0.4" layer="1"/>
-<wire x1="52.8" y1="33.5" x2="52.8" y2="28.3" width="0.4" layer="1"/>
+<wire x1="52.8" y1="33.5" x2="52.8" y2="28.4" width="0.4" layer="1"/>
 <wire x1="109.8" y1="53.4" x2="99.3" y2="53.4" width="0.4" layer="16"/>
 <wire x1="99.3" y1="53.4" x2="93.1" y2="59.6" width="0.4" layer="16"/>
 <wire x1="93.1" y1="59.6" x2="70.8" y2="59.6" width="0.4" layer="16"/>
 <wire x1="70.8" y1="59.6" x2="59.6" y2="48.4" width="0.4" layer="16"/>
 <wire x1="56.4" y1="45.2" x2="59.6" y2="48.4" width="0.4" layer="1"/>
-<wire x1="46.56" y1="9.96" x2="50.8" y2="14.1" width="0.4" layer="1"/>
+<wire x1="46.56" y1="9.96" x2="50.6" y2="14" width="0.4" layer="1"/>
 <wire x1="43.34" y1="9.96" x2="46.56" y2="9.96" width="0.4" layer="1"/>
+<wire x1="52.8" y1="28.4" x2="50.6" y2="26.2" width="0.4" layer="1"/>
 </signal>
 <signal name="LAMPCTL9">
 <contactref element="IC10" pad="1"/>
@@ -5273,14 +5285,14 @@ ULN and UDN Series&lt;p&gt;
 <signal name="N$36">
 <contactref element="IC13" pad="1"/>
 <contactref element="Y1" pad="1"/>
-<wire x1="53.99" y1="21.13" x2="53.99" y2="17.875" width="0.4" layer="1"/>
+<wire x1="53.99" y1="21.13" x2="53.99" y2="17.875" width="0.3" layer="1"/>
 <wire x1="53.99" y1="17.875" x2="54.065" y2="17.8" width="0.4" layer="1"/>
 </signal>
 <signal name="N$37">
 <contactref element="Y1" pad="2"/>
 <contactref element="IC13" pad="2"/>
-<wire x1="56.53" y1="21.13" x2="56.53" y2="18.295" width="0.4" layer="1"/>
-<wire x1="56.53" y1="18.295" x2="56.035" y2="17.8" width="0.4" layer="1"/>
+<wire x1="56.035" y1="17.8" x2="56.035" y2="20.635" width="0.3" layer="1"/>
+<wire x1="56.035" y1="20.635" x2="56.53" y2="21.13" width="0.3" layer="1"/>
 </signal>
 <signal name="/PERIPHERAL_POWER_ENABLE">
 <contactref element="J8" pad="7"/>
@@ -5302,8 +5314,11 @@ ULN and UDN Series&lt;p&gt;
 <signal name="N$38">
 <contactref element="R32" pad="2"/>
 <contactref element="PICO2" pad="3V3"/>
-<wire x1="67.11" y1="12.53" x2="62.04" y2="12.53" width="0.4" layer="16"/>
-<wire x1="62.04" y1="12.53" x2="57.31" y2="7.8" width="0.4" layer="16"/>
+<wire x1="67.11" y1="12.53" x2="63.4" y2="12.53" width="0.4" layer="16"/>
+<wire x1="57.31" y1="7.8" x2="57.9" y2="7.8" width="0.4" layer="16"/>
+<wire x1="57.9" y1="7.8" x2="58" y2="7.9" width="0.4" layer="16"/>
+<wire x1="58" y1="7.9" x2="58.77" y2="7.9" width="0.4" layer="16"/>
+<wire x1="58.77" y1="7.9" x2="63.4" y2="12.53" width="0.4" layer="16"/>
 </signal>
 <signal name="N$39">
 <contactref element="R33" pad="2"/>
@@ -5318,7 +5333,7 @@ ULN and UDN Series&lt;p&gt;
 <contactref element="S2" pad="4"/>
 <contactref element="Q17" pad="3"/>
 <contactref element="PICO2" pad="RUN"/>
-<wire x1="58.7" y1="31.1" x2="62.4" y2="31.1" width="0.4" layer="1"/>
+<wire x1="56.3" y1="31.1" x2="62.4" y2="31.1" width="0.4" layer="1"/>
 <wire x1="62.4" y1="31.1" x2="63.7" y2="29.8" width="0.4" layer="1"/>
 <wire x1="63.7" y1="29.8" x2="63.7" y2="28.6" width="0.4" layer="1"/>
 <wire x1="67.11" y1="27.77" x2="64.53" y2="27.77" width="0.4" layer="1"/>
@@ -5326,12 +5341,14 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="62.9606" y1="40.5512" x2="62.9606" y2="34.0488" width="0.4" layer="1"/>
 <wire x1="62.9606" y1="34.0488" x2="62.9606" y2="31.6606" width="0.4" layer="1"/>
 <wire x1="62.9606" y1="31.6606" x2="62.4" y2="31.1" width="0.4" layer="1"/>
-<wire x1="52.72" y1="12.3" x2="52.72" y2="22.12" width="0.4" layer="1"/>
 <wire x1="52.72" y1="12.3" x2="52.72" y2="10.83" width="0.4" layer="1"/>
 <wire x1="52.72" y1="10.83" x2="49.69" y2="7.8" width="0.4" layer="1"/>
-<wire x1="58.7" y1="31.1" x2="57.7" y2="30.1" width="0.4" layer="1"/>
-<wire x1="57.7" y1="30.1" x2="57.7" y2="27.1" width="0.4" layer="1"/>
-<wire x1="57.7" y1="27.1" x2="52.72" y2="22.12" width="0.4" layer="1"/>
+<wire x1="52.1" y1="25.2" x2="52.1" y2="12.62" width="0.4" layer="1"/>
+<wire x1="52.1" y1="12.62" x2="52.72" y2="12.3" width="0.4" layer="1"/>
+<wire x1="56.3" y1="31.1" x2="55.2" y2="30" width="0.4" layer="1"/>
+<wire x1="55.2" y1="30" x2="55.2" y2="28.2" width="0.4" layer="1"/>
+<wire x1="52.1" y1="25.2" x2="52.2" y2="25.2" width="0.4" layer="1"/>
+<wire x1="52.2" y1="25.2" x2="55.2" y2="28.2" width="0.4" layer="1"/>
 </signal>
 <signal name="N$41">
 <contactref element="R18" pad="2"/>
@@ -5381,6 +5398,24 @@ ULN and UDN Series&lt;p&gt;
 <wire x1="114.3" y1="12" x2="114.3" y2="21.6" width="0.4" layer="1"/>
 <wire x1="102.8" y1="26.95" x2="108.95" y2="26.95" width="0.4" layer="1"/>
 <wire x1="108.95" y1="26.95" x2="114.3" y2="21.6" width="0.4" layer="1"/>
+</signal>
+<signal name="N$55">
+</signal>
+<signal name="N$52">
+<wire x1="58.2" y1="22.7" x2="52.6" y2="22.7" width="0.2" layer="1"/>
+<wire x1="52.6" y1="22.7" x2="52.6" y2="16.1" width="0.2" layer="1"/>
+<wire x1="52.6" y1="16.1" x2="58" y2="16.1" width="0.2" layer="1"/>
+<wire x1="58" y1="16.1" x2="58" y2="21.9" width="0.2" layer="1"/>
+</signal>
+<signal name="N$53">
+<wire x1="52.6" y1="23.2" x2="62.6" y2="23.2" width="0.2" layer="16"/>
+<wire x1="57.9" y1="16.1" x2="52.5" y2="16.1" width="0.2" layer="16"/>
+<wire x1="52.5" y1="16.1" x2="52.6" y2="23.2" width="0.2" layer="16"/>
+<wire x1="62.6" y1="23.2" x2="62.6" y2="20.1" width="0.2" layer="16"/>
+<wire x1="62.6" y1="20.1" x2="60.6" y2="20.1" width="0.2" layer="16"/>
+<wire x1="60.6" y1="20.1" x2="60.6" y2="22.2" width="0.2" layer="16"/>
+<wire x1="60.6" y1="22.2" x2="58" y2="22.2" width="0.2" layer="16"/>
+<wire x1="58" y1="22.2" x2="58" y2="16.6" width="0.2" layer="16"/>
 </signal>
 </signals>
 </board>

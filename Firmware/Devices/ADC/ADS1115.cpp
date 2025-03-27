@@ -209,10 +209,10 @@ void ADS1115::Configure(JSONParser &json)
                         return;
                     }
 
-                    // Add the entry.  Single-ended inputs 
+                    // Add the entry
                     chip->nLogicalChannels = i + 1;
                     chip->logicalChannel[i].mux = mux;
-                });
+                }, true);
 
                 // abort on error
                 if (!ok)

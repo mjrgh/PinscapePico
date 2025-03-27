@@ -823,7 +823,7 @@
 
         // Output #28 - high-power MOSFET output #28 (power board)
         {
-            device: { type: "workerPico", unit: 0, port: 10 },
+            device: { type: "workerPico", unit: 1, port: 10 },
         },
 
         // Output #29 - Flasher #1 (main board)
@@ -1170,7 +1170,7 @@
     // Let's start with the general "plunger:" settings.
     //
     // plunger: {
-    //     //source: "ads1115[0]",  // source sensor type; can be omitted if only one plunger sensor is configured
+    //     //source: "ads1115",     // source sensor type; can be omitted if only one plunger sensor is configured
     //     autoZero: true,          // enable auto-zeroing; only applies to quadrature sensors, ignored otherwise
     //     autoZeroTime: 5000,      // time in milliseconds for auto-zeroing; plunger must be stationary this long to auto-zero
     //     powerLaw: 2,             // power-law exponent in brightness-to-distance calculation, only for VCNL4010

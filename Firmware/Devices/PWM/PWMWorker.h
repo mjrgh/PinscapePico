@@ -85,7 +85,7 @@ public:
 
     // count ports across all configured chips
     static size_t CountPorts() { return std::accumulate(units.begin(), units.end(), 0,
-        [](int acc, const std::unique_ptr<PWMWorker>& w){ return w != nullptr ? w->nPorts : 0; }); }
+        [](int acc, const std::unique_ptr<PWMWorker>& w){ return w != nullptr ? acc + w->nPorts : acc; }); }
 
     // get my configuration index
     int GetConfigIndex() const { return configIndex; }

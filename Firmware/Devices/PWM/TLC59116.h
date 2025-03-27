@@ -80,7 +80,7 @@ public:
 
     // count ports across all configured chips
     static size_t CountPorts() { return std::accumulate(chips.begin(), chips.end(), 0,
-        [](int acc, const std::unique_ptr<TLC59116>& c){ return c != nullptr ? c->nPorts : 0; }); }
+        [](int acc, const std::unique_ptr<TLC59116>& c){ return c != nullptr ? acc + c->nPorts : acc; }); }
 
     // get my configuration index
     int GetConfigIndex() const { return configIndex; }

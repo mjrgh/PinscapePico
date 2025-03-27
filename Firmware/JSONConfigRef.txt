@@ -3983,7 +3983,7 @@ ads1115.addr number required
   by the wiring on its ADDR pin, which can select among four addresses
   (0x48, 0x49, 0x4A, 0x4B).  Set this property according to the ADDR pin wiring.
 
-ads1115.ready number required
+ads1115.ready number optional
   The GPIO port connected to the chip's ALERT/RDY pin.  You can omit this
   if the pin isn't connected to a Pico port.  It's preferable to connect
   the pin to the Pico, because it allows more efficient use of the I2C

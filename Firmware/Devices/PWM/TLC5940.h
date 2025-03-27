@@ -59,7 +59,7 @@ public:
 
     // count ports across all configured chains
     static size_t CountPorts() { return std::accumulate(chains.begin(), chains.end(), 0,
-        [](int acc, const std::unique_ptr<TLC5940>& c){ return c != nullptr ? c->nPorts : 0; }); }
+        [](int acc, const std::unique_ptr<TLC5940>& c){ return c != nullptr ? acc + c->nPorts : acc; }); }
 
     // get my configuration index
     int GetConfigIndex() const { return chainNum; }

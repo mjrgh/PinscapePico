@@ -300,7 +300,7 @@ void DeviceOverviewWin::PaintOffScreen(HDC hdc0)
         ShowUSB("Pinscape Feedback Controller", usbIfcs.F_FEEDBACK_CONF, 0);
         ShowUSB("LedWiz Protocol Emulation", usbIfcs.F_LEDWIZ_CONF, 0);
         ShowUSB("Virtual COM port (CDC)", usbIfcs.F_CDC_CONF, 0, [this, y, &hdc](int x) {
-            hdc.DrawTextF(x, y, 1, mainFont, HRGB(0x000000), " (%" _TSFMT ")", cdcPortName.c_str());
+            hdc.DrawTextF(x, y, 1, mainFont, HRGB(0x000000), ", %" _TSFMT, cdcPortName.c_str());
         });
         ShowUSB("Keyboard", usbIfcs.F_KEYBOARD_CONF, usbIfcs.F_KEYBOARD_ENA);
         ShowUSB("Gamepad", usbIfcs.F_GAMEPAD_CONF, usbIfcs.F_GAMEPAD_ENA);

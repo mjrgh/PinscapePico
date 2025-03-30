@@ -1272,7 +1272,7 @@
 <package name="3M-30316-6002HB-ROTATED">
 <description>&lt;b&gt;3M-30316-6002HB&lt;/b&gt;&lt;br&gt;
 </description>
-<pad name="1" x="-8.89" y="-1.27" drill="1.01" diameter="1.51" shape="square"/>
+<pad name="1" x="-8.89" y="-1.27" drill="1.01" diameter="1.51"/>
 <pad name="2" x="-8.89" y="1.27" drill="1.01" diameter="1.51"/>
 <pad name="3" x="-6.35" y="-1.27" drill="1.01" diameter="1.51"/>
 <pad name="4" x="-6.35" y="1.27" drill="1.01" diameter="1.51"/>
@@ -1287,7 +1287,7 @@
 <pad name="13" x="6.35" y="-1.27" drill="1.01" diameter="1.51"/>
 <pad name="14" x="6.35" y="1.27" drill="1.01" diameter="1.51"/>
 <pad name="15" x="8.89" y="-1.27" drill="1.01" diameter="1.51"/>
-<pad name="16" x="8.89" y="1.27" drill="1.01" diameter="1.51"/>
+<pad name="16" x="8.89" y="1.27" drill="1.01" diameter="1.51" shape="square"/>
 <text x="-0.127" y="-3.7465" size="0.7" layer="27" align="center">&gt;VALUE</text>
 <text x="-10.3505" y="4.953" size="1.27" layer="25" align="center">&gt;NAME</text>
 <wire x1="-12.68" y1="3.1985" x2="12.68" y2="3.1985" width="0.1" layer="51"/>

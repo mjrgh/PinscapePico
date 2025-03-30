@@ -12855,6 +12855,34 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <wire x1="-1.524" y1="0" x2="1.524" y2="0" width="0.508" layer="21"/>
 <text x="0" y="1.27" size="1.27" layer="21" align="center">&gt;NAME</text>
 </package>
+<package name="SHDR4W117P0X396_1X4_1585X762X1">
+<description>&lt;b&gt;640445-4&lt;/b&gt;&lt;br&gt;
+</description>
+<pad name="1" x="5.94" y="0" drill="1.85" diameter="2.775" shape="square"/>
+<pad name="2" x="1.978" y="0" drill="1.85" diameter="2.775"/>
+<pad name="3" x="-1.984" y="0" drill="1.85" diameter="2.775"/>
+<pad name="4" x="-5.946" y="0" drill="1.85" diameter="2.775"/>
+<text x="-5.109" y="5.969" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="-0.029" y="-2.413" size="0.8" layer="27" align="center">&gt;VALUE</text>
+<wire x1="8.172" y1="-3.298" x2="-8.178" y2="-3.298" width="0.05" layer="51"/>
+<wire x1="-8.178" y1="-3.298" x2="-8.178" y2="5.203" width="0.05" layer="51"/>
+<wire x1="-8.178" y1="5.203" x2="8.172" y2="5.203" width="0.05" layer="51"/>
+<wire x1="8.172" y1="5.203" x2="8.172" y2="-3.298" width="0.05" layer="51"/>
+<wire x1="7.922" y1="-3.048" x2="-7.928" y2="-3.048" width="0.1" layer="21"/>
+<wire x1="-7.928" y1="-3.048" x2="-7.928" y2="4.953" width="0.1" layer="51"/>
+<wire x1="-7.928" y1="4.953" x2="7.922" y2="4.953" width="0.1" layer="51"/>
+<wire x1="7.922" y1="4.953" x2="7.922" y2="-3.048" width="0.1" layer="21"/>
+<wire x1="5.94" y1="-3.048" x2="-7.928" y2="-3.048" width="0.2" layer="21"/>
+<wire x1="-7.928" y1="-3.048" x2="-7.928" y2="4.953" width="0.2" layer="21"/>
+<wire x1="-7.928" y1="4.953" x2="7.922" y2="4.953" width="0.2" layer="21"/>
+<wire x1="7.922" y1="4.953" x2="7.922" y2="0" width="0.2" layer="21"/>
+<polygon width="0.127" layer="21">
+<vertex x="-7.776" y="4.826"/>
+<vertex x="-7.776" y="2.921"/>
+<vertex x="7.845" y="2.921"/>
+<vertex x="7.845" y="4.826"/>
+</polygon>
+</package>
 </packages>
 <symbols>
 <symbol name="350211-1">
@@ -13079,6 +13107,18 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <pin name="P$2" x="5.08" y="0" visible="off" length="short" rot="R180"/>
 <wire x1="-2.54" y1="0" x2="2.54" y2="0" width="0.254" layer="94"/>
 <text x="-5.08" y="2.54" size="1.778" layer="95">&gt;NAME</text>
+</symbol>
+<symbol name="640445-4">
+<wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
+<wire x1="15.24" y1="-10.16" x2="15.24" y2="2.54" width="0.254" layer="94"/>
+<wire x1="15.24" y1="-10.16" x2="5.08" y2="-10.16" width="0.254" layer="94"/>
+<wire x1="5.08" y1="2.54" x2="5.08" y2="-10.16" width="0.254" layer="94"/>
+<text x="16.51" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
+<text x="16.51" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
+<pin name="1" x="0" y="0" length="middle"/>
+<pin name="2" x="0" y="-2.54" length="middle"/>
+<pin name="3" x="0" y="-5.08" length="middle"/>
+<pin name="4" x="0" y="-7.62" length="middle"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -13516,6 +13556,33 @@ Source: &lt;a href="https://www.molex.com/pdm_docs/sd/2165711002_sd.pdf"&gt; Dat
 </connects>
 <technologies>
 <technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="640445-4" prefix="J">
+<description>&lt;b&gt;Conn Wire to Board HDR 4 POS 3.96mm Solder ST Top Entry Thru-Hole Package&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&amp;DocId=Customer Drawing640445AD5pdfEnglishENG_CD_640445_AD5.pdf640445-4"&gt; Datasheet &lt;/a&gt;</description>
+<gates>
+<gate name="G$1" symbol="640445-4" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SHDR4W117P0X396_1X4_1585X762X1">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+<connect gate="G$1" pin="4" pad="4"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="DESCRIPTION" value="Conn Wire to Board HDR 4 POS 3.96mm Solder ST Top Entry Thru-Hole Package" constant="no"/>
+<attribute name="HEIGHT" value="13.716mm" constant="no"/>
+<attribute name="MANUFACTURER_NAME" value="TE Connectivity" constant="no"/>
+<attribute name="MANUFACTURER_PART_NUMBER" value="640445-4" constant="no"/>
+<attribute name="MOUSER_PART_NUMBER" value="571-6404454" constant="no"/>
+<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/TE-Connectivity-AMP/640445-4?qs=P8zzrVhehatZnQ7HMsIjxw%3D%3D" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -15309,13 +15376,11 @@ Source: http://www.irf.com/product-info/datasheets/data/irf9530.pdf</description
 <part name="J16" library="SamacSys_Parts" deviceset="216571-2003" device=""/>
 <part name="J13" library="SamacSys_Parts" deviceset="640445-2" device=""/>
 <part name="J15" library="SamacSys_Parts" deviceset="640445-3" device=""/>
-<part name="J14" library="SamacSys_Parts" deviceset="640445-5" device=""/>
-<part name="J12" library="SamacSys_Parts" deviceset="640445-6" device=""/>
 <part name="J10" library="SamacSys_Parts" deviceset="640445-6" device=""/>
 <part name="J8" library="SamacSys_Parts" deviceset="216571-2003" device=""/>
 <part name="J11" library="SamacSys_Parts" deviceset="640445-6" device=""/>
 <part name="LED1" library="led" deviceset="LED" device="5MM" value="Blue"/>
-<part name="R1" library="rcl" deviceset="R-US_" device="0309/12" value="2.4K/1W"/>
+<part name="R1" library="rcl" deviceset="R-US_" device="0309/12" value="2.4K 1W"/>
 <part name="D1" library="diode" deviceset="1N4007" device=""/>
 <part name="J6" library="SamacSys_Parts" deviceset="44206-0007" device=""/>
 <part name="OK1" library="optocoupler" deviceset="PC817" device=""/>
@@ -15338,6 +15403,8 @@ Source: http://www.irf.com/product-info/datasheets/data/irf9530.pdf</description
 <part name="W2" library="SamacSys_Parts" deviceset="JUMPER-WIRE" device=""/>
 <part name="J4" library="SamacSys_Parts" deviceset="216571-2005" device=""/>
 <part name="J5" library="SamacSys_Parts" deviceset="216571-2005" device=""/>
+<part name="J12" library="SamacSys_Parts" deviceset="640445-5" device=""/>
+<part name="J14" library="SamacSys_Parts" deviceset="640445-4" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -16132,14 +16199,6 @@ Secondary PSU Power Input</text>
 <attribute name="NAME" x="97.79" y="20.32" size="1.778" layer="95" align="center-left"/>
 <attribute name="VALUE" x="97.79" y="17.78" size="1.778" layer="96" align="center-left"/>
 </instance>
-<instance part="J14" gate="G$1" x="154.94" y="20.32" smashed="yes">
-<attribute name="NAME" x="171.45" y="20.32" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="171.45" y="17.78" size="1.778" layer="96" align="center-left"/>
-</instance>
-<instance part="J12" gate="G$1" x="205.74" y="20.32" smashed="yes">
-<attribute name="NAME" x="222.25" y="20.32" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="222.25" y="17.78" size="1.778" layer="96" align="center-left"/>
-</instance>
 <instance part="J10" gate="G$1" x="152.4" y="53.34" smashed="yes">
 <attribute name="NAME" x="168.91" y="53.34" size="1.778" layer="95" align="center-left"/>
 <attribute name="VALUE" x="168.91" y="50.8" size="1.778" layer="96" align="center-left"/>
@@ -16147,6 +16206,14 @@ Secondary PSU Power Input</text>
 <instance part="J11" gate="G$1" x="205.74" y="53.34" smashed="yes">
 <attribute name="NAME" x="222.25" y="53.34" size="1.778" layer="95" align="center-left"/>
 <attribute name="VALUE" x="222.25" y="50.8" size="1.778" layer="96" align="center-left"/>
+</instance>
+<instance part="J12" gate="G$1" x="205.74" y="20.32" smashed="yes">
+<attribute name="NAME" x="222.25" y="20.32" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="222.25" y="17.78" size="1.778" layer="96" align="center-left"/>
+</instance>
+<instance part="J14" gate="G$1" x="152.4" y="20.32" smashed="yes">
+<attribute name="NAME" x="168.91" y="20.32" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="168.91" y="17.78" size="1.778" layer="96" align="center-left"/>
 </instance>
 </instances>
 <busses>
@@ -16247,30 +16314,26 @@ Secondary PSU Power Input</text>
 <wire x1="152.4" y1="40.64" x2="149.86" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="J12" gate="G$1" pin="1"/>
 <wire x1="200.66" y1="20.32" x2="203.2" y2="20.32" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="20.32" x2="205.74" y2="20.32" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="20.32" x2="203.2" y2="17.78" width="0.1524" layer="91"/>
 <junction x="203.2" y="20.32"/>
-<pinref part="J12" gate="G$1" pin="6"/>
 <wire x1="203.2" y1="17.78" x2="203.2" y2="15.24" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="15.24" x2="203.2" y2="12.7" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="12.7" x2="203.2" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="203.2" y1="10.16" x2="203.2" y2="7.62" width="0.1524" layer="91"/>
-<wire x1="203.2" y1="7.62" x2="205.74" y2="7.62" width="0.1524" layer="91"/>
-<pinref part="J12" gate="G$1" pin="5"/>
 <wire x1="203.2" y1="10.16" x2="205.74" y2="10.16" width="0.1524" layer="91"/>
-<junction x="203.2" y="10.16"/>
-<pinref part="J12" gate="G$1" pin="4"/>
 <wire x1="203.2" y1="12.7" x2="205.74" y2="12.7" width="0.1524" layer="91"/>
 <junction x="203.2" y="12.7"/>
-<pinref part="J12" gate="G$1" pin="3"/>
 <wire x1="203.2" y1="15.24" x2="205.74" y2="15.24" width="0.1524" layer="91"/>
 <junction x="203.2" y="15.24"/>
-<pinref part="J12" gate="G$1" pin="2"/>
 <wire x1="203.2" y1="17.78" x2="205.74" y2="17.78" width="0.1524" layer="91"/>
 <junction x="203.2" y="17.78"/>
 <label x="200.66" y="20.32" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="J12" gate="G$1" pin="1"/>
+<pinref part="J12" gate="G$1" pin="2"/>
+<pinref part="J12" gate="G$1" pin="3"/>
+<pinref part="J12" gate="G$1" pin="4"/>
+<pinref part="J12" gate="G$1" pin="5"/>
 </segment>
 <segment>
 <label x="203.2" y="40.64" size="1.27" layer="95" rot="R180" xref="yes"/>
@@ -16285,26 +16348,22 @@ Secondary PSU Power Input</text>
 <wire x1="152.4" y1="43.18" x2="149.86" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="J14" gate="G$1" pin="1"/>
+<wire x1="147.32" y1="20.32" x2="149.86" y2="20.32" width="0.1524" layer="91"/>
 <wire x1="149.86" y1="20.32" x2="152.4" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="152.4" y1="20.32" x2="154.94" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="152.4" y1="20.32" x2="152.4" y2="17.78" width="0.1524" layer="91"/>
-<junction x="152.4" y="20.32"/>
+<wire x1="149.86" y1="20.32" x2="149.86" y2="17.78" width="0.1524" layer="91"/>
+<junction x="149.86" y="20.32"/>
+<wire x1="149.86" y1="17.78" x2="152.4" y2="17.78" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="17.78" x2="149.86" y2="15.24" width="0.1524" layer="91"/>
+<junction x="149.86" y="17.78"/>
+<wire x1="149.86" y1="15.24" x2="152.4" y2="15.24" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="15.24" x2="149.86" y2="12.7" width="0.1524" layer="91"/>
+<junction x="149.86" y="15.24"/>
+<wire x1="149.86" y1="12.7" x2="152.4" y2="12.7" width="0.1524" layer="91"/>
+<label x="147.32" y="20.32" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="J14" gate="G$1" pin="1"/>
 <pinref part="J14" gate="G$1" pin="2"/>
-<wire x1="152.4" y1="17.78" x2="154.94" y2="17.78" width="0.1524" layer="91"/>
-<wire x1="152.4" y1="17.78" x2="152.4" y2="15.24" width="0.1524" layer="91"/>
-<junction x="152.4" y="17.78"/>
 <pinref part="J14" gate="G$1" pin="3"/>
-<wire x1="152.4" y1="15.24" x2="154.94" y2="15.24" width="0.1524" layer="91"/>
-<wire x1="152.4" y1="15.24" x2="152.4" y2="12.7" width="0.1524" layer="91"/>
-<junction x="152.4" y="15.24"/>
 <pinref part="J14" gate="G$1" pin="4"/>
-<wire x1="152.4" y1="12.7" x2="154.94" y2="12.7" width="0.1524" layer="91"/>
-<wire x1="152.4" y1="12.7" x2="152.4" y2="10.16" width="0.1524" layer="91"/>
-<junction x="152.4" y="12.7"/>
-<pinref part="J14" gate="G$1" pin="5"/>
-<wire x1="152.4" y1="10.16" x2="154.94" y2="10.16" width="0.1524" layer="91"/>
-<label x="149.86" y="20.32" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <label x="203.2" y="43.18" size="1.27" layer="95" rot="R180" xref="yes"/>

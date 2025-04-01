@@ -445,6 +445,25 @@ void DeviceOverviewWin::PaintPinoutDiagram(HDCHelper &hdc, int xOffset, int yOff
             gpioPinOffset = -gpioPinOffset;
         }
 
+        // GP25 is the Pico on-board LED
+        if (i == 25)
+        {
+            if (!forPrinter && gpioStates[i] != 0)
+            {
+                POINT pt{ x + 105, y + 121 };
+                HBrush br(HRGB(0x00ff00));
+                HBRUSH oldBr = SelectBrush(hdc, br);
+                HPEN oldPen = SelectPen(hdc, NULL_PEN);
+                Ellipse(hdc, pt.x - 9, pt.y - 9, pt.x + 9, pt.y + 9);
+
+                SelectBrush(hdc, oldBr);
+                SelectPen(hdc, oldPen);
+            }
+
+            // this GP isn't exposed as a pin, so there's nothing more to do
+            continue;
+        }
+
         // skip unexposed GP's
         if (yGPIO[i] < 0)
             continue;

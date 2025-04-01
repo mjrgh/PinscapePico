@@ -5,15 +5,39 @@ pinball cabinets.  It's nominally designed to be used with the
 Pinscape Pico expansion boards, but it could really be used with just
 about any pin cab setup, with or without an I/O board like Pinscape.
 
+
+## 120VAC vs 220/230/240VAC
+
+I use the term "120VAC" here to refer to the line voltage - the
+voltage from your wall outlet plug.  I call it "120VAC" just to make
+it concrete and avoid jargon, but it makes it sound like you can
+*only* use the board with 120VAC plugs, which isn't true.  What I
+really mean is **line voltage**, whatever that happens to be in your
+region.
+
+To be clear, the board will also work in countries with 220VAC to
+240VAC outlets, which is the standard in Europe and many other parts
+of the world.
+
+The board really doesn't care what the line voltage is, because it
+doesn't have any transformers or other parts designed around specific
+voltages.  It just routes the line voltage to the various headers.
+That lets you use any voltage, as long as it's within the upper limits
+for all of the parts.  The limiting factor is the switching relay,
+which is rated for up to 240VAC.
+
 ## Danger - high voltage
 
-This board provides connections to the 120VAC mains inputs to the
-various DC power supplies.  It also has a section for 48VDC power.
-Line voltage and 48VDC are both hazardous, capable of causing electric
-shock and fires.  The board must be installed in the cabinet so that
-it's shielded from accidental contact with the operator or with loose
-articles, in a grounded metal enclosure (grounded to Earth ground
-through the AC outlet) or an insulated enclosure.
+This board provides connections to the 120VAC (or 240VAC) wall outlet
+power inputs to the various DC power supplies.  It also has a section
+for 48VDC power.  Line voltage and 48VDC are both hazardous, capable
+of causing electric shock and fires.  The board must be installed in
+the cabinet so that it's shielded from accidental contact with the
+operator or contact with loose articles.  It should have either a
+grounded metal enclosure (grounded to Earth ground through the AC
+outlet) or an insulated enclosure.  Always unplug it from all outside
+power sources when doing any work on the board.
+
 
 ## Features
 

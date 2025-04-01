@@ -475,6 +475,7 @@ void I2C::UnitTask()
     switch (state)
     {
     case State::Ready:
+    ReadyState:
         // Check for console bus-clear requests and bus timeout conditions
         if (busClearRequested)
         {
@@ -603,7 +604,8 @@ void I2C::UnitTask()
                 break;
             
             // advance to the next device, wrapping at the end of the list
-            curDevice = (curDevice + 1) % devices.size();
+            if (++curDevice >= devices.size())
+                curDevice = 0;
             
             // stop if we've wrapped back to where we started - this means
             // that none of the devices have pending work at the moment, so
@@ -691,10 +693,16 @@ void I2C::UnitTask()
             state = State::Ready;
         }
 
-        // if we're now in Ready state, advance the round-robin counter
-        // to the next device
+        // if we're now in Ready state, process the new Ready state
         if (state == State::Ready)
-            curDevice = (curDevice + 1) % devices.size();
+        {
+            // advance to the next device in round-robin order
+            if (++curDevice >= devices.size())
+                curDevice = 0;
+
+            // give it a chance to start a reqest
+            goto ReadyState;
+        }
 
         // done
         break;

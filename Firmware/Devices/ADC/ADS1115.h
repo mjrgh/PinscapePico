@@ -59,6 +59,29 @@ protected:
     // ALERT/RDY line GPIO, or -1 if not connected
     int gpAlertRdy;
 
+    // ALERT/RDY interrupt handler
+    void IRQ();
+
+    // IRQ stats
+    struct IRQStats
+    {
+        // number of IRQs
+        volatile uint64_t n = 0;
+
+        // time of last IRQ
+        volatile uint64_t tIRQ = 0;
+
+        // reset
+        void Reset()
+        {
+            n = 0;
+        }
+    };
+    IRQStats irqStats;
+    
+    // flag: ALERT/RDY signal received in interrupt handler
+    volatile bool alertReadyFlag = false;
+
     // Logical channels.  The public interface works in terms of logical
     // channels numbers.  A logical channel number is an index into this
     // array, which maps the logical channel number to a physical input
@@ -89,24 +112,51 @@ protected:
         struct Stats
         {
             // number of samples collected since last reset
-            uint64_t n = 0;
+            uint64_t nConv = 0;
+
+            // number of polling reads
+            uint64_t nPoll = 0;
 
             // total conversion time (sum of times from initiating a sample
             // on this channel to receiving the sample)
             uint64_t tConvSum = 0;
 
+            // cumulative time from sample start to IRQ
+            uint64_t tConvToIrqSum = 0;
+
+            // cumulative IRQ-to-poll time (sum of delta time from Alert/Ready
+            // IRQ to initiating I2C polling request)
+            uint64_t tIrqToPollSum = 0;
+
+            // cumulative IRQ-to-receive latency (sum of delta time from
+            // Alert/Ready IRQ time to actually receiving the sample
+            // from the I2C connection)
+            uint64_t tIrqToReceiveSum = 0;
+
             // add a new sample with its conversion time
-            void AddConv(uint64_t tConv)
+            void AddConv(uint64_t tConv, uint64_t irqLatency)
             {
-                ++n;
+                ++nConv;
                 tConvSum += tConv;
+                tIrqToReceiveSum += irqLatency;
+            }
+
+            // add a polling read
+            void AddPoll(uint64_t irqLatency)
+            {
+                ++nPoll;
+                tIrqToPollSum += irqLatency;
             }
 
             // reset statistics
             void Reset()
             {
-                n = 0;
+                nConv = 0;
+                nPoll = 0;
                 tConvSum = 0;
+                tConvToIrqSum = 0;
+                tIrqToPollSum = 0;
+                tIrqToReceiveSum = 0;
             }
         };
         Stats stats;
@@ -122,6 +172,9 @@ protected:
 
     // statistics collection starting time
     uint64_t tStatsReset = 0;
+
+    // number of I2CReady calls
+    uint64_t nI2CReady = 0;
 
     // current CONFIG register setting (see data sheet or Init() comments for bit meanings)
     uint8_t configHi = 0x03;

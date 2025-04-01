@@ -472,8 +472,7 @@ bool PWMWorker::OnI2CReady(I2CX *i2cx)
                 for (int i = 0 ; i < n ; ++i)
                     *dst++ = *src++;
 
-                //$$$
-#if 0
+#if 0 // Low-level debug instrumentation - disable by default
                 {
                     char hexBytes[26*3+1];
                     char *ph = hexBytes;
@@ -489,8 +488,7 @@ bool PWMWorker::OnI2CReady(I2CX *i2cx)
                     *(ph-1) = 0;
                     Log(LOG_DEBUG, "Worker[%d]: dirty %06lx, sending LED%d n=%d [%s]\n", configIndex, dirty, idx0, n, hexBytes);
                 }
-#endif
-                //$$$
+#endif // end debug
 
                 // add the transaction to the builder
                 txb.AddWrite(buf, n + 1);

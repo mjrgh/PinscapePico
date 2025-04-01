@@ -231,7 +231,7 @@ void ADS1115::Configure(JSONParser &json)
                 // get the value as a float
                 float f = fsr->Float();
 
-                // find the closeset match for the PGA values
+                // find the closest match for the PGA values
                 int best = -1;
                 float minDelta = 0.0f;
                 for (size_t i = 0 ; i < _countof(pgaVoltages) ; ++i)
@@ -258,9 +258,14 @@ void ADS1115::Configure(JSONParser &json)
                     return;
                 }
 
-                // claim the pin as an input, with pull-up
+                // claim the pin as an input, with pull-up (the ALERT/RDY line is open-drain)
                 if (!gpioManager.ClaimSharedInput("ADS1115 (ALERT/RDY)", gpReady, true, false, true))
                     return;
+
+                // set up an interrupt handler
+                gpio_add_raw_irq_handler(gpReady, thunkManager.Create(&ADS1115::IRQ, chip));
+                gpio_set_irq_enabled(gpReady, GPIO_IRQ_EDGE_FALL, true);
+                irq_set_enabled(IO_IRQ_BANK0, true);
             }
 
             // looks good - add the chip to the ADC manager's list
@@ -277,8 +282,11 @@ void ADS1115::Configure(JSONParser &json)
             chip->Init(i2c_get_instance(bus));
 
             // success
-            Log(LOG_CONFIG, "ADS1115[%d] configured on I2C%d addr 0x%02X, %d samples/second (DR=%03d), full-scale voltage range +/- %.3fV (PGA=%03d)\n",
-                index, bus, addr,
+            char readyTxt[20];
+            sprintf(readyTxt, gpReady >= 0 ? "GP%d" : "not connected", gpReady);
+            Log(LOG_CONFIG, "ADS1115[%d] configured on I2C%d addr 0x%02X, ALERT/READY %s, %d samples/second (DR=%03d), "
+                "full-scale voltage range +/- %.3fV (PGA=%03d)\n",
+                index, bus, addr, readyTxt,
                 chip->samplesPerSecond, FormatBinary(chip->drBits, 0, 3),
                 pgaVoltages[chip->pga], FormatBinary(chip->pga, 0, 3));
 
@@ -491,8 +499,31 @@ ADC::Sample ADS1115::ReadNorm(int ch)
     }
 }
 
+void ADS1115::IRQ()
+{
+    // check for our interrupt
+    if ((gpio_get_irq_event_mask(gpAlertRdy) & GPIO_IRQ_EDGE_FALL) != 0)
+    {
+        // set the alert/ready flag
+        alertReadyFlag = true;
+
+        // count the interrupt
+        uint64_t t = time_us_64();
+        irqStats.n += 1;
+        irqStats.tIRQ = t;
+        if (curSamplingChannel >= 0)
+            logicalChannel[curSamplingChannel].stats.tConvToIrqSum += t - tCurSampleStarted;
+
+        // acknowledge the interrupt
+        gpio_acknowledge_irq(gpAlertRdy, GPIO_IRQ_EDGE_FALL);
+    }
+}
+
 bool ADS1115::OnI2CReady(I2CX *i2c)
 {
+    // count the polling opportunity
+    ++nI2CReady;
+
     // Set up a batch of transactions: update the config register if needed,
     // read the config register to determine if the conversion is still in
     // progress, and read the value register.
@@ -502,7 +533,7 @@ bool ADS1115::OnI2CReady(I2CX *i2c)
     if (configChangePending)
     {
         // register address 0x01 = config
-        uint8_t buf[] = { 0x01, configHi, configLo };
+        uint8_t buf[] = { CONFIG_REG_ADDR, configHi, configLo };
         b.AddWrite(buf, _countof(buf));
 
         // clear the pending change
@@ -524,8 +555,11 @@ bool ADS1115::OnI2CReady(I2CX *i2c)
     // If we don't have a GPIO assigned as the ALERT/RDY input, the only
     // way to find out if the sample is ready is to read the config
     // register.
-    if (gpAlertRdy < 0 || !gpio_get(gpAlertRdy))
+    if (gpAlertRdy < 0 || alertReadyFlag)
     {
+        // clear the alert/ready flag
+        alertReadyFlag = false;
+
         // Read the config register (address 0x01)
         uint8_t buf[] = { CONFIG_REG_ADDR };
         b.AddRead(buf, _countof(buf), 2);
@@ -533,6 +567,10 @@ bool ADS1115::OnI2CReady(I2CX *i2c)
         // read the conversion register - register 0x00, receive length 2 bytes
         uint8_t buf2[] = { CONV_REG_ADDR };
         b.AddRead(buf2, _countof(buf2), 2);
+
+        // count the polling read start
+        if (curSamplingChannel >= 0)
+            logicalChannel[curSamplingChannel].stats.AddPoll(time_us_64() - irqStats.tIRQ);
     }
 
     // if we queued any work, fire off the transaction batch
@@ -573,7 +611,7 @@ bool ADS1115::OnI2CReceive(const uint8_t *data, size_t len, I2CX *i2c)
         ch->raw = { static_cast<int16_t>((static_cast<uint16_t>(data[2]) << 8) | data[3]), tReceived };
 
         // count the sample time
-        ch->stats.AddConv(tReceived - tCurSampleStarted);
+        ch->stats.AddConv(tReceived - tCurSampleStarted, tReceived - irqStats.tIRQ);
 
         // Advance to the next logical channel, wrapping after the last
         // channel.
@@ -633,18 +671,31 @@ void ADS1115::Command_main(const ConsoleCommandContext *c)
         if (strcmp(a, "-s") == 0 || strcmp(a, "--stats") == 0)
         {
             // show statistics
+            char readyTxt[24];
+            sprintf(readyTxt, gpAlertRdy < 0 ? "Not Connected" : "GP%d", gpAlertRdy);
             c->Printf(
                 "ADS1115 chip #%d (I2C addr 0x%02X)\n"
-                "Config reg sent:       %02X%02X (OS=%d, MUX=%03d, PGA=%03d, MODE=%d, DR=%02d, COMP_MODE=%d, COMP_POL=%d, COMP_LAT=%d, COMP_QUE=%d)\n"
-                "Logical channels:      %d\n"
-                "Current scan channel:  %d\n",
+                "Config reg sent:        %02X%02X (OS=%d, MUX=%03d, PGA=%03d, MODE=%d, DR=%02d, COMP_MODE=%d, COMP_POL=%d, COMP_LAT=%d, COMP_QUE=%02d)\n"
+                "Alert/Ready:            %s\n"
+                "Logical channels:       %d\n"
+                "Current scan channel:   %d\n"
+                "I2CReady passes:        %llu\n"
+                "Avg I2C pass interval:  %llu us\n",
                 chipNum, i2cAddr,
                 configHi, configLo,
                 FormatBinary(configHi, 7, 1), FormatBinary(configHi, 4, 3), FormatBinary(configHi, 1, 3), FormatBinary(configHi, 0, 1),
                 FormatBinary(configLo, 5, 3), FormatBinary(configLo, 4, 1), FormatBinary(configLo, 3, 1), FormatBinary(configLo, 2, 1),
                 FormatBinary(configLo, 0, 2),
-                nLogicalChannels, curSamplingChannel);
+                readyTxt, nLogicalChannels, curSamplingChannel,
+                nI2CReady, (time_us_64() - tStatsReset) / nI2CReady);
             
+            if (gpAlertRdy >= 0)
+            {
+                c->Printf(
+                    "Number of IRQs:         %llu\n",
+                    irqStats.n);
+            }
+
             LogicalChannel *ch = &logicalChannel[0];
             uint64_t dt = time_us_64() - tStatsReset;
             for (int i = 0 ; i < nLogicalChannels ; ++i, ++ch)
@@ -652,25 +703,40 @@ void ADS1115::Command_main(const ConsoleCommandContext *c)
                 static const char *muxName[]{ "AIN0/AIN1", "AIN0/AIN3", "AIN1/AIN3", "AIN2/AIN3", "AIN0", "AIN1", "AIN2", "AIN3" };
                 c->Printf(
                     "\nChannel %d:\n"
-                    "  Input:               %s (MUX=%03d)\n"
-                    "  Last sample (raw):   %d\n"
-                    "  Timestamp:           %llu\n"
-                    "  Sample count:        %llu\n"
-                    "  Avg conv time:       %llu us\n"
-                    "  Avg sample interval: %llu us\n",
+                    "  Input:                %s (MUX=%03d)\n"
+                    "  Last sample (raw):    %d\n"
+                    "  Timestamp:            %llu\n"
+                    "  Sample count:         %llu\n"
+                    "  Polling reads:        %llu\n"
+                    "  Avg conv time:        %llu us\n"
+                    "  Avg sample interval:  %llu us\n",
                     i,
                     muxName[ch->mux], FormatBinary(ch->mux, 0, 3),
                     ch->raw.sample,
                     ch->raw.timestamp,
-                    ch->stats.n,
-                    ch->stats.n != 0 ? ch->stats.tConvSum / ch->stats.n : 0,
-                    ch->stats.n != 0 ? dt / ch->stats.n : 0);
+                    ch->stats.nConv,
+                    ch->stats.nPoll,
+                    ch->stats.nPoll != 0 ? ch->stats.tConvSum / ch->stats.nPoll : 0,
+                    ch->stats.nPoll != 0 ? dt / ch->stats.nPoll : 0);
+
+                if (gpAlertRdy >= 0)
+                {
+                    c->Printf(
+                        "  Avg conv-to-IRQ time: %llu us\n"
+                        "  Avg IRQ-to-poll time: %llu us\n"
+                        "  Avg IRQ-to-recv time: %llu us\n",
+                        ch->stats.nPoll != 0 ? ch->stats.tConvToIrqSum / ch->stats.nPoll : 0,
+                        ch->stats.nPoll != 0 ? ch->stats.tIrqToPollSum / ch->stats.nPoll : 0,
+                        ch->stats.nPoll != 0 ? ch->stats.tIrqToReceiveSum / ch->stats.nPoll : 0);
+                }
             }
         }
         else if (strcmp(a, "--reset-stats") == 0)
         {
             // reset statistics
             tStatsReset = time_us_64();
+            nI2CReady = 0;
+            irqStats.Reset();
             for (int i = 0 ; i < nLogicalChannels ; ++i)
                 logicalChannel[i].stats.Reset();
 

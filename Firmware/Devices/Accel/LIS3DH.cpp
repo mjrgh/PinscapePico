@@ -75,10 +75,11 @@ void LIS3DH::Configure(JSONParser &json)
         }
 
         // Get the interrupt pin, if any
-        int gpIntr = val->Get("interrupt")->Int(-1);
-        if (gpIntr != -1)
+        int gpIntr = -1;
+        if (auto valIntr = val->Get("interrupt") ; !val->IsUndefined())
         {
             // validate it
+            gpIntr = valIntr->Int(-1);
             if (!IsValidGP(gpIntr))
             {
                 Log(LOG_ERROR, "lis3dh: invalid interrupt GPIO port\n");
@@ -172,6 +173,10 @@ void LIS3DH::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
             Log(whoAmI == 0x33 ? LOG_INFO : LOG_ERROR, "LIS3DH: WHO_AM_I (reg 0x0F)=0x%02x (%s)\n", whoAmI,
                 whoAmI == 0x33 ? "OK" : whoAmI == 0x3F ? "LIS3DSH - wrong driver selected" : "invalid; expected 0x33");
         }
+        else
+        {
+            Log(LOG_ERROR, "LIS3DH: WHO_AM_I read request failed\n");
+        }
     }
 
     // check if the device is in low-power mode - if so, we need to wait
@@ -179,13 +184,18 @@ void LIS3DH::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
     bool wasLPEn = true;
     {
         uint8_t buf[] = { 0x20 }, cr1 = 0;
-        ok = (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), true, 1000) == _countof(buf))
-             && (i2c_read_timeout_us(i2c, i2cAddr, &cr1, 1, false, 1000) == 1)
-             && ok;
-
-        // if the LPen bit (0x08) is zero, we're in normal mode; if it's 1, we're in low-power mode
-        if (ok && (cr1 & 0x08) == 0)
-            wasLPEn = false;
+        if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), true, 1000) == _countof(buf)
+            && i2c_read_timeout_us(i2c, i2cAddr, &cr1, 1, false, 1000) == 1)
+        {
+            // if the LPen bit (0x08) is zero, we're in normal mode; if it's 1, we're in low-power mode
+            if ((cr1 & 0x08) == 0)
+                wasLPEn = false;
+        }
+        else
+        {
+            Log(LOG_ERROR, "LIS3DH: CTRL_REG1 read request (for LPen status) failed\n");
+            ok = false;
+        }
     }
 
     // CTRL_REG4 (0x23)
@@ -195,7 +205,11 @@ void LIS3DH::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
     {
         uint8_t scaleBits = (gRange == 16 ? 0x30 : gRange == 8 ? 0x20 : gRange == 4 ? 0x10 : 0x00);
         uint8_t buf[] = { 0x23, static_cast<uint8_t>(scaleBits | 0x80 | 0x08) };
-        ok = (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) == _countof(buf)) && ok;
+        if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) != _countof(buf))
+        {
+            Log(LOG_ERROR, "LIS3DH: CTRL_REG4 write request failed\n");
+            ok = false;
+        }
     }
 
     // CTRL_REG3 (0x22)
@@ -203,14 +217,22 @@ void LIS3DH::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
     // Note that the data sheet warns that this should be done before setting ODR
     {
         uint8_t buf[] = { 0x22, static_cast<uint8_t>(gpInterrupt != -1 ? 0x10 : 0x00) };
-        ok = (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) == _countof(buf)) && ok;
+        if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) != _countof(buf))
+        {
+            Log(LOG_ERROR, "LIS3DH: CTRL_REG3 write request failed\n");
+            ok = false;
+        }
     }
 
     // CTRL_REG1 (0x20)
     // enable sample collection, data rate 400 Hz (2.5ms per sample), high-res/normal mode, Z/Y/X enabled
     {
         uint8_t buf[] = { 0x20, 0x77 };
-        ok = (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) == _countof(buf)) && ok;
+        if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) != _countof(buf))
+        {
+            Log(LOG_ERROR, "LIS3DH: CTRL_REG1 write reqeust failed\n");
+            ok = false;
+        }
     }
 
     // If we were in low-power mode, wait for the turn-on time (see ST
@@ -223,21 +245,29 @@ void LIS3DH::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
     // set interrupt polarity to active-low
     {
         uint8_t buf[] = { 0x25, 0x02 };
-        ok = (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) == _countof(buf)) && ok;
+        if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) != _countof(buf))
+        {
+            Log(LOG_ERROR, "LIS3DH: CTRL_REG6 write request failed\n");
+            ok = false;
+        }
     }
 
     // TEMP_CFG_REG (0x1F)
     // Enable temperature readings: Set ADC_EN | TEMP_EN (0x80 | 0x40)
     {
         uint8_t buf[] = { 0x1f, 0x80 | 0x40 };
-        ok = (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) == _countof(buf)) && ok;
+        if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) != _countof(buf))
+        {
+            Log(LOG_ERROR, "LIS3DH: TEMP_CFG_REG write request failed\n");
+            ok = false;
+        }
     }
 
     // log status
     char intrDesc[8];
-    sprintf(intrDesc, gpInterrupt == -1 ? "N/A" : "GP%d", gpInterrupt);
-    Log(ok ? LOG_CONFIG : LOG_ERROR, "LIS3DH device initialization %s; interrupt %s, dynamic range +/- %dg\n",
-        ok ? "OK" : "failed", intrDesc, gRange);
+    sprintf(intrDesc, gpInterrupt == -1 ? "not connected" : "GP%d", gpInterrupt);
+    Log(ok ? LOG_CONFIG : LOG_ERROR, "LIS3DH device initialization %s; I2C%d address 0x%02X, interrupt %s, dynamic range +/- %dg\n",
+        ok ? "OK" : "failed", i2c_hw_index(i2c), i2cAddr, intrDesc, gRange);
 }
 
 void LIS3DH::I2CReinitDevice(I2C *i2c)
@@ -261,9 +291,10 @@ void LIS3DH::IRQ()
             inst->stats.tIntr = now;
 
         // Count the interrupt, EXCEPT when the interrupt is within 500us of
-        // the start of the last I2C read.  The LIS3DH's DRDY signal on INT1
-        // has a peculiar behavior that contradicts the timing schematic shown
-        // in the data sheet, which we need to work around:
+        // the start of the last I2C read.  This is to work around an observed
+        // bug in the LIS3DH hardware, which causes the chip's actual behavior
+        // on its INT1 output to deviate from the way it's documented to behave
+        // in the manufacturer's Application Note:
         //
         // * What should happen: when a new sample is loaded into OUT Z (the
         //   last register loaded when a new sample is ready), the ZYXDA bit
@@ -275,44 +306,48 @@ void LIS3DH::IRQ()
         //   the third register, ZYXDA clears to '0' and INT1 goes inactive
         //   (high).
         //
-        // * What REALLY happens: the first part, where INT1 goes low when
-        //   a new sample has been loaded into OUT Z, works as documented.
-        //   The second part is wrong in the AN, though.  Instead of INT1
-        //   remaining low until all three OUT registers are read, INT1
-        //   momentarily toggles to inactive (high) and then back to active
-        //   (low) after EACH BYTE of the output registers is read.  So we
-        //   see five low-high-low transitions on INT1 as we read out the
-        //   six register bytes, triggering our EDGE_FALL interrupt five
-        //   times as the I2C transaction proceeds.  The timing of these
-        //   five interrupts coincides with the I2C transmission of the
-        //   first five register bytes.  After the chip reads out the
-        //   sixth register byte (the high byte of OUT Z), INT1 finally
-        //   settles at inactive (high) and we stop seeing the repeated
-        //   interrupts.
+        // * What REALLY happens: the first part, where INT1 goes low when a
+        //   new sample has been loaded into OUT Z, works as documented in
+        //   the Application Note.  The second part is wrong in the AN,
+        //   though.  Instead of INT1 remaining low until all three OUT
+        //   registers are read, INT1 momentarily toggles to inactive (high)
+        //   and then back to active (low) after EACH BYTE of the output
+        //   registers is read.  So we see five low-high-low transitions on
+        //   INT1 as we read out the six register bytes, triggering our
+        //   EDGE_FALL interrupt five times as the I2C transaction proceeds.
+        //   The timing of these five interrupts coincides with the I2C
+        //   transmission of the first five register bytes.  After the chip
+        //   reads out the sixth register byte (the high byte of OUT Z),
+        //   INT1 finally settles at inactive (high) and we stop seeing the
+        //   repeated interrupts.
         //
-        // Presumably, the extra interrupts are an artifact of some internal
+        // Presumably, the extra interrupts are artifacts of some internal
         // logic in the chip that updates the ZYXDA bit, during which update
         // the bit gets momentarily cleared until the update logic sets it
         // back to '1' upon determining that the clear condition hasn't been
         // met yet.  Whatever the reason, the momentary clearing of the bit
-        // takes the INT1 line high for long enough for the Pico to detect
-        // the edge and invoke the IRQ handler.
+        // takes the INT1 line HIGH for long enough for the Pico to detect
+        // the change, which triggers a new falling-edge IRQ when the LIS3DH
+        // corrects itself and sets INT1 back to LOW.
         //
-        // The extra interrupts contradict the Application Note (the data
-        // sheet says nothing about them one way or the other; the woeful
-        // inadequacy of the data sheet is probably why there's an Application
-        // Note at all), so the behavior is either a bug in the chip or an
-        // erratum in the Application Note.  The difference is academic as
-        // it's the way the chip actually works.  Fortunately, while the extra
-        // interrupts are be spurious, they're not sporadic; they happen
-        // consistently every time time, and they have consistent timing.  So
-        // we can work around the bug/erratum by filtering out the interrupts
-        // that we know to be spurious.  We know that an interrupt is spurious
-        // if it happens within the time it takes an I2C OUT X/Y/Z read
-        // transaction to complete, which is about 220us.  To be safe,
-        // extend that time window a bit, since there can be some variation
-        // if other asynchronous (interrupt) events occur while we're setting
-        // up the read.
+        // The extra rising/falling edges contradict the Application Note.
+        // (It's worth mentioning that the ONLY place the timing behavior on
+        // INT1 is documented is in the Application Note.  The data sheet has
+        // nothing to say about it, and indeed omits a lot of other critical
+        // information, which is undoubtedly why the Application Note exists
+        // in the first place.)  So, the behavior is either a bug in the chip,
+        // or an erratum in the Application Note.  It hardly matters which it
+        // is, though, as it's just the way the chip actually works.
+        //
+        // Fortunately, while the extra interrupts are certainly spurious, at
+        // least they're not sporadic: they happen consistently, on every
+        // register read sequence, and they have consistent timing.  That
+        // makes them easy to work around.  We know that an interrupt is
+        // spurious if it happens within the time it takes an I2C OUT X/Y/Z
+        // read transaction to complete, which is about 220us.  To be safe,
+        // extend that time window a bit, since there can be some variation if
+        // other asynchronous (interrupt) events occur while we're setting up
+        // the read.
         if (now > inst->stats.tReadStarted + 500)
             inst->stats.nIntr += 1;
         
@@ -326,7 +361,7 @@ bool LIS3DH::OnI2CReady(I2CX *i2c)
 {
     // Check if we have an interrupt signal from the chip, which tells
     // us asynchronously when a sample becomes available.
-    if (gpInterrupt != -1)
+    if (gpInterrupt >= 0)
     {
         // Interrupt line is available, so we can check the status
         // without a status read.  If the line is low, a sample is

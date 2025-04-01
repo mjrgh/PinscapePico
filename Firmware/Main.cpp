@@ -939,7 +939,7 @@ static void Command_loopstats(const ConsoleCommandContext *c)
             "Boot mode:      %s\n"
             "\n"
             "Main loop statistics:\n"
-            "  Uptime:       %s us (%d days, %d:%02d:%02d)\n"
+            "  Uptime:       %s us (%d day%s, %d:%02d:%02d hours)\n"
             "  Primary core: %s iterations (since startup)\n"
             "  Second core:  %s iterations (since startup)\n"
             "\n"
@@ -953,7 +953,7 @@ static void Command_loopstats(const ConsoleCommandContext *c)
             "  Average time: %llu us\n"
             "  Max time:     %lu us\n",
             bootModeName,
-            nf.Format("%llu", now), days, hh, mm, ss,
+            nf.Format("%llu", now), days, days == 1 ? "" : "s", hh, mm, ss,
             nf.Format("%llu", s.nLoopsEver),
             nf.Format("%llu", s2.nLoopsEver),
             nf.Format("%llu", s.nLoops),

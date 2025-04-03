@@ -966,8 +966,8 @@ public:
         // list of steps - each step is an action, with a start time and duration
         struct Step
         {
-            Step(uint32_t start_ms, uint32_t duration_ms, Action *action) :
-                tStart(start_ms * 1000), tEnd((start_ms + duration_ms) * 1000), action(action) { }
+            Step(uint32_t start_ms, uint32_t duration_ms, bool hold, Action *action) :
+                tStart(start_ms * 1000), tEnd((start_ms + duration_ms) * 1000), hold(hold), action(action) { }
             
             // Start time of this step, microseconds, relative to the MACRO
             // start time.
@@ -983,8 +983,12 @@ public:
             uint32_t tStart;
 
             // End time of this step, microseconds, relative to the macro
-            // start time.  This is start_us plus the nominal duration
+            // start time.  This is start_us plus the nominal duration.  This
+            // isn't meaningful for a "hold" step.
             uint32_t tEnd;
+
+            // true -> duration:"hold"
+            bool hold;
 
             // action
             std::unique_ptr<Action> action;
@@ -998,13 +1002,13 @@ public:
 
     protected:
         // start the macro running from the beginning
-        void StartMacro();
+        void StartMacro(bool newSourceState);
 
         // stop the macro - cancels any curerntly active step
-        void StopMacro();
+        void StopMacro(bool newSourceState);
 
         // Internal step scheduler
-        void ScheduleSteps();
+        void ScheduleSteps(bool newSourceState);
 
         // Run the macro to completion?  If true, the macro continues to
         // execute until completed, even if the underlying button source

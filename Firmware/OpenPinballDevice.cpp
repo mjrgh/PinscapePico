@@ -54,7 +54,7 @@
 USBIfc::OpenPinballDevice openPinballDevice;
 
 // construction
-USBIfc::OpenPinballDevice::OpenPinballDevice() : HID("Open Pinball Device", false, ReportIDPinballDevice, SerialBitPinballDevice)
+USBIfc::OpenPinballDevice::OpenPinballDevice() : HID("OpenPinballDevice", false, ReportIDPinballDevice, SerialBitPinballDevice)
 {
     CommandConsole::AddCommand(
         "pindev", "Open Pinball Controller HID device options",

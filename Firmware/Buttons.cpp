@@ -165,26 +165,41 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
     { "spacebar", 0x2C },        // 2C Keyboard Spacebar
     { "-", 0x2D },               // 2D Keyboard - and (underscore)
     { "_", 0x2D },               // 2D Keyboard - and (underscore)
+    { "hyphen", 0x2D },          // 2D Keyboard - and (underscore)
+    { "minus", 0x2D },           // 2D Keyboard - and (underscore)
     { "=", 0x2E },               // 2E Keyboard = and +
     { "+", 0x2E },               // 2E Keyboard = and +
+    { "equals", 0x2E },          // 2E Keyboard = and +
     { "[", 0x2F },               // 2F Keyboard [ and {
     { "{", 0x2F },               // 2F Keyboard [ and {
+    { "lbrack", 0x2F },          // 2F Keyboard [ and {
+    { "lbrace", 0x2F },          // 2F Keyboard [ and {
     { "]", 0x30 },               // 30 Keyboard ] and }
     { "}", 0x30 },               // 30 Keyboard ] and }
+    { "rbrack", 0x30 },          // 30 Keyboard ] and }
+    { "rbrace", 0x30 },          // 30 Keyboard ] and }
     { "\\", 0x31 },              // 31 Keyboard \ and |
     { "||", 0x31 },              // 31 Keyboard \ and |
+    { "backslash", 0x31 },       // 31 Keyboard \ and |
 //  { "", 0x32 },                // 32 Keyboard Non-US # and 5
     { ";", 0x33 },               // 33 Keyboard ; and :
     { ":", 0x33 },               // 33 Keyboard ; and :
+    { "semicolon", 0x33 },       // 33 Keyboard ; and :
+    { "colon", 0x33 },       // 33 Keyboard ; and :
     { "'", 0x34 },               // 34 Keyboard ' and "
-    { "\"", 0x34 },              // 34 Keyboard ` and ~
+    { "\"", 0x34 },              // 34 Keyboard ' and "
+    { "quote", 0x34 },           // 34 Keyboard ' and "
 //  { "", 0x35 },                // 35 Keyboard Grave Accent and Tilde
     { ",", 0x36 },               // 36 Keyboard , and <
     { "<", 0x36 },               // 36 Keyboard , and <
+    { "comma", 0x36 },           // 36 Keyboard , and <
     { ".", 0x37 },               // 37 Keyboard . and >
     { ">", 0x37 },               // 37 Keyboard . and >
+    { "period", 0x37 },          // 37 Keyboard . and >
+    { "dot", 0x37 },             // 37 Keyboard . and >
     { "/", 0x38 },               // 38 Keyboard / and ?
     { "?", 0x38 },               // 38 Keyboard / and ?
+    { "slash", 0x38 },           // 38 Keyboard / and ?
     { "caps lock", 0x39 },       // 39 Keyboard Caps Lock
     { "capslock", 0x39 },        // 39 Keyboard Caps Lock
     { "f1", 0x3A },              // 3A Keyboard F1
@@ -281,6 +296,7 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //  { "", 0x83 },                // 83 Keyboard Locking Num Lock
 //  { "", 0x84 },                // 84 Keyboard Locking Scroll Lock
     { "keypad ,", 0x85 },        // 85 Keypad Comma
+    { "keypad comma", 0x85 },    // 85 Keypad Comma
 //  { "", 0x86 },                // 86 Keypad Equal Sign (AS/400)
 //  { "", 0x87 },                // 87 Keyboard International1
 //  { "", 0x88 },                // 88 Keyboard International2
@@ -371,10 +387,14 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //  { "", 0xDD },                // DD Keypad Hexadecimal
 //  { "", 0xDE },                // DE Reserved
 //  { "", 0xDF },                // DF Reserved
+    { "ctrl", 0xE0 },            // E0 Keyboard LeftControl
     { "left ctrl", 0xE0 },       // E0 Keyboard LeftControl
     { "left control", 0xE0 },    // E0 Keyboard LeftControl
+    { "shift", 0xE1 },           // E1 Keyboard LeftShift
     { "left shift", 0xE1 },      // E1 Keyboard LeftShift
+    { "alt", 0xE2 },             // E2 Keyboard LeftAlt
     { "left alt", 0xE2 },        // E2 Keyboard LeftAlt
+    { "gui", 0xE3 },             // E3 Keyboard Left GUI (Windows key)
     { "left gui", 0xE3 },        // E3 Keyboard Left GUI (Windows key)
     { "left win", 0xE3 },        // E3 Keyboard Left GUI (Windows key)
     { "left windows", 0xE3 },    // E3 Keyboard Left GUI (Windows key)
@@ -1076,8 +1096,72 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
             std::transform(keyname.begin(), keyname.end(), keyname.begin(), ::tolower);
             if (auto it = usbKeyNames.find(keyname) ; it != usbKeyNames.end())
                 return new Button::KeyboardKeyAction(it->second);
-            else
-                return Log(LOG_ERROR, "%s: invalid keyboard key name \"%s\"\n", location, key->String().c_str()), nullptr;
+
+            // We didn't match any literal key name, but we could have a chord.
+            // Check for a string of key names separated by "+".
+            const int MAX_CHORD = 6;
+            int chord[MAX_CHORD];
+            int nChord = 0;
+            for (const char *p = keyname.c_str() ; *p != 0 ; )
+            {
+                // scan to the next '+' or end of string
+                const char *start = p;
+                for ( ; *p != 0 && *p != '+' ; ++p) ;
+
+                // look up this key name
+                std::string ele(start, p - start);
+                std::transform(ele.begin(), ele.end(), ele.begin(), ::tolower);
+                if (auto it = usbKeyNames.find(ele); it != usbKeyNames.end())
+                {
+                    // matched - matched - add it to the chord
+                    chord[nChord++] = it->second;
+
+                    // if we're at the end of the string, we can stop
+                    if (*p == 0)
+                    {
+                        // Success - create a macro representing the chord.  The macro
+                        // runs as long as the key is held down and doesn't repeat.
+                        auto *macro = new Button::MacroAction(false, false);
+
+                        // Add the steps.  Each step is a simple key action, starting
+                        // as soon as the source button is pressed, and held as long
+                        // as the button remains pressed (duration:"hold").
+                        for (int i = 0 ; i < nChord ; ++i)
+                            macro->steps.emplace_back(0, 0, true, new Button::KeyboardKeyAction(chord[i]));
+
+                        // return the new macro action
+                        return macro;
+                    }
+
+                    // skip the '+'
+                    ++p;
+
+                    // there's more to come, but if we're out of space in the chord list,
+                    // it's an error
+                    if (nChord >= MAX_CHORD)
+                    {
+                        return Log(LOG_ERROR, "%s: key \"%s\" looks like a key chord, but contains too many elements (maximum of %d allowed)\n",
+                                   location, key->String().c_str(), MAX_CHORD), nullptr;
+                    }
+                }
+                else
+                {
+                    // Element name not found - fail.  If we found at least one
+                    // prior element, or we're at a "+" now (indicating more
+                    // elements follow), explain that we think it looks like a
+                    // key chord with an invalid element.  Otherwise just take
+                    // it as a single unknown key name.
+                    if (*p == '+' || nChord != 0)
+                    {
+                        return Log(LOG_ERROR, "%s: key \"%s\" looks like a key chord, but element \"%.*s\" doesn't match any known keyboard key name\n",
+                                   location, key->String().c_str(), static_cast<int>(p - start), start), nullptr;
+                    }
+                    else
+                    {
+                        return Log(LOG_ERROR, "%s: invalid keyboard key name \"%s\"\n", location, key->String().c_str()), nullptr;
+                    }
+                }
+            }
         }
     }
     else if (actionType == "media")
@@ -1265,7 +1349,27 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
         {
             // parse the time properties
             int start = step->Get("start")->Int(0);
-            int duration = step->Get("duration")->Int(-1);
+            const auto *durationVal = step->Get("duration");
+            int duration = 0;
+            bool hold = false;
+            if (durationVal->IsString())
+            {
+                // check for special string values
+                if (*durationVal == "hold")
+                {
+                    hold = true;
+                }
+                else
+                {
+                    return (void)Log(LOG_ERROR, "%s: macro step[%d]: invalid 'duration' string value \"%s\"\n",
+                                     location, stepIndex, durationVal->String().c_str());
+                }
+            }
+            else
+            {
+                // for any non-string duration, coerce to number and interpret as a duration in milliseconds
+                duration = step->Get("duration")->Int(-1);
+            }
 
             // validate the times
             if (start < 0)
@@ -1282,7 +1386,7 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
             curStartTime += start;
 
             // add the step
-            macro->steps.emplace_back(curStartTime, duration, action.release());
+            macro->steps.emplace_back(curStartTime, duration, hold, action.release());
         });
 
         // if we didn't successfully parse all of the action steps, delete the whole action
@@ -2619,13 +2723,13 @@ void Button::MacroAction::OnStateChange(bool state)
     {
         // off -> on - activate the macro if it's not alerady running
         if (!isRunning)
-            StartMacro();
+            StartMacro(state);
     }
     else
     {
         // on -> off - if we're not in run-to-completion mode, cancel the macro
         if (isRunning && !runToCompletion)
-            StopMacro();
+            StopMacro(state);
     }
 
     // remember the new source state
@@ -2638,12 +2742,12 @@ void Button::MacroAction::Task()
     if (isRunning)
     {
         // run the scheduler
-        ScheduleSteps();
+        ScheduleSteps(sourceState);
 
         // if we're no longer running, and the underlying source is still
         // activated, and the macro repeats, start up again
         if (!isRunning && sourceState && repeat)
-            StartMacro();
+            StartMacro(true);
     }
 
     // Now go through all of the steps to execute action tasks for steps
@@ -2652,7 +2756,7 @@ void Button::MacroAction::Task()
         step.action->Task();
 }
 
-void Button::MacroAction::StartMacro()
+void Button::MacroAction::StartMacro(bool newSourceState)
 {
     // we're now running
     isRunning = true;
@@ -2660,17 +2764,17 @@ void Button::MacroAction::StartMacro()
     // set the start time
     tStart = time_us_64();
 
-    // Set the next event time to the start time.  There isn't necessary
+    // Set the next event time to the start time.  There isn't necessarily
     // an event ready to run, since the first event could have a startup
     // delay, but the scheduler will figure that out when it scans the
     // tasks.
     tNext = tStart;
     
     // Run the scheduler
-    ScheduleSteps();
+    ScheduleSteps(newSourceState);
 }
 
-void Button::MacroAction::StopMacro()
+void Button::MacroAction::StopMacro(bool newSourceState)
 {
     // no longer running
     isRunning = false;
@@ -2686,7 +2790,7 @@ void Button::MacroAction::StopMacro()
     }
 }
 
-void Button::MacroAction::ScheduleSteps()
+void Button::MacroAction::ScheduleSteps(bool newSourceState)
 {
     // check to see if we've reached the next start time
     uint64_t now = time_us_64();
@@ -2733,10 +2837,12 @@ void Button::MacroAction::ScheduleSteps()
     int nRunning = 0;
     for (auto &step : steps)
     {
-        // if it's running, check it
+        // if this step is still running, check it for completion
         if (step.state)
         {
-            if (dt >= step.tEnd)
+            // If it's a duration:"hold" step, it completes when the button is released.
+            // Otherwise, it completes when the elapsed time reaches its ending time (tEnd).
+            if (step.hold ? !newSourceState : dt >= step.tEnd)
             {
                 // duration expired - end the step and switch off its action
                 step.state = false;

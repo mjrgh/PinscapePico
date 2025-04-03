@@ -95,9 +95,13 @@ void USBIfc::Command_usbstats(const ConsoleCommandContext *c)
                     "  HID %d:\n"
                     "  Devices:           ",
                     ifc->instance);
-                
+
+                const char *sep = "";
                 for (auto &dev : ifc->devices)
-                    c->Printf("%s ", dev->name);
+                {
+                    c->Printf("%s%s", sep, dev->name);
+                    sep = ", ";
+                }
                 c->Printf("\n");
                 
                 c->Printf(

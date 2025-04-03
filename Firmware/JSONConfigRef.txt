@@ -583,7 +583,18 @@ buttons[].action.type="key"
 buttons[].action.type="key".key number|string required
   Specifies the keyboard key to send when the button is pressed.  This can be
   a "usage number" from the USB HID keyboard page, from 1 to 255, or it can
-  be a string giving the name of the key.
+  be a string giving the name of the key, from the set listed below.
+
+  Alternatively, the key can be a "chord", which is a combination of keys with
+  modifiers such as Ctrl, Shift, and Alt.  Chords are written using the Microsoft
+  convention, as in "Ctrl+Shift+F1" to mean holding down the Ctrl and Shift keys
+  while pressing the F1 key.  When you define a chord in this notation, the
+  software internally converts the "key" action into a <a href="#buttons.action.type=macro">"macro" action</a>,
+  and automatically programs the macro with a series of "key" steps matching the
+  keys you list in the chord, with all of the steps starting as soon as you press
+  the source button, and all of the steps remaining in effect until you release
+  the source button.  So the macro steps are set to <tt>{ start: 0, duration: "hold" }</tt>.
+
   <table>
     <tr><th>Key name</th><th>USB usage</th><th>Description</th></tr>
     <tr><td>"a"</td><td>0x04</td><td>Keyboard a and A</td></tr>
@@ -643,24 +654,38 @@ buttons[].action.type="key".key number|string required
     <tr><td>"spacebar"</td><td>0x2C</td><td>Keyboard Spacebar</td></tr>
     <tr><td>"-"</td><td>0x2D</td><td>Keyboard - and (underscore)</td></tr>
     <tr><td>"_"</td><td>0x2D</td><td>Keyboard - and (underscore)</td></tr>
+    <tr><td>"hyphen"</td><td>0x2D</td><td>Keyboard - and (underscore)</td></tr>
+    <tr><td>"minus"</td><td>0x2D</td><td>Keyboard - and (underscore)</td></tr>
     <tr><td>"="</td><td>0x2E</td><td>Keyboard = and +</td></tr>
     <tr><td>"+"</td><td>0x2E</td><td>Keyboard = and +</td></tr>
+    <tr><td>"equals"</td><td>0x2E</td><td>Keyboard = and +</td></tr>
     <tr><td>"["</td><td>0x2F</td><td>Keyboard [ and {</td></tr>
     <tr><td>"{"</td><td>0x2F</td><td>Keyboard [ and {</td></tr>
+    <tr><td>"lbrack"</td><td>0x2F</td><td>Keyboard [ and {</td></tr>
+    <tr><td>"lbrace"</td><td>0x2F</td><td>Keyboard [ and {</td></tr>
     <tr><td>"]"</td><td>0x30</td><td>Keyboard ] and }</td></tr>
     <tr><td>"}"</td><td>0x30</td><td>Keyboard ] and }</td></tr>
+    <tr><td>"rbrack"</td><td>0x30</td><td>Keyboard ] and }</td></tr>
+    <tr><td>"rbrace"</td><td>0x30</td><td>Keyboard ] and }</td></tr>
     <tr><td>"\\"</td><td>0x31</td><td>Keyboard \ and |</td></tr>
     <tr><td>"||"</td><td>0x31</td><td>Keyboard \ and |</td></tr>
+    <tr><td>"backslash"</td><td>0x31</td><td>Keyboard \ and |</td></tr>
     <tr><td>";"</td><td>0x33</td><td>Keyboard ; and :</td></tr>
     <tr><td>":"</td><td>0x33</td><td>Keyboard ; and :</td></tr>
+    <tr><td>"semicolon"</td><td>0x33</td><td>Keyboard ; and :</td></tr>
+    <tr><td>"colon"</td><td>0x33</td><td>Keyboard ; and :</td></tr>
     <tr><td>"'"</td><td>0x34</td><td>Keyboard ' and "</td></tr>
-    <tr><td>"\""</td><td>0x34</td><td>Keyboard ` and ~</td></tr>
+    <tr><td>"\""</td><td>0x34</td><td>Keyboard ' and "</td></tr>
     <tr><td>","</td><td>x36</td><td>Keyboard , and <</td></tr>
     <tr><td>"<"</td><td>0x36</td><td>Keyboard , and <</td></tr>
+    <tr><td>"comma"</td><td>x36</td><td>Keyboard , and <</td></tr>
     <tr><td>"."</td><td>0x37</td><td>Keyboard . and ></td></tr>
     <tr><td>">"</td><td>0x37</td><td>Keyboard . and ></td></tr>
+    <tr><td>"period"</td><td>0x37</td><td>Keyboard . and ></td></tr>
+    <tr><td>"dot"</td><td>0x37</td><td>Keyboard . and ></td></tr>
     <tr><td>"/"</td><td>0x38</td><td>Keyboard / and ?</td></tr>
     <tr><td>"?"</td><td>0x38</td><td>Keyboard / and ?</td></tr>
+    <tr><td>"slash"</td><td>0x38</td><td>Keyboard / and ?</td></tr>
     <tr><td>"caps lock"</td><td>0x39</td><td>Keyboard Caps Lock</td></tr>
     <tr><td>"capslock"</td><td>0x39</td><td>Keyboard Caps Lock</td></tr>
     <tr><td>"f1"</td><td>0x3A</td><td>Keyboard F1</td></tr>
@@ -753,12 +778,17 @@ buttons[].action.type="key".key number|string required
     <tr><td>"voldown"</td><td>0x81</td><td>Keyboard Volume Down</td></tr>
     <tr><td>"voldn"</td><td>0x81</td><td>Keyboard Volume Down</td></tr>
     <tr><td>"keypad ,"</td><td>0x85</td><td>Keypad Comma</td></tr>
+    <tr><td>"keypad comma"</td><td>0x85</td><td>Keypad Comma</td></tr>
     <tr><td>"keypad 00"</td><td>0xB0</td><td>Keypad 00</td></tr>
     <tr><td>"keypad 000"</td><td>0xB1</td><td>Keypad 000</td></tr>
+    <tr><td>"ctrl"</td><td>0xE0</td><td>Keyboard LeftControl</td></tr>
     <tr><td>"left ctrl"</td><td>0xE0</td><td>Keyboard LeftControl</td></tr>
     <tr><td>"left control"</td><td>0xE0</td><td>Keyboard LeftControl</td></tr>
+    <tr><td>"shift"</td><td>0xE1</td><td>Keyboard LeftShift</td></tr>
     <tr><td>"left shift"</td><td>0xE1</td><td>Keyboard LeftShift</td></tr>
+    <tr><td>"alt"</td><td>0xE2</td><td>Keyboard LeftAlt</td></tr>
     <tr><td>"left alt"</td><td>0xE2</td><td>Keyboard LeftAlt</td></tr>
+    <tr><td>"gui"</td><td>0xE3</td><td>Keyboard Left GUI</td></tr>
     <tr><td>"left gui"</td><td>0xE3</td><td>Keyboard Left GUI</td></tr>
     <tr><td>"right ctrl"</td><td>0xE4</td><td>Keyboard RightControl</td></tr>
     <tr><td>"right control"</td><td>0xE4</td><td>Keyboard RightControl</td></tr>
@@ -884,9 +914,9 @@ buttons[].action.type="macro"
                  // to engage the modifier keys first, pause briefly to let the
                  // PC see the modifier keys, then press the "A" key while
                  // still holding the modifier keys down.
-                 { start: 0, duration: 20, action: { type: "key", key: "left shift" },  // hold SHIFT for 20ms
-                 { start: 0, duration: 20, action: { type: "key", key: "left ctrl" },   // hold CTRL for 20ms at the same time
-                 { start: 10, duration: 10, action: { type: "key", key: "A" },          // wait 10ms, then press A for 10ms
+                 { start: 0, duration: "hold", action: { type: "key", key: "left shift" },  // hold SHIFT until button released
+                 { start: 0, duration: "hold", action: { type: "key", key: "left ctrl" },   // hold CTRL at the same time, until button released
+                 { start: 10, duration: "hold", action: { type: "key", key: "A" },          // wait 10ms, then press A, and hold until button released
               ],
            },
         },
@@ -947,11 +977,17 @@ buttons[].action.type="macro".steps[].start number optional
   starting time of the prior step, which lets you start multiple steps at the
   same time - a new step doesn't have to wait until the prior step finishes.
 
-buttons[].action.type="macro".steps[].duration number required
-  The duration of the step, in milliseconds.  This is the amount of time that
-  the step's action remains activated.  A step can remain activated even while
-  later steps are started - new steps don't have to wait for earlier steps
-  to finish.
+buttons[].action.type="macro".steps[].duration number|string required
+  The duration of the step, in milliseconds, <b>or</b> the special string value
+  <tt>"hold"</tt>.  This is the amount of time that the step's action remains
+  activated.  A step can remain activated even while later steps are started;
+  new steps don't have to wait for earlier steps to finish.
+
+  If this is set to <tt>"hold"</tt>, it means that the step remains in effect
+  until the button that activated the macro is released.  This makes it easy
+  to define a macro that expresses a "key chord" such as Ctrl+Alt+X, by letting
+  you program the macro to hold all three key actions as long as the button is
+  being pressed.
 
 buttons[].action.type="macro".steps[].action object<buttons.action> required
   The action to perform.  This is the same sort of action object that you can

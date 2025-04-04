@@ -3145,7 +3145,7 @@ outputs[].device.type string{table} required
     <tr><td>"tlc5940"</td><td>An output port on a TLC5940 PWM output controller chip</td></tr>
     <tr><td>"pca9685"</td><td>An output port on a PCA9685 PWM output controller chip</td></tr>
     <tr><td>"pca9555"</td><td>An output port on a PCA9555 GPIO extender chip (these are digital on/off ports, with no PWM control)</td></tr>
-    <tr><td>"74hc595"</td><td>An output port on a 74HC595 shift register chip (these are digital on/off ports, with no PWM control)</td></tr>
+    <tr><td>"74hc595"</td><td>An output port on a 74HC595 shift register chip (the chip can be configured with digital on/off ports or PWM ports)</td></tr>
     <tr><td>"gpio"</td><td>A Pico GPIO port</td></tr>
     <tr><td>"workerPico"</td><td>An output port on an auxiliary Pico running the PWMWorker firmware</td></tr>
     <tr><td>"zblaunch"</td><td>A virtual port that activates ZB Launch Mode when DOF signals that the port is on</td></tr>
@@ -3227,6 +3227,30 @@ outputs[].device.type="tlc5940".chip number required
 outputs[].device.type="tlc5940".port number required
   The port number on the chip, 0 to 15, corresponding to the output pins
   OUT0 to OUT15 (as labeled in the data sheet).
+
+outputs[].device.type="tlc5947"
+  Connects the logical port to an output port on a TLC5947 PWM controller chip.
+
+outputs[].device.type="tlc5947".chain number optional
+  The TLC5947 daisy chain number, as the index of the entry in the "tlc5947"
+  array in the JSON configuration.  This is only required if you've set up more
+  than one TLC5947 daisy chain.  The first chain the "tlc5947" array is chain 0,
+  the second chain is chain 1, etc.  It's rare to need more than one chain,
+  since each chain can accommodate many chips linked together; in the typical
+  case where you only have one daisy chain, this property isn't needed, since
+  the firmware will know you're talking about the one-and-only chain.
+
+outputs[].device.type="tlc5947".chip number optional
+  The chip number on the daisy chain.  The TLC5947 is designed so that multiple
+  TLC5947 chips can be chained together, sharing the same set of Pico ports;
+  the chain is formed by connecting each chip's SOUT pin to the next chip's
+  SIN pin.  Chip 0 is the first chip on the chain, which is the one whose
+  SIN pin is connected directly to a Pico GPIO pin.  Chip 1 is the next
+  chip after chip 0, and so on.
+
+outputs[].device.type="tlc5947".port number required
+  The port number on the chip, as a number from 0 to 23, corresponding the
+  the physical pins on the chip labeled OUT0 to OUT23.
 
 outputs[].device.type="pca9685"
   Connects the logical port to an output port on a PCA9685 PWM controller chip.
@@ -5215,9 +5239,9 @@ aedr8300.channelB number required
   brightness scale that DOF uses.  These aren't ideal chips for PWM ports, 
   because the rapid switching requires a very high data rate to the chip, 
   in the megahertz range.  This might not work reliably (or might even not
-  work at all) with some circuit boards, since such high signal rates
-  require careful wiring that will transmit the signal with minimal noise
-  and interference.  The best bet is to integrate the Pico and the 74HC595 
+  work at all) with some circuit boards, since such high signal rates are
+  vulnerable to electrical noise and interference, so they require careful
+  wiring to work reliably.  The best bet is to integrate the Pico and the 74HC595 
   chips into a single circuit board, placing all parts close together with 
   short circuit traces.  Setups with external cabling between the chips and 
   the Pico might be less reliable.  In addition, even with megahertz data 

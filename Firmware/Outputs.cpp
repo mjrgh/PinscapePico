@@ -570,7 +570,7 @@ OutputManager::Device *OutputManager::ParseDevice(
             if (chip < 0 || (chain != nullptr && !chain->IsValidPort(chip*24 + 23)))
                 Log(LOG_ERROR, "%s: TLC5947 'chip' index %d is out of range for this chain\n", jsonLocus, chip);
 
-            // the port number has to be 0..13 when chip-relative
+            // the port number has to be 0..23 when chip-relative
             if (port < 0 || port > 23)
                 Log(LOG_ERROR, "%s: TLC5947 'port' %d is out of range; must be 0-23\n", jsonLocus, port);
 

@@ -59,10 +59,11 @@ then replace the pico-sdk/ subtree with the one from my release.
 For any version of the SDK on Windows, you'll also need to install
 Microsoft's NMAKE build tool.  That's not included in any of the
 pre-built snapshots (mine or the official Raspberry Pi releases)
-because it's proprietary Microsoft software.  That comes with Visual
-Studio, which you'll also need to build the Windows portion of the
-Pinscape project.  The free Community Edition of Visual Studio is
-available at https://visualstudio.microsoft.com/vs/community/.
+because it's proprietary Microsoft software.  The easiest way to get
+NMAKE is to install Visual Studio, which you'll need to do anyway,
+since you'll need it to build the Windows portion of the Pinscape
+project (the Config Tool and related software).  The free Community
+Edition of Visual Studio is available at https://visualstudio.microsoft.com/vs/community/.
 
 ### Pico SDK documentation 
 
@@ -78,6 +79,7 @@ Pinscape firmware, as the instructions below should cover it.
 The steps below assume that you've already set up the SDK tools
 on Windows as explained above, and assumes that you're using the
 command-line build process (as opposed to VS Code or some other IDE).
+These steps are only required for the **first build** on a new machine.
 
 * Open a Windows Terminal window (i.e., a CMD prompt/DOS box)
 
@@ -111,6 +113,17 @@ If you're already installed Pinscape on the Pico in question, you can
 alternatively install the UF2 file through the GUI Config Tool, via
 the Update Firmware button on the Device Overview page.  That lets
 you skip the BOOTSEL/USB cable maneuvering.
+
+### Re-building the main firmware
+
+The lengthy procedure above is only required for the first build on a
+new machine, to initialize all of the build scripts that actually
+carry out the build.  After you go through all of those steps once,
+you can rebuild the firmware simply by typing `nmake`.  The NMAKE
+build script automatically detects which source files have been
+changed since the last build, and selectively rebuilds the affected
+parts of the program, so rebuilds tend to be much faster than the
+first build.
 
 
 ## Building the PWM Worker firmware

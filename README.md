@@ -129,12 +129,12 @@ joystick axes) can be individually mapped to whichever physical inputs you like
 (physical buttons, accelerometer axes, plunger sensor)
 
 * Support for PWM outputs directly through Pico GPIO ports, as well as
-multiple external PWM output controller chips (TLC5940, TLC59116,
+multiple external PWM output controller chips (TLC5940, TLC5947, TLC59116,
 PCA9685), and even shift-register chips (74HC595)
 
 * Gamma correction option for PWM output ports, with the gamma
-calculated at the device's full resolution for higher-resolution
-devices (e.g., 12-bit gamma scaling for TLC5940)
+calculated at the device's full resolution (e.g., 12-bit gamma scaling for
+TLC5940, TLC5947, and PCA9685)
 
 * Configurable "flipper logic" timer protection (in software) for all output ports
 

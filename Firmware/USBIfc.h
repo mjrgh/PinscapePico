@@ -899,6 +899,9 @@ public:
         // Handle a button state change.  buttonNum is in 1..32.
         void ButtonEvent(int buttonNum, bool isDown);
 
+        // Hat switch event.  The hat switch buttons are 1=Up, 2=Down, 3=Left, 4=Right
+        void HatSwitchEvent(int buttonNum, bool isDown);
+
         // Nudge device averaging viewer
         NudgeDevice::View *nudgeDeviceView = nullptr;
 
@@ -915,9 +918,12 @@ public:
         // button states
         ButtonHelper buttons;
 
+        // hat switch button states
+        ButtonHelper hatSwitch;
+
         // Report length, in bytes.  THIS MUST BE UPDATED TO KEEP IN
         // SYNC WITH THE REPORT LAYOUT.
-        static const int ReportLength = 20;
+        static const int ReportLength = 21;
 
         // Capture buffer for last report.  We use this to suppress
         // reports when nothing has changed since the last one.

@@ -1598,7 +1598,19 @@ void ButtonTesterWin::PaintOffScreen(HDC hdc0)
                     sprintf_s(actionDesc, "Media Key(code 0x%02x)", pDesc->actionDetail);
             }
             else if (pDesc->actionType == PinscapePico::ButtonDesc::ACTION_GAMEPAD)
-                sprintf_s(actionDesc, "Gamepad Button %d", pDesc->actionDetail);
+            {
+                if (pDesc->actionDetail >= 100 && pDesc->actionDetail <= 103)
+                {
+                    // hat switch buttons
+                    static const char *hatSwitchName[]{ "Up", "Down", "Left", "Right" };
+                    sprintf_s(actionDesc, "Gamepad Hat Switch %s", hatSwitchName[pDesc->actionDetail - 100]);
+                }
+                else
+                {
+                    // not in a special range, so it's a regular numbered button
+                    sprintf_s(actionDesc, "Gamepad Button %d", pDesc->actionDetail);
+                }
+            }
             else if (pDesc->actionType == PinscapePico::ButtonDesc::ACTION_OPENPINDEV)
             {
                 if (pDesc->actionDetail >= 33 && pDesc->actionDetail <= 33 + _countof(opdButtonNames))

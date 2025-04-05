@@ -114,14 +114,16 @@ alternatively install the UF2 file through the GUI Config Tool, via
 the Update Firmware button on the Device Overview page.  That lets
 you skip the BOOTSEL/USB cable maneuvering.
 
-### Re-building the main firmware
+### Re-building
 
 The lengthy procedure above is only required for the first build on a
-new machine, to initialize all of the build scripts that actually
-carry out the build.  After you go through all of those steps once,
-you can rebuild the firmware simply by typing `nmake`.  The NMAKE
-build script automatically detects which source files have been
-changed since the last build, and selectively rebuilds the affected
+new machine, to generate the build scripts.  After you go through
+those steps once, you can repeat the build simply by typing `nmake`.
+That will recompile all source files modified since the last build,
+and generate a new .uf2 file.
+
+NMAKE automatically detects which source files are affected by edits
+made since the last build, and selectively rebuilds only the affected
 parts of the program, so rebuilds tend to be much faster than the
 first build.
 

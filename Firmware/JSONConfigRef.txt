@@ -109,6 +109,11 @@ buttons [object] optional
   carry out multiple effects for each button press, with the additional
   feature that macros can control the timing of the sub-actions.
 
+buttons[].name string optional
+  Assigns the button a name, which you can use to refer to the button
+  elsewhere in the configuration, such as in a computed <a href="#outputs.source">output source</a>
+  (via the <tt>button()</tt> source type).
+
 buttons[].source object required
   Specifies the physical device port or data source that serves as the
   input for the logical button state.  For a physical button, this is a
@@ -178,8 +183,50 @@ buttons[].source.type="gpio".pull bool optional
   and low on its own.  Some types of powered coin acceptor mechanisms
   actively drive the line high and low, for example.
 
+buttons[].source.type="gpio".lowPassFilterRiseTime number optional
+  Sets the debouncing low-pass filter time for rising edges, in microseconds.
+  This is the minimum amount of time that the GPIO port must remain in the HIGH
+  state after a "rising edge" - a LOW-to-HIGH voltage transition on the GPIO port -
+  before Pinscape will recognize the new HIGH state.  This is designed to filter
+  out random electrical noise on the input, by requiring that the new HIGH level
+  remain in effect continuously for a minimum amount of time before it's treated
+  as legitimate.
+
+  The RISE time applies to physical LOW-to-HIGH voltage transitions on the port,
+  regardless of the active-high/low setting on the port.
+
+  Unlike the <tt>debounceTimeOn/Off</tt> "hold" times, the low-pass filter
+  adds latency to input recognition, since the software won't recognize a
+  physical button press until the low-pass filter time elapses.  This value
+  should therefore be kept as small as possible.  The default is 0, which
+  doesn't apply any low-pass filtering at all.  For many switches, the
+  latency-free <tt>debounceTimeOn/Off</tt> settings are all you need to
+  eliminate switch bounce artifacts, but some switches have enough intrinsic
+  noise that low-pass filtering is also required.
+
+buttons[].source.type="gpio".lowPassFilterFallTime number optional
+  Sets the debouncing low-pass filter time for falling edges, in microseconds.
+  This is the minimum amount of time that the GPIO port must remain in the LOW
+  state after a "falling edge" - a HIGH-to-LOW voltage transition on the GPIO port -
+  before Pinscape will recognize the new LOW state.  This is designed to filter
+  out random electrical noise on the input, by requiring that the new LOW level
+  remain in effect continuously for a minimum amount of time before it's treated
+  as legitimate.
+
+  The FALL time applies to physical HIGH-to-LOW voltage transitions on the port,
+  regardless of the active-high/low setting on the port.
+
+  Unlike the <tt>debounceTimeOn/Off</tt> "hold" times, the low-pass filter
+  adds latency to input recognition, since the software won't recognize a
+  physical button press until the low-pass filter time elapses.  This value
+  should therefore be kept as small as possible.  The default is 0, which
+  doesn't apply any low-pass filtering at all.  For many switches, the
+  latency-free <tt>debounceTimeOn/Off</tt> settings are all you need to
+  eliminate switch bounce artifacts, but some switches have enough intrinsic
+  noise that low-pass filtering is also required.
+
 buttons[].source.type="gpio".debounceTimeOn number optional
-  Sets the debouncing "ON" time for the GPIO input, in microseconds.
+  Sets the debouncing ON hold time for the GPIO input, in microseconds.
   Most physical switches "bounce" when switching between ON and OFF
   states, which means that the voltage level on the switch oscillates
   very rapidly for a brief time after the moment of contact.  The
@@ -291,6 +338,48 @@ buttons[].source.type="74hc165".port string|number required
   can specify ports 0-7 for the first chip on the chain, 8-15 for
   the second chip, 16-23 for the third, and so on.  I think the
   string notation is clearer, though.
+
+buttons[].source.type="74hc165".lowPassFilterRiseTime number optional
+  Sets the debouncing low-pass filter time for rising edges, in microseconds.
+  This is the minimum amount of time that the 74HC165 port must remain in the HIGH
+  state after a "rising edge" - a LOW-to-HIGH voltage transition on the port -
+  before Pinscape will recognize the new HIGH state.  This is designed to filter
+  out random electrical noise on the input, by requiring that the new HIGH level
+  remain in effect continuously for a minimum amount of time before it's treated
+  as legitimate.
+
+  The RISE time applies to physical LOW-to-HIGH voltage transitions on the port,
+  regardless of the active-high/low setting on the port.
+
+  Unlike the <tt>debounceTimeOn/Off</tt> "hold" times, the low-pass filter
+  adds latency to input recognition, since the software won't recognize a
+  physical button press until the low-pass filter time elapses.  This value
+  should therefore be kept as small as possible.  The default is 0, which
+  doesn't apply any low-pass filtering at all.  For many switches, the
+  latency-free <tt>debounceTimeOn/Off</tt> settings are all you need to
+  eliminate switch bounce artifacts, but some switches have enough intrinsic
+  noise that low-pass filtering is also required.
+
+buttons[].source.type="74hc165".lowPassFilterFallTime number optional
+  Sets the debouncing low-pass filter time for falling edges, in microseconds.
+  This is the minimum amount of time that the 74HC165 port must remain in the LOW
+  state after a "falling edge" - a HIGH-to-LOW voltage transition on the port -
+  before Pinscape will recognize the new LOW state.  This is designed to filter
+  out random electrical noise on the input, by requiring that the new LOW level
+  remain in effect continuously for a minimum amount of time before it's treated
+  as legitimate.
+
+  The FALL time applies to physical HIGH-to-LOW voltage transitions on the port,
+  regardless of the active-high/low setting on the port.
+
+  Unlike the <tt>debounceTimeOn/Off</tt> "hold" times, the low-pass filter
+  adds latency to input recognition, since the software won't recognize a
+  physical button press until the low-pass filter time elapses.  This value
+  should therefore be kept as small as possible.  The default is 0, which
+  doesn't apply any low-pass filtering at all.  For many switches, the
+  latency-free <tt>debounceTimeOn/Off</tt> settings are all you need to
+  eliminate switch bounce artifacts, but some switches have enough intrinsic
+  noise that low-pass filtering is also required.
 
 buttons[].source.type="74hc165".debounceTimeOn number optional
   Sets the debouncing "ON" time for the switch input, in microseconds.

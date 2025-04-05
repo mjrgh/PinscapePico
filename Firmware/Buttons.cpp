@@ -765,7 +765,7 @@ Button::Source *Button::ParseSource(
         // create a GPIO source with default parameters
         return CreateGPIOSource(
             jsonLocus, pinoutLabel, srcVal->Int(-1),
-            strcmp(activeDefault, "high") == 0, true, false, 1500, 1000);
+            strcmp(activeDefault, "high") == 0, true, false, 500, 500, 1500, 1000);
     }
     
     // get the common attributes
@@ -779,9 +779,13 @@ Button::Source *Button::ParseSource(
         int gp = srcVal->Get("gp")->Int();
         bool usePull = srcVal->Get("pull")->Bool(true);
         bool enableLogging = srcVal->Get("enableLogging")->Bool();
+        int lpFilterRise_us = srcVal->Get("lowPassFilterRiseTime")->Int(0);
+        int lpFilterFall_us = srcVal->Get("lowPassFilterFallTime")->Int(0);
         int debounceTimeOn_us = srcVal->Get("debounceTimeOn")->Int(1500);
         int debounceTimeOff_us = srcVal->Get("debounceTimeOff")->Int(1000);
-        return CreateGPIOSource(jsonLocus, pinoutLabel, gp, activeHigh, usePull, enableLogging, debounceTimeOn_us, debounceTimeOff_us);
+        return CreateGPIOSource(
+            jsonLocus, pinoutLabel, gp, activeHigh, usePull, enableLogging,
+            lpFilterRise_us, lpFilterFall_us, debounceTimeOn_us, debounceTimeOff_us);
     }
     else if (srcType == "bootsel")
     {
@@ -841,6 +845,8 @@ Button::Source *Button::ParseSource(
     {
         // get the chain number 
         int chainNum = srcVal->Get("chain")->Int(0);
+        int lpFilterRise_us = srcVal->Get("lowPassFilterRiseTime")->Int(0);
+        int lpFilterFall_us = srcVal->Get("lowPassFilterFallTime")->Int(0);
         int debounceTimeOn_us = srcVal->Get("debounceTimeOn")->Int(1500);
         int debounceTimeOff_us = srcVal->Get("debounceTimeOff")->Int(1000);
         auto *chain = C74HC165::GetChain(chainNum);
@@ -914,7 +920,10 @@ Button::Source *Button::ParseSource(
 
         // create the source if we have a valid source designation
         if (chain != nullptr && chain->IsValidPort(port))
-            return new Button::C74HC165Source(chain, port, activeHigh, debounceTimeOn_us, debounceTimeOff_us);
+        {
+            return new Button::C74HC165Source(
+                chain, port, activeHigh, lpFilterRise_us, lpFilterFall_us, debounceTimeOn_us, debounceTimeOff_us);
+        }
     }
     else if (srcType == "nudge")
     {
@@ -1042,7 +1051,8 @@ Button::Source *Button::ParseSource(
 // Create a GPIO source
 Button::GPIOSource *Button::CreateGPIOSource(
     const char *jsonLocus, const char *pinoutLabel,
-    int gp, bool activeHigh, bool usePull, bool enableLogging, int debounceOnTime_us, int debounceOffTime_us)
+    int gp, bool activeHigh, bool usePull, bool enableLogging,
+    int lpFilterRiseTime_us, int lpFilterFallTime_us, int debounceOnTime_us, int debounceOffTime_us)
 {
     // figure the pull-up/pull-down settings - if pulls are enabled at
     // all, we enable the pull in the opposite direction of the active
@@ -2024,8 +2034,9 @@ bool Button::DebouncedSource::Poll()
 // list of all sources handled on the second core
 std::list<Button::SecondCoreDebouncedSource*> Button::SecondCoreDebouncedSource::all;
 
-Button::SecondCoreDebouncedSource::SecondCoreDebouncedSource(bool activeHigh, uint32_t dtOn, uint32_t dtOff) :
-    activeHigh(activeHigh), dtOn(dtOn), dtOff(dtOff)
+Button::SecondCoreDebouncedSource::SecondCoreDebouncedSource(
+    bool activeHigh, uint32_t lpFilterRise, uint32_t lpFilterFall, uint32_t dtOn, uint32_t dtOff) :
+    activeHigh(activeHigh), lpFilterRise(lpFilterRise), lpFilterFall(lpFilterFall), dtOn(dtOn), dtOff(dtOff)
 {
     // add the global list entry for the second core task handler
     all.emplace_back(this);
@@ -2042,19 +2053,33 @@ void Button::SecondCoreDebouncedSource::SecondCorePoll()
 {
     // check for a change of the physical state of the GPIO input
     bool live = PollPhysical();
+
+    // if the new state differs from the last physical state, mark the edge time
+    uint64_t now = time_us_64();
+    if (live != lastPhysicalState)
+        tEdge = now;
+
+    // record the new physical state for next time
+    lastPhysicalState = live;
+
+    // check for a change from the last debounced state
     if (live != debouncedPhysicalState)
     {
-        // physical state has changed; check if the prior state has been in
-        // effect for the minimum debouncing period
-        uint64_t now = time_us_64();
-        if (now - tLastDebouncedStateChange > (debouncedPhysicalState == activeHigh ? dtOn : dtOff))
+        // apply the low-pass filter: the NEW state must be in effect continuously
+        // for the lp filter time before we can recognize the change
+        if (now - tEdge >= (live ? lpFilterRise : lpFilterFall))
         {
-            // update the state and record the new time
-            debouncedPhysicalState = live;
-            tLastDebouncedStateChange = now;
-
-            // process the change
-            OnDebouncedStateChange(live);
+            // apply the "hold" filter: the PRIOR state must have been in effect
+            // for at least the hold time before we can recognize the change
+            if (now - tLastDebouncedStateChange >= (debouncedPhysicalState == activeHigh ? dtOn : dtOff))
+            {
+                // update the state and record the new time
+                debouncedPhysicalState = live;
+                tLastDebouncedStateChange = now;
+                
+                // process the change
+                OnDebouncedStateChange(live);
+            }
         }
     }
 }
@@ -2069,8 +2094,9 @@ std::list<Button::GPIOSource*> Button::GPIOSource::allgs;
 
 Button::GPIOSource::GPIOSource(
     int gpNumber, bool activeHigh, bool usePull,
-    int debounceTimeOn_us, int debounceTimeOff_us, bool enableEventLogging) :
-    SecondCoreDebouncedSource(activeHigh, debounceTimeOn_us, debounceTimeOff_us),
+    int lpFilterRiseTime_us, int lpFilterFallTime_us, int debounceTimeOn_us, int debounceTimeOff_us,
+    bool enableEventLogging) :
+    SecondCoreDebouncedSource(activeHigh, lpFilterRiseTime_us, lpFilterFallTime_us, debounceTimeOn_us, debounceTimeOff_us),
     gpNumber(gpNumber), usePull(usePull), eventLog(enableEventLogging)
 
 {
@@ -2307,8 +2333,10 @@ bool Button::PCA9555Source::PollPhysical()
 // 74HC165 shift-register chip input source
 //
 
-Button::C74HC165Source::C74HC165Source(C74HC165 *chain, int port, bool activeHigh, int debounceTimeOn_us, int debounceTimeOff_us) :
-    SecondCoreDebouncedSource(activeHigh, debounceTimeOn_us, debounceTimeOff_us),
+Button::C74HC165Source::C74HC165Source(
+    C74HC165 *chain, int port, bool activeHigh,
+    int lpFilterRiseTime_us, int lpFilterFallTime_us, int debounceTimeOn_us, int debounceTimeOff_us) :
+    SecondCoreDebouncedSource(activeHigh, lpFilterRiseTime_us, lpFilterFallTime_us, debounceTimeOn_us, debounceTimeOff_us),
     chain(chain), port(port)
 {
 }

@@ -168,6 +168,7 @@ public:
     static GPIOSource *CreateGPIOSource(
         const char *jsonLocus, const char *pinoutLabel,
         int gp, bool activeHigh, bool usePull, bool enableLogging,
+        int lpFilterRiseTime_us, int lpFilterFallTime_us,
         int debounceOnTime_us, int debounceOffTime_us);
 
     // construction/destruction
@@ -319,7 +320,7 @@ public:
         virtual bool Poll() override { return activeHigh ? debouncedPhysicalState : !debouncedPhysicalState; }
 
     protected:
-        SecondCoreDebouncedSource(bool activeHigh, uint32_t dtOn, uint32_t dtOff);
+        SecondCoreDebouncedSource(bool activeHigh, uint32_t lpFilterRise, uint32_t lpFilterFall, uint32_t dtOn, uint32_t dtOff);
 
         // poll the button on the second-core thread
         void SecondCorePoll();
@@ -335,27 +336,45 @@ public:
         // active high/low
         bool activeHigh;
 
-        // Minimum hold times for each state, in microseconds
+        // Low-pass filter times for rising and falling edges, in
+        // microseconds.  The low-pass filter delays recognition of an
+        // edge on the physical input until the input has remained at
+        // the new level for the lp filter time.  This adds latency
+        // equal to the filter time.
+        uint32_t lpFilterRise;
+        uint32_t lpFilterFall;
+
+        // Minimum hold times for each state, in microseconds.  After the low-pass
+        // filter recognizes a valid state transition, the new state will remain
+        // in effect for a minimum of the hold time.  New edges will be ignored
+        // until the hold time has passed.
         uint32_t dtOn;
         uint32_t dtOff;
 
         // button list for the second core task handler
         static std::list<SecondCoreDebouncedSource*> all;
 
-        // Physical state of the GPIO pin.  This is written by the
-        // second-core polling routine, and read by the main button task
-        // routine on the primary core.  It's volatile because it's
+        // Time of the last physical edge
+        uint64_t tEdge = 0;
+
+        // time of last change to debounced physical state
+        uint64_t tLastDebouncedStateChange = 0;
+
+        // Last physical state, before any debouncing
+        bool lastPhysicalState = false;
+
+        // Debounced physical state of the GPIO pin.  This is written by
+        // the second-core polling routine, and read by the main button
+        // task routine on the primary core.  It's volatile because it's
         // accessed by both cores, but no locking is needed since only
         // the second core has write access.
         //
         // This is the post-debouncing state.  The second-core thread
         // applies debouncing, so the main task routine sees the virtual
         // GPIO state with debouncing applied.  This allows the main
-        // thread to 
+        // thread to recognize state changes on this value immediately,
+        // with no further filtering required.
         volatile bool debouncedPhysicalState = false;
-
-        // time of last change to debounced physical state
-        uint64_t tLastDebouncedStateChange = 0;
     };
 
     // GPIO input source
@@ -364,6 +383,7 @@ public:
     public:
         // Set up the button
         GPIOSource(int gpNumber, bool activeHigh = false, bool usePull = true,
+                   int lpFilterRiseTime = 0, int lpFilterFallTime = 0,
                    int dtOn = 1000, int dtOff = 1000, bool enableEventLogging = false);
 
         virtual const char *FullName(char *buf, size_t buflen) const override { snprintf(buf, buflen, "GP%d", gpNumber); return buf; }
@@ -528,6 +548,7 @@ public:
     {
     public:
         C74HC165Source(C74HC165 *chain, int port, bool activeHigh = false,
+                       int lpFilterRiseTime = 0, int lpFilterFallTime = 0,
                        int debounceTimeOn_us = 1500, int debounceTimeOff_us = 1000);
         
         virtual bool PollPhysical() override;

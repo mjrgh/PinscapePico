@@ -265,21 +265,43 @@ uint16_t USBIfc::Gamepad::GetReport(hid_report_type_t type, uint8_t *buf, uint16
         // Instead, it reports the joystick position inferred from the
         // button states, as the angular position of the joystick relative
         // to its center position, in a unit system where one unit equals
-        // 45 degrees, starting at North (UP), increasing counterclockwise
-        // following the Cartesian plane convention.  We also have a NULL
-        // state, which has the reserved value 0 in our unit system, which
-        // represents the joystick at its center position where it doesn't
-        // press engage any of the switches.
+        // 45 degrees, with zero degrees at North (UP), and the angle
+        // increasing counterclockwise (following the common algebraic
+        // convention).  The HID report also has a NULL state that
+        // represents the joystick at its center position, with none of
+        // the buttons pressed.
+        //
+        // HID lets us define the system of units to represent this angular
+        // coordinate system, by setting a logical range and a physical
+        // range.  Since we have 8 possible angular states, we'll use a
+        // logical range of 1..8 to represent a physical range of 0..315
+        // degrees.  HID interprets any value outside of the logical range
+        // as a NULL, so using 1..8 as our logical range lets us use 0 as
+        // the NULL value.
         //
         // Since the input source is the four independent buttons, and the
         // HID report value is this peculiarly encoded angular value, we
         // have to map from the button states to the HID report value.
         // Note that about half of the button states have no representation
         // in the HID report, since the notional joystick arrangement can't
-        // physically reach those button states.  Since our actual inputs
-        // four button switch states, though, we could certainly see those
-        // unreachable states as inputs.  When we do, we'll just report them
-        // as the NULL (center) state.
+        // physically reach those button states.  Since we don't have any
+        // control over the physical input arrangement, though, there's no
+        // guarantee that our inputs are constrained in the same way as a
+        // true hat swtich, so it's entirely possible that our four buttons
+        // can be pressed in combinations that aren't possible with a true
+        // hat switch, and thus that we'll see input states that can't be
+        // represented in the HID report, such as UP+DOWN, or three buttons
+        // pressed at once.  We just report NULL (center position) in such
+        // cases.
+        //
+        // The live button state is encoded as a bit vector in our hatSwitch
+        // button helper object, with the first button at the least significant
+        // bit (bit mask 0x0001), the second button at bit 0x0002, and so on.
+        // We assing the buttons in order as UP, DOWN, LEFT, RIGHT, so the
+        // low-order four bits of the hatSwitch bit vector for a 4-bit number,
+        // inherently with range 0x00 to 0x0F.  We can thus use that as an
+        // index into a mapping array, picking out the HID report value that
+        // corresponds to each possible combination of the four button states.
         static const uint8_t hatSwitchMap[] {
             // HID    Angle  Dir   R L D U   Hex
             0,     // NULL   NULL  0 0 0 0   0x00

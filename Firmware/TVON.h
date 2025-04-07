@@ -135,6 +135,7 @@ public:
         IRWaiting = 6,     // waiting for IR pause between commands
         IRSending = 7,     // IR command sent, waiting for transmission to complete
         PowerOn = 8,       // power is on
+        PicoBoot = 9,      // Pico boot state - external power state is not yet known
 
         // last state marker - not an actual state, just a high-water mark for the enum int values
         LAST
@@ -195,8 +196,8 @@ protected:
     bool ReadSensePin();
     void WriteSetPin(bool state);
 
-    // current state
-    State state = State::PowerOff;
+    // Current state
+    State state = State::PicoBoot;
 
     // Next state update time.  Each step in the state machine has a
     // delay time until the next step; this records the scheduled next

@@ -765,7 +765,7 @@ Button::Source *Button::ParseSource(
         // create a GPIO source with default parameters
         return CreateGPIOSource(
             jsonLocus, pinoutLabel, srcVal->Int(-1),
-            strcmp(activeDefault, "high") == 0, true, false, 500, 500, 1500, 1000);
+            strcmp(activeDefault, "high") == 0, true, false, 0, 0, 0, 0);
     }
     
     // get the common attributes

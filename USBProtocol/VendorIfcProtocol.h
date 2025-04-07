@@ -1543,6 +1543,7 @@ namespace PinscapePico
                 static const uint8_t PWR_IRWAITING = 6;     // waiting for IR pause between commands
                 static const uint8_t PWR_IRSENDING = 7;     // IR command sent, waiting for transmission to complete
                 static const uint8_t PWR_ON = 8;            // power was on at last check
+                static const uint8_t PWR_PICOBOOT = 9;      // Pico just rebooted; external power state is not yet known
 
                 // Power-sense GPIO state.  0 if the GPIO is reading low, 1 if reading high.
                 uint8_t gpioState;

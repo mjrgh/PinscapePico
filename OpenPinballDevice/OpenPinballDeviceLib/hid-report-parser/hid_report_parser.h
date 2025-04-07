@@ -3,7 +3,7 @@
 // 
 // https://github.com/pasztorpisti/hid-report-parser/tree/master (with private modifications)
 // 
-// Note: This is a customized version for OpenPinballDeviceLIib's use.
+// Note: This is a customized version for OpenPinballDeviceLib's use.
 // The base project is no longer being maintained, so there should be 
 // no need to merge future changes from the base version.
 

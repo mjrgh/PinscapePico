@@ -119,9 +119,6 @@ void TVON::Configure(JSONParser &json)
                 Log(LOG_CONFIG, "TV ON Power Sense circuit configured; Sense port=%s, Set port=%s\n",
                     sensePort->FullName(sensePortName, sizeof(sensePortName)),
                     setPort->FullName(setPortName, sizeof(setPortName)));
-                    
-                // set the initial state based on the current power latch status
-                state = (ReadSensePin() ? State::PowerOn : State::PowerOff);
             }
         }
 
@@ -239,7 +236,7 @@ void TVON::Configure(JSONParser &json)
 
         // If we're coming out of a soft reset via the watchdog, check
         // to see if the watchdog scratch registers contain a valid
-        // saved state.  To be valid, SCRATCH1 and SCRATCH2 must match
+        // saved state.  To be valid, SCRATCH2 and SCRATCH3 must match
         // after applying the respective XOR magic numbers, and the
         // value must be a valid enum State element (when reinterpreted
         // as integer).
@@ -252,6 +249,13 @@ void TVON::Configure(JSONParser &json)
                 // restore the state from the previous session
                 state = static_cast<State>(a);
             }
+
+            Log(LOG_DEBUG, "TV ON: initial state %d set from watchdog memory\n", static_cast<int>(state));
+        }
+        else
+        {
+            // keep the default initial "Pico Reboot" state
+            Log(LOG_DEBUG, "TV ON: no watchdog memory found, initial state is %d\n", static_cast<int>(state));
         }
 
         // set up the console command
@@ -454,6 +458,30 @@ void TVON::Task()
             tNextState = now + 250000;
         }
         break;
+
+    case State::PicoBoot:
+        // The Pico just rebooted, so the external state is not yet
+        // known.  Read the sense pin to determine the state.  The
+        // sense pin retains its memory across Pico boots, so if it's
+        // currently reading ON, we must go directly to POWER ON mode
+        // without going through an off-to-on transition (sending the
+        // power-on TV ON commands), since we presumably already
+        // completed that in a prior session.
+        if (ReadSensePin())
+        {
+            // external power was already detected on - go straight
+            // to POWER ON mode
+            state = State::PowerOn;
+            tNextState = now + 250000;
+        }
+        else
+        {
+            // external power is off - go to POWER OFF mode
+            state = State::PowerOff;
+            tNextState = now + 100000;
+        }
+        Log(LOG_DEBUG, "TV ON: reboot transition to state %d\n", static_cast<int>(state));
+        break;
     }
 
     // Stash the TV ON state in watchdog scratch registers SCRATCH0
@@ -576,6 +604,7 @@ void TVON::Populate(PinscapePico::VendorResponse::Args::TVON *state)
     static_assert(PinscapePico::VendorResponse::Args::TVON::PWR_IRWAITING == static_cast<uint8_t>(State::IRWaiting));
     static_assert(PinscapePico::VendorResponse::Args::TVON::PWR_IRSENDING == static_cast<uint8_t>(State::IRSending));
     static_assert(PinscapePico::VendorResponse::Args::TVON::PWR_ON == static_cast<uint8_t>(State::PowerOn));
+    static_assert(PinscapePico::VendorResponse::Args::TVON::PWR_PICOBOOT == static_cast<uint8_t>(State::PicoBoot));
     static_assert(PinscapePico::VendorResponse::Args::TVON::RELAY_STATE_POWERON == RELAY_STATE_POWERON);
     static_assert(PinscapePico::VendorResponse::Args::TVON::RELAY_STATE_MANUAL == RELAY_STATE_MANUAL);
     static_assert(PinscapePico::VendorResponse::Args::TVON::RELAY_STATE_MANUAL_PULSE == RELAY_STATE_MANUAL_PULSE);

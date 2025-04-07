@@ -227,6 +227,7 @@ namespace PinscapePico
 			{ 6, "IR Waiting" },
 			{ 7, "IR Sending" },
 			{ 8, "Power On" },
+			{ 9, "Pico Reboot" },
 		};
 
 		// first history item currently in view, as an iterator

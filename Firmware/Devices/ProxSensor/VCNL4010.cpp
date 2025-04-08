@@ -44,13 +44,10 @@ void VCNL4010::Configure(JSONParser &json)
 {
     if (auto *val = json.Get("vcnl4010") ; !val->IsUndefined())
     {
-        // get the bus
-        uint8_t bus = val->Get("i2c")->UInt8(255);
-        if (I2C::GetInstance(bus, true) == nullptr)
-        {
-            Log(LOG_ERROR, "vcnl4010: invalid/undefined I2C bus\n");
+        // get and validate the I2C bus number
+        int bus = val->Get("i2c")->Int(-1);
+        if (!I2C::ValidateBusConfig("vcnl4010", bus))
             return;
-        }
 
         // read and validate the IRED current setting: it has to be 10 to 200 mA,
         // in 10 mA increments

@@ -37,6 +37,28 @@
 // Controller instances
 I2C *I2C::inst[2];
 
+// validate a bus from a feature configuration
+bool I2C::ValidateBusConfig(const char *feature, int bus)
+{
+    // check for a valid bus number
+    if (!IsValidBus(bus))
+    {
+        Log(LOG_ERROR, "%s: invalid or missing I2C bus number ('i2c' property); must be 0 or 1\n", feature);
+        return false;
+    }
+
+    // check if it's configured
+    if (I2C::GetInstance(bus, true) == nullptr)
+    {
+        Log(LOG_ERROR, "%s: I2C bus %d is not configured or is not enabled; make sure that an i2c%d:{ } block "
+            "is present in the configuration, and that it's not marked as disabled\n", feature, bus, bus);
+        return false;
+    }
+
+    // no errors detected
+    return true;
+}
+
 // get an instance, optionally initializing it if it's set to on-demand initialization
 I2C *I2C::GetInstance(int bus, bool init)
 {

@@ -68,24 +68,28 @@ void PWMWorker::Configure(JSONParser &json)
         // parse each entry in the array (or just the single object, if it's not an array)
         cfg->ForEach([](int index, const JSONParser::Value *value)
         {
-            // get and validate the settings for this instance
-            uint8_t bus = value->Get("i2c")->UInt8(255);
+            // get and validate the I2C bus number
+            char facility[30];
+            snprintf(facility, _countof(facility), "workerPico[%d]", index);
+            int bus = value->Get("i2c")->Int(-1);
+            if (!I2C::ValidateBusConfig(facility, bus))
+                return;
+
+            // get and validate the I2C address
             uint8_t addr = value->Get("addr")->UInt8(0);
-            int pwmFreq = value->Get("pwmFreq")->Int(20000);
-            if (addr == 0 || I2C::GetInstance(bus, true) == nullptr)
+            if (addr == 0)
             {
-                Log(LOG_ERROR, "workerPico[%d]: invalid/undefined I2C bus or address\n", index);
+                Log(LOG_ERROR, "workerPico[%d]: invalid/undefined I2C address\n", index);
                 return;
             }
-
-            // check for reserved or invalid I2C addresses
             if (addr < 8 || addr >= 0x7C)
             {
                 Log(LOG_ERROR, "workerPico[%d]: invalid I2C address 0x%02x (0x00-0x07 and 0x7C-0x7F are reserved)\n", index, addr);
                 return;
             }
 
-            // validate the frequency
+            // get and validate the PWM frequency
+            int pwmFreq = value->Get("pwmFreq")->Int(20000);
             if (pwmFreq < 8 || pwmFreq > 65535)
             {
                 Log(LOG_ERROR, "workerPico[%d]: invalid PWM frequency; must be 8-65535\n", index, pwmFreq);

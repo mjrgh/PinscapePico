@@ -82,23 +82,24 @@ void ADS1115::Configure(JSONParser &json)
         // parse one object from the array (or just the single object, if it's not array
         val->ForEach([](int index, const JSONParser::Value *value)
         {
-            // get and validate the settings for this instance
-            uint8_t bus = value->Get("i2c")->UInt8(255);
-            uint8_t addr = value->Get("addr")->UInt8(0);
-            int gpReady = value->Get("ready")->Int(-1);
-            int sampleRate = value->Get("sampleRate")->Int(860);
-            if (I2C::GetInstance(bus, true) == nullptr)
-            {
-                Log(LOG_ERROR, "ads1115[%d]: invalid/undefined I2C bus or address\n", index);
+            // get and validate the I2C bus number
+            char facility[20];
+            snprintf(facility, _countof(facility), "ads1115[%d]", index);
+            int bus = value->Get("i2c")->Int(-1);
+            if (!I2C::ValidateBusConfig(facility, bus))
                 return;
-            }
 
-            // check for reserved or invalid I2C addresses
+            // get and validate the I2C address
+            int addr = value->Get("addr")->Int(-1);
             if (addr < 0x48 || addr > 0x4B)
             {
                 Log(LOG_ERROR, "ads1115[%d]: invalid address 0x%02X; must be 0x48..0x4B)\n", index, addr);
                 return;
             }
+
+            // get the READY port and sample rate
+            int gpReady = value->Get("ready")->Int(-1);
+            int sampleRate = value->Get("sampleRate")->Int(860);
 
             // create the new chip object (tentatively - we could still fail)
             std::unique_ptr<ADS1115> chipHolder(new ADS1115(index, addr, gpReady));

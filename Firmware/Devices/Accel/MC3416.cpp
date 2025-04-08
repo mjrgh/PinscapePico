@@ -57,16 +57,13 @@ void MC3416::Configure(JSONParser &json)
 {
     if (auto *val = json.Get("mc3416") ; !val->IsUndefined())
     {
-        // get the I2C bus number and address
+        // get and validate the I2C bus number
         int bus = val->Get("i2c")->Int(-1);
-        int addr = val->Get("addr")->Int(0x4C);
-        if (I2C::GetInstance(bus, true) == nullptr)
-        {
-            Log(LOG_ERROR, "MC3416: invalid I2Cn bus number; must be 0 or 1\n");
+        if (!I2C::ValidateBusConfig("MC3416", bus))
             return;
-        }
 
-        // the I2C address for this chip must be 0x4C or 0x6C
+        // get and validate the I2C address
+        int addr = val->Get("addr")->Int(-1);
         if (addr != 0x4C && addr != 0x6C)
         {
             Log(LOG_ERROR, "MC3416: invalid address 0x%02X; must be 0x4C or 0x6C\n", addr);

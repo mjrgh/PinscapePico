@@ -59,20 +59,23 @@ void PCA9555::Configure(JSONParser &json)
     {
         cfg->ForEach([&nChips](int index, const JSONParser::Value *value)
         {
-            // read the parameters
-            uint8_t bus = value->Get("i2c")->Int(255);
-            uint8_t addr = value->Get("addr")->Int(0);
-            int intr = value->Get("interrupt")->Int(-1);
-            if (I2C::GetInstance(bus, true) == nullptr)
-            {
-                Log(LOG_ERROR, "pca9555[%d]: missing or invalid I2C bus\n", index);
+            // get and validate the I2C bus number
+            char facility[20];
+            snprintf(facility, _countof(facility), "pca9555[%d]", index);
+            int bus = value->Get("i2c")->Int(-1);
+            if (!I2C::ValidateBusConfig(facility, bus))
                 return;
-            }
+
+            // get and validate the I2C address
+            uint8_t addr = value->Get("addr")->Int(0);
             if (addr < 0x20 || addr > 0x27)
             {
                 Log(LOG_ERROR, "pca9555[%d]: invalid or missing I2C address (must be 0x20..0x27)\n", index);
                 return;
             }
+
+            // get the interrupt port
+            int intr = value->Get("interrupt")->Int(-1);
             if (intr != -1 && !IsValidGP(intr))
             {
                 Log(LOG_ERROR, "pca9555[%d]: invalid GP (%d) specified for interrupt input\n", index, intr);

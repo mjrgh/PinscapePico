@@ -198,6 +198,19 @@ public:
     // Configure the I2C buses based on the JSON data
     static void Configure(JSONParser &json);
 
+    // Is the bus number valid?  All current Pico CPUs have two I2C units,
+    // i2c0 and i2c1, so this could be hardcoded everywhere it's needed,
+    // but we're abstracting it to make it easier to extend in the future.
+    // We would need to extend it if future Pico models have more native
+    // I2C units on board, or if we were to add an option to implement
+    // additional I2C units via PIOs.
+    static bool IsValidBus(int bus) { return bus == 0 || bus == 1; }
+
+    // Validate an I2C bus from a configuration option.  If valid,
+    // returns true; if invalid, logs an under the given feature name
+    // and returns false.
+    static bool ValidateBusConfig(const char *feature, int bus);
+
     // Get the instance for I2C<bus>, optionally initializing it if it's
     // set to on-demand initialization.
     static I2C *GetInstance(int bus, bool init);

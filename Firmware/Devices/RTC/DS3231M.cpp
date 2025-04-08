@@ -35,13 +35,10 @@ void DS3231M::Configure(JSONParser &json)
 {
     if (auto *val = json.Get("ds3231m"); !val->IsUndefined())
     {
-        // get the I2C bus number
-        uint8_t bus = val->Get("i2c")->UInt8(255);
-        if (I2C::GetInstance(bus, true) == nullptr)
-        {
-            Log(LOG_ERROR, "ds3231m: invalid/undefined I2C bus; must be 0 (I2C0) or 1 (I2C1)\n");
+        // get and validate the I2C bus number
+        int bus = val->Get("i2c")->Int(-1);
+        if (!I2C::ValidateBusConfig("ds3231m", bus))
             return;
-        }
 
         // create the singleton instance and add it to the I2C bus
         inst = new DS3231M();

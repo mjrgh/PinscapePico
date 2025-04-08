@@ -46,13 +46,10 @@ void VL6180X::Configure(JSONParser &json)
 {
     if (auto *val = json.Get("vl6180x") ; !val->IsUndefined())
     {
-        // get the bus
-        uint8_t bus = val->Get("i2c")->UInt8(255);
-        if (I2C::GetInstance(bus, true) == nullptr)
-        {
-            Log(LOG_ERROR, "vl6180x: invalid/undefined I2C bus\n");
+        // get and validate the I2C bus number
+        int bus = val->Get("i2c")->Int(-1);
+        if (!I2C::ValidateBusConfig("vl6180x", bus))
             return;
-        }
 
         // get the optional Chip Enable GPIO port, if any
         int gpCE = val->Get("chipEnable")->Int(-1);

@@ -144,17 +144,20 @@ void TLC59116::Configure(JSONParser &json)
         // parse each entry in the array (or just the single object, if it's not an array)
         cfg->ForEach([](int index, const JSONParser::Value *value)
         {
-            // get and validate the settings for this instance
-            uint8_t bus = value->Get("i2c")->UInt8(255);
+            // get and validate the I2C bus number
+            char facility[20];
+            snprintf(facility, _countof(facility), "tlc59116[%d]", index);
+            int bus = value->Get("i2c")->Int(-1);
+            if (!I2C::ValidateBusConfig(facility, bus))
+                return;
+
+            // get and validate the I2C address
             uint8_t addr = value->Get("addr")->UInt8(0);
-            int gpReset = value->Get("reset")->Int(-1);
-            if (addr == 0 || I2C::GetInstance(bus, true) == nullptr)
+            if (addr == 0)
             {
-                Log(LOG_ERROR, "tlc59116[%d]: invalid/undefined I2C bus or address\n", index);
+                Log(LOG_ERROR, "tlc59116[%d]: invalid/undefined I2C address\n", index);
                 return;
             }
-
-            // check for reserved or invalid I2C addresses
             if (addr < 0x60 || addr > 0x6F || addr == 0x68 || addr == 0x6B)
             {
                 Log(LOG_ERROR, "tlc59116[%d]: invalid or reserved address 0x%02x (must be 0x60..0x6F excluding reserved addresses 0x68, 0x6B)\n", index, addr);
@@ -162,6 +165,7 @@ void TLC59116::Configure(JSONParser &json)
             }
 
             // validate the RESET line
+            int gpReset = value->Get("reset")->Int(-1);
             if (gpReset != -1 && !IsValidGP(gpReset))
             {
                 Log(LOG_ERROR, "tlc59116[%d]: invalid or undefined reset GP\n", index);

@@ -58,13 +58,10 @@ void MXC6655XA::Configure(JSONParser &json)
 {
     if (auto *val = json.Get("mxc6655xa") ; !val->IsUndefined())
     {
-        // get the I2C bus number
+        // get and validate the I2C bus number
         int bus = val->Get("i2c")->Int(-1);
-        if (I2C::GetInstance(bus, true) == nullptr)
-        {
-            Log(LOG_ERROR, "mxc6655xa: invalid I2Cn bus number; must be 0 or 1\n");
+        if (!I2C::ValidateBusConfig("mxc6655xa", bus))
             return;
-        }
 
         // the I2C address on this chip isn't configurable - it's
         // hard-wired on the chip to 0x15

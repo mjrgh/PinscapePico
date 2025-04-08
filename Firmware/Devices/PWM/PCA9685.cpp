@@ -102,19 +102,24 @@ void PCA9685::Configure(JSONParser &json)
         // parse each entry in the array (or just the single object, if it's not an array)
         cfg->ForEach([&json](int index, const JSONParser::Value *value)
         {
-            // get and validate the settings for this instance
-            uint8_t bus = value->Get("i2c")->UInt8(255);
-            uint8_t addr = value->Get("addr")->UInt8(0);
-            if (addr == 0 || I2C::GetInstance(bus, true) == nullptr)
-            {
-                Log(LOG_ERROR, "pca9685[%d]: invalid/undefined I2C bus or address\n", index);
+            // get and validate the I2C bus number
+            char facility[20];
+            snprintf(facility, _countof(facility), "pca9685[%d]", index);
+            int bus = value->Get("i2c")->UInt8(-1);
+            if (!I2C::ValidateBusConfig(facility, bus))
                 return;
-            }
 
             // Check for reserved or invalid I2C addresses.  The PCA9685
             // address is always in the range 0x40..0x78, except that 0x70
             // is reserved.
-            if (addr < 0x40 || addr > 0x78 || addr == 0x70)
+            const auto *addrVal = value->Get("addr");
+            int addr = addrVal->Int(-1);
+            if (addrVal->IsUndefined())
+            {
+                Log(LOG_ERROR, "pca9685[%d]: missing 'addr' property (I2C address)\n", index);
+                return;
+            }
+            else if (addr < 0x40 || addr > 0x78 || addr == 0x70)
             {
                 Log(LOG_ERROR, "pca9685[%d]: invalid or reserved I2C address 0x%02x\n", index, addr);
                 return;

@@ -1196,10 +1196,24 @@ namespace PinscapePico
         // because the Pico and Windows system clocks will drift apart over
         // time.  The Pico clock in particular isn't very accurate; it's
         // rated accuracy is 30 ppm, which translates to 2.5 seconds of
-        // drift per day.  If you're using clock synchronization for
-        // measurements at a millisecond scale, you should refresh the
-        // offset calculation about once a minute.
+        // drift per day.  If you're using clock synchronization for elapsed
+        // time measurements at a millisecond scale, you should refresh the
+        // offset calculation immediately before or after one of the
+        // endpoints of the interval being measured.
         static const uint8_t CMD_SYNC_CLOCKS = 0x15;
+
+        // Miscellaneous debugging/troubleshooting functions
+        //
+        // SUBCMD_DEBUG_I2C_BUS_SCAN
+        //   Initiate an I2C bus scan on all configured buses.  The scan
+        //   runs asynchronously, sending out a START message to each address
+        //   in the valid 7-bit range (excluding the standard reserved address
+        //   ranges) and checking for an ACK.  Each address that acknowledges
+        //   the START is logged with an INFO message showing the bus number
+        //   and address.
+        //
+        static const uint8_t CMD_DEBUG = 0x16;
+        static const uint8_t SUBCMD_DEBUG_I2C_BUS_SCAN = 0x01;
 
         // Length of the arguments union data, in bytes.  This is the number
         // of bytes of data in the arguments union that are actually used.

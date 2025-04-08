@@ -177,6 +177,7 @@ protected:
 	void ClearConfig();
 	void FactoryReset();
 	void RepairJoyCpl();
+	void I2CBusScan();
 
 	// Check with open windows prior to a config erase/factory reset 
 	// action, and prompt the user for confirmation.  Returns true if
@@ -209,6 +210,9 @@ protected:
 	void CreatePlungerWin();
 	void CreateNudgeWin();
 	void CreateIRWin();
+
+	// switch to the log window
+	void SwitchToLogWin();
 
 	// Test if a device is offline, and display the Offline Device
 	// placeholder window for it if so.  Returns true if the placeholder

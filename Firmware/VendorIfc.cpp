@@ -40,6 +40,7 @@
 #include "Nudge.h"
 #include "Plunger/Plunger.h"
 #include "TVON.h"
+#include "I2C.h"
 #include "IRRemote/IRCommand.h"
 #include "IRRemote/IRTransmitter.h"
 #include "IRRemote/IRReceiver.h"
@@ -1059,6 +1060,22 @@ void PinscapeVendorIfc::ProcessRequest()
         resp.status = ProcessClockSync(curRequest.args.timeSync, resp.args.timeSync);
         break;
 
+    case Request::CMD_DEBUG:
+        // miscellaneous debug commands
+        switch (curRequest.args.argBytes[0])
+        {
+        case Request::SUBCMD_DEBUG_I2C_BUS_SCAN:
+            // initiate a bus scan on each valid bus
+            I2C::ForEach([](I2C *i2c) { i2c->StartBusScan(); });
+            break;
+            
+        default:
+            // invalid subcommand
+            resp.status = Response::ERR_BAD_SUBCMD;
+            break;
+        }
+        break;
+        
     default:
         // bad command request
         resp.status = Response::ERR_BAD_CMD;

@@ -950,6 +950,10 @@ bool WrapperWin::OnCommand(WORD notifyCode, WORD ctlCmdId, HWND hwndCtl, LRESULT
             RepairJoyCpl();
             return true;
 
+        case ID_DEVICE_I2CBUSSCAN:
+            I2CBusScan();
+            return true;
+
         case ID_VIEW_REFRESHWINDOW:
             // if the current tab exposes TabEmbeddableWindow, refresh it
             if (curButton != nullptr && curButton->curTab != nullptr)
@@ -2084,6 +2088,19 @@ void WrapperWin::RepairJoyCpl()
     }
 }
 
+// Start an I2C bus scan
+void WrapperWin::I2CBusScan()
+{
+    // initiate the scan
+    bool ok = ExecDeviceCommand(
+        [](VendorInterface *dev) { return dev->I2CBusScan(); }, "Starting I2C bus scan",
+        "I2C bus scan started; check log window for results");
+
+    // switch to the log window
+    if (ok)
+        SwitchToLogWin();
+}
+
 // device change notification handler
 bool WrapperWin::OnDevNodesChanged()
 {
@@ -2203,6 +2220,21 @@ void WrapperWin::CreateOverviewWin()
         cxLeftPanel + cxPanelMargin, cyTabCtl,
         crc.right - cxLeftPanel - cxPanelMargin, crc.bottom - cyTabCtl,
         SW_SHOW);
+}
+
+void WrapperWin::SwitchToLogWin()
+{
+    if (curButton != nullptr)
+    {
+        for (auto &tab : curButton->tabs)
+        {
+            if (tab.createWindow == &WrapperWin::CreateLogWin)
+            {
+                SelectTab(tab);
+                break;
+            }
+        }
+    }
 }
 
 void WrapperWin::CreateLogWin()

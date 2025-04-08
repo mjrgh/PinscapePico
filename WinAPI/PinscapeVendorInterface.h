@@ -1114,6 +1114,8 @@ namespace PinscapePico
 		// the time limiter won't function during suspensions.
 		int SetOutputTestMode(bool testMode, uint32_t timeout_ms);
 
+		// Initiate an I2C bus scan
+		int I2CBusScan();
 
 
 		// ------------------------------------------------------------

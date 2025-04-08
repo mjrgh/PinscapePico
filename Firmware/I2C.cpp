@@ -77,6 +77,27 @@ I2C *I2C::GetInstance(int bus, bool init)
     return i2c;
 }
 
+// invoke a callback on each configured I2C bus
+void I2C::ForEach(std::function<void(I2C*)> callback)
+{
+    for (int i = 0 ; i < _countof(inst) ; ++i)
+    {
+        if (auto *i2c = inst[i]; i2c != nullptr)
+            callback(i2c);
+    }
+}
+
+// start a bus scan
+void I2C::StartBusScan()
+{
+    // only proceed if this bus has been initialized
+    if (initialized)
+    {
+        busScanAddr = 0x08;
+        Log(LOG_INFO, "Starting bus scan on I2C%d\n", busNum);
+    }
+}
+
 // Configure from JSON data
 //
 // i2c0: { sda: <gp number>, scl: <gp number>, speed: <bit rate in Hz> }

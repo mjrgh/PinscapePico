@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <vector>
+#include <functional>
 
 // Pico SDK headers
 #include <pico/stdlib.h>
@@ -215,11 +216,17 @@ public:
     // set to on-demand initialization.
     static I2C *GetInstance(int bus, bool init);
 
+    // call a callback on each configured I2C bus
+    static void ForEach(std::function<void(I2C*)> callback);
+
     // destruction
     ~I2C();
 
     // Initialize.  Sets up the Pico hardware I2C unit.
     void Init();
+
+    // Initiate a bus scan on this bus
+    void StartBusScan();
 
     // Enable the interrupt handler.  Interrupts are disabled initially
     // (even after calling Init(), to allow device classes to use the

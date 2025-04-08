@@ -2107,6 +2107,12 @@ int VendorInterface::SetOutputTestMode(bool testMode, uint32_t timeout_ms)
 	return SendRequestWithArgs(PinscapeRequest::CMD_OUTPUTS, args);
 }
 
+int VendorInterface::I2CBusScan()
+{
+	uint8_t subcmd = PinscapeRequest::SUBCMD_DEBUG_I2C_BUS_SCAN;
+	return SendRequestWithArgs(PinscapeRequest::CMD_DEBUG, subcmd);
+}
+
 int VendorInterface::SendRequest(uint8_t cmd, const BYTE *xferOutData, size_t xferOutLength, std::vector<BYTE> *xferInData)
 {
 	// build the request struct

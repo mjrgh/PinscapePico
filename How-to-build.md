@@ -41,18 +41,21 @@ To address the install glitches and library errors, I've create my
 own unofficial release bundle of the 2.1.0 SDK for x64 Windows.  My
 version is for command-line builds, same as the official 1.5.1 SDK,
 and comes with pre-built Windows x64 binaries for all of the required
-tools, and **corrected** versions of the library files.  Download it
-from https://github.com/mjrgh/pico-sdk-2.1.0.  It's a snapshot of my
-environment, with no installer needed.  Simply copy the whole directory
-tree into a folder on your hard disk.  You can either `git clone` it
-or download it as a ZIP file.
+tools, and **corrected** versions of the library files.  To install:
 
-My 2.1.0 SDK bundle is for x64 Windows only.  If you want to build on
-Linux or MacOS, go directly to the Raspberry Pi site and follow their
-instructions.  However, you'll still need my corrected library files,
-because the official ones contain the errors I mentioned.  You should
-set up the official SDK environment per Raspberry Pi's instructions,
-then replace the pico-sdk/ subtree with the one from my release.
+* Download it from https://github.com/mjrgh/pico-sdk-2.1.0
+
+* Follow the instructions in the README.MD file under **How To Install**
+
+For the download, you can either `git clone` it or download it as a ZIP file.
+
+This is just a snapshot of my own copy of the 2.1.0 SDK, and it's for
+x64 Windows only.  If you want to build on Linux or MacOS, go directly
+to the Raspberry Pi site and follow their instructions.  However,
+<b>you'll still need my corrected library files,</b> because the official
+ones contain the errors I mentioned.  You should set up the official
+SDK environment per Raspberry Pi's instructions, then replace the
+pico-sdk/ subtree with my corrected version from https://github.com/mjrgh/pico-sdk-2.1.0.
 
 ### NMAKE
 

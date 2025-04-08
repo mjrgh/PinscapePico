@@ -9,5 +9,6 @@ CMakeCache.txt
 CMakeFiles/**
 pico-sdk/**
 *.cmake
+!pico_sdk_import.cmake
 CMakeDoxyfile.in
 Makefile

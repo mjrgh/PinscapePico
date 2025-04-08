@@ -1151,19 +1151,75 @@ void ConfigDocParser::GenerateSchemaStructs(const char *filename)
 			f << "    { \"" << name << "\", \"" << prop.link << "\", "
 				<< (prop.required ? "true" : "false") << ", ";
 
+			// build a one-line summary from the documentation text, if nay
 			if (prop.text.size() != 0)
 			{
+				// build the text, up to a limit
+				size_t maxLen = 128;
 				std::string para;
 				for (auto &line : prop.text)
 				{
-					if (line.size() == 0 || para.length() > 128)
+					// stop if we've reached a new paragraph
+					if (line.size() == 0)
 						break;
+
+					// append a simple horizontal space between blank lines
 					if (para.size() != 0) para.append(" ");
+
+					// add the line
 					para.append(line);
 				}
-				size_t maxLen = 128;
-				f << "\"" << Quote(para.substr(0, std::min(para.size(), maxLen)));
-				if (para.size() > maxLen) f << "...";
+
+				// strip HTML tags
+				std::string plainPara;
+				for (const char *p = para.c_str() ; *p != 0 ; )
+				{
+					// scan to the next tag
+					const char *start = p;
+					for (; *p != 0 && *p != '<' ; ++p);
+
+					// append this section
+					if (p != start)
+						plainPara.append(start, p - start);
+
+					// skip the HTML
+					if (*p == '<')
+					{
+						// If it's <table>, stop here - a table is equivalent to
+						// a new paragraph, so it ends the summary header.  (Tables
+						// don't work very well as summary data anyway.)
+						++p;
+						if (_strnicmp(p, "table", 5) == 0 && (isspace(p[5]) || p[5] == '>'))
+							break;
+
+						// scan for the end of the HTML tag
+						char qu = 0;
+						for (; *p != 0 ; ++p)
+						{
+							if (qu != 0)
+							{
+								// in quoted text - check for end quote
+								if (*p == qu)
+									qu = 0;
+							}
+							else if (*p == '"' || *p == '\'')
+							{
+								// entering quoted text
+								qu = *p;
+							}
+							else if (*p == '>')
+							{
+								// end of tag - skip the '>' and stop scanning
+								++p;
+								break;
+							}
+						}
+					}
+				}
+
+				// truncate the result to maxLen
+				f << "\"" << Quote(plainPara.substr(0, std::min(plainPara.size(), maxLen)));
+				if (plainPara.size() > maxLen) f << "...";
 				f << "\", ";
 			}
 			else

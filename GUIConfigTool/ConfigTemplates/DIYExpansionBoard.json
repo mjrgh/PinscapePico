@@ -264,17 +264,18 @@
     // HID keyboard interface.  Enabling this allows you to assign
     // button inputs to send keyboard keystrokes to the PC.  This is one
     // of the foundational features of a pinball controller that
-    // practically every virtual pin cab should include.  If you're not
-    // using this Pinscape unit for button inputs, or if you don't wish
+    // practically every virtual pin cab uses, so we'll enable it here
+    // by default.  But it's not mandatory!  If you're not using this
+    // Pinscape unit for button inputs at all, or if you just don't wish
     // to map anything to keyboard input (for example, if you want all
-    // buttons to generate gamepad input instead), it's okay to disable
-    // this.
+    // buttons to generate gamepad input instead), it's perfectly fine
+    // to disable this.
     //
     // Note that enabling this won't usually have any obvious visible
     // effect on the Windows side, since Windows does an excellent job
-    // of making multiple keyboards all appear to work together as one
-    // unified keyboard.  You will see a new keyboard appear in Device
-    // Manager, but you probably won't notice any other effects.
+    // of merging input from multiple keyboards.  About the only effect
+    // you'll see is the appearance of a new keyboard device in the
+    // Device Manager list.
     keyboard: {
         enable: true,
     },

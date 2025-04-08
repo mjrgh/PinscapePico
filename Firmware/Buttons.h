@@ -839,6 +839,21 @@ public:
         uint8_t buttonNum;
     };
 
+    // Gamepad hat switch action.  This reports the assigned gamepad hat
+    // switch button as pressed when the logical control is on.  The hat
+    // switches are numbered 0=UP, 1=DOWN, 2=LEFT, 3=RIGHT.
+    class GamepadHatSwitchAction : public Action
+    {
+    public:
+        GamepadHatSwitchAction(uint8_t buttonNum) : buttonNum(buttonNum) { }
+        virtual void OnStateChange(bool state) override;
+        virtual void GenName() override { sprintf(nameBuf, "GamepadHatSwitch(%c)", "UDLR?"[buttonNum < 4 ? buttonNum : 4]); }
+        virtual void PopulateDesc(PinscapePico::ButtonDesc *desc) const override;
+
+        // the hat switch number that we report, 0-3
+        uint8_t buttonNum;
+    };
+
     // XInput button action.  This reports the assigned xbox controller
     // button as pressed when the logical control is on.
     class XInputButtonAction : public Action

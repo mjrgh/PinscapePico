@@ -2207,7 +2207,9 @@ namespace PinscapePico
         // - Media: the USB usage code, from HID Consumer Usage Page 0x0C,
         //   of the mapped media control key
         //
-        // - Gamepad: joystick nominal button number, 1..32
+        // - Gamepad:
+        //    - For regular joystick buttons, the nominal button number, 1..32
+        //    - For hat switch buttons, 100=Up, 101=Down, 102=Left, 103=Right
         //
         // - XInput: controller button number, 0=Up, 1=Down, 2=Left, 3=Right,
         //   4=Start, 5=Back, 6=L3, 7=R3, 8=LB, 9=RB, 10=XBOX, 12=A, 13=B, 14=X, 15=Y

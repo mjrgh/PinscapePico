@@ -576,6 +576,7 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //
 // type: "gamepad",       // gamepad button
 //   button: <number>,    // button number, 1-32
+//   hatSwitch: <string>, // hat switch name: "up", "down", "left", "right"; mutually exclusive with 'button'
 //
 // type: "xInput",        // XInput (XBox controller emulation)
 //   button: <string>,    // button name: "up", "down", "left", "right", "start", "back", "l3", "r3", "lb", "rb", "xbox", "a", "b", "x", "y"
@@ -1195,12 +1196,33 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
     }
     else if (actionType == "gamepad")
     {
-        // game pad action
-        int btn = actionVal->Get("button")->UInt8(-1);
-        if (gamepad.IsValidButton(btn))
-            return new Button::GamepadButtonAction(btn);
+        // game pad action - this can be either a numbered button or a hat switch
+        if (auto *hatVal = actionVal->Get("hatSwitch"); !hatVal->IsUndefined())
+        {
+            static const std::unordered_map<std::string, int> hatMap{
+                { "up", 1 },
+                { "down", 2 },
+                { "left", 3 },
+                { "right", 4 },
+            };
+            auto swName = hatVal->String();
+            if (auto it = hatMap.find(swName) ; it != hatMap.end())
+                return new Button::GamepadHatSwitchAction(it->second);
+            else
+                return Log(LOG_ERROR, "%s: invalid hatSwitch name \"%s\n", location, swName.c_str()), nullptr;
+        }
+        else if (auto *btnVal = actionVal->Get("button"); !btnVal->IsUndefined())
+        {
+            int btn = btnVal->Int8(-1);
+            if (gamepad.IsValidButton(btn))
+                return new Button::GamepadButtonAction(btn);
+            else
+                return Log(LOG_ERROR, "%s: invalid gamepad button number\n", location), nullptr;
+        }
         else
-            return Log(LOG_ERROR, "%s: invalid gamepad button number\n", location), nullptr;
+        {
+            return Log(LOG_ERROR, "%s: gamepad button requires 'button' or 'hatSwitch' setting\n", location), nullptr;
+        }
     }
     else if (actionType == "xInput")
     {
@@ -2622,6 +2644,27 @@ void Button::GamepadButtonAction::OnStateChange(bool state)
 {
     // pass the event to the gamepad button device handler
     gamepad.ButtonEvent(buttonNum, state);
+}
+
+// ---------------------------------------------------------------------------
+//
+// Gamepad hat switch action
+//
+
+void Button::GamepadHatSwitchAction::PopulateDesc(PinscapePico::ButtonDesc *desc) const
+{
+    // gamepad action
+    desc->actionType = PinscapePico::ButtonDesc::ACTION_GAMEPAD;
+
+    // Our buttonNum is 1..4 for UP DOWN LEFT RIGHT.  The actionDetail in
+    // the report labels them in the same order, but starting at 100.
+    desc->actionDetail = buttonNum + 99;
+}
+
+void Button::GamepadHatSwitchAction::OnStateChange(bool state)
+{
+    // pass the event to the gamepad hat switch device handler
+    gamepad.HatSwitchEvent(buttonNum, state);
 }
 
 // ---------------------------------------------------------------------------

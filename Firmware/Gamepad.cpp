@@ -178,6 +178,23 @@ const uint8_t *USBIfc::Gamepad::GetReportDescriptor(uint16_t *byteLength)
             HID_REPORT_SIZE   (16),
             HID_INPUT         (HID_DATA | HID_VARIABLE | HID_ABSOLUTE),
 
+            // Hat switch
+            HID_USAGE_PAGE    (HID_USAGE_PAGE_DESKTOP),
+            HID_USAGE         (HID_USAGE_DESKTOP_HAT_SWITCH),
+            HID_LOGICAL_MIN   (1),
+            HID_LOGICAL_MAX   (8),
+            HID_PHYSICAL_MIN  (0),
+            HID_PHYSICAL_MAX_N(315, 2),
+            HID_UNIT          (20),  // English rotation units - degrees
+            HID_REPORT_COUNT  (1),
+            HID_REPORT_SIZE   (4),
+            HID_INPUT         (HID_DATA | HID_VARIABLE | HID_ABSOLUTE | HID_NULL_STATE),
+        
+            // Four bits of padding (to fill out the byte)
+            HID_REPORT_COUNT  (1),
+            HID_REPORT_SIZE   (4),
+            HID_INPUT         (HID_CONSTANT | HID_ABSOLUTE),
+
         HID_COLLECTION_END 
     };
     *byteLength = sizeof(desc);
@@ -188,6 +205,15 @@ void USBIfc::Gamepad::ButtonEvent(int buttonNum, bool isDown)
 {
     // update the button in the helper
     buttons.OnButtonEvent(buttonNum, isDown);
+
+    // record the event time
+    stats.MarkEventTime(time_us_64());
+}
+
+void USBIfc::Gamepad::HatSwitchEvent(int buttonNum, bool isDown)
+{
+    // update the button in the helper
+    hatSwitch.OnButtonEvent(buttonNum, isDown);
 
     // record the event time
     stats.MarkEventTime(time_us_64());
@@ -227,6 +253,75 @@ uint16_t USBIfc::Gamepad::GetReport(hid_report_type_t type, uint8_t *buf, uint16
         PutInt16(p, rzSource->Read());
         PutInt16(p, slider1Source->Read());
         PutInt16(p, slider2Source->Read());
+
+        // Store the hat switch value.  By convention, a hat switch on a
+        // real gamepad consists of four switches, UP DOWN LEFT RIGHT, which
+        // are typically activated by a joystick.  Moving the joystick to
+        // the right activates the RIGHT switch, for example.  Moving the
+        // joystick to diagonal positions activates adjacent switches,
+        // such as RIGHT+DOWN for the "southeast" joystick position.
+        //
+        // The HID report DOESN'T report the individual button states.
+        // Instead, it reports the joystick position inferred from the
+        // button states, as the angular position of the joystick relative
+        // to its center position, in a unit system where one unit equals
+        // 45 degrees, with zero degrees at North (UP), and the angle
+        // increasing counterclockwise (following the common algebraic
+        // convention).  The HID report also has a NULL state that
+        // represents the joystick at its center position, with none of
+        // the buttons pressed.
+        //
+        // HID lets us define the system of units to represent this angular
+        // coordinate system, by setting a logical range and a physical
+        // range.  Since we have 8 possible angular states, we'll use a
+        // logical range of 1..8 to represent a physical range of 0..315
+        // degrees.  HID interprets any value outside of the logical range
+        // as a NULL, so using 1..8 as our logical range lets us use 0 as
+        // the NULL value.
+        //
+        // Since the input source is the four independent buttons, and the
+        // HID report value is this peculiarly encoded angular value, we
+        // have to map from the button states to the HID report value.
+        // Note that about half of the button states have no representation
+        // in the HID report, since the notional joystick arrangement can't
+        // physically reach those button states.  Since we don't have any
+        // control over the physical input arrangement, though, there's no
+        // guarantee that our inputs are constrained in the same way as a
+        // true hat swtich, so it's entirely possible that our four buttons
+        // can be pressed in combinations that aren't possible with a true
+        // hat switch, and thus that we'll see input states that can't be
+        // represented in the HID report, such as UP+DOWN, or three buttons
+        // pressed at once.  We just report NULL (center position) in such
+        // cases.
+        //
+        // The live button state is encoded as a bit vector in our hatSwitch
+        // button helper object, with the first button at the least significant
+        // bit (bit mask 0x0001), the second button at bit 0x0002, and so on.
+        // We assing the buttons in order as UP, DOWN, LEFT, RIGHT, so the
+        // low-order four bits of the hatSwitch bit vector for a 4-bit number,
+        // inherently with range 0x00 to 0x0F.  We can thus use that as an
+        // index into a mapping array, picking out the HID report value that
+        // corresponds to each possible combination of the four button states.
+        static const uint8_t hatSwitchMap[] {
+            // HID    Angle  Dir   R L D U   Hex
+            0,     // NULL   NULL  0 0 0 0   0x00
+            1,     // 0      N     0 0 0 1   0x01
+            5,     // 180    S     0 0 1 0   0x02
+            0,     // NULL   NULL  0 0 1 1   0x03
+            3,     // 90     W     0 1 0 0   0x04
+            2,     // 45     NW    0 1 0 1   0x05
+            4,     // 135    SW    0 1 1 0   0x06
+            0,     // NULL   NULL  0 1 1 1   0x07
+            7,     // 270    E     1 0 0 0   0x08
+            8,     // 315    NE    1 0 0 1   0x09
+            6,     // 225    SE    1 0 1 0   0x0A
+            0,     // NULL   NULL  1 0 1 1   0x0B
+            0,     // NULL   NULL  1 1 0 0   0x0C
+            0,     // NULL   NULL  1 1 0 1   0x0D
+            0,     // NULL   NULL  1 1 1 0   0x0E
+            0,     // NULL   NULL  1 1 1 1   0x0F
+        };
+        *p++ = hatSwitchMap[hatSwitch.Report() & 0x0F];
 
         // *** IMPORTANT ***
         // Any changes to the byte layout above require updating ReportLength

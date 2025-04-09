@@ -254,18 +254,37 @@ plenty of bandwidth for everyone.
 
 ## Documentation
 
-The main documentation right now is the Config Tool help.  That has extensive
-information on the Config Tool itself, with a lot of details on the how the
-firmware works.  The JSON Configuration Reference section in particular has
-extremely detailed information on all of the features, subsystems, and peripheral
-hardware supported.
+The documentation is a little thin so far, since I haven't yet updated
+the [Pinscape Build Guide](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php)
+to cover the Pico system.  A lot of the general pin cab material in the Build
+Guide still applies equally well to Pinscape Pico, since most of it isn't at all
+tied to the KL25Z or the original Pinscape software.  But the Build Guide also
+has a lot of material that's specifically about how to build and set up the
+original Pinscape KL25Z system, and so far I haven't written anything equivalent
+for the new Pico software.
 
-You can access this from the Help menu in the GUI Config Tool (GUIConfigTool.exe),
-or you can simply open **Help\ConfigTool.htm** in your favorite browser.
+Here's what I do have for you so far:
 
-In case you'd like to just read about the system without actually installing
-anything, I've made the same help files available online, at
-[mjrnet.org/pinscape/PinscapePico/Help/ConfigTool.htm](http://mjrnet.org/pinscape/PinscapePico/Help/ConfigTool.htm)
+<b>[JSON Configuration Reference](http://mjrnet.org/pinscape/PinscapePico/Help/JSONConfigRef.html):</b>
+This has the most comprehensive documentation on the firmware's
+workings currently available.  It's in reference format, so it's
+not a very good tutorial, but each of the major features has an
+introductory section that explains how it works, including wiring
+guides for most of the supported peripheral hardware devices.
+    
+When you're using the configuration editor in the Config Tool, the
+editor keeps track of your editing location, and can take you straight
+to the reference section on the topic you're currently editing.
+Just click the link at the upper right corner of the editor window
+to bring up the help for the current JSON section.
+
+<b>[Config Tool help](http://mjrnet.org/pinscape/PinscapePico/Help/ConfigTool.htm):</b>  This documents the Config Tool in detail.
+It's built into the Config Tool UI, and is also available online.
+
+<b>[LIS3DH setup guide](Guides/LIS3DH-Setup.MD):</b>  A tutorial guide
+to setting up a LIS3DH accelerometer with a standalone Pico.  This will
+probably be the most common initial setup for people who don't need the
+Expansion Boards, so I wrote this guide to help get started.
 
 
 <a name="SetupDetails"></a>

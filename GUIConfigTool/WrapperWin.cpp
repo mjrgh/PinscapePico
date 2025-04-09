@@ -1496,7 +1496,7 @@ bool WrapperWin::ExecDeviceCommand(std::function<int(VendorInterface*)> callback
             }
             else
             {
-                MessageBoxFmt(hwnd, "%s: failed (error code %d)", status);
+                MessageBoxFmt(hwnd, "%s: failed (error code %d)", VendorInterface::ErrorText(status), status);
                 return false;
             }
         }

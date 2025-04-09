@@ -83,6 +83,10 @@ Some boards have other pins as well, and in most cases, you can leave these disc
 But if your board came with instructions or a wiring diagram, pay attention to what they
 say instead of my one-size-fits-all advice here.
 
+### Sample breadboard wiring
+
+<img src="LIS3DH-on-breadboard.png">
+
 ### I2C connections
 
 This chip communicates with the Pico via a bus protocol known as I2C.  This requires two
@@ -197,6 +201,42 @@ gamepad: {
    y: "nudge.y",       // map the gamepad's Y axis to the nudge device's Y axis
    z: "plunger.z",     // if you also have a plunger, this maps the Z axis to report the plunger position
 },
+```
+
+### Sample JSON file
+
+Here's a complete but very stripped-down configuration file showing the
+settings described above.  The GPIO ports are set to match the breadboard
+wiring shown earlier.
+
+```
+{
+   i2c0: {
+      sda: 12,
+      scl: 13,
+      speed: 400000,
+   },
+
+   lis3dh: {
+      i2c: 0,
+      addr: 0x19,
+      interrupt: 15,
+      gRange: 2,  
+   },
+  
+   nudge: {
+      source: "lis3dh",
+      x: "+X",
+      y: "+Y",
+      z: "+Z",  
+   },
+      
+   gamepad: {
+      enable: true,
+      x: "nudge.x",
+      y: "nudge.y",
+   },
+}
 ```
 
 ## Testing

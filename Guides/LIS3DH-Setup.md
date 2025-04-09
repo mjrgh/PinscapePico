@@ -10,12 +10,21 @@ breakout board into the special slot for it on the board.
 
 Pinscape Pico has support for several accelerometer chips, so LIS3DH
 isn't your only option, but it's probably the easiest and best choice
-at the moment.  LIS3DH is really popular among robotics hobbyists, so
-there are several inexpensive "breakout boards" available for it.  I
-use the one from Adafruit, but you can also find cheap no-name boards
-on Amazon and eBay.  They're all equivalent as far as the Pinscape
-software is concerned because they all have the same IC chip at their
-core, the LIS3DH.
+at the moment.  LIS3DH is really popular among robotics hobbyists,
+which creates enough demand that companies like Adafruit and Sparkfun
+sell the chip on little "breakout" boards that are easy for hobbyists
+to work with.  That's important for an accelerometer chip, because all
+of the accelerometers currently in production are in extremely tiny
+surface-mount packages that are extremely difficult to solder by hand;
+the breakout boards solve that problem by providing the chip on a
+pre-soldered carrier board with 0.1" pin headers that you can easily
+connect to a microcontroller like a Pico.
+
+LIS3DH breakout boards are available from several sources, including
+Adafruit, Sparkfun, and no-name sellers on Amazon and eBay.  I use the
+one from Adafruit, but any of the others should work equally well.
+They're all equivalent as far as the Pinscape software is concerned,
+because they all have the same IC chip at their core, the LIS3DH.
 
 Note that there's an older variation on the LIS3DH calls the LIS3DSH
 (that's just one letter difference, hidden in the middle of the

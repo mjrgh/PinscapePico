@@ -281,7 +281,7 @@ to bring up the help for the current JSON section.
 <b>[Config Tool help](http://mjrnet.org/pinscape/PinscapePico/Help/ConfigTool.htm):</b>  This documents the Config Tool in detail.
 It's built into the Config Tool UI, and is also available online.
 
-<b>[LIS3DH setup guide](Guides/LIS3DH-Setup.MD):</b>  A tutorial guide
+<b>[LIS3DH setup guide](Guides/LIS3DH-Setup.md):</b>  A tutorial guide
 to setting up a LIS3DH accelerometer with a standalone Pico.  This will
 probably be the most common initial setup for people who don't need the
 Expansion Boards, so I wrote this guide to help get started.

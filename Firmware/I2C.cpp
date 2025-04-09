@@ -303,6 +303,7 @@ void I2C::BusClear(bool isStartup)
     gpio_put(scl, true);
     gpio_set_function(sda, GPIO_FUNC_SIO);
     gpio_set_function(scl, GPIO_FUNC_SIO);
+    sleep_us(20);
 
     // Bit-bang the clock until SDA goes high.  If this is going to work
     // at all, it will always work within 9 clocks, because the type of
@@ -336,19 +337,25 @@ void I2C::BusClear(bool isStartup)
         sleep_us(5);
     }
 
-    // send a START / STOP sequence, to reset devcie state machines
+    // Send a START / STOP sequence, to reset device state machines
+    // Initial: SDA high, SCL high
+    
+    // START condition: take SDA low, then take SCL low
     gpio_put(sda, false);
     sleep_us(5);
     gpio_put(scl, false);
     sleep_us(5);
-    gpio_put(sda, true);
-    sleep_us(5);
+
+    // STOP condition: take SCL high, then take SDA high
     gpio_put(scl, true);
+    sleep_us(5);
+    gpio_put(sda, true);
     sleep_us(5);
 
     // restore the GPIOs to their I2C functions
     gpio_set_function(scl, GPIO_FUNC_I2C);
     gpio_set_function(sda, GPIO_FUNC_I2C);
+    sleep_us(20);
 
     // note the result
     Log(LOG_INFO, "I2C%d bus reset %s, %d clocks sent\n",

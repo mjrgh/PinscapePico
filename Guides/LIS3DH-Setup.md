@@ -14,9 +14,9 @@ at the moment.  LIS3DH is really popular among robotics hobbyists,
 which creates enough demand that companies like Adafruit and Sparkfun
 sell the chip on little "breakout" boards that are easy for hobbyists
 to work with.  That's important for an accelerometer chip, because all
-of the accelerometers currently in production are in extremely tiny
-surface-mount packages that are extremely difficult to solder by hand;
-the breakout boards solve that problem by providing the chip on a
+of the accelerometers currently in production come in extremely tiny
+surface-mount packages that are quite challenging to solder by hand.
+The breakout boards solve that problem by providing the chip on a
 pre-soldered carrier board with 0.1" pin headers that you can easily
 connect to a microcontroller like a Pico.
 

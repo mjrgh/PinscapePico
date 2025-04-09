@@ -26,7 +26,7 @@ one from Adafruit, but any of the others should work equally well.
 They're all equivalent as far as the Pinscape software is concerned,
 because they all have the same IC chip at their core, the LIS3DH.
 
-Note that there's an older variation on the LIS3DH calls the LIS3DSH
+Note that there's an older variation on the LIS3DH called the LIS3DSH
 (that's just one letter difference, hidden in the middle of the
 name - the added **S**).  LIS3DH and LIS3DSH are different chips
 with different software interfaces, so you can't use them

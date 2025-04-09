@@ -575,8 +575,7 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //                        // shouldn't be used with a Windows host.
 //
 // type: "gamepad",       // gamepad button
-//   button: <number>,    // button number, 1-32
-//   hatSwitch: <string>, // hat switch name: "up", "down", "left", "right"; mutually exclusive with 'button'
+//   button: <number>,    // button number, 1-32, or "hat up", "hat down", "hat left", "hat right"
 //
 // type: "xInput",        // XInput (XBox controller emulation)
 //   button: <string>,    // button name: "up", "down", "left", "right", "start", "back", "l3", "r3", "lb", "rb", "xbox", "a", "b", "x", "y"
@@ -1197,31 +1196,41 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
     else if (actionType == "gamepad")
     {
         // game pad action - this can be either a numbered button or a hat switch
-        if (auto *hatVal = actionVal->Get("hatSwitch"); !hatVal->IsUndefined())
+        // button by name ("hat up", "hat down", "hat left", "hat right")
+        if (auto *btnVal = actionVal->Get("button"); btnVal->IsString())
         {
-            static const std::unordered_map<std::string, int> hatMap{
-                { "up", 1 },
-                { "down", 2 },
-                { "left", 3 },
-                { "right", 4 },
+            static const std::unordered_map<std::string, int> hatSwitchMap{
+                { "hat-up", 1 },
+                { "hat-down", 2 },
+                { "hat-left", 3 },
+                { "hat-right", 4 },
             };
-            auto swName = hatVal->String();
-            if (auto it = hatMap.find(swName) ; it != hatMap.end())
+            auto btnStr = btnVal->String();
+            if (auto it = hatSwitchMap.find(btnStr) ; it != hatSwitchMap.end())
+            {
+                // found a hat switch button name
                 return new Button::GamepadHatSwitchAction(it->second);
-            else
-                return Log(LOG_ERROR, "%s: invalid hatSwitch name \"%s\n", location, swName.c_str()), nullptr;
+            }
+            else if (int n = btnVal->Int(-1); gamepad.IsValidButton(n))
+            {
+                // the string contains a numeric value - treat it as a numbered button
+                return new Button::GamepadButtonAction(n);
+            }
+
+            // not a valid named or numbered button
+            return Log(LOG_ERROR, "%s: invalid button name \"%s\"\n", location, btnStr.c_str()), nullptr;
         }
-        else if (auto *btnVal = actionVal->Get("button"); !btnVal->IsUndefined())
+        else if (!btnVal->IsUndefined())
         {
-            int btn = btnVal->Int8(-1);
-            if (gamepad.IsValidButton(btn))
+            // treat any other type as a numbered button
+            if (int btn = btnVal->Int8(-1); gamepad.IsValidButton(btn))
                 return new Button::GamepadButtonAction(btn);
             else
                 return Log(LOG_ERROR, "%s: invalid gamepad button number\n", location), nullptr;
         }
         else
         {
-            return Log(LOG_ERROR, "%s: gamepad button requires 'button' or 'hatSwitch' setting\n", location), nullptr;
+            return Log(LOG_ERROR, "%s: gamepad button action requires 'button' setting\n", location), nullptr;
         }
     }
     else if (actionType == "xInput")

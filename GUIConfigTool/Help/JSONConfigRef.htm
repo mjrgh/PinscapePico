@@ -252,7 +252,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
               <span class="propName"><a href="#buttons.action.type=IR.code">code</a></span>: <span class="typeNames">string</span>,
 
               // type="gamepad"
-              <span class="propName"><a href="#buttons.action.type=gamepad.button">button</a></span>: <span class="typeNames">number</span>,
+              <span class="propName"><a href="#buttons.action.type=gamepad.button">button</a></span>: <span class="typeNames">number|string</span>,
 
               // type="key"
               <span class="propName"><a href="#buttons.action.type=key.key">key</a></span>: <span class="typeNames">number|string</span>,
@@ -1594,7 +1594,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
             <span class="propName"><a href="#buttons.action.type=IR.code">code</a></span>: <span class="typeNames">string</span>,
 
             // type="gamepad"
-            <span class="propName"><a href="#buttons.action.type=gamepad.button">button</a></span>: <span class="typeNames">number</span>,
+            <span class="propName"><a href="#buttons.action.type=gamepad.button">button</a></span>: <span class="typeNames">number|string</span>,
 
             // type="key"
             <span class="propName"><a href="#buttons.action.type=key.key">key</a></span>: <span class="typeNames">number|string</span>,
@@ -1849,11 +1849,19 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       <div class="jsonProp">
         <div class="jsonPropHdr">
           <span class="jsonPropPath">buttons[].action.</span><span class="jsonPropName">button</span>
-          <span class="jsonPropType">number</span><span class="jsonPropRequired">Required</span>
+          <span class="jsonPropType">number, string</span><span class="jsonPropRequired">Required</span>
         </div>
         <div class="jsonPropDesc">
       <p>
-        The gamepad button number to press when the logical button is activated, 1 to 32.
+        The gamepad button number to press when the logical button is activated, 1 to 32,
+        <i>or</i> a string from the list below.
+        <table>
+        <tr><th>String Value</th><th>Description</td></tr>
+        <tr><td>hat-down</td><td>Hat switch "down" (south) button</td></tr>
+        <tr><td>hat-left</td><td>Hat switch "left" (west) button</td></tr>
+        <tr><td>hat-right</td><td>Hat switch "right" (east) button</td></tr>
+        <tr><td>hat-up</td><td>Hat switch "up" (north) button</td></tr>
+        </table>
       </p>
         </div>
       </div>

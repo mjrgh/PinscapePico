@@ -914,8 +914,16 @@ buttons[].action.type="gamepad"
   Sets up the button to act as a gamepad button on the PC.  Activating the
   logical button presses the associated gamepad button.
 
-buttons[].action.type="gamepad".button number required
-  The gamepad button number to press when the logical button is activated, 1 to 32.
+buttons[].action.type="gamepad".button number|string required
+  The gamepad button number to press when the logical button is activated, 1 to 32,
+  <i>or</i> a string from the list below.
+  <table>
+    <tr><th>String Value</th><th>Description</td></tr>
+    <tr><td>hat-down</td><td>Hat switch "down" (south) button</td></tr>
+    <tr><td>hat-left</td><td>Hat switch "left" (west) button</td></tr>
+    <tr><td>hat-right</td><td>Hat switch "right" (east) button</td></tr>
+    <tr><td>hat-up</td><td>Hat switch "up" (north) button</td></tr>
+  </table>
 
 buttons[].action.type="xInput"
   Sets up the button to act as an XBox controller button on the PC.  Activating

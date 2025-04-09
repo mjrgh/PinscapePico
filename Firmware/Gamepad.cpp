@@ -263,13 +263,12 @@ uint16_t USBIfc::Gamepad::GetReport(hid_report_type_t type, uint8_t *buf, uint16
         //
         // The HID report DOESN'T report the individual button states.
         // Instead, it reports the joystick position inferred from the
-        // button states, as the angular position of the joystick relative
-        // to its center position, in a unit system where one unit equals
-        // 45 degrees, with zero degrees at North (UP), and the angle
-        // increasing counterclockwise (following the common algebraic
-        // convention).  The HID report also has a NULL state that
-        // represents the joystick at its center position, with none of
-        // the buttons pressed.
+        // button states, as the angular position of the joystick
+        // relative to its center position, in a unit system where one
+        // unit equals 45 degrees, with zero degrees at North (UP), and
+        // the angle increasing in the clockwise direction.  The HID
+        // report also has a NULL state that represents the joystick at
+        // its center position, with none of the buttons pressed.
         //
         // HID lets us define the system of units to represent this angular
         // coordinate system, by setting a logical range and a physical
@@ -308,13 +307,13 @@ uint16_t USBIfc::Gamepad::GetReport(hid_report_type_t type, uint8_t *buf, uint16
             1,     // 0      N     0 0 0 1   0x01
             5,     // 180    S     0 0 1 0   0x02
             0,     // NULL   NULL  0 0 1 1   0x03
-            3,     // 90     W     0 1 0 0   0x04
-            2,     // 45     NW    0 1 0 1   0x05
-            4,     // 135    SW    0 1 1 0   0x06
+            7,     // 270    W     0 1 0 0   0x04
+            8,     // 315    NW    0 1 0 1   0x05
+            6,     // 225    SW    0 1 1 0   0x06
             0,     // NULL   NULL  0 1 1 1   0x07
-            7,     // 270    E     1 0 0 0   0x08
-            8,     // 315    NE    1 0 0 1   0x09
-            6,     // 225    SE    1 0 1 0   0x0A
+            3,     // 90     E     1 0 0 0   0x08
+            2,     // 45     NE    1 0 0 1   0x09
+            4,     // 135    SE    1 0 1 0   0x0A
             0,     // NULL   NULL  1 0 1 1   0x0B
             0,     // NULL   NULL  1 1 0 0   0x0C
             0,     // NULL   NULL  1 1 0 1   0x0D

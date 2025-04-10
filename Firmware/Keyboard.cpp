@@ -338,13 +338,17 @@ uint16_t USBIfc::Keyboard::GetReport(hid_report_type_t type, uint8_t *buf, uint1
                 keys[nKeys++] = key;
         }
 
-        // If we have 7 or more keys down, it's a "rollover" error, since
+        // If we have 7 or more keys down, it's a "kb rollover" error, since
         // the HID report can only represent 6 keys per report.  Report this
         // by replacing the last key element with the ErrorRollOver usage
-        // code from the USB spec (0x01).
+        // code from the USB spec (0x01).  Also log it for debug: it's not
+        // an error as far as the Pico is concerned, but it might be helpful
+        // for troubleshooting purposes to know when this happens, in case
+        // it's happening for some reason other than too many "key" action
+        // buttons being pressed at the same time.
         if (nKeys > 6)
         {
-            Log(LOG_ERROR, "Keyboard rollover error\n");
+            Log(LOG_DEBUG, "Keyboard rollover error\n");
             keys[5] = 0x01;  // Keyboard ErrorRollOver per USB Usage Page 0x07
         }
 

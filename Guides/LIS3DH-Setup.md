@@ -278,20 +278,19 @@ the axis mappings in the `nudge` settings in the configuration.
 ### DO NOT USE WINDOWS CALIBRATION
 
 There's a super important warning I have to give you here: **NEVER EVER EVER**
-run the "Calibration" process in the joystick viewer.  If you do that, it will
-make the nudge behave erratically in the pinball simulators.  Joystick calibration
-is something that's intended for **actual joysticks**, and it wreaks havoc with
-our fake nudge joysticks.  Our use of the joystick system for nudge input is
-really an abuse of the HID design, but it's a mistake we're stuck with,
-because all of the simulators followed like sheep once that original design error
-was committed.  
+click the "Calibrate" button in the Windows joystick viewer.  If you do that, it
+will make the nudge behave erratically in the pinball simulators.  Joystick
+calibration is only designed for **real joysticks**, and it wreaks havoc with
+our fake nudge joysticks, making their readings all screwy in the pinball games.
 
-But you're going to click the calibration button at some point.  You just won't
-be able to help yourself.  At least, judging by all past history, everyone finds
-the button irresistible.  If you **do** click it at some point, you can undo it
-pretty easily and restore nudge to proper working order: in JOY.CPL, click the
-Settings tab, and then click **Reset to default**.  That deletes the calibration
-data collected when you clicked the Calibrate button.
+#### "Oops, what if I already clicked Calibrate?"
+
+Let's face it, you're going to click the Calibrate button at some point.  It
+doesn't matter how frantically I try to warn you.  No one has ever been able to
+resist for long.  Fortunately, if you **do** click the forbidden button, you can
+still undo it, and restore nudge to proper working order.  To undo it, go back
+to JOY.CPL, click the Settings tab, and then click **Reset to default**.  That
+deletes the calibration data collected when you clicked the Calibrate button.
 
 ## Cabinet installation
 

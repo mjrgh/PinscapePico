@@ -285,10 +285,8 @@ our fake nudge joysticks, making their readings all screwy in the pinball games.
 
 #### "Oops, what if I already clicked Calibrate?"
 
-Let's face it, you're going to click the Calibrate button at some point.  It
-doesn't matter how frantically I try to warn you.  No one has ever been able to
-resist for long.  Fortunately, if you **do** click the forbidden button, you can
-still undo it, and restore nudge to proper working order.  To undo it, go back
+In case you accidentally clicked the Calibrate button at some point, you can
+still undo it and restore nudge to proper working order.  To undo it, go back
 to JOY.CPL, click the Settings tab, and then click **Reset to default**.  That
 deletes the calibration data collected when you clicked the Calibrate button.
 

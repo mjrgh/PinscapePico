@@ -480,7 +480,15 @@ void I2C::I2CIRQ()
         // read the clr_stop_det register to clear the condition flag
         auto volatile dummy = hw->clr_stop_det;
 
-        // if a device is active, and the operation wasn't aborted, call completion methods
+        // If a device is active, and the operation wasn't aborted, call the
+        // completion callback.  We don't invoke the completion callback on
+        // abort, since the operation wasn't actually completed.  (Note that
+        // doing so could also trigger a race condition with the DMA, because
+        // the existing DMA transfer can continue after the bus abort occurs.
+        // If the callback were to start a new transfer, that could attempt
+        // to reprogram the DMA control registers while a transfer is still
+        // in progress on the same channel, which could cause buffer overruns
+        // that could lead to memory corruptions and a firmware crash.)
         if (!busAbort && devices.size() != 0)
         {
             // count the completion

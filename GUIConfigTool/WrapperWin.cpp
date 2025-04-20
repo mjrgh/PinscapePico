@@ -242,8 +242,23 @@ HRESULT WrapperWin::EnumerateDevices(std::list<DeviceDesc::ID> &newDeviceList)
             continue;
         }
 
+        // No luck.  Re-enumerate devices to see if the device is
+        // still present, in case it was connected briefly and then
+        // disconnected again before we could query its identifiers.
+        // This can happen if the device crashes to Safe Mode shortly
+        // after a reboot, or if the USB connection bounces while
+        // the user is plugging in the device.
+        std::list<VendorInterfaceDesc> vendorIfcDescs2;
+        if (SUCCEEDED(VendorInterface::EnumerateDevices(vendorIfcDescs2)))
+        {
+            // got a new list - if the current device isn't in the new list, skip it
+            if (std::find_if(vendorIfcDescs2.begin(), vendorIfcDescs2.end(),
+                [&vid](const VendorInterfaceDesc &vid2) { return wcscmp(vid.Path(), vid2.Path()) == 0; }) == vendorIfcDescs2.end())
+                continue;
+        }
+
         // Add it to the list with unknown IDs
-        newDeviceList.emplace_back(vid.Path(), 0, "Unknown", PicoHardwareId());
+        newDeviceList.emplace_back(vid.Path(), 0, StrPrintf("Unknown(%ws)", PathFindFileNameW(vid.Path())).c_str(), PicoHardwareId());
     }
 
     // success

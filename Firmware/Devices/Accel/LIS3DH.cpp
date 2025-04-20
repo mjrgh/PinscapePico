@@ -229,7 +229,7 @@ void LIS3DH::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
         uint8_t buf[] = { 0x20, 0x77 };
         if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) != _countof(buf))
         {
-            Log(LOG_ERROR, "LIS3DH: CTRL_REG1 write reqeust failed\n");
+            Log(LOG_ERROR, "LIS3DH: CTRL_REG1 write request failed\n");
             ok = false;
         }
     }

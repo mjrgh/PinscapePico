@@ -33,7 +33,6 @@
 #include "Watchdog.h"
 #include "I2C.h"
 
-
 // Controller instances
 I2C *I2C::inst[2];
 
@@ -481,8 +480,8 @@ void I2C::I2CIRQ()
         // read the clr_stop_det register to clear the condition flag
         auto volatile dummy = hw->clr_stop_det;
 
-        // if a device is active, call completion methods
-        if (devices.size() != 0)
+        // if a device is active, and the operation wasn't aborted, call completion methods
+        if (!busAbort && devices.size() != 0)
         {
             // count the completion
             if (state == State::Reading)
@@ -671,7 +670,7 @@ void I2C::UnitTask()
         if (devices.size() == 0)
             return;
 
-        // Transmission in progress.  Check for an abort condition, indicating
+        // Operation in progress.  Check for an abort condition, indicating
         // an error; a stop condition, indicating successful completion; or a
         // timeout condition.
         if (busAbort)
@@ -761,7 +760,12 @@ void I2C::UnitTask()
 
 void I2C::ReadWrite(const uint8_t *txData, size_t txLen, size_t rxLen)
 {
-    // only proceed if we're in READY state
+    // We can only initiate a new operation from READY state, or from
+    // the IRQ completion handler.  Starting a new operation from IRQ
+    // context is okay because the IRQ specifically means that the
+    // current operation has finished, so that takes precedence over
+    // the state flag, which will only be updated the next time we're
+    // back in the task handler.
     if (state != State::Ready && !inIrq)
     {
         Log(LOG_ERROR, "I2C%d Read/Write not in Ready state (state %d)\n", busNum, static_cast<int>(state));

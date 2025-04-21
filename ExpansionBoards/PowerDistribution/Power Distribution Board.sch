@@ -12883,6 +12883,35 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <vertex x="7.845" y="4.826"/>
 </polygon>
 </package>
+<package name="2068320601">
+<description>&lt;b&gt;206832-0601-2&lt;/b&gt;&lt;br&gt;
+</description>
+<pad name="1" x="0" y="0" drill="1.07" diameter="1.605"/>
+<pad name="2" x="-3" y="0" drill="1.07" diameter="1.605"/>
+<pad name="3" x="-6" y="0" drill="1.07" diameter="1.605"/>
+<pad name="4" x="0" y="3" drill="1.07" diameter="1.605"/>
+<pad name="5" x="-3" y="3" drill="1.07" diameter="1.605"/>
+<pad name="6" x="-6" y="3" drill="1.07" diameter="1.605"/>
+<hole x="-7.28" y="3.98" drill="1.2"/>
+<text x="-3.64" y="1.885" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="-3.64" y="1.885" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<wire x1="-8.565" y1="5.82" x2="1.285" y2="5.82" width="0.2" layer="51"/>
+<wire x1="1.285" y1="5.82" x2="1.285" y2="-1.44" width="0.2" layer="51"/>
+<wire x1="1.285" y1="-1.44" x2="-8.565" y2="-1.44" width="0.2" layer="51"/>
+<wire x1="-8.565" y1="-1.44" x2="-8.565" y2="5.82" width="0.2" layer="51"/>
+<wire x1="-8.565" y1="5.82" x2="1.285" y2="5.82" width="0.1" layer="21"/>
+<wire x1="1.285" y1="5.82" x2="1.285" y2="-1.44" width="0.1" layer="21"/>
+<wire x1="1.285" y1="-1.44" x2="-8.565" y2="-1.44" width="0.1" layer="21"/>
+<wire x1="-8.565" y1="-1.44" x2="-8.565" y2="5.82" width="0.1" layer="21"/>
+<wire x1="-9.565" y1="6.82" x2="2.285" y2="6.82" width="0.1" layer="51"/>
+<wire x1="2.285" y1="6.82" x2="2.285" y2="-3.05" width="0.1" layer="51"/>
+<wire x1="2.285" y1="-3.05" x2="-9.565" y2="-3.05" width="0.1" layer="51"/>
+<wire x1="-9.565" y1="-3.05" x2="-9.565" y2="6.82" width="0.1" layer="51"/>
+<wire x1="0.5" y1="-2" x2="0.5" y2="-2" width="0.1" layer="21"/>
+<wire x1="0.5" y1="-2" x2="0.6" y2="-2" width="0.1" layer="21" curve="180"/>
+<wire x1="0.6" y1="-2" x2="0.6" y2="-2" width="0.1" layer="21"/>
+<wire x1="0.6" y1="-2" x2="0.5" y2="-2" width="0.1" layer="21" curve="180"/>
+</package>
 </packages>
 <symbols>
 <symbol name="350211-1">
@@ -13119,6 +13148,20 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <pin name="2" x="0" y="-2.54" length="middle"/>
 <pin name="3" x="0" y="-5.08" length="middle"/>
 <pin name="4" x="0" y="-7.62" length="middle"/>
+</symbol>
+<symbol name="206832-0601">
+<wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
+<wire x1="15.24" y1="-7.62" x2="15.24" y2="2.54" width="0.254" layer="94"/>
+<wire x1="15.24" y1="-7.62" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="5.08" y1="2.54" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
+<text x="16.51" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
+<text x="16.51" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
+<pin name="1" x="0" y="-5.08" length="middle"/>
+<pin name="2" x="0" y="-2.54" length="middle"/>
+<pin name="3" x="0" y="0" length="middle"/>
+<pin name="4" x="20.32" y="-5.08" length="middle" rot="R180"/>
+<pin name="5" x="20.32" y="-2.54" length="middle" rot="R180"/>
+<pin name="6" x="20.32" y="0" length="middle" rot="R180"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -13582,6 +13625,35 @@ Source: &lt;a href="https://www.te.com/commerce/DocumentDelivery/DDEController?A
 <attribute name="MANUFACTURER_PART_NUMBER" value="640445-4" constant="no"/>
 <attribute name="MOUSER_PART_NUMBER" value="571-6404454" constant="no"/>
 <attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/TE-Connectivity-AMP/640445-4?qs=P8zzrVhehatZnQ7HMsIjxw%3D%3D" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="206832-0601" prefix="J">
+<description>&lt;b&gt;Headers &amp; Wire Housings Micro-Fit Plus Vert HDR ASSY 2X3 Tin Lu&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/206832-0601.pdf"&gt; Datasheet &lt;/a&gt;</description>
+<gates>
+<gate name="G$1" symbol="206832-0601" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="2068320601">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+<connect gate="G$1" pin="4" pad="4"/>
+<connect gate="G$1" pin="5" pad="5"/>
+<connect gate="G$1" pin="6" pad="6"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="DESCRIPTION" value="Headers &amp; Wire Housings Micro-Fit Plus Vert HDR ASSY 2X3 Tin Lu" constant="no"/>
+<attribute name="HEIGHT" value="10.99mm" constant="no"/>
+<attribute name="MANUFACTURER_NAME" value="Molex" constant="no"/>
+<attribute name="MANUFACTURER_PART_NUMBER" value="206832-0601" constant="no"/>
+<attribute name="MOUSER_PART_NUMBER" value="538-206832-0601" constant="no"/>
+<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/Molex/206832-0601?qs=EBDBlbfErPyv6tUvq0oX3w%3D%3D" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -15364,8 +15436,6 @@ Source: http://www.irf.com/product-info/datasheets/data/irf9530.pdf</description
 <part name="C1" library="rcl" deviceset="CPOL-US_TANTALUM" device="B45181B" value="1uF">
 <attribute name="TYPE" value="Tantalum"/>
 </part>
-<part name="J3" library="SamacSys_Parts" deviceset="216571-2005" device=""/>
-<part name="J1" library="SamacSys_Parts" deviceset="216571-2005" device=""/>
 <part name="J2" library="SamacSys_Parts" deviceset="216571-2002" device=""/>
 <part name="K1" library="SamacSys_Parts" deviceset="AHQSS105DM2FA0G" device=""/>
 <part name="C5" library="SamacSys_Parts" deviceset="SLPX682M080H7P3" device=""/>
@@ -15405,6 +15475,8 @@ Source: http://www.irf.com/product-info/datasheets/data/irf9530.pdf</description
 <part name="J5" library="SamacSys_Parts" deviceset="216571-2005" device=""/>
 <part name="J12" library="SamacSys_Parts" deviceset="640445-5" device=""/>
 <part name="J14" library="SamacSys_Parts" deviceset="640445-4" device=""/>
+<part name="J18" library="SamacSys_Parts" deviceset="206832-0601" device=""/>
+<part name="J19" library="SamacSys_Parts" deviceset="206832-0601" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -15890,43 +15962,40 @@ will provide "soft" power control via PS_ON#.</text>
 <text x="33.02" y="15.24" size="1.778" layer="91" align="center">Generic 5mm green LED, Vf 2.1V, If 20mA</text>
 </plain>
 <instances>
-<instance part="J3" gate="G$1" x="33.02" y="38.1" smashed="yes">
-<attribute name="NAME" x="49.53" y="38.1" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="49.53" y="35.56" size="1.778" layer="96" align="center-left"/>
-</instance>
 <instance part="LED4" gate="G$1" x="38.1" y="7.62" rot="R90"/>
 <instance part="R10" gate="G$1" x="27.94" y="7.62" smashed="yes" rot="R180">
 <attribute name="NAME" x="34.544" y="3.048" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="34.798" y="5.588" size="1.778" layer="96" rot="R180"/>
 </instance>
+<instance part="J18" gate="G$1" x="33.02" y="38.1"/>
 </instances>
 <busses>
 </busses>
 <nets>
 <net name="LINE_HOT" class="0">
 <segment>
-<pinref part="J3" gate="G$1" pin="5"/>
 <wire x1="27.94" y1="38.1" x2="33.02" y2="38.1" width="0.1524" layer="91"/>
 <label x="27.94" y="38.1" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="J18" gate="G$1" pin="3"/>
 </segment>
 </net>
 <net name="LINE_NEUTRAL" class="0">
 <segment>
-<pinref part="J3" gate="G$1" pin="4"/>
 <wire x1="27.94" y1="35.56" x2="33.02" y2="35.56" width="0.1524" layer="91"/>
 <label x="27.94" y="35.56" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="J18" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="GND" class="0">
 <segment>
-<label x="27.94" y="27.94" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="J3" gate="G$1" pin="1"/>
-<wire x1="33.02" y1="27.94" x2="27.94" y2="27.94" width="0.1524" layer="91"/>
+<label x="58.42" y="33.02" size="1.27" layer="95" xref="yes"/>
+<pinref part="J18" gate="G$1" pin="4"/>
+<wire x1="53.34" y1="33.02" x2="58.42" y2="33.02" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <label x="27.94" y="33.02" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="J3" gate="G$1" pin="3"/>
 <wire x1="27.94" y1="33.02" x2="33.02" y2="33.02" width="0.1524" layer="91"/>
+<pinref part="J18" gate="G$1" pin="1"/>
 </segment>
 <segment>
 <wire x1="43.18" y1="7.62" x2="45.72" y2="7.62" width="0.1524" layer="91"/>
@@ -15936,9 +16005,14 @@ will provide "soft" power control via PS_ON#.</text>
 </net>
 <net name="24V" class="0">
 <segment>
-<label x="27.94" y="30.48" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="J3" gate="G$1" pin="2"/>
-<wire x1="27.94" y1="30.48" x2="33.02" y2="30.48" width="0.1524" layer="91"/>
+<label x="58.42" y="38.1" size="1.27" layer="95" xref="yes"/>
+<wire x1="58.42" y1="38.1" x2="55.88" y2="38.1" width="0.1524" layer="91"/>
+<pinref part="J18" gate="G$1" pin="6"/>
+<pinref part="J18" gate="G$1" pin="5"/>
+<wire x1="55.88" y1="38.1" x2="53.34" y2="38.1" width="0.1524" layer="91"/>
+<wire x1="53.34" y1="35.56" x2="55.88" y2="35.56" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="35.56" x2="55.88" y2="38.1" width="0.1524" layer="91"/>
+<junction x="55.88" y="38.1"/>
 </segment>
 <segment>
 <pinref part="R10" gate="G$1" pin="2"/>
@@ -15958,7 +16032,7 @@ will provide "soft" power control via PS_ON#.</text>
 <sheet>
 <description>48V SMPS</description>
 <plain>
-<text x="111.76" y="111.76" size="1.778" layer="91" align="center">48V SMPS</text>
+<text x="53.34" y="96.52" size="1.778" layer="91" align="center">48V SMPS</text>
 <text x="119.38" y="60.96" size="1.778" layer="91">COIN DOOR INTERLOCK
 5V control signal to coin door switch
 activates 2N2222 when switch is closed,
@@ -15973,13 +16047,9 @@ mitigation for high-current coils</text>
 Vf approx 3.2V, If 20mA
 Serves as indicator, and
 drains caps when power is off.</text>
-<text x="83.058" y="98.806" size="1.778" layer="91" align="center-right">+48V DC</text>
+<text x="81.28" y="92.964" size="1.778" layer="91" align="center-right">+48V DC</text>
 </plain>
 <instances>
-<instance part="J1" gate="G$1" x="101.6" y="106.68" smashed="yes">
-<attribute name="NAME" x="118.11" y="106.68" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="118.11" y="104.14" size="1.778" layer="96" align="center-left"/>
-</instance>
 <instance part="J2" gate="G$1" x="132.08" y="53.34" smashed="yes">
 <attribute name="NAME" x="148.59" y="53.34" size="1.778" layer="95" align="center-left"/>
 <attribute name="VALUE" x="148.59" y="50.8" size="1.778" layer="96" align="center-left"/>
@@ -16017,30 +16087,29 @@ drains caps when power is off.</text>
 <attribute name="NAME" x="106.934" y="49.784" size="1.778" layer="95"/>
 <attribute name="VALUE" x="106.68" y="47.244" size="1.778" layer="96"/>
 </instance>
+<instance part="J19" gate="G$1" x="45.72" y="91.44" smashed="yes">
+<attribute name="NAME" x="49.53" y="81.28" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="49.53" y="78.74" size="1.778" layer="96" align="center-left"/>
+</instance>
 </instances>
 <busses>
 </busses>
 <nets>
 <net name="LINE_HOT" class="0">
 <segment>
-<label x="99.06" y="106.68" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="J1" gate="G$1" pin="5"/>
-<wire x1="101.6" y1="106.68" x2="99.06" y2="106.68" width="0.1524" layer="91"/>
+<label x="43.18" y="91.44" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="J19" gate="G$1" pin="3"/>
+<wire x1="43.18" y1="91.44" x2="45.72" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="LINE_NEUTRAL" class="0">
 <segment>
-<label x="99.06" y="104.14" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="J1" gate="G$1" pin="4"/>
-<wire x1="101.6" y1="104.14" x2="99.06" y2="104.14" width="0.1524" layer="91"/>
+<label x="43.18" y="88.9" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="J19" gate="G$1" pin="2"/>
+<wire x1="43.18" y1="88.9" x2="45.72" y2="88.9" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">
-<segment>
-<pinref part="J1" gate="G$1" pin="1"/>
-<wire x1="99.06" y1="96.52" x2="101.6" y2="96.52" width="0.1524" layer="91"/>
-<label x="99.06" y="96.52" size="1.27" layer="95" rot="R180" xref="yes"/>
-</segment>
 <segment>
 <pinref part="C5" gate="G$1" pin="-"/>
 <wire x1="73.66" y1="7.62" x2="73.66" y2="5.08" width="0.1524" layer="91"/>
@@ -16061,14 +16130,19 @@ drains caps when power is off.</text>
 <pinref part="LED1" gate="G$1" pin="C"/>
 </segment>
 <segment>
-<label x="99.06" y="101.6" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="J1" gate="G$1" pin="3"/>
-<wire x1="99.06" y1="101.6" x2="101.6" y2="101.6" width="0.1524" layer="91"/>
+<label x="43.18" y="86.36" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="J19" gate="G$1" pin="1"/>
+<wire x1="43.18" y1="86.36" x2="45.72" y2="86.36" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="Q1" gate="G$1" pin="E"/>
 <wire x1="93.98" y1="45.72" x2="93.98" y2="43.18" width="0.1524" layer="91"/>
 <label x="93.98" y="43.18" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="J19" gate="G$1" pin="4"/>
+<wire x1="66.04" y1="86.36" x2="68.58" y2="86.36" width="0.1524" layer="91"/>
+<label x="68.58" y="86.36" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="48V" class="0">
@@ -16093,15 +16167,18 @@ drains caps when power is off.</text>
 </net>
 <net name="N$1" class="0">
 <segment>
-<pinref part="J1" gate="G$1" pin="2"/>
-<wire x1="101.6" y1="99.06" x2="83.82" y2="99.06" width="0.1524" layer="91"/>
-<wire x1="83.82" y1="99.06" x2="83.82" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="Q2" gate="G$1" pin="S"/>
 <pinref part="R7" gate="G$1" pin="1"/>
-<wire x1="83.82" y1="91.44" x2="83.82" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="83.82" y1="91.44" x2="83.82" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="83.82" y1="88.9" x2="83.82" y2="83.82" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="88.9" x2="93.98" y2="91.44" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="91.44" x2="83.82" y2="91.44" width="0.1524" layer="91"/>
 <junction x="83.82" y="91.44"/>
+<pinref part="J19" gate="G$1" pin="6"/>
+<wire x1="66.04" y1="91.44" x2="83.82" y2="91.44" width="0.1524" layer="91"/>
+<pinref part="J19" gate="G$1" pin="5"/>
+<wire x1="66.04" y1="88.9" x2="83.82" y2="88.9" width="0.1524" layer="91"/>
+<junction x="83.82" y="88.9"/>
 </segment>
 </net>
 <net name="N$3" class="0">

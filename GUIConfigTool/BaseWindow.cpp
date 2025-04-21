@@ -456,7 +456,7 @@ HWND BaseWindow::CreateControl(UINT_PTR id, const char *winClass, const char *ti
 	width = ControlWidth(width);
 
 	// create the window
-	static const DWORD baseStyles = WS_CHILD | WS_VISIBLE;
+	static const DWORD baseStyles = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS;
 	HWND hwndCtl = CreateWindowA(winClass, title, baseStyles | style, xCreateControl, 0, width, height,
 		hwnd, reinterpret_cast<HMENU>(id), hInstance, NULL);
 

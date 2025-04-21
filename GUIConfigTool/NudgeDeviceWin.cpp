@@ -110,7 +110,16 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 	// fill the background
 	HDCHelper hdc(hdc0);
 	FillRect(hdc, &crc, GetStockBrush(WHITE_BRUSH));
+	
+	// redo the control layout on scroll changes
+	if (yScrollPos != yScrollPosAtLastDraw)
+	{
+		yScrollPosAtLastDraw = yScrollPos;
+		layoutPending = true;
 
+	}
+
+	// separator drawing
 	int cxSep = crc.right - crc.left - 32;
 	auto DrawSep = [&hdc, &cxSep](int x, int y)
 	{
@@ -160,10 +169,13 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 		// update our internal copy of the modified flag
 		isSettingModified = ((s.flags & s.F_MODIFIED) != 0);
 
+		// open a deferred window pos session, if we're moving anything
+		HDWP hdwp = layoutPending ? BeginDeferWindowPos(10) : NULL;
+
 		// edit controls
 		RECT rcEdit = GetChildControlRect(dcTimeEdit);
 		int dyEdits = rcEdit.bottom - rcEdit.top + 10;
-		auto DrawEditBase = [&rcEdit, dyEdits, &hdc, this](HWND edit, const char *label, bool alignOnLabel = false)
+		auto DrawEditBase = [&rcEdit, dyEdits, &hdc, hdwp, this](HWND edit, const char *label, bool alignOnLabel = false)
 		{
 			// if desired, align on the label, by shifting the control right
 			// by the label size
@@ -180,8 +192,8 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 				mainFont, HRGB(0x000000), label);
 
 			// move the edit control if doing layout
-			if (layoutPending)
-				MoveWindow(edit, rcEdit.left, rcEdit.top, rcEdit.right - rcEdit.left, rcEdit.bottom - rcEdit.top, TRUE);
+			if (hdwp != NULL)
+				DeferWindowPos(hdwp, edit, NULL, rcEdit.left, rcEdit.top, rcEdit.right - rcEdit.left, rcEdit.bottom - rcEdit.top, SWP_NOZORDER);
 
 		};
 
@@ -254,9 +266,11 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 			hdc.DrawTextF(xCenter + 8 + cx + cxNum, yPos, -1, boldFont, HRGB(0x0000FF), "% 5d", yVal);
 		};
 
-		// draw the X/Y axis visualization
+		// initialize the drawing position, adjusting for the scrolling offset
 		int x = 48;
-		int y = 48;
+		int y = 48 - yScrollPos;
+
+		// draw the X/Y axis visualization
 		int cxPlot = 256, cyPlot = cxPlot;
 		RECT rcPlot{ x, y, x + cxPlot, y + cyPlot };
 		hdc.DrawText(POINT{ x + cxPlot/2, y - mainFontMetrics.tmHeight }, POINT{ 0, 4 }, POINT{ 0, -1 },
@@ -453,8 +467,8 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 
 		// auto-center parameter controls
 		RECT rcCk = GetChildControlRect(autoCenterCk);
-		if (rcCk.top != y)
-			MoveWindow(autoCenterCk, x, y, rcCk.right - rcCk.left, rcCk.bottom - rcCk.top, TRUE);
+		if (rcCk.top != y && hdwp != NULL)
+			DeferWindowPos(hdwp, autoCenterCk, NULL, x, y, rcCk.right - rcCk.left, rcCk.bottom - rcCk.top, SWP_NOZORDER);
 
 		y += rcCk.bottom - rcCk.top + 8;
 		rcEdit = GetChildControlRect(autoCenterTimeEdit);
@@ -482,8 +496,8 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 
 		// auto-center-now button
 		RECT rcb = GetChildControlRect(centerBtn);
-		if (layoutPending)
-			MoveWindow(centerBtn, x, y, rcb.right - rcb.left, rcb.bottom - rcb.top, TRUE);
+		if (hdwp != NULL)
+			DeferWindowPos(hdwp, centerBtn, NULL, x, y, rcb.right - rcb.left, rcb.bottom - rcb.top, SWP_NOZORDER);
 		y += rcb.bottom - rcb.top;
 		EnableWindow(centerBtn, (nudgeParams.flags & nudgeParams.F_AUTOCENTER) != 0);
 
@@ -498,8 +512,8 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 
 		rcb = GetChildControlRect(btnCapture);
 		OffsetRect(&rcb, x - rcb.left, y - rcb.top);
-		if (layoutPending)
-			MoveWindow(btnCapture, rcb.left, rcb.top, rcb.right - rcb.left, rcb.bottom - rcb.top, TRUE);
+		if (hdwp != NULL)
+			DeferWindowPos(hdwp, btnCapture, NULL, rcb.left, rcb.top, rcb.right - rcb.left, rcb.bottom - rcb.top, SWP_NOZORDER);
 
 		if (captureFile != nullptr)
 		{
@@ -526,15 +540,15 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 		y += hdc.DrawText(x, y, 1, mainFont, HRGB(0x000000), "end of the period.").cy;
 		y += 16;
 		rcb = GetChildControlRect(calBtn);
-		if (layoutPending)
-			MoveWindow(calBtn, x, y, rcb.right - rcb.left, rcb.bottom - rcb.top, TRUE);
+		if (hdwp != NULL)
+			DeferWindowPos(hdwp, calBtn, NULL, x, y, rcb.right - rcb.left, rcb.bottom - rcb.top, SWP_NOZORDER);
 
 		if ((s.flags & s.F_CALIBRATING) != 0)
 		{
 			hdc.DrawText(POINT{ x + rcb.right - rcb.left + 32, y + (rcb.bottom - rcb.top)/2 }, POINT{ 0, 0 }, POINT{ 1, 0 },
 				boldFont, HRGB((GetTickCount64() % 800) < 400 ? 0xFF0000 : 0x0080FF), "CALIBRATION IN PROGRESS");
 		}
-		int yMax = rcb.bottom;
+		int yMax = y + (rcb.bottom - rcb.top);
 
 		y = ySect;
 		x += mainFontMetrics.tmAveCharWidth * 80;
@@ -548,15 +562,17 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 		//
 		RECT brc;
 		GetWindowRect(saveBtn, &brc);
-		y = max(yMax + 10, crc.bottom - (brc.bottom - brc.top) - 16);
+		y = yMax + 10;
 		OffsetRect(&brc, -brc.left + 16, 0);
-		if (brc.top != y)
+		if (brc.top != y && hdwp != NULL)
 		{
 			OffsetRect(&brc, 0, y - brc.top);
-			MoveWindow(saveBtn, brc.left, brc.top, brc.right - brc.left, brc.bottom - brc.top, TRUE);
+			DeferWindowPos(hdwp, saveBtn, NULL, brc.left, brc.top, brc.right - brc.left, brc.bottom - brc.top, SWP_NOZORDER);
 			OffsetRect(&brc, brc.right - brc.left + 8, 0);
-			MoveWindow(revertBtn, brc.left, brc.top, brc.right - brc.left, brc.bottom - brc.top, TRUE);
+			DeferWindowPos(hdwp, revertBtn, NULL, brc.left, brc.top, brc.right - brc.left, brc.bottom - brc.top, SWP_NOZORDER);
 		}
+		y += brc.bottom - brc.top;
+		yMax = y + 16;
 
 		// enable/disable the save/restore buttons according to the modified state
 		EnableWindow(saveBtn, isSettingModified);
@@ -564,6 +580,20 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 
 		// layout has been completed
 		layoutPending = false;
+
+		// save the document height
+		int newDocHeight = yMax + yScrollPos;
+		if (newDocHeight != docHeight)
+		{
+			docHeight = newDocHeight;
+			AdjustScrollbarRanges();
+
+			OutputDebugStringA(StrPrintf("newDocHeight %d\n", newDocHeight).c_str());
+		}
+
+		// apply child window repositioning
+		if (hdwp != NULL)
+			EndDeferWindowPos(hdwp);
 	}
 }
 
@@ -578,6 +608,37 @@ void NudgeDeviceWin::OnCreateWindow()
 	// get the window's current size
 	RECT crc;
 	GetClientRect(hwnd, &crc);
+
+	// create the scrollbar
+	cxScrollbar = GetSystemMetrics(SM_CXVSCROLL);
+	scrollbar = CreateWindowA(WC_SCROLLBARA, "", WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | SBS_VERT,
+		0, 0, cxScrollbar, 100, hwnd, reinterpret_cast<HMENU>(static_cast<INT_PTR>(ID_SCROLLBAR)), hInstance, 0);
+
+	// range calculation for the scrollbar
+	auto GetScrollRange = [this](SCROLLINFO &si)
+	{
+		// figure the client area height
+		RECT crc;
+		GetClientRect(hwnd, &crc);
+		int winHeight = crc.bottom - crc.top;
+
+		// set the range
+		si.nMin = 0;
+		si.nMax = max(docHeight - mainFontMetrics.tmHeight, 0);
+		si.nPage = max(winHeight - mainFontMetrics.tmHeight, 20);
+	};
+
+	// scrolling region
+	auto GetScrollRect = [this](RECT *rc)
+	{
+		// no adjustment required - scroll the whole client rect
+	};
+
+	// set the scroll position
+	auto SetScrollPos = [this](int newPos, int deltaPos) { yScrollPos = newPos; };
+
+	// set up the scrollbar logic
+	scrollbars.emplace_back(scrollbar, SB_CTL, mainFontMetrics.tmHeight, true, true, GetScrollRange, GetScrollRect, SetScrollPos);
 
     // create controls
 	auto cbNudge = [this](const char*) { this->OnNudgeParamChange(); };
@@ -612,6 +673,28 @@ void NudgeDeviceWin::OnCreateWindow()
 	HFONT oldFont = SelectFont(hdc, simDataFont);
 	GetTextMetrics(hdc, &tmSimData);
 	SelectFont(hdc, boldFont);
+
+	// initialize the window layout
+	AdjustLayout();
+}
+
+void NudgeDeviceWin::OnSizeWindow(WPARAM type, WORD width, WORD height)
+{
+	// adjust the layout
+	AdjustLayout();
+
+	// do the base class work
+	__super::OnSizeWindow(type, width, height);
+}
+
+void NudgeDeviceWin::AdjustLayout()
+{
+	// get the client size
+	RECT crc;
+	GetClientRect(hwnd, &crc);
+
+	// position the scrollbar
+	MoveWindow(scrollbar, crc.right - cxScrollbar, crc.top, cxScrollbar, crc.bottom - crc.top, TRUE);
 }
 
 void NudgeDeviceWin::ReloadNudgeParams(bool force)

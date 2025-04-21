@@ -258,7 +258,7 @@ HRESULT WrapperWin::EnumerateDevices(std::list<DeviceDesc::ID> &newDeviceList)
         }
 
         // Add it to the list with unknown IDs
-        newDeviceList.emplace_back(vid.Path(), 0, StrPrintf("Unknown(%ws)", PathFindFileNameW(vid.Path())).c_str(), PicoHardwareId());
+        newDeviceList.emplace_back(vid.Path(), 0, StrPrintf("Unknown(%ws)", vid.DeviceInstanceId()).c_str(), PicoHardwareId());
     }
 
     // success
@@ -2177,7 +2177,7 @@ void WrapperWin::CreateNoDevWin()
 
     auto *curTab = GetCurTab();
     curTab->win.reset(new NoDeviceWin(hInstance));
-    curTab->win->CreateSysWindow(curTab->win, WS_CHILDWINDOW | WS_CLIPCHILDREN, 0, hwnd, _T("No Device"),
+    curTab->win->CreateSysWindow(curTab->win, WS_CHILDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 0, hwnd, _T("No Device"),
         cxLeftPanel + cxPanelMargin, cyTabCtl, crc.right - crc.left, crc.bottom - crc.top - cyTabCtl - cyStatusline, SW_SHOW);
 }
 

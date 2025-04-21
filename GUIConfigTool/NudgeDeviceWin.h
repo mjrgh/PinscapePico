@@ -116,6 +116,21 @@ namespace PinscapePico
 		static const int ID_EDIT_VSCALE = 333;
 		static const int ID_BTN_SAVE = 334;
 		static const int ID_BTN_REVERT = 335;
+		static const int ID_SCROLLBAR = 336;
+
+		// adjust the window layout
+		void AdjustLayout();
+
+		// main scrollbar
+		HWND scrollbar;
+		int cxScrollbar = 16;
+		int yScrollPos = 0;
+
+		// last drawing scroll position
+		int yScrollPosAtLastDraw = 0;
+
+		// document height - calculated in the layout logic during each paint pass
+		int docHeight = 0;
 
 		// control windows
 		HWND calBtn = NULL;
@@ -181,6 +196,7 @@ namespace PinscapePico
 		virtual bool OnCaptureChange(HWND hwnd) override;
 		virtual HMENU GetContextMenu(POINT pt, HWND &hwndCommand) override;
 		virtual bool OnKeyDown(WPARAM vkey, LPARAM flags);
+		virtual void OnSizeWindow(WPARAM type, WORD width, WORD height) override;
 
 		// control subclass customizations
 		virtual LRESULT ControlSubclassProc(

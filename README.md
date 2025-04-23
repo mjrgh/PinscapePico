@@ -414,10 +414,10 @@ like the regular JSON configuration; it's just a separate JSON file
 that's loaded instead of the regular one when Safe Mode is triggered.
 The Safe Mode config file lets you enable specific features even when
 in Safe Mode.  Naturally, you should minimize the features you enable
-here, since the whole point is to create a minimal configuration
-that's less likely to crash due its very simplicity.  I like to
-configure the ID information here to match the main configuration, and
-also enable the UART ports, so that I can access the command console
+here, since the whole point is to create a minimal configuration that's
+less likely to crash specifically because it doesn't enable many features.
+I like to configure the ID information here to match the main configuration,
+and also enable the UART ports, so that I can access the command console
 for troubleshooting even when Safe Mode is active.
 
 

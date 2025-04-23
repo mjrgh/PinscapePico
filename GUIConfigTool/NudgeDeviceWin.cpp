@@ -116,7 +116,6 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 	{
 		yScrollPosAtLastDraw = yScrollPos;
 		layoutPending = true;
-
 	}
 
 	// separator drawing
@@ -581,14 +580,12 @@ void NudgeDeviceWin::PaintOffScreen(HDC hdc0)
 		// layout has been completed
 		layoutPending = false;
 
-		// save the document height
+		// save the document height, if it changed
 		int newDocHeight = yMax + yScrollPos;
 		if (newDocHeight != docHeight)
 		{
 			docHeight = newDocHeight;
 			AdjustScrollbarRanges();
-
-			OutputDebugStringA(StrPrintf("newDocHeight %d\n", newDocHeight).c_str());
 		}
 
 		// apply child window repositioning
@@ -608,11 +605,6 @@ void NudgeDeviceWin::OnCreateWindow()
 	// get the window's current size
 	RECT crc;
 	GetClientRect(hwnd, &crc);
-
-	// create the scrollbar
-	cxScrollbar = GetSystemMetrics(SM_CXVSCROLL);
-	scrollbar = CreateWindowA(WC_SCROLLBARA, "", WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | SBS_VERT,
-		0, 0, cxScrollbar, 100, hwnd, reinterpret_cast<HMENU>(static_cast<INT_PTR>(ID_SCROLLBAR)), hInstance, 0);
 
 	// range calculation for the scrollbar
 	auto GetScrollRange = [this](SCROLLINFO &si)
@@ -638,7 +630,7 @@ void NudgeDeviceWin::OnCreateWindow()
 	auto SetScrollPos = [this](int newPos, int deltaPos) { yScrollPos = newPos; };
 
 	// set up the scrollbar logic
-	scrollbars.emplace_back(scrollbar, SB_CTL, mainFontMetrics.tmHeight, true, true, GetScrollRange, GetScrollRect, SetScrollPos);
+	scrollbars.emplace_back(hwnd, SB_VERT, mainFontMetrics.tmHeight, true, true, GetScrollRange, GetScrollRect, SetScrollPos);
 
     // create controls
 	auto cbNudge = [this](const char*) { this->OnNudgeParamChange(); };
@@ -673,28 +665,6 @@ void NudgeDeviceWin::OnCreateWindow()
 	HFONT oldFont = SelectFont(hdc, simDataFont);
 	GetTextMetrics(hdc, &tmSimData);
 	SelectFont(hdc, boldFont);
-
-	// initialize the window layout
-	AdjustLayout();
-}
-
-void NudgeDeviceWin::OnSizeWindow(WPARAM type, WORD width, WORD height)
-{
-	// adjust the layout
-	AdjustLayout();
-
-	// do the base class work
-	__super::OnSizeWindow(type, width, height);
-}
-
-void NudgeDeviceWin::AdjustLayout()
-{
-	// get the client size
-	RECT crc;
-	GetClientRect(hwnd, &crc);
-
-	// position the scrollbar
-	MoveWindow(scrollbar, crc.right - cxScrollbar, crc.top, cxScrollbar, crc.bottom - crc.top, TRUE);
 }
 
 void NudgeDeviceWin::ReloadNudgeParams(bool force)

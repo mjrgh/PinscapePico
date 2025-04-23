@@ -377,6 +377,13 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 	RECT crc;
 	GetClientRect(hwnd, &crc);
 
+	// redo the control layout on scroll changes
+	if (yScrollPos != yScrollPosAtLastDraw)
+	{
+		yScrollPosAtLastDraw = yScrollPos;
+		layoutPending = true;
+	}
+
 	// layout changes, for layoutPending mode
 	POINT ptCalibrate, ptTxtJitter, ptSpinJitter, ptTxtFiringTime, ptSpinFiringTime,
 		ptCbReverse, ptTxtIntegrationTime, ptSpinIntegrationTime, ptCapture, ptFrameCapture,
@@ -420,7 +427,7 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 		static const int xMarginBar = 16;
 		const int barWidth = max(400, crc.right - crc.left - xMarginBar*2), barHeight = 16;
 		int xBar = crc.left + xMarginBar;
-		int y0 = crc.top + 16;
+		int y0 = crc.top + 16 - yScrollPos;
 		int y = y0;
 
 		// Draw a bar label
@@ -644,8 +651,16 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 		int sensorImageHeight = 36;
 		y += hdc.DrawText(xBar, y, 1, mainFont, RGB(0x00, 0x00, 0x00), "Live Sensor View").cy;
 
+		// get the native scale; use the full range if the scale is zero (which will be
+		// the case if no sensor is configured), and use '1' if the range is zero
+		int nativeScale = plungerConfig.nativeScale;
+		if (nativeScale == 0)
+			nativeScale = pd.calMax - pd.calMin;
+		if (nativeScale == 0)
+			nativeScale = 1;
+
 		// Figure the calibration points on screen
-		double rawToScreen = 1.0 / max(plungerConfig.nativeScale, 10) * barWidth;
+		double rawToScreen = 1.0 / max(nativeScale, 10) * barWidth;
 		int screenMin = static_cast<int>(round(pd.calMin * rawToScreen));
 		int screenZero = static_cast<int>(round(pd.calZero * rawToScreen));
 		int screenMax = static_cast<int>(round(pd.calMax * rawToScreen));
@@ -911,9 +926,9 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 					static_cast<int>(xMarginBar + halfway), ySensor + sensorImageHeight };
 				RECT rcr{ static_cast<int>(xMarginBar + halfway), ySensor,
 					static_cast<int>(xMarginBar + halfway + stripeWidth/2), ySensor + sensorImageHeight };
-				HBrush brfr(RGB(0x00, 0xff, 0x00));
-				FrameRect(hdc, &rcl, brfr);
-				FrameRect(hdc, &rcr, brfr);
+				HBrush brFr(RGB(0x00, 0xff, 0x00));
+				FrameRect(hdc, &rcl, brFr);
+				FrameRect(hdc, &rcr, brFr);
 
 				// caption the A and B sensor points
 				int xTxt = xBar + static_cast<int>(halfway);
@@ -946,7 +961,7 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 		// that we want to show the pre-jitter-filtered value here for sensors
 		// that apply the jitter filter at this stage, so that we can show the
 		// jitter filter window.
-		int screenRaw = static_cast<int>(round((plungerConfig.nativeScale - rawPos) * rawToScreen));
+		int screenRaw = static_cast<int>(round((nativeScale - rawPos) * rawToScreen));
 		screenRaw = screenRaw < 0 ? 0 : screenRaw > barWidth ? barWidth : screenRaw;
 		RECT rc{ xBar + screenRaw, y, xBar + barWidth, y + barHeight };
 		HBrush rawBrush(RGB(0x00, 0xB0, 0x00));
@@ -1394,7 +1409,7 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 			RECT brc;
 			GetWindowRect(btnSaveSettings, &brc);
 			OffsetRect(&brc, -brc.left, -brc.top);
-			y = max(y + 10, crc.bottom - brc.bottom - 16);
+			y += 10;
 			ptBtnSave ={ xBar, y };
 			ptBtnRevert ={ xBar + brc.right + 8, y };
 
@@ -1412,16 +1427,25 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 				y += brc.bottom;
 			}
 		}
+
+		// save the document height, if it changed
+		int newDocHeight = y + 16 + yScrollPos;
+		if (newDocHeight != docHeight)
+		{
+			docHeight = newDocHeight;
+			AdjustScrollbarRanges();
+		}
 	}
 
 	// do control layout
 	if (layoutPending)
 	{
 		// Set positions and visibilities
-		auto SetPos = [](HWND ctl, POINT pt, bool visible = true) 
+		HDWP hdwp = BeginDeferWindowPos(16);
+		auto SetPos = [hdwp](HWND ctl, POINT pt, bool visible = true) 
 		{
 			// move and show/hide the window
-			SetWindowPos(ctl, NULL, pt.x, pt.y, -1, -1, SWP_NOSIZE | (visible ? 0 : SWP_HIDEWINDOW));
+			DeferWindowPos(hdwp, ctl, NULL, pt.x, pt.y, -1, -1, SWP_NOSIZE | SWP_NOZORDER | (visible ? 0 : SWP_HIDEWINDOW));
 
 			// If it's visible, invalidate it.  The interaction of the batch of
 			// moves and the off-screen drawing in the main window makes Windows
@@ -1449,6 +1473,9 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 		if (btnHelp != NULL)
 			SetPos(btnHelp, ptBtnHelp);
 
+		// apply the deferred window positioning
+		EndDeferWindowPos(hdwp);
+
 		// done
 		layoutPending = false;
 	}
@@ -1459,8 +1486,8 @@ void PlungerCalWin::OnCreateWindow()
 	// do the base class work
 	__super::OnCreateWindow();
 
-		// get the window DC
-	HDC hdc = GetWindowDC(hwnd);
+	// get the window DC
+	WindowDC hdc(hwnd);
 
 	// create additional fonts
 	barFont = CreateFontA(14,
@@ -1501,8 +1528,31 @@ void PlungerCalWin::OnCreateWindow()
 	// initialize the controls
 	InitControls();
 
-	// done with the window DC for now
-	ReleaseDC(hwnd, hdc);
+	// range calculation for the scrollbar
+	auto GetScrollRange = [this](SCROLLINFO &si)
+	{
+		// figure the client area height
+		RECT crc;
+		GetClientRect(hwnd, &crc);
+		int winHeight = crc.bottom - crc.top;
+
+		// set the range
+		si.nMin = 0;
+		si.nMax = max(docHeight - mainFontMetrics.tmHeight, 0);
+		si.nPage = max(winHeight - mainFontMetrics.tmHeight, 20);
+	};
+
+	// scrolling region
+	auto GetScrollRect = [](RECT *rc)
+	{
+		// no adjustment required - scroll the whole client rect
+	};
+
+	// set the scroll position
+	auto SetScrollPos = [this](int newPos, int deltaPos) { yScrollPos = newPos; };
+
+	// set up the scrollbar logic
+	scrollbars.emplace_back(hwnd, SB_VERT, mainFontMetrics.tmHeight, true, true, GetScrollRange, GetScrollRect, SetScrollPos);
 }
 
 void PlungerCalWin::OnNCDestroy()
@@ -1512,6 +1562,15 @@ void PlungerCalWin::OnNCDestroy()
 	
 	// do the base class work
 	__super::OnNCDestroy();
+}
+
+void PlungerCalWin::OnSizeWindow(WPARAM type, WORD width, WORD height)
+{
+	// redo the control layout
+	layoutPending = true;
+
+	// do the base class work
+	__super::OnSizeWindow(type, width, height);
 }
 
 void PlungerCalWin::OnTimer(WPARAM timerId)

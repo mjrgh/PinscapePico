@@ -2231,7 +2231,7 @@ void WrapperWin::CreateOverviewWin()
     DeviceOverviewWin *ovwin = new DeviceOverviewWin(hInstance, dev);
     curTab->win.reset(ovwin);
     ovwin->CreateSysWindow(curTab->win,
-        WS_CHILDWINDOW | WS_CLIPCHILDREN, 0, hwnd, _T("Config Editor"),
+        WS_CHILDWINDOW | WS_CLIPCHILDREN | WS_VSCROLL, 0, hwnd, _T("Config Editor"),
         cxLeftPanel + cxPanelMargin, cyTabCtl,
         crc.right - cxLeftPanel - cxPanelMargin, crc.bottom - cyTabCtl,
         SW_SHOW);
@@ -2326,8 +2326,8 @@ void WrapperWin::CreateOutputPortTesterWin()
         cxLeftPanel + cxPanelMargin, cyTabCtl, WS_CHILDWINDOW | WS_CLIPCHILDREN, 0);
 
     // set logical port mode
-    auto *outwin = static_cast<OutputTesterWin*>(curTab->win.get());
-    outwin->SetLogicalPortMode();
+    auto *outputWin = static_cast<OutputTesterWin*>(curTab->win.get());
+    outputWin->SetLogicalPortMode();
 }
 
 void WrapperWin::CreateOutputDevTesterWin()
@@ -2344,8 +2344,8 @@ void WrapperWin::CreateOutputDevTesterWin()
         cxLeftPanel + cxPanelMargin, cyTabCtl, WS_CHILDWINDOW | WS_CLIPCHILDREN, 0);
 
     // put it in device tester mode
-    auto *outwin = static_cast<OutputTesterWin*>(curTab->win.get());
-    outwin->SetDeviceTestMode();
+    auto *outputWin = static_cast<OutputTesterWin*>(curTab->win.get());
+    outputWin->SetDeviceTestMode();
 }
 
 void WrapperWin::CreateNudgeWin()
@@ -2359,7 +2359,7 @@ void WrapperWin::CreateNudgeWin()
     auto &dev = static_cast<DeviceButton*>(curButton)->dev->device;
     PinscapePico::NudgeDeviceWin::Factory factory;
     curTab->win = factory.Create(hInstance, hwnd, SW_SHOW, dev,
-        cxLeftPanel + cxPanelMargin, cyTabCtl, WS_CHILDWINDOW | WS_CLIPCHILDREN, 0);
+        cxLeftPanel + cxPanelMargin, cyTabCtl, WS_CHILDWINDOW | WS_CLIPCHILDREN | WS_VSCROLL, 0);
 }
 
 void WrapperWin::CreatePlungerWin()
@@ -2373,7 +2373,7 @@ void WrapperWin::CreatePlungerWin()
     auto &dev = static_cast<DeviceButton*>(curButton)->dev->device;
     PinscapePico::PlungerCalWin::Factory factory;
     curTab->win = factory.Create(hInstance, hwnd, SW_SHOW, dev,
-        cxLeftPanel + cxPanelMargin, cyTabCtl, WS_CHILDWINDOW | WS_CLIPCHILDREN, 0);
+        cxLeftPanel + cxPanelMargin, cyTabCtl, WS_CHILDWINDOW | WS_CLIPCHILDREN | WS_VSCROLL, 0);
 }
 
 void WrapperWin::CreateIRWin()
@@ -2387,7 +2387,7 @@ void WrapperWin::CreateIRWin()
     auto &dev = static_cast<DeviceButton*>(curButton)->dev->device;
     PinscapePico::IRTesterWin::Factory factory;
     curTab->win = factory.Create(hInstance, hwnd, SW_SHOW, dev,
-        cxLeftPanel + cxPanelMargin, cyTabCtl, WS_CHILDWINDOW | WS_CLIPCHILDREN, 0);
+        cxLeftPanel + cxPanelMargin, cyTabCtl, WS_CHILDWINDOW | WS_CLIPCHILDREN | WS_VSCROLL, 0);
 }
 
 void WrapperWin::CreateSetUpNewDeviceWin()

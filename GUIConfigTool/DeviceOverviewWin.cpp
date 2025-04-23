@@ -128,9 +128,12 @@ void DeviceOverviewWin::PaintOffScreen(HDC hdc0)
     // set up a DC for copying bitmaps
     CompatibleDC bdc(hdc);
 
-    // Check for a fresh configuration
+    // set the starting coordinates
     int x = 16;
-    int y = 16;
+    int y = 16 - yScrollPos;
+    int newDocHeight = y;
+
+    // Check for a fresh configuration
     if (online && !hasConfig)
     {
         // draw a highlight box, and clip to it
@@ -149,12 +152,12 @@ void DeviceOverviewWin::PaintOffScreen(HDC hdc0)
         y1 += 8;
         const char *helpLabel = "Click here for help with setting up a new device";
         rcHelpNew ={ x1, y1, x1 + hdc.MeasureText(mainFont, helpLabel).cx, y1 + mainFontMetrics.tmHeight };
-        RECT rcul = rcHelpNew; rcul.top = rcul.bottom - 1;
+        RECT rcUL = rcHelpNew; rcUL.top = rcUL.bottom - 1;
         bool hot = IsClientRectHot(rcHelpNew);
         if (hot) FillRect(hdc, &rcHelpNew, HBrush(0xffffff));
-        COLORREF txtclr = HRGB(hot ? 0x0080FF : 0xffffff);
-        hdc.DrawText(x1, y1, 1, mainFont, txtclr, helpLabel);
-        FillRect(hdc, &rcul, HBrush(txtclr));
+        COLORREF txtColor = HRGB(hot ? 0x0080FF : 0xffffff);
+        hdc.DrawText(x1, y1, 1, mainFont, txtColor, helpLabel);
+        FillRect(hdc, &rcUL, HBrush(txtColor));
 
         // reset clipping, advance vertically
         SelectClipRgn(hdc, NULL);
@@ -345,11 +348,11 @@ void DeviceOverviewWin::PaintOffScreen(HDC hdc0)
         // draw the rounded rect
         HBrush br(hot ? HRGB(0xd0ffff) : HRGB(0xf0f0f0));
         HPen pen(hot ? HRGB(0xff00ff) : HRGB(0x808080));
-        HBRUSH oldbr = SelectBrush(hdc, br);
-        HPEN oldpen = SelectPen(hdc, pen);
+        HBRUSH oldBr = SelectBrush(hdc, br);
+        HPEN oldPen = SelectPen(hdc, pen);
         RoundRect(hdc, brc.left, brc.top, brc.right, brc.bottom, 24, 24);
-        SelectBrush(hdc, oldbr);
-        SelectPen(hdc, oldpen);
+        SelectBrush(hdc, oldBr);
+        SelectPen(hdc, oldPen);
 
         // draw the label
         COLORREF txtColor = (hot ? HRGB(0xa000a0) : HRGB(0x000000));
@@ -359,20 +362,26 @@ void DeviceOverviewWin::PaintOffScreen(HDC hdc0)
         sz = hdc.MeasureText(mainFont, label2);
         yTxt += hdc.DrawText((brc.left + brc.right - sz.cx)/2, yTxt, 1, mainFont, txtColor, label2).cy;
 
+        // set the high water mark for document height in the left columns
+        newDocHeight = brc.bottom + 16;
+
         //
         // Pinout diagram
         //
 
         // figure the layout location
-        int x = xPinoutDiagram;
-        int y = 32;
+        x = xPinoutDiagram;
+        y = 32 - yScrollPos;
         rcPicoDiagram ={ x, y, x + szPicoDiagram.cx, y + szPicoDiagram.cy };
 
         // the image is hot if we're dragging a file over it
-        bool pdhot = IsClientRectHot(rcPicoDiagram) && dropTarget->IsTargetHot();
+        bool pdHot = IsClientRectHot(rcPicoDiagram) && dropTarget->IsTargetHot();
 
         // paint it
-        PaintPinoutDiagram(hdc, xPinoutDiagram, y, pdhot, false, false);
+        PaintPinoutDiagram(hdc, xPinoutDiagram, y, pdHot, false, false);
+
+        // set the high water mark for document height
+        newDocHeight = max(newDocHeight, y + szPicoDiagram.cy + 16);
     }
     else
     {
@@ -381,6 +390,17 @@ void DeviceOverviewWin::PaintOffScreen(HDC hdc0)
         y += hdc.DrawText(x, y, 1, mainFont, HRGB(0x000000), "The Pico is either disconnected from USB or is in Boot Loader mode.").cy;
         y += hdc.DrawText(x, y, 1, mainFont, HRGB(0x000000), "To restore the connection, plug it back into USB, or reset the Pico by").cy;
         y += hdc.DrawText(x, y, 1, mainFont, HRGB(0x000000), "unplugging the USB cable (and any power inputs) and plugging it back in.").cy;
+
+        // set the document height
+        newDocHeight = y + 16;
+    }
+
+    // save the document height, if changed
+    newDocHeight += yScrollPos;
+    if (newDocHeight != docHeight)
+    {
+        docHeight = newDocHeight;
+        AdjustScrollbarRanges();
     }
 }
 
@@ -560,6 +580,32 @@ void DeviceOverviewWin::OnCreateWindow()
 
     // register as a drop target
     RegisterDragDrop(hwnd, dropTarget);
+
+    // range calculation for the scrollbar
+    auto GetScrollRange = [this](SCROLLINFO &si)
+    {
+        // figure the client area height
+        RECT crc;
+        GetClientRect(hwnd, &crc);
+        int winHeight = crc.bottom - crc.top;
+
+        // set the range
+        si.nMin = 0;
+        si.nMax = max(docHeight - mainFontMetrics.tmHeight, 0);
+        si.nPage = max(winHeight - mainFontMetrics.tmHeight, 20);
+    };
+
+    // scrolling region
+    auto GetScrollRect = [this](RECT *rc)
+    {
+        // no adjustment required - scroll the whole client rect
+    };
+
+    // set the scroll position
+    auto SetScrollPos = [this](int newPos, int deltaPos) { yScrollPos = newPos; };
+
+    // set up the scrollbar logic
+    scrollbars.emplace_back(hwnd, SB_VERT, mainFontMetrics.tmHeight, true, true, GetScrollRange, GetScrollRect, SetScrollPos);
 }
 
 void DeviceOverviewWin::OnDestroy()

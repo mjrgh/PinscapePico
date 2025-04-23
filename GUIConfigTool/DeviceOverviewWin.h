@@ -98,6 +98,12 @@ protected:
     SIZE szPicoDiagram{ 0, 0 };
     RECT rcPicoDiagram{ 0 };
 
+    // main scrollbar position
+    int yScrollPos = 0;
+
+    // document height, for scrolling - calculated during painting
+    int docHeight = 0;
+
     // device query information
     bool online = true;
     bool hasConfig = false;

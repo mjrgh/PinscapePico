@@ -92,10 +92,19 @@ namespace PinscapePico
 		// window class name
 		const TCHAR *GetWindowClassName() const override { return _T("PinscapePicoPlunger"); }
 
+		// main scrollbar position
+		int yScrollPos = 0;
+
+		// last drawing scroll position
+		int yScrollPosAtLastDraw = 0;
+
+		// document height, for scrolling - calculated in the layout logic during each paint pass
+		int docHeight = 0;
+
 		// window message handlers
 		virtual void OnCreateWindow() override;
 		virtual void OnNCDestroy() override;
-		virtual void OnSizeWindow(WPARAM type, WORD width, WORD height) override { layoutPending = true; }
+		virtual void OnSizeWindow(WPARAM type, WORD width, WORD height) override;
 		virtual void OnTimer(WPARAM timerId) override;
 
 		// Paint off-screen.  This prepares a bitmap with the window

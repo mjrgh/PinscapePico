@@ -178,6 +178,28 @@ void IRTesterWin::PaintOffScreen(HDC hdc0)
 		// done with the data mutex
 		ReleaseMutex(updaterThread->dataMutex);
 
+		// redo the control layout on scroll changes
+		if (yScrollPos != yScrollPosAtLastDraw)
+		{
+			// scroll the scope and history area
+			int dy = yScrollPosAtLastDraw - yScrollPos;
+			OffsetRect(&rcScope, 0, dy);
+			OffsetRect(&rcHist, 0, dy);
+
+			// mark layout pending and note the new drawing scroll offset
+			layoutPending = true;
+			yScrollPosAtLastDraw = yScrollPos;
+		}
+
+		// create a deferred window position group if updating the control layout
+		HDWP hdwp = NULL;
+		if (layoutPending)
+			hdwp = BeginDeferWindowPos(8);
+
+		// adjust the scrollbar position
+		if (layoutPending)
+			DeferWindowPos(hdwp, sbHist, NULL, rcHist.right - cxScrollbar, rcHist.top, cxScrollbar, rcHist.bottom - rcHist.top, SWP_NOSIZE | SWP_NOZORDER);
+
 		// adjust the scrollbar if we added new reports
 		if (nReports != irHist.size())
 		{
@@ -204,7 +226,7 @@ void IRTesterWin::PaintOffScreen(HDC hdc0)
 
 		// Layout parameters
         static const int xMargin = 16;
-        int y0 = crc.top + 16;
+        int y0 = crc.top + 16 - yScrollPos;
         int x = xMargin;
 		int y = y0;
 
@@ -395,7 +417,7 @@ void IRTesterWin::PaintOffScreen(HDC hdc0)
 		y += hdc.DrawText(x, y, 1, boldFont, HRGB(0x800080), "Transmitter Tester").cy + 16;
 
 		// get a control rect, applying new layout if necessary
-		auto GetCtlRect = [this, &hdc](HWND ctl, int x, int y, const RECT *centerOnRect = nullptr)
+		auto GetCtlRect = [this, hdwp, &hdc](HWND ctl, int x, int y, const RECT *centerOnRect = nullptr)
 		{
 			// get the control area
 			RECT rc = GetChildControlRect(ctl);
@@ -409,7 +431,7 @@ void IRTesterWin::PaintOffScreen(HDC hdc0)
 				
 				// set the new position
 				OffsetRect(&rc, x - rc.left, y - rc.top);
-				SetWindowPos(ctl, NULL, x, y, -1, -1, SWP_NOSIZE);
+				DeferWindowPos(hdwp, ctl, NULL, x, y, -1, -1, SWP_NOSIZE | SWP_NOZORDER);
 				InvalidateRect(ctl, NULL, TRUE);
 			}
 
@@ -497,6 +519,7 @@ void IRTesterWin::PaintOffScreen(HDC hdc0)
 			else
 				y += hdc.DrawTextF(x + 12, y, 1, mainFont, HRGB(0x808080), "  %s  ", s.second.c_str()).cy;
 		}
+		int yMax = y;
 
 		// Power latch status
 		x = rcHist.left + boldFontMetrics.tmAveCharWidth * 24;
@@ -506,6 +529,7 @@ void IRTesterWin::PaintOffScreen(HDC hdc0)
 			hdc.DrawText(x + 12, y, 1, boldFont, HRGB(0x008000), "[ HIGH ]");
 		else
 			hdc.DrawText(x + 12, y, 1, boldFont, HRGB(0x808080), "[ low ]");
+		yMax = max(yMax, y);
 
 		// TV Relay status
 		x = rcHist.left + boldFontMetrics.tmAveCharWidth * 48;
@@ -529,6 +553,20 @@ void IRTesterWin::PaintOffScreen(HDC hdc0)
 			SetWindowTextA(tvRelayOnBtn, relayOnBtnState ? "Manual Off" : "Manual On");
 		}
 
+		yMax = max(rcPulseBtn.bottom, yMax);
+
+		// save the document height, if it changed
+		int newDocHeight = yMax + 16 + yScrollPos;
+		if (newDocHeight != docHeight)
+		{
+			docHeight = newDocHeight;
+			AdjustScrollbarRanges();
+		}
+
+		// apply deferred window positioning
+		if (hdwp != NULL)
+			EndDeferWindowPos(hdwp);
+
 		// layout has been completed
 		layoutPending = false;
 	}
@@ -540,7 +578,7 @@ void IRTesterWin::OnCreateWindow()
 	__super::OnCreateWindow();
 
     // get the window DC
-	HDC hdc = GetWindowDC(hwnd);
+	WindowDC hdc(hwnd);
 
 	// get the window's current size
 	RECT crc;
@@ -552,20 +590,20 @@ void IRTesterWin::OnCreateWindow()
 	rcScope ={ x, y, crc.right - 16, y + 64 };
 	y = rcScope.bottom + 48;
 
-	// figure the history area line layout
+	// figure the history list layout
 	cyHistLine = mainFontMetrics.tmHeight + 12;
 	cyHist = cyHistLine * 10;
 	y += boldFontMetrics.tmHeight + 8;
 	rcHist ={ x, y, x + mainFontMetrics.tmAveCharWidth*60, y + cyHist };
 	y += cyHist + 16;
 
-	// create the scrollbar
+	// create the history list scrollbar
 	cxScrollbar = GetSystemMetrics(SM_CXVSCROLL);
 	sbHist = CreateWindowA(WC_SCROLLBARA, "", WS_VISIBLE | WS_CHILD | SBS_VERT,
 		0, 0, cxScrollbar, 100, hwnd, reinterpret_cast<HMENU>(ID_SB_HIST), hInstance, 0);
 
 	// scrollbar range calculation 
-	auto GetRangeHist = [this](SCROLLINFO &si)
+	auto GetScrollRangeHist = [this](SCROLLINFO &si)
 	{
 		// figure the client area height
 		int winHt = cyHist;
@@ -586,7 +624,7 @@ void IRTesterWin::OnCreateWindow()
 	auto SetScrollPosHist = [this](int newPos, int deltaPos) { yScrollHist = newPos; };
 
 	// set up the scrollbar object
-	scrollbars.emplace_back(sbHist, SB_CTL, cyHistLine, true, true, GetRangeHist, GetScrollRectHist, SetScrollPosHist);
+	scrollbars.emplace_back(sbHist, SB_CTL, cyHistLine, true, true, GetScrollRangeHist, GetScrollRectHist, SetScrollPosHist);
 
 	// create a spin control
 	auto CreateSpin = [this](int id, HWND txtCtl, int minVal, int maxVal) {
@@ -601,8 +639,31 @@ void IRTesterWin::OnCreateWindow()
 	tvRelayPulseBtn = CreateControl(ID_BTN_RELAYPULSE, WC_BUTTONA, "Pulse Relay", 0, 50, 16);
 	tvRelayOnBtn = CreateControl(ID_BTN_RELAYMANUAL, WC_BUTTONA, "Manual On", 0, 50, 16);
 
-	// done with the window DC for now
-	ReleaseDC(hwnd, hdc);
+	// main scrollbar range calculation
+	auto GetScrollRangeMain = [this](SCROLLINFO &si)
+	{
+		// figure the client area height
+		RECT crc;
+		GetClientRect(hwnd, &crc);
+		int winHeight = crc.bottom - crc.top;
+
+		// set the range
+		si.nMin = 0;
+		si.nMax = max(docHeight - mainFontMetrics.tmHeight, 0);
+		si.nPage = max(winHeight - mainFontMetrics.tmHeight, 20);
+	};
+
+	// main scrolling region
+	auto GetScrollRectMain = [](RECT *rc)
+	{
+		// no adjustment required - scroll the whole client rect
+	};
+
+	// set the main scrollbar position
+	auto SetScrollPosMain = [this](int newPos, int deltaPos) { yScrollPos = newPos; };
+
+	// set up the scrollbar logic
+	scrollbars.emplace_back(hwnd, SB_VERT, mainFontMetrics.tmHeight, true, true, GetScrollRangeMain, GetScrollRectMain, SetScrollPosMain);
 
 	// adjust the layout
 	AdjustLayout();

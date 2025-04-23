@@ -186,8 +186,8 @@ HWND BaseWindow::CreateSysWindow(std::shared_ptr<BaseWindow> &self,
 // Register the window class
 void BaseWindow::RegisterWindowClass()
 {
-	const WCHAR *wcname = GetWindowClassName();
-	if (classesRegistered.find(wcname) == classesRegistered.end())
+	const WCHAR *winClassName = GetWindowClassName();
+	if (classesRegistered.find(winClassName) == classesRegistered.end())
 	{
 		// load the arrow cursor
 		arrowCursor = LoadCursor(NULL, IDC_ARROW);
@@ -204,7 +204,7 @@ void BaseWindow::RegisterWindowClass()
 		wc.hCursor       = arrowCursor;
 		wc.hbrBackground = reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
 		wc.lpszMenuName  = NULL;
-		wc.lpszClassName = wcname;
+		wc.lpszClassName = winClassName;
 		wc.hIconSm       = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_PROGRAMICON));
 		RegisterClassEx(&wc);
 	}
@@ -799,13 +799,13 @@ void BaseWindow::AdjustScrollbarRanges()
 void BaseWindow::OnVScroll(HWND sb, UINT sbCode, UINT thumbPos)
 {
 	// invoke the common scroll handler for SB_VERT or SB_CTL, as appropriate
-	OnScroll(sb, sb == hwnd ? SB_VERT : SB_CTL, sbCode, thumbPos);
+	OnScroll(sb == NULL ? hwnd : sb, sb == NULL ? SB_VERT : SB_CTL, sbCode, thumbPos);
 }
 
 void BaseWindow::OnHScroll(HWND sb, UINT sbCode, UINT thumbPos)
 {
 	// invoke the common scroll handler for SB_HORZ or SB_CTL, as appropriate
-	OnScroll(sb, sb == hwnd ? SB_HORZ : SB_CTL, sbCode, thumbPos);
+	OnScroll(sb == NULL ? hwnd : sb, sb == NULL ? SB_HORZ : SB_CTL, sbCode, thumbPos);
 }
 
 void BaseWindow::OnScroll(HWND sbHwnd, UINT sbType, UINT sbCode, UINT thumbPos)

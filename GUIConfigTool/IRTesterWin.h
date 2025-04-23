@@ -96,6 +96,15 @@ namespace PinscapePico
 		HMENU hMenuBar = NULL;
 		HACCEL hAccel = NULL;
 
+		// main scrollbar position
+		int yScrollPos = 0;
+
+		// last drawing scroll position
+		int yScrollPosAtLastDraw = 0;
+
+		// document height, for scrolling - calculated in the layout logic during each paint pass
+		int docHeight = 0;
+
 		// oscilloscope area
 		RECT rcScope{ 0 };
 

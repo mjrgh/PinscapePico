@@ -515,6 +515,34 @@ exceed 40V.
 ULN2803A is rated for 500mA per channel maximum, with each pin connected
 to two channels.  This yields 800mA maximum with a 20% safety margin.)
 
+Note: There's some fine print, which you can probably ignore, but here
+it is just in case you want the details.  These outputs are driven by
+Darlington chips that have a hard limit of 500mA per port (so 1A per **flasher**
+port, since we're using the Darlington ports in pairs).
+But these chips also have an **aggregate** power limit on total heat
+dissipation through the whole chip at any given time, when you take
+into account how many ports are activated simultaneously.  This total
+power limit can effectively reduce the per-port limit below 500mA.  So
+it's not entirely accurate to say that the per-port flasher limit is a
+simple 800mA (after the safety margin).  So why did we say 800mA?
+Because we can't give you a simple, single number for this aggregate
+limit, the way we can with the hard per-port limit.  The aggregate
+limit is a limit on total power dissipation, and it's a function of
+several variables that depend upon how you're using the chip in real
+time.  If you want the details, refer to the ULN2803A data sheet; the
+version of the data sheet from Texas Instruments has the best
+explanation I've seen on how to calculate the limit.  Each group of
+four flashers is connected through one Darlington chip: flashers 1-4
+are on one chip, 5-8 are on a second chip, 9-12 are on a third, and
+13-16 (16 being the Strobe port) are on a fourth.  The aggregate limit
+thus applies (separately) to each of these four groups.  The aggregate
+limit only becomes important if you're running many ports from a group
+at once, continuously, or at least at high duty cycle.  In real pin cab
+situations, this rarely happens, so I'm pretty comfortable in my own
+builds just sticking to the 800mA per flasher port limit and ignoring these
+other details.
+
+
 ### Lamp outputs (power board)
 
 Each individual lamp output must not exceed 400mA.
@@ -523,6 +551,10 @@ In addition, the supply voltage for each lamp shouldn't exceed 40V.
 
 (Rationale: each channel is driven by a single ULN2803A channel, which
 is rated at 500mA maximum, or 400mA after a 20% safety margin.)
+
+Note: the comments in the Flasher Outputs section above about the
+additional **aggregate** power limits for the Darlington chips
+also apply to these ports.
 
 
 ## ADS1115 ADC

@@ -230,7 +230,7 @@ of the battery.  The battery clip has enough "give" that it's still
 possible to coerce the battery in and out by tilting it up over the
 top of the Darlington chips that get in the way, but this requires a
 bit of brute force, which doesn't feel comfortable when working with
-delicate electronics.  This will it inconvenient to replace the
+delicate electronics.  This will make it inconvenient to replace the
 battery when it eventually runs out of power.  On the plus side, that
 should take a few years, since the battery is only powering the clock
 chip, which draws very little power.
@@ -244,7 +244,7 @@ Similar devices are available on Amazon.  Solder the red wire to one of
 positive post pads for BATT1 on the circuit board, and solder the
 black wire to BATT1's large round central ground pad.
 
-Fix: In later versions of the board, the clip battery holder is
+Fix: In newer versions of the board, the clip battery holder is
 replaced with a top-loading type that doesn't require any side
 clearance.
 
@@ -279,7 +279,7 @@ no continuity between DS1307 pin 8 and the secondary supply 5V after
 you cut the trace, since cross-wiring the secondary 5V to VBUS would
 be bad.
 
-Fix: In later versions of the board, the power supply wiring to
+Fix: In newer versions of the board, the power supply wiring to
 the chip is corrected to connect to the main Pico USB power.
 
 <b>Flasher header:</b>  The "pin 1 arrow" reference point and shroud
@@ -295,10 +295,12 @@ on the board are reversed from how they're marked on the KL25Z board.
 Workaround: If you're installing a shrouded header, install it with
 the notch facing the **inside** of the board, opposite to the markings
 on the board showing the notch on the **outside edge** of the board.
+Alternatively, you can use a plain header (without the shroud), which
+lets you plug in the cable in either rotational orientation.
 When plugging in the cable, orient the plug with the "pin 1" side
 (which you might have marked with a red stripe on the cable) facing J2.
 
-Fix: In later versions of the board, the silkscreen markings are
+Fix: In newer versions of the board, the silkscreen markings are
 rotated to match the KL25Z board markings.
 
 
@@ -517,30 +519,32 @@ to two channels.  This yields 800mA maximum with a 20% safety margin.)
 
 Note: There's some fine print, which you can probably ignore, but here
 it is just in case you want the details.  These outputs are driven by
-Darlington chips that have a hard limit of 500mA per port (so 1A per **flasher**
-port, since we're using the Darlington ports in pairs).
+Darlington chips that have a hard limit of 500mA per port (400mA
+after 20% safety margin; the current limit per flasher port is double
+this because each flasher port is powered by two Darlington ports).
 But these chips also have an **aggregate** power limit on total heat
 dissipation through the whole chip at any given time, when you take
 into account how many ports are activated simultaneously.  This total
-power limit can effectively reduce the per-port limit below 500mA.  So
-it's not entirely accurate to say that the per-port flasher limit is a
-simple 800mA (after the safety margin).  So why did we say 800mA?
+power limit can work out to be less then 500mA per port in cases
+when most or all of the ports are activated at the same time.
+So it's not entirely accurate to say that the per-port flasher limit
+is a simple 800mA (after the safety margin).  So why did we say 800mA?
 Because we can't give you a simple, single number for this aggregate
 limit, the way we can with the hard per-port limit.  The aggregate
 limit is a limit on total power dissipation, and it's a function of
 several variables that depend upon how you're using the chip in real
 time.  If you want the details, refer to the ULN2803A data sheet; the
-version of the data sheet from Texas Instruments has the best
-explanation I've seen on how to calculate the limit.  Each group of
-four flashers is connected through one Darlington chip: flashers 1-4
+version of the data sheet from Texas Instruments has the best and most
+detailed explanation I've seen on how to calculate the limit.  Each group
+of four flashers is connected through one Darlington chip: flashers 1-4
 are on one chip, 5-8 are on a second chip, 9-12 are on a third, and
 13-16 (16 being the Strobe port) are on a fourth.  The aggregate limit
 thus applies (separately) to each of these four groups.  The aggregate
 limit only becomes important if you're running many ports from a group
 at once, continuously, or at least at high duty cycle.  In real pin cab
 situations, this rarely happens, so I'm pretty comfortable in my own
-builds just sticking to the 800mA per flasher port limit and ignoring these
-other details.
+builds ignoring the combined limit and just sticking to the
+800mA-per-port rule.
 
 
 ### Lamp outputs (power board)

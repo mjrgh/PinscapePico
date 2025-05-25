@@ -7,19 +7,20 @@ virtual pinball cabinets.
 
 ## Description
 
-My first Pinscape Pico expansion board design was an All-In-One board
-that packed everything you'd need for a pin cab into one 10x16 cm
-board.  To achieve that kind of density, that design uses tiny SMD
-(surface-mount) parts for just about everything, which makes it
-difficult assemble by hand.  I sure don't want to try building it by
-hand, and I doubt anyone else would either.  It's really designed to
-be built in a factory by a pick-and-place machine.  That sort of
-production is usually only cost-effective if you're going to make
-at least 50 or 100 units, so I expect that the all-SMD board will
-only be of interest to our more entrepreneurial community members
-who might want to build the board and offer it for retail sale.
-That's why I've taken to referring to that design as the "Pro"
-expansion board.
+This board set is my second Pinscape Pico expansion board design.  The
+first is an All-In-One board that packs everything you need for a
+well-equipped pin cab onto one 10x16 cm board.  To achieve that kind
+of density, that design uses tiny SMD (surface-mount) parts for just
+about everything, some of which are too small even to handle with
+tweezers.  It's not something you want to assemble by hand, unless
+your other hobby is building Swiss watches from scratch; it's really
+only feasible to build in a factory with a pick-and-place machine.
+That's only cost-effective if you're going to order at least 50 or 100
+units, so I expect that the all-SMD board will only be of interest to
+our more entrepreneurially-minded community membe who might be
+willing to order up a batch and offer them for retail sale.  That's
+why I've taken to referring to that design as the "Pro" expansion
+board.
 
 But Pinscape has always been for DIYers.  My mission from the start
 has been to make it possible to build high-end pin cabs without
@@ -47,15 +48,13 @@ be easily soldered by hand
 
 A third, lesser-but-still-important priority is to use common parts
 that are widely available and are likely to remain in production for
-many years.  The original Pinscape KL25Z boards are difficult
-to build today because they depend on a few specific parts that are no
-longer in production, most especially the KL25Z itself, but also the
+many years.  The original Pinscape KL25Z boards are difficult to build
+today because they depend on a few specific parts that are no longer
+in production, most especially the KL25Z itself, but also the
 TLC5940NT PWM chips.  I tried to avoid those sorts of dependencies as
-much as possible in this design (and moving to the Pico as the
-microcontroller at the heart of it is a big step in that direction).
-The biggest unique-part dependency on these boards is the Pico itself,
-but that's not just a requirement for the boards, but for the whole
-software system.
+much as possible in this design.  The biggest unique-part dependency
+is the Pico itself, which is widely available and well supported by
+Raspberry Pi.
 
 Unlike the original Pinscape KL25Z expansion boards, where you were
 encouraged to mix and match the Main, Power, and Chime boards in
@@ -529,7 +528,7 @@ power limit can work out to be less then 500mA per port in cases
 when most or all of the ports are activated at the same time.
 So it's not entirely accurate to say that the per-port flasher limit
 is a simple 800mA (after the safety margin).  So why did we say 800mA?
-Because we can't give you a simple, single number for this aggregate
+Because we can't give you a simple, single number for the aggregate
 limit, the way we can with the hard per-port limit.  The aggregate
 limit is a limit on total power dissipation, and it's a function of
 several variables that depend upon how you're using the chip in real

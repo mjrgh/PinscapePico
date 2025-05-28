@@ -33,8 +33,15 @@
 #
 #   cmake -S . -G "NMake Makefiles"
 #
-# That doesn't actually build any software; it only builds the scripts
-# that build the software.  Now you can run NMAKE:
+# Optionally, you can also define the target board to build for:
+#
+#   cmake -D PICO_BOARD:STRING=pico -S . -G "NMake Makefiles"
+#   cmake -D PICO_BOARD:STRING=pico2 -S . -G "NMake Makefiles"
+#
+# cmake doesn't actually build the Pinscape firmware.  It's just
+# a "metabuild" program, whose job is to create the scripts tha
+# build the software.  The actual build is performed by NMAKE,
+# which you run by typing simply:
 #
 #   nmake
 #
@@ -61,6 +68,11 @@
 # ever in doubt about the integrity of the dependency tracking.
 
 
+# Note: this can be overridden on the CMAKE command line using
+# the -D option, as in:
+#
+#   cmake -D PICO_BOARD:STRING=pico2 ...
+#
 set(PICO_BOARD pico CACHE STRING "Board type")
 
 cmake_minimum_required(VERSION 3.12)
@@ -219,7 +231,6 @@ target_link_libraries(
     hardware_dma
     hardware_pio
     hardware_sync
-    hardware_rtc
     pico_sync
     tinyusb_device
     tinyusb_board

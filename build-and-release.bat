@@ -16,20 +16,32 @@ rem
 
 goto main
 
+rem Clean firmware
 :CleanFirmware
   pushd "%~1"
   if exist Makefile nmake /nologo clean
   if exist CMakeCache.txt del CMakeCache.txt
   if exist CMakeFiles rmdir /s /q CMakeFiles
+  del %2-%3.uf2 %2-%3.elf.map
   popd
   goto EOF
 
-:BuildFirmware
+rem Build firmware for a single target board
+:BuildFirmwareForTarget
+  call :CleanFirmware "%~1" %2 %3
   pushd "%~1"
-  cmake -S . -G "NMake Makefiles"
+  cmake -D PICO_BOARD:STRING=%3 -S . -G "NMake Makefiles"
   nmake /nologo
+  rename %2.uf2 %2-%3.uf2
+  rename %2.elf.map %2-%3.elf.map
   popd
   goto EOF
+
+rem Build firmware for all target boards
+:BuildFirmware
+  call :BuildFirmwareForTarget "%~1" %2 pico
+  call :BuildFirmwareForTarget "%~1" %2 pico2
+  goto EOF  
 
 :main
 
@@ -66,20 +78,18 @@ msbuild PinscapePico.sln -t:Clean -p:Configuration=Release;Platform=x86 -v:q -no
 if errorlevel 1 goto abort
 msbuild PinscapePico.sln -t:Clean -p:Configuration=Release;Platform=x64 -v:q -nologo
 if errorlevel 1 goto abort
-call :CleanFirmware firmware
-call :CleanFirmware PWMWorker
 
 rem  Build the firmware
 echo ^>^>^> Building Pinscape Pico firmware
-call :BuildFirmware firmware
+call :BuildFirmware firmware PinscapePico
 if errorlevel 1 goto abort
 
 echo ^>^>^> Building PWMWorker firmware
-call :BuildFirmware PWMWorker
+call :BuildFirmware PWMWorker PWMWorker
 if errorlevel 1 goto abort
 
 echo ^>^>^> Building ButtonLatencyTester2 firmware
-call :BuildFirmware ButtonLatencyTester2\Firmware
+call :BuildFirmware ButtonLatencyTester2\Firmware ButtonLatencyTester2
 if errorlevel 1 goto abort
 
 rem  Build the Windows Release configurations

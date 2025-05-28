@@ -432,14 +432,13 @@ void VendorIfc::ProcessRequest()
             memcpy(ids.hwid, &hwid, sizeof(hwid));
 
             // set the Pico hardware version information
+            ids.romVersion = rp2040_rom_version();
 #ifdef PICO_RP2040
             ids.cpuType = 2040;
             ids.cpuVersion = rp2040_chip_version();
-            ids.romVersion = rp2040_rom_version();
 #elif PICO_RP2350
             ids.cpuType = 2350;
             ids.cpuVersion = rp2350_chip_version();
-            ids.romVersion = rp2350_rom_version();
 #else
 #error Unknown target
 #endif

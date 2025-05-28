@@ -24,12 +24,15 @@ set ReleaseZip="%cd%\Releases\PinscapePico-%ReleaseTag%.zip"
 if exist %ReleaseZip% del %ReleaseZip%
 
 rem  Save a copy of the firmware link map file in the release folder
-copy Firmware\PinscapePico.elf.map "%cd%\Releases\PinscapePico-%ReleaseTag%.elf.map"
+copy Firmware\PinscapePico-pico.elf.map "%cd%\Releases\PinscapePico-pico-%ReleaseTag%.elf.map"
+copy Firmware\PinscapePico-pico2.elf.map "%cd%\Releases\PinscapePico-pico2-%ReleaseTag%.elf.map"
 
 rem  Build the new zip
 zip %ReleaseZip% License.txt
-zip -j %ReleaseZip% Firmware\PinscapePico.uf2 Firmware\PinscapePico.elf.map
-zip -j %ReleaseZip% PWMWorker\PWMWorker.uf2
+zip -j %ReleaseZip% Firmware\PinscapePico-pico.uf2 Firmware\PinscapePico-pico.elf.map
+zip -j %ReleaseZip% Firmware\PinscapePico-pico2.uf2 Firmware\PinscapePico-pico2.elf.map
+zip -j %ReleaseZip% PWMWorker\PWMWorker-pico.uf2
+zip -j %ReleaseZip% PWMWorker\PWMWorker-pico2.uf2
 zip -j %ReleaseZip% PWMWorker\exe\SetPWMWorkerAddr.exe
 
 pushd x64\release
@@ -41,7 +44,8 @@ popd
 rem  Build the Button Latency Tester zip
 set BLT2ReleaseZip="%cd%\Releases\ButtonLatencyTester2-%ReleaseTag%.zip"
 if exist %BLT2ReleaseZip% del %BLT2ReleaseZip%
-zip -j %BLT2ReleaseZip% ButtonLatencyTester2\Firmware\ButtonLatencyTester2.uf2
+zip -j %BLT2ReleaseZip% ButtonLatencyTester2\Firmware\ButtonLatencyTester2-pico.uf2
+zip -j %BLT2ReleaseZip% ButtonLatencyTester2\Firmware\ButtonLatencyTester2-pico2.uf2
 zip -j %BLT2ReleaseZip% x64\release\ButtonLatencyTester2.exe
 
 :EOF

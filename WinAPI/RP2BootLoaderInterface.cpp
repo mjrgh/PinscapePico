@@ -440,18 +440,21 @@ RP2BootDevice::RP2BootDeviceList RP2BootDevice::EnumerateRP2BootDrives()
 						fclose(fp);
 
 						// Check to see if this is actually a Pico.  If it is, it will
-						// have a Board-ID tag with a value of "RPI-RP2".  It's possible
-						// that future Pico revisions will add the version suffix that
-						// the Microsoft spec calls for, so also accept values of the
-						// form "RPI-RP2-xxx".
+						// have a Board-ID tag with a value of "RPI-RP2" or "RP2350"
+						// (for Pico2).  The Microsoft spec calls for a version suffix,
+						// delimited by a '-', but none of the current Pico or Pico 2
+						// boards use this.  Check for it anyway in case a future Pico
+						// adds it.
 						bool isPico = false;
 						if (auto it = drive.tags.find("board-id") ; it != drive.tags.end())
 						{
-							// check for "RPI-RP2" or "RPI-RP2-*"
+							// check for "RPI-RP2" or "RP2350", with an optional version
+							// suffix with '-'
 							const char *id = it->second.c_str();
-							if (_strnicmp(id, "RPI-RP2", 7) == 0 && (id[7] == 0 || id[7] == '-'))
+							if ((_strnicmp(id, "RPI-RP2", 7) == 0 && (id[7] == 0 || id[7] == '-'))
+								|| (_strnicmp(id, "RP2350", 6) == 0 && (id[6] == 0 || id[6] == '-')))
 							{
-								// Yes, it's a Pico in boot loader mode
+								// Yes, it's a Pico or Pico2 in boot loader mode
 								isPico = true;
 
 								// pull out the version suffix from the string, if any

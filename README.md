@@ -111,6 +111,25 @@ instructions for setting up a new Pico with the Pinscape software.
 More setup details can be found [below](#SetupDetails).
 
 
+## Supported boards
+
+All of my development testing was done with a Raspberry Pi Pico RP2040
+board.  There are numerous clones of the Pico available from different
+vendors, but I haven't tested on any of those, so use those at your
+own risk.  I don't mean to imply that other boards *won't* work, only
+that I don't know one way or the other, since the only thing I've
+actually tested against is the original Pico.
+
+As of 0.1.13, the release package also includes a build for the
+Raspberry Pi Pico2 RP2350.  I haven't tested the Pico2 build beyond
+the most basic checks that it loads correctly with the basic factory
+configuration, so I'd only recommend the Pico2 at this point if you're
+willing to play the part of an early beat tester.  If you want
+something that's known to work, stick with the original Pico.  But if
+you do want to test against the new model, I'm interested in hearing
+how well it works.
+
+
 ## Features
 
 * USB keyboard emulation, for button input mapping
@@ -306,7 +325,7 @@ software:
 
 * You should see the Pico appear on your Windows desktop as a virtual thumb drive
 
-* Drag and drop **PinscapePico.uf2** from the Pinscape folder onto the Pico virtual disk
+* Drag and drop **PinscapePico-pico.uf2** from the Pinscape folder onto the Pico virtual disk
 (or use a COPY command in a DOS box)
 
 The Pico should now automatically reboot into the Pinscape software.  If the
@@ -364,7 +383,7 @@ updating the firmware.
 
 To update the firmware from a DOS box, use the command-line config tool:
 
-`ConfigTool --update PinscapePico.uf2`
+`ConfigTool --update PinscapePico-pico.uf2`
 
 That automatically places the Pico into Boot Loader mode, copies
 the specified UF2 file into its flash, and reboots the Pico to

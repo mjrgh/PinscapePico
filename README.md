@@ -111,7 +111,7 @@ instructions for setting up a new Pico with the Pinscape software.
 More setup details can be found [below](#SetupDetails).
 
 
-## Supported boards
+## Supported Pico versions
 
 All of my development testing was done with a Raspberry Pi Pico RP2040
 board.  There are numerous clones of the Pico available from different

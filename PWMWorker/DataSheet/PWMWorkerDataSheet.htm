@@ -176,18 +176,19 @@ tt {
    Features, benefits, and tradeoffs:
 </p>
 <ul>
-   <li>DIY-friendly form factor.  The Pico comes in a large form factor
-   that's easy to work with.  It's easy to hand-solder to a circuit board,
-   and it can even be used as a standalone part (with no carrier board),
-   connected purely through standard 0.1" pin header connectors.  The DIY-friendly
-   form factor was the whole motivation for the project, because all of the
-   commercial PWM controller chips currently in production are available
-   only in fine-pitch SMD packages that are rather difficult to hand-solder.
-   The form factor comes at a cost, though, which is that the Pico has a
-   much larger footprint than any of the mainstream chips, so this advantage
-   for DIYers will be a negative point for board designers planning on robotic
-   manufacturing, where small SMD parts aren't just acceptable, but are
-   actually quite preferable, for the much higher board density they allow.
+   <li>DIY-friendly form factor.  The Pico comes in a size that's easy to
+   work with for hand-soldering, with standard 0.1" pin headers for all
+   connections.  This was the primary motivation for the whole project,
+   in that I couldn't find any commercial PWM controller chips that are
+   easy to solder by hand.  All of the chips currently in production come
+   in fine-pitch SMD packages that are challenging to work with if you're
+   not a robot.   This easy handling comes at a cost, though, which is that
+   the Pico has a much larger footprint than any of the mainstream chips.
+   That's great for DIYers, but it's a a significant negative point for
+   board designers planning on factory assembly.  If you're going to have
+   a robot do the assembly work, then you'll probably prefer using SMD
+   parts, the smaller the better, since that reduces cost by increasing
+   circuit board density.
 
    <li>Competitive pricing.  A Pico retails in single units for about $4,
    and provides 24 PWM output channels.  TLC59116 and PCA9685
@@ -206,20 +207,21 @@ tt {
    GPIO ports in OUTPUT mode, which function as 3.3V push-pull drivers.
    This configuration is convenient for some applications and less
    convenient for others, so this could be a plus or a minus, depending
-   on your use case.  Many of the TI PWM chips are available
-   in a <i>constant current sink</i> configuration, which is extremely
-   convenient for driving arrays of like LEDs.  The push-pull configuration
-   is usable for driving small LEDs, but it's ideally suited for
-   controlling amplifier circuits with high-impedance logic-level inputs,
-   such as common MOSFET gate driver chips or optocoupler-triggered
-   amplifiers.
+   on your use case.  Many of the TI PWM chips are available in a
+   <i>constant current sink</i> configuration, which is extremely
+   convenient for driving arrays of identical LEDs, or for driving
+   optocouplers.  The push-pull configuration is usable for driving small
+   LEDs, but it's ideally suited for controlling amplifier circuits with
+   high-impedance logic-level inputs, such as MOSFET gate driver chips,
+   and is also good for driving optocouplers and Darlington transistors.
 
    <li>Digital switching capability.  When set to 0% or 100% duty cycle,
    a port is held continuously at LOW or HIGH level (respectively), with
-   no transient edges at PWM cycle boundaries.  (In contrast, many of the
-   dedicated PWM chips have fixed "blanking" periods between cycles, which
-   prevents them from achieving a true 100% duty cycle.)  This allows ports to
-   be used to control devices that require digital (on/off) switching signals,
+   no transient edges at PWM cycle boundaries.  In contrast, many of the
+   dedicated PWM chips have unavoidable "blanking" periods between cycles,
+   which prevents them from achieving a true 100% duty cycle.  True 0% and
+   100% duty cycle operation allows ports to be used to control devices that
+   require digital (on/off) switching signals,
    such as devices with edge-sensitive inputs.  Virtual pinball cabinets often
    have a mix of devices, some needing PWM control and some being simple
    on/off devices, so the ability to use PWMWorker ports for either type of
@@ -229,13 +231,14 @@ tt {
    the output pin.  A port effectively operates in digital mode whenever the
    host only assigns it level settings of 0% or 100%.
 
-   <li>Configurable PWM frequency across a wide range.  The host can set the
+   <li>Configurable PWM frequency, with a wide range.  The host can set the
    PWM refresh frequency from 8 Hz to 65536 Hz, to optimize for different
    attached device types.  Most of the dedicated chips either have fixed
    frequencies or have a much more limited range.  Adjustability is
    sometimes useful to mitigate negative interactions between the switching
    frequency and the physical device, such as mechanical vibration coupling
-   (causing acoustic noise) in motors and solenoids.
+   in motors and solenoids, which can cause bothersome audible noise when
+   the PWM frequency is in the range or human hearing.
 
    <li>High duty-cycle step resolution.  PWMWorker automatically chooses
    the highest available step count based on the frequency setting.  The
@@ -967,16 +970,16 @@ tt {
    the host never commands the coil to de-energize.  A
    fail-safe like this is useful in practice because the
    host software on the PC that ultimately sends us commands
-   is often very complex, and complex software sometimes
-   encounters unexpected conditions that makes it abruptly
-   terminate, freeze, or otherwise stop working correctly.
-   PWMWorker is much simpler than the typical software on
-   the host PC, and also much simpler than Pinscape Pico
-   and other I/O controller programs.  This makes it an
-   excellent place to implement a last line of defense,
-   since a less complex piece of software has less to go
-   wrong, and can therefore be made correspondingly more
-   robust.
+   is often very complex, and as a general rule, the more
+   complex a piece of software is, the less predictable and
+   reliable it tends to be.  The PWM Worker firmware is much
+   simpler than typical PC game software, and simpler even
+   than than the Pinscape Pico I/O controller firmware and
+   the firmware on similar devices.  This makes the PWM Worker
+   software an excellent place to implement a last line of defense,
+   since the PWM Worker firmware is likely to be the simplest
+   software element in the overall system, and thus
+   the most predictable.
 </p>
 <p>
    The name Flipper Logic is a reference to the way that

@@ -71,7 +71,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       </div>
     </div>
     <div class="jsonTOCSect tocLevel2">
-      <div class="jsonTOCSectTitle">Acclerometers</div>
+      <div class="jsonTOCSectTitle">Accelerometers</div>
       <div class="jsonTOCEntry">
         <a href="#lis3dh">LIS3DH</a>
       </div>
@@ -80,6 +80,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       </div>
       <div class="jsonTOCEntry">
         <a href="#mc3416">MC3416</a>
+      </div>
+      <div class="jsonTOCEntry">
+        <a href="#mma8451q">MMA8451Q</a>
       </div>
       <div class="jsonTOCEntry">
         <a href="#mxc6655xa">MXC6655XA</a>
@@ -462,6 +465,12 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         <span class="propName"><a href="#mc3416.gRange">gRange</a></span>: <span class="typeNames">number</span>,
         <span class="propName"><a href="#mc3416.i2c">i2c</a></span>: <span class="typeNames">number</span>,
         <span class="propName"><a href="#mc3416.interrupt">interrupt</a></span>: <span class="typeNames">number</span>,
+     },
+     <span class="propName"><a href="#mma8451q">mma8451q</a></span>: {
+        <span class="propName"><a href="#mma8451q.addr">addr</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#mma8451q.gRange">gRange</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#mma8451q.i2c">i2c</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#mma8451q.interrupt">interrupt</a></span>: <span class="typeNames">number</span>,
      },
      <span class="propName"><a href="#mxc6655xa">mxc6655xa</a></span>: {
         <span class="propName"><a href="#mxc6655xa.gRange">gRange</a></span>: <span class="typeNames">number</span>,
@@ -5212,11 +5221,13 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   <p>
     Sets the dynamic range for the accelerometer readings, in units of
     standard Earth gravity.  This device allows settings of 2, 4, 8,
-    or 16; the default is 2.  The right setting for virtual pin cabs is
-    generally 2g, since higher ranges sacrifice precision for the increased
-    range (they can't distinguish small nudges as well), and you can't
-    realistically jolt the machine much harder than 2g anyway without
-    tilting it.
+    or 16.  The default is 2, which is usually the best setting for a virtual
+    pin cab, since this provides the best sensitivity for mild nudges.
+    Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+    we don't really need wide dynamic range, since nudges past a certain
+    point simply result in a TILT condition, so it's more useful to take
+    advantage of the highest available precision to allow finer gradations
+    of effects for milder nudges.
   </p>
     </div>
   </div>
@@ -5335,11 +5346,13 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   <p>
     Sets the dynamic range for the accelerometer readings, in units of
     standard Earth gravity.  This device allows settings of 2, 4, 6, 8,
-    or 16; the default is 2.  The right setting for virtual pin cabs is
-    generally 2g, since higher ranges sacrifice precision for the increased
-    range (they can't distinguish small nudges as well), and you can't
-    realistically jolt the machine much harder than 2g anyway without
-    tilting it.
+    or 16.  The default is 2, which is usually the best setting for a virtual
+    pin cab, since this provides the best sensitivity for mild nudges.
+    Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+    we don't really need wide dynamic range, since nudges past a certain
+    point simply result in a TILT condition, so it's more useful to take
+    advantage of the highest available precision to allow finer gradations
+    of effects for milder nudges.
   </p>
     </div>
   </div>
@@ -5605,11 +5618,13 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   <p>
     Sets the dynamic range for the accelerometer readings, in units of
     standard Earth gravity.  This device allows settings of 2, 4, 8, 12,
-    or 16; the default is 2.  2 seems to be a good setting for virtual
-    pin cabs, since higher ranges sacrifice precision for the increased
-    range (they can't distinguish small nudges as well), and you can't
-    realistically jolt the machine much harder than 2G anyway without
-    tilting it.
+    or 16.  The default is 2, which is usually the best setting for a virtual
+    pin cab, since this provides the best sensitivity for mild nudges.
+    Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+    we don't really need wide dynamic range, since nudges past a certain
+    point simply result in a TILT condition, so it's more useful to take
+    advantage of the highest available precision to allow finer gradations
+    of effects for milder nudges.
   </p>
     </div>
   </div>
@@ -5637,6 +5652,131 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     if any.  This can be omitted if the interrupt line isn't connected to the
     Pico.  Wiring the interrupt connection is preferred, because it lets the
     chip notify the Pico immediately when a new sample is available.  Without
+    this connection, the Pico has to poll the chip periodically, which can
+    slightly increase the latency between a new sample becoming ready on the
+    chip and the Pico reading it across the I2C bus.
+  </p>
+    </div>
+  </div>
+</div>
+<a name="mma8451q"></a>
+<div class="jsonSectTitle">MMA8451Q Accelerometer</div>
+<p>
+  Configures an MMA8451Q, a three-axis accelerometer chip with 14-bit native
+  resolution.  This was the built-in accelerometer in the venerable FRDM-KL25Z,
+  which is the platform that the original Pinscape Controller (the predecessor
+  to Pinscape Pico) ran on.  The MMA8415Q is no longer in production, but old
+  stock is still available as of this writing (2025) - which is fortunate for
+  pin cab builders, because this chip has better resolution and lower noise
+  than any of the devices currently being made.  Adafruit sells an MMA8451Q
+  breakout board that's a perfect fit for DIY projects, since the only soldering
+  it requires is a standard 0.1" pin header, easily done by hand.
+  </p><p>
+  <img src="MMA8451Q-wiring.png" class="circuit-diagram">
+  Wiring notes:
+  <ul>
+  <li>The specific GPIO pins on the Pico are assigned in the Pinscape
+  JSON configuration.
+  <li>Pin 7 (SA0) is shown connected to 3.3V, which selects I2C bus address 0x1D.
+  Connect to GND to select address 0x1C.
+  <li>Pin 11 (INT1) can be left unconnected if interrupt notification
+  isn't needed.  Interrupt mode is recommended because it improves latency
+  reading the accelerometer inputs, and reduces I2C bus traffic.
+  <li>Pin 2 (BYP) should be connected to ground through a 0.1uF ceramic capacitor.
+  <li>A 0.1uF ceramic capacitor between 3.3V and GND should be placed as close as
+  possible to pin 1 (VDDIO).
+  <li>A 4.7uF ceramic capacitor between 3.3V and GND should be placed as close as
+  possible to pin 14 (VDD).
+  <li>If you're using a breakout board, the capacitors should be built into
+  the board, so you shouldn't have to provide those yourself.  Just connect
+  the power, ground, I2C (SDA/SCL), and INT1 pins to the Pico.
+  </ul>
+</p>
+<div class="jsonSectIndexHdr">Summary</div>
+<div class="jsonSectIndex">{
+   <span class="propName"><a href="#mma8451q">mma8451q</a></span>: {
+      <span class="propName"><a href="#mma8451q.addr">addr</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#mma8451q.gRange">gRange</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#mma8451q.i2c">i2c</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#mma8451q.interrupt">interrupt</a></span>: <span class="typeNames">number</span>,
+   },
+}
+</div>
+<div class="jsonExampleHdr">Example</div>
+<div class="jsonExample">  {
+     mma8451q: {
+        i2c: 0,
+        addr: 0x1D,
+        interrupt: 7,
+        gRange, 2,
+     },
+  }
+</div>
+<div class="jsonProp">
+  <div class="jsonPropHdr">
+    <span class="jsonPropPath"></span><span class="jsonPropName">mma8451q</span>
+    <span class="jsonPropType">object</span><span class="jsonPropOptional">Optional</span>
+  </div>
+  <div class="jsonPropDesc">
+  </div>
+  <a name="mma8451q.addr"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">mma8451q.</span><span class="jsonPropName">addr</span>
+      <span class="jsonPropType">number</span><span class="jsonPropRequired">Required</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The 7-bit I2C address of the chip.  The address is determined by the wiring
+    on the chip's SA0 pin: if the pin is wired to GND, the address is 0x1C;
+    if the pin is wired to 3.3V, the address is 0x1D.
+  </p>
+    </div>
+  </div>
+  <a name="mma8451q.gRange"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">mma8451q.</span><span class="jsonPropName">gRange</span>
+      <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    Sets the dynamic range for the accelerometer readings, in units of
+    standard Earth gravity.  This device allows settings of 2, 4, or 8.
+    The default is 2, which is usually the best setting for a virtual
+    pin cab, since this provides the best sensitivity for mild nudges.
+    Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+    we don't really need wide dynamic range, since nudges past a certain
+    point simply result in a TILT condition, so it's more useful to take
+    advantage of the highest available precision to allow finer gradations
+    of effects for milder nudges.
+  </p>
+    </div>
+  </div>
+  <a name="mma8451q.i2c"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">mma8451q.</span><span class="jsonPropName">i2c</span>
+      <span class="jsonPropType">number</span><span class="jsonPropRequired">Required</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The I2C bus number, 0 for I2C0 or 1 for I2C1, where the chip is connected.
+  </p>
+    </div>
+  </div>
+  <a name="mma8451q.interrupt"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">mma8451q.</span><span class="jsonPropName">interrupt</span>
+      <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The GPIO port number where the chip's INT1 (Interrupt #1) pin is wired into
+    the Pico, if any.  This can be omitted if the interrupt line isn't connected
+    to the Pico.  Wiring the interrupt connection is preferred, because it lets
+    the chip notify the Pico immediately when a new sample is available.  Without
     this connection, the Pico has to poll the chip periodically, which can
     slightly increase the latency between a new sample becoming ready on the
     chip and the Pico reading it across the I2C bus.
@@ -5686,11 +5826,13 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   <p>
     Sets the dynamic range for the accelerometer readings, in units of
     standard Earth gravity.  This device allows settings of 2, 4, or 8.
-    The default is 2.  2 seems to be a good setting for virtual
-    pin cabs, since higher ranges sacrifice precision for the increased
-    range (they can't distinguish small nudges as well), and you can't
-    realistically jolt the machine much harder than 2G anyway without
-    tilting it.
+    The default is 2, which is usually the best setting for a virtual
+    pin cab, since this provides the best sensitivity for mild nudges.
+    Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+    we don't really need wide dynamic range, since nudges past a certain
+    point simply result in a TILT condition, so it's more useful to take
+    advantage of the highest available precision to allow finer gradations
+    of effects for milder nudges.
   </p>
     </div>
   </div>

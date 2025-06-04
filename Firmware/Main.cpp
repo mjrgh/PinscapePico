@@ -66,8 +66,9 @@
 #include "IRRemote/IRReceiver.h"
 #include "Devices/Accel/LIS3DH.h"
 #include "Devices/Accel/LIS3DSH.h"
-#include "Devices/Accel/MXC6655XA.h"
 #include "Devices/Accel/MC3416.h"
+#include "Devices/Accel/MMA8451Q.h"
+#include "Devices/Accel/MXC6655XA.h"
 #include "Devices/DistanceSensor/VL6180x.h"
 #include "Devices/GPIOExt/PCA9555.h"
 #include "Devices/LinearPhotoSensor/TCD1103.h"
@@ -509,10 +510,11 @@ static void Configure(PicoReset::BootMode bootMode)
     C74HC165::Configure(json);
 
     // Configure accelerometer devices
-    MXC6655XA::Configure(json);
-    MC3416::Configure(json);
     LIS3DH::Configure(json);
     LIS3DSH::Configure(json);
+    MC3416::Configure(json);
+    MMA8451Q::Configure(json);
+    MXC6655XA::Configure(json);
 
     // Configure the ADC manager and outboard ADC chips
     adcManager.Configure(json);

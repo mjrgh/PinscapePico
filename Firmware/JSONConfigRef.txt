@@ -3748,8 +3748,80 @@ outputs[].source string optional
   a smoother fade in/out effect instead of blinking, <b>button('start', sawtooth(500), 0)</b> or
   <b>button('start', sine(500), 0)</b> would do the trick.
 
+mma8451q object optional
+  TOC: Peripheral Devices > Accelerometers > MMA8451Q
+  TITLE: MMA8451Q Accelerometer
+  EXAMPLE:
+  {
+     mma8451q: {
+        i2c: 0,
+        addr: 0x1D,
+        interrupt: 7,
+        gRange, 2,
+     },
+  }
+
+  Configures an MMA8451Q, a three-axis accelerometer chip with 14-bit native
+  resolution.  This was the built-in accelerometer in the venerable FRDM-KL25Z,
+  which is the platform that the original Pinscape Controller (the predecessor
+  to Pinscape Pico) ran on.  The MMA8415Q is no longer in production, but old
+  stock is still available as of this writing (2025) - which is fortunate for
+  pin cab builders, because this chip has better resolution and lower noise
+  than any of the devices currently being made.  Adafruit sells an MMA8451Q
+  breakout board that's a perfect fit for DIY projects, since the only soldering
+  it requires is a standard 0.1" pin header, easily done by hand.
+
+  <img src="MMA8451Q-wiring.png" class="circuit-diagram">
+  Wiring notes:
+  <ul>
+    <li>The specific GPIO pins on the Pico are assigned in the Pinscape
+    JSON configuration.
+    <li>Pin 7 (SA0) is shown connected to 3.3V, which selects I2C bus address 0x1D.
+    Connect to GND to select address 0x1C.
+    <li>Pin 11 (INT1) can be left unconnected if interrupt notification
+    isn't needed.  Interrupt mode is recommended because it improves latency
+    reading the accelerometer inputs, and reduces I2C bus traffic.
+    <li>Pin 2 (BYP) should be connected to ground through a 0.1uF ceramic capacitor.
+    <li>A 0.1uF ceramic capacitor between 3.3V and GND should be placed as close as
+    possible to pin 1 (VDDIO).
+    <li>A 4.7uF ceramic capacitor between 3.3V and GND should be placed as close as
+    possible to pin 14 (VDD).
+    <li>If you're using a breakout board, the capacitors should be built into
+    the board, so you shouldn't have to provide those yourself.  Just connect
+    the power, ground, I2C (SDA/SCL), and INT1 pins to the Pico.
+  </ul>
+
+mma8451q.i2c number required
+  The I2C bus number, 0 for I2C0 or 1 for I2C1, where the chip is connected.
+
+mma8451q.addr number required
+  The 7-bit I2C address of the chip.  The address is determined by the wiring
+  on the chip's SA0 pin: if the pin is wired to GND, the address is 0x1C;
+  if the pin is wired to 3.3V, the address is 0x1D.
+
+mma8451q.interrupt number optional
+  The GPIO port number where the chip's INT1 (Interrupt #1) pin is wired into
+  the Pico, if any.  This can be omitted if the interrupt line isn't connected
+  to the Pico.  Wiring the interrupt connection is preferred, because it lets
+  the chip notify the Pico immediately when a new sample is available.  Without
+  this connection, the Pico has to poll the chip periodically, which can
+  slightly increase the latency between a new sample becoming ready on the
+  chip and the Pico reading it across the I2C bus.
+
+mma8451q.gRange number optional
+  Sets the dynamic range for the accelerometer readings, in units of
+  standard Earth gravity.  This device allows settings of 2, 4, or 8.
+  The default is 2, which is usually the best setting for a virtual
+  pin cab, since this provides the best sensitivity for mild nudges.
+  Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+  we don't really need wide dynamic range, since nudges past a certain
+  point simply result in a TILT condition, so it's more useful to take
+  advantage of the highest available precision to allow finer gradations
+  of effects for milder nudges.
+
+
 lis3dh object optional
-  TOC: Peripheral Devices > Acclerometers > LIS3DH
+  TOC: Peripheral Devices > Accelerometers > LIS3DH
   TITLE: LIS3DH Accelerometer
   EXAMPLE:
   {
@@ -3806,14 +3878,16 @@ lis3dh.interrupt number optional
 lis3dh.gRange number optional
   Sets the dynamic range for the accelerometer readings, in units of
   standard Earth gravity.  This device allows settings of 2, 4, 8,
-  or 16; the default is 2.  The right setting for virtual pin cabs is
-  generally 2g, since higher ranges sacrifice precision for the increased
-  range (they can't distinguish small nudges as well), and you can't
-  realistically jolt the machine much harder than 2g anyway without
-  tilting it.
+  or 16.  The default is 2, which is usually the best setting for a virtual
+  pin cab, since this provides the best sensitivity for mild nudges.
+  Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+  we don't really need wide dynamic range, since nudges past a certain
+  point simply result in a TILT condition, so it's more useful to take
+  advantage of the highest available precision to allow finer gradations
+  of effects for milder nudges.
 
 lis3dsh object optional
-  TOC: Peripheral Devices > Acclerometers > LIS3DSH
+  TOC: Peripheral Devices > Accelerometers > LIS3DSH
   TITLE: LIS3DSH Accelerometer
   EXAMPLE:
   {
@@ -3875,14 +3949,16 @@ lis3dsh.interrupt number optional
 lis3dsh.gRange number optional
   Sets the dynamic range for the accelerometer readings, in units of
   standard Earth gravity.  This device allows settings of 2, 4, 6, 8,
-  or 16; the default is 2.  The right setting for virtual pin cabs is
-  generally 2g, since higher ranges sacrifice precision for the increased
-  range (they can't distinguish small nudges as well), and you can't
-  realistically jolt the machine much harder than 2g anyway without
-  tilting it.
+  or 16.  The default is 2, which is usually the best setting for a virtual
+  pin cab, since this provides the best sensitivity for mild nudges.
+  Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+  we don't really need wide dynamic range, since nudges past a certain
+  point simply result in a TILT condition, so it's more useful to take
+  advantage of the highest available precision to allow finer gradations
+  of effects for milder nudges.
 
 mc3416 object optional
-  TOC: Peripheral Devices > Acclerometers > MC3416
+  TOC: Peripheral Devices > Accelerometers > MC3416
   TITLE: MC3416 Accelerometer
   EXAMPLE:
   {
@@ -3919,15 +3995,17 @@ mc3416.interrupt number optional
 mc3416.gRange number optional
   Sets the dynamic range for the accelerometer readings, in units of
   standard Earth gravity.  This device allows settings of 2, 4, 8, 12,
-  or 16; the default is 2.  2 seems to be a good setting for virtual
-  pin cabs, since higher ranges sacrifice precision for the increased
-  range (they can't distinguish small nudges as well), and you can't
-  realistically jolt the machine much harder than 2G anyway without
-  tilting it.
+  or 16.  The default is 2, which is usually the best setting for a virtual
+  pin cab, since this provides the best sensitivity for mild nudges.
+  Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+  we don't really need wide dynamic range, since nudges past a certain
+  point simply result in a TILT condition, so it's more useful to take
+  advantage of the highest available precision to allow finer gradations
+  of effects for milder nudges.
   
 
 mxc6655xa object optional
-  TOC: Peripheral Devices > Acclerometers > MXC6655XA
+  TOC: Peripheral Devices > Accelerometers > MXC6655XA
   TITLE: MXC6655XA Accelerometer
   EXAMPLE:
   {
@@ -3959,11 +4037,13 @@ mxc6655xa.interrupt number optional
 mxc6655xa.gRange number optional
   Sets the dynamic range for the accelerometer readings, in units of
   standard Earth gravity.  This device allows settings of 2, 4, or 8.
-  The default is 2.  2 seems to be a good setting for virtual
-  pin cabs, since higher ranges sacrifice precision for the increased
-  range (they can't distinguish small nudges as well), and you can't
-  realistically jolt the machine much harder than 2G anyway without
-  tilting it.
+  The default is 2, which is usually the best setting for a virtual
+  pin cab, since this provides the best sensitivity for mild nudges.
+  Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+  we don't really need wide dynamic range, since nudges past a certain
+  point simply result in a TILT condition, so it's more useful to take
+  advantage of the highest available precision to allow finer gradations
+  of effects for milder nudges.
   
 ds1307 object optional
   TOC: Peripheral Devices > RTC (Real-time clock/calendar chips) > DS1307

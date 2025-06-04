@@ -430,7 +430,7 @@ bool LIS3DSH::OnI2CReceive(const uint8_t *data, size_t len, I2CX *i2c)
             z = GetINT16(&data[4]);
             
             // save the X/Y/Z output registers, for diagnostics
-            memcpy(outReg, &data[1], sizeof(outReg));
+            memcpy(outReg, &data[0], sizeof(outReg));
             
             // use the timestamp from the last interrupt (if available)
             uint64_t now = time_us_64();

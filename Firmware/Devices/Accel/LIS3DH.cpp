@@ -169,7 +169,7 @@ void LIS3DH::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
 
         if (ok)
         {
-            Log(whoAmI == 0x33 ? LOG_INFO : LOG_ERROR, "LIS3DH: WHO_AM_I (reg 0x0F)=0x%02x (%s)\n", whoAmI,
+            Log(whoAmI == 0x33 ? LOG_INFO : LOG_ERROR, "LIS3DH: WHO_AM_I (reg 0x0F)=0x%02X (%s)\n", whoAmI,
                 whoAmI == 0x33 ? "OK" : whoAmI == 0x3F ? "LIS3DSH - wrong driver selected" : "invalid; expected 0x33");
         }
         else
@@ -512,7 +512,7 @@ bool LIS3DH::OnI2CReceive(const uint8_t *data, size_t len, I2CX *i2c)
             zRaw = GetINT12(&data[4]);
             
             // save the X/Y/Z output registers, for diagnostics
-            memcpy(outReg, &data[1], sizeof(outReg));
+            memcpy(outReg, &data[0], sizeof(outReg));
             
             // Normalize to the full 16-bit signed range, using the
             // "shift-and-fill" algorithm, which is basically: shift left,

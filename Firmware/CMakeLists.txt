@@ -154,6 +154,7 @@ add_executable(
     Devices/Accel/LIS3DH.cpp
     Devices/Accel/LIS3DSH.cpp
     Devices/Accel/MC3416.cpp
+    Devices/Accel/MMA8451Q.cpp
     Devices/Accel/MXC6655XA.cpp
     Devices/ADC/ADS1115.cpp
     Devices/ADC/PicoADC.cpp

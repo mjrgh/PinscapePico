@@ -365,6 +365,12 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 
            // type="hold"
            <span class="propName"><a href="#buttons.type=hold.holdTime">holdTime</a></span>: <span class="typeNames">number</span>,
+           <span class="propName"><a href="#buttons.type=hold.shortPress">shortPress</a></span>: {
+              <span class="propName"><a href="#buttons.type=hold.shortPress.action">action</a></span>: {
+                 // same as <a href="#buttons.action">buttons.action</a>
+              },
+              <span class="propName"><a href="#buttons.type=hold.shortPress.actionTime">actionTime</a></span>: <span class="typeNames">number</span>,
+           },
 
            // type="pulse"
            <span class="propName"><a href="#buttons.type=pulse.tOff">tOff</a></span>: <span class="typeNames">number</span>,
@@ -1713,6 +1719,12 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 
          // type="hold"
          <span class="propName"><a href="#buttons.type=hold.holdTime">holdTime</a></span>: <span class="typeNames">number</span>,
+         <span class="propName"><a href="#buttons.type=hold.shortPress">shortPress</a></span>: {
+            <span class="propName"><a href="#buttons.type=hold.shortPress.action">action</a></span>: {
+               // same as <a href="#buttons.action">buttons.action</a>
+            },
+            <span class="propName"><a href="#buttons.type=hold.shortPress.actionTime">actionTime</a></span>: <span class="typeNames">number</span>,
+         },
 
          // type="pulse"
          <span class="propName"><a href="#buttons.type=pulse.tOff">tOff</a></span>: <span class="typeNames">number</span>,
@@ -3638,6 +3650,15 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         helps ensure that the user really meant to push the button by forcing them to hold it
         down for a few moments before anything happens.  It's the physical control panel
         analog of a Windows "Are You Sure...?" dialog box.
+        </p><p>
+        A hold button can optionally also define an action to carry out after a "short press",
+        when the button is pressed and then released before the hold period ends.  Normally,
+        a short press on a hold button has no effect at all, since the main action isn't
+        triggered until the button has been held down for the full hold period.  If the button
+        has a short-press action defined, however, the button can now serve dual purposes:
+        it carries out one action on a short press, and carries out a different action on
+        a long press.  This is an alternative to "Shift" buttons, in that it provides another
+        way to make a single physical button serve two roles.
       </p>
       </div>
     <a name="buttons.type=hold.holdTime"></a>
@@ -3651,6 +3672,71 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       The hold time before the button's action takes effect, in milliseconds (1000 milliseconds
       equals one second).  If you omit the hold time, the default is 2000 (which amounts to 2 seconds).
     </p>
+      </div>
+    </div>
+    <a name="buttons.type=hold.shortPress"></a>
+    <div class="jsonProp">
+      <div class="jsonPropHdr">
+        <span class="jsonPropPath">buttons[].</span><span class="jsonPropName">shortPress</span>
+        <span class="jsonPropType">object</span><span class="jsonPropOptional">Optional</span>
+      </div>
+      <div class="jsonPropDesc">
+    <p>
+      This defines an action to carry out after a "short press", where the user presses
+      the button and then releases it before the holding period is reached.  By default,
+      a hold button doesn't do anything at all on a short press, since the whole point of
+      the holding period is to require the user to hold the button long enough to ensure
+      that the press was intentional.  The <tt>shortPress</tt> option lets you define an
+      alternative action that fires <i>only</i> when the button <i>isn't</i> held down
+      for the defined holding period.
+      </p><p>
+      The short press action isn't fired until the button is <i>released</i>, because
+      there's no way to know until then that this will in fact be a short press.
+      Only one action will fire on a given press - either the short press action or the
+      main action, never both.  When the button is held down past the holding time,
+      the normal action will fire as soon as the holding time passes, and the short-press
+      action will <i>not</i> fire when the button is released.
+    </p>
+      </div>
+      <a name="buttons.type=hold.shortPress.action"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">buttons[].shortPress.</span><span class="jsonPropName">action</span>
+          <span class="jsonPropType">object</span><span class="jsonPropOptional">Optional</span>
+        </div>
+        <div class="jsonPropDesc">
+      <div class="jsonSee">
+         See <a href="#buttons.action">buttons.action</a>
+      </div>
+      <p>
+        Sets the action to carry out after a short press (that is, when the user presses
+        and then releases the button before the hold time is reached).  This action is
+        carried out <i>when the button is released</i>, and only when it's released
+        before the hold time is reached.  Once the hold time is reached, the main action
+        fires, and the short-press action is ignored for that button press event.
+      </p>
+        </div>
+      </div>
+      <a name="buttons.type=hold.shortPress.actionTime"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">buttons[].shortPress.</span><span class="jsonPropName">actionTime</span>
+          <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
+        </div>
+        <div class="jsonPropDesc">
+      <p>
+        Sets the duration in milliseconds of the short-press action, once fired.  With
+        normal button actions, the duration of the action is controlled by how long you
+        keep pressing the button.  But that's not applicable to a short-press action,
+        because a short-press action isn't fired until the user <i>releases</i> the
+        button, meaning that there's no "natural" end time for the action.  Instead,
+        the action fires for the fixed duration specified here.  The default setting
+        if you omit this property is 20 milliseconds, which was chosen because it
+        should be long enough for the PC to reliably detect and process the action,
+        but not so long that the PC will think it needs to auto-repeat the action
+        (which it might do with actions like keyboard key-presses, for example).
+      </p>
+        </div>
       </div>
     </div>
     </div>

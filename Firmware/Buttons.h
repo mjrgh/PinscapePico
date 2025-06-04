@@ -1157,6 +1157,15 @@ public:
     // hold time, microseconds
     uint32_t holdTime_us;
 
+    // Short-press action.  If this is defined, this action will be
+    // fired whenever the button is pressed and then released before
+    // the hold time is reached.
+    Action *shortPressAction = nullptr;
+
+    // Short-press action duration.  This is the amount of time that
+    // the short-press action is held ON after a short press.
+    uint32_t shortPressActionDuration = 20000;
+
     // last source state
     bool lastSourceState = false;
 
@@ -1166,6 +1175,10 @@ public:
 
     // start time (time_us_64() timestamp) of last off->on transition
     uint64_t tOn = 0;
+
+    // Short-press action end time.  0 means that the short press action
+    // isn't currently firing.
+    uint64_t tShortPressEnd = 0;
 };
 // Toggle Button.  This maps a physical momentary switch into a toggle
 // toggle control, where you tap the physical button to flip the state

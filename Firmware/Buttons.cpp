@@ -695,7 +695,22 @@ void Button::Configure(JSONParser &json)
                 Log(LOG_ERROR, "Button %d: Hold Button has zero hold time (tHold), so it's just a regular pushbutton\n", index);
 
             // create the button
-            Button::Add(button = new HoldButton(source.release(), shiftMask, shiftBits, action.release(), holdTime));
+            HoldButton *holdButton = new HoldButton(source.release(), shiftMask, shiftBits, action.release(), holdTime);
+            Button::Add(button = holdButton);
+
+            // check for a shortPress section
+            if (const auto *shortPress = val->Get("shortPress") ; !shortPress->IsUndefined())
+            {
+                // parse the action
+                char subLocus[32];
+                snprintf(subLocus, sizeof(subLocus), "Button[%d].shortPress");
+                holdButton->shortPressAction = ParseAction(subLocus, shortPress->Get("action"));
+
+                // Set the pulse time, converting from JSON milliseconds to stored microseconds
+                holdButton->shortPressActionDuration = val->Get("actionTime")->UInt32(20) * 1000UL;
+            }
+
+            // log status
             Log(LOG_CONFIG, "Button %d: HoldButton(%d ms hold time), action %s, source %s, shift(mask %02x, bits %02x) created\n",
                 index, holdTime, buttons.back()->action->Name(),
                 buttons.back()->source->FullName(srcNameBuf, sizeof(srcNameBuf)),
@@ -1719,8 +1734,26 @@ void HoldButton::Poll()
         }
         else if (rawLogicalState && !sourceState)
         {
-            // source changing ON -> OFF: switch off
+            // Source changing ON -> OFF, so follow that in the internal
+            // raw logical state.
             rawLogicalState = false;
+
+            // If logicalState is OFF, we're still in the hold period
+            // before the main action is triggered, so this is a short
+            // press that never activated the main action.  This is the
+            // condition where the short press action fires, if defined.
+            if (!logicalState && shortPressAction != nullptr)
+            {
+                // fire the action (if it's not already firing)
+                if (tShortPressEnd == 0)
+                    shortPressAction->OnStateChange(true);
+
+                // Set the end time.  Note that if the short-press
+                // action was already firing, this has the effect of
+                // extending the firing time rather than starting a
+                // new action pulse.
+                tShortPressEnd = now + shortPressActionDuration;
+            }
         }
     }
 
@@ -1740,6 +1773,17 @@ void HoldButton::Poll()
         // trigger remote wake if applicable
         if (remoteWake)
             usbIfc.SetWakePending();
+    }
+
+    // If the short-press action is firing, and we've reached the
+    // end of the pulse time, stop firing.
+    if (shortPressAction != nullptr && tShortPressEnd != 0 && now > tShortPressEnd)
+    {
+        // cancel the action
+        shortPressAction->OnStateChange(false);
+
+        // set the end time to zero, which signifies that the action is inactive
+        tShortPressEnd = 0;
     }
 }
 

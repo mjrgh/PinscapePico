@@ -37,10 +37,12 @@ rem Build firmware for a single target board
   popd
   goto EOF
 
-rem Build firmware for all target boards
+rem Build firmware for all target boards.  Build for the base Pico
+rem last, so that we leave the working development environment set
+rem for Pico.
 :BuildFirmware
-  call :BuildFirmwareForTarget "%~1" %2 pico
   call :BuildFirmwareForTarget "%~1" %2 pico2
+  call :BuildFirmwareForTarget "%~1" %2 pico
   goto EOF  
 
 :main

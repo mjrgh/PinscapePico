@@ -45,7 +45,7 @@ Qty,Value,Parts,Description,PARTNO,Comments,ExtDescription
 1,MTA100-2PIN,J11,"MTA100 friction lock header, 2.54mm pitch, 2 position",640454-2,,"MTA100 friction lock header, 2.54mm pitch, 2 position (J11)"
 1,MTA100-2PIN-24AWG,PLUG_J11,"MTA100 housing, 2 pin, 24 AWG",3-643814-2,,"MTA100 housing, 2 pin, 24 AWG (PLUG_J11)"
 1,BC337-25,Q13,"NPN transistor, BC337-25, TO-92, 45V, 800mA",637-BC337-25,,"NPN transistor, BC337-25, TO-92, 45V, 800mA (Q13)"
-12,STP19NF20,"Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11, Q12","Power MOSFET, TO-220-3 (G-D-S pin ordering)",STP19NF20,"N-channel, TO-220-3, G-D-S pin ordering, min +/-20V V[gs][max]; example substitutes: IPP180N10N3, FDPF08N10A, IRF540N","Power MOSFET, TO-220-3 (G-D-S pin ordering) (Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11, Q12)"
+12,IPP180N10N3GXKSA1,"Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11, Q12","Power MOSFET, TO-220-3 (G-D-S pin ordering)",IPP180N10N3GXKSA1,"N-channel, TO-220-3, G-D-S pin ordering, min +/-20V V[gs][max]; example substitutes: FDPF08N10A, IRF540N","Power MOSFET, TO-220-3 (G-D-S pin ordering) (Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11, Q12)"
 1,PC827,IC13,Sharp 2-channel optocoupler LTV-827,LTV-827,,Sharp 2-channel optocoupler LTV-827 (IC13)
 1,JST-SR/SZ-4PIN,QWIIC1,"JST SR/SZ 4-position side entry header, SMD",SM04B-SRSS-TB(LF)(SN),Old part number: SM04B-SRSS-TB(LF)(SN)(P),"JST SR/SZ 4-position side entry header, SMD (QWIIC1)"
 1,S-80834CLY-B2-U,IC12,"Voltage detector, TO-92-3, active low CMOS out, 3.4V",S-80834CLY-B2-U,Substitute any S-808xxCLY-x2-U with 3.0 to 4.0 threshold voltage ('xx' in product code),"Voltage detector, TO-92-3, active low CMOS out, 3.4V (IC12)"

@@ -1226,7 +1226,7 @@ buttons[].type="push"
   pressed, and the action deactivates as soon as the button is released.
 
 buttons[].type="hold"
-  A "hold" button is like an ordinary pushbutton, except that the action isn't activated
+  A "hold" button is like an ordinary pushbutton, except that its action isn't activated
   until the button has been held down for a set amount of time.  This can be used for
   buttons that have some kind of significant effect that you wouldn't want to be triggered
   accidentally, such as shutting down the computer or rebooting the Pico.  The hold time
@@ -1234,14 +1234,16 @@ buttons[].type="hold"
   down for a few moments before anything happens.  It's the physical control panel
   analog of a Windows "Are You Sure...?" dialog box.
 
-  A hold button can optionally also define an action to carry out after a "short press",
-  when the button is pressed and then released before the hold period ends.  Normally,
+  Optionally, a hold button can also define an action to carry out after a "short press",
+  when the button is pressed and then released before the hold period ends.  By default,
   a short press on a hold button has no effect at all, since the main action isn't
   triggered until the button has been held down for the full hold period.  If the button
-  has a short-press action defined, however, the button can now serve dual purposes:
-  it carries out one action on a short press, and carries out a different action on
-  a long press.  This is an alternative to "Shift" buttons, in that it provides another
-  way to make a single physical button serve two roles.
+  has a short-press action defined, though, the button triggers an action on every press:
+  the short-press action when the button is released before the hold period ends, and
+  the normal action otherwise.  This can be used an alternative to the "Shift" button
+  scheme when you want to make one physical button serve dual purposes.  In this case,
+  the user selects which of the two functions should be performed via the duration
+  of the button press.
 
 buttons[].type="hold".holdTime number optional
   The hold time before the button's action takes effect, in milliseconds (1000 milliseconds

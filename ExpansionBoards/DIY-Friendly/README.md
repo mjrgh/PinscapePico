@@ -273,10 +273,16 @@ Workaround: If you don't mind doing some surgery on the board, you can
 correct this by cutting the trace on the board between pin DS1307 pin 8
 (VCC) and the secondary supply 5V line, and then soldering a jumper
 wire from DS1307 pin 8 to any convenient point on the VBUS network,
-such as the anode ("+" side) of D1.  Make absolutely sure that there's
-no continuity between DS1307 pin 8 and the secondary supply 5V after
-you cut the trace, since cross-wiring the secondary 5V to VBUS would
-be bad.
+such as the anode ("+" side) of D1.  You can cut the trace with a
+sharp knife, such as an X-Acto knife; the copper trace layer is quite
+thin, so you just have to score the board deep enough to break the
+copper.  Check your work by testing continuity with a multimeter -
+make absolutely sure that there's no continuity (infinite resistance)
+between DS1307 pin 8 and the secondary supply 5V.  If the trace
+is still connected, it will short-circuit the two 5V power supplies
+together, which could do damage.
+
+<a href="DS1307-5V-patch-wire.jpg"><img src="DS1307-5V-patch-wire-thumb.jpg"></a>
 
 Fix: In newer versions of the board, the power supply wiring to
 the chip is corrected to connect to the main Pico USB power.
@@ -298,6 +304,8 @@ Alternatively, you can use a plain header (without the shroud), which
 lets you plug in the cable in either rotational orientation.
 When plugging in the cable, orient the plug with the "pin 1" side
 (which you might have marked with a red stripe on the cable) facing J2.
+
+<a href="flasher-port-markings.jpg"><img src="flasher-port-markings-thumb.jpg"></a>
 
 Fix: In newer versions of the board, the silkscreen markings are
 rotated to match the KL25Z board markings.

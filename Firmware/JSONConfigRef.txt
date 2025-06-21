@@ -3160,9 +3160,19 @@ irTx object optional
     Controls among the suggested applications, it's probably a good option.
     <li>The 15 Ohm resistor is the current-limiting resistor for the IR LED,
     chosen based on TSAL6400 at 250mA.  If using a different IR LED, adjust
-    the resistor to match (using any online LED resistor calculator to figure
-    the value based on 5V supply voltage and the forward voltage (V<sub>F</sub>)
-    shown in your chosen IR LED's data sheet).
+    the resistor to match.  You can use any online LED resistor calculator to figure
+    the resistor value, by entering the forward voltage (V<sub>F</sub>)shown in your
+    chosen IR LED's data sheet, the maximum forward current (I<sub>F</sub>) from
+    the data sheet, and 5V for the power supply voltage.
+    <li>Note that we used 250mA as the forward current for TSAL6400 based on the
+    maximum <b>pulsed</b> current specified in the data sheet.  IR remote control
+    protocols activate the LED only in short pulses, so it's usually safe to drive
+    an IR LED close to the maximum pulsed current shown in the data sheet, which
+    is typically much higher than the nominal I<sub>F</sub> for continuous
+    (steady-state) use.  Using a higher current results in higher IR luminosity,
+    which increases the distance range of the transmitter; this is usually
+    necessary to achieve enough range for the signal to reach across a room.
+    Leave a margin of safety of at least 20% below the stated maximum pulsed current.
   </ul>
 
 irTx.gpio number required
@@ -4238,6 +4248,19 @@ ads1115 object|[object] optional
   Configures one or more ADS1115 analog-to-digital converter (ADC) chips.
   If multiple ADS1115 chips are connected, use an array of this object
   type, one for each chip.
+
+  Why would you want to use an external ADC like ADS1115, when the Pico
+  already has a built-in ADC of its own?  Because the Pico's built-in
+  ADC is mediocre at best.  An external ADC might be preferable if you're
+  using a potentiometer as your plunger position sensor, because the
+  quality of the position readings from a potentiometer depends upon the
+  quality of the ADC.  The Pico's built-in ADC only has about 8 bits of
+  digital resolution, so it can only distinguish a few hundred position
+  increments - and even fewer after taking into account analog noise.
+  That's not good enough for truly smooth animation in the pinball
+  simulators.  ADS1115 has 16-bit resolution, allowing for much
+  finer increments of position readings, which can make for smoother
+  animation and more consistent physics behavior in the simulators.
 
   <img src="ADS1115-wiring.png" class="circuit-diagram">
 

@@ -8,25 +8,25 @@
 </settings>
 <grid distance="0.1" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
+<layer number="1" name="Top" color="4" fill="1" visible="no" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
 <layer number="3" name="Route3" color="4" fill="3" visible="no" active="no"/>
 <layer number="14" name="Route14" color="1" fill="6" visible="no" active="no"/>
 <layer number="15" name="Route15" color="4" fill="6" visible="no" active="no"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="yes"/>
 <layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
 <layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
@@ -36,20 +36,20 @@
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="yes"/>
 <layer number="37" name="tTest" color="7" fill="1" visible="no" active="yes"/>
 <layer number="38" name="bTest" color="7" fill="1" visible="no" active="yes"/>
-<layer number="39" name="tKeepout" color="4" fill="11" visible="yes" active="yes"/>
-<layer number="40" name="bKeepout" color="1" fill="11" visible="yes" active="yes"/>
-<layer number="41" name="tRestrict" color="4" fill="10" visible="yes" active="yes"/>
-<layer number="42" name="bRestrict" color="1" fill="10" visible="yes" active="yes"/>
-<layer number="43" name="vRestrict" color="2" fill="10" visible="yes" active="yes"/>
+<layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="yes"/>
+<layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="yes"/>
+<layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="yes"/>
+<layer number="42" name="bRestrict" color="1" fill="10" visible="no" active="yes"/>
+<layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="no" active="yes"/>
 <layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
 <layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
-<layer number="48" name="Document" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="49" name="Reference" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
+<layer number="49" name="Reference" color="7" fill="1" visible="no" active="yes"/>
 <layer number="50" name="dxf" color="7" fill="1" visible="no" active="no"/>
-<layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="51" name="tDocu" color="7" fill="1" visible="no" active="yes"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="yes"/>
 <layer number="53" name="tPadExt" color="7" fill="1" visible="no" active="no"/>
 <layer number="54" name="bPadExt" color="1" fill="1" visible="no" active="no"/>
 <layer number="56" name="wert" color="7" fill="1" visible="no" active="no"/>
@@ -58,8 +58,8 @@
 <layer number="59" name="tCarbon" color="7" fill="1" visible="no" active="no"/>
 <layer number="60" name="bCarbon" color="7" fill="1" visible="no" active="no"/>
 <layer number="61" name="stand" color="7" fill="1" visible="no" active="no"/>
-<layer number="88" name="SimResults" color="9" fill="1" visible="yes" active="yes"/>
-<layer number="89" name="SimProbes" color="9" fill="1" visible="yes" active="yes"/>
+<layer number="88" name="SimResults" color="9" fill="1" visible="no" active="yes"/>
+<layer number="89" name="SimProbes" color="9" fill="1" visible="no" active="yes"/>
 <layer number="90" name="Modules" color="5" fill="1" visible="no" active="no"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="no" active="no"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="no" active="no"/>
@@ -70,8 +70,8 @@
 <layer number="97" name="Info" color="7" fill="1" visible="no" active="no"/>
 <layer number="98" name="Guide" color="6" fill="1" visible="no" active="no"/>
 <layer number="99" name="SpiceOrder" color="5" fill="1" visible="no" active="no"/>
-<layer number="100" name="US-Transistor" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="101" name="EU-Transistor" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="100" name="US-Transistor" color="7" fill="1" visible="no" active="yes"/>
+<layer number="101" name="EU-Transistor" color="7" fill="1" visible="no" active="yes"/>
 <layer number="102" name="Vscore" color="7" fill="1" visible="no" active="yes"/>
 <layer number="103" name="fp3" color="7" fill="1" visible="no" active="yes"/>
 <layer number="104" name="Name" color="7" fill="1" visible="no" active="yes"/>
@@ -3999,13 +3999,13 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 </element>
 <element name="C1" library="rcl" package="C025-024X044" value="100nF" x="41.3" y="71.4" smashed="yes" rot="R270">
 <attribute name="PARTNO" value="K104K15X7RF5TL2" x="41.3" y="71.4" size="1.4" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="40.422" y="74.497" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="40.022" y="73.733" size="0.6" layer="27" ratio="10"/>
+<attribute name="NAME" x="41.278" y="74.503" size="1.27" layer="25" ratio="10" rot="R180" align="top-center"/>
+<attribute name="VALUE" x="41.478" y="73.767" size="0.6" layer="27" ratio="10" rot="R180" align="top-center"/>
 </element>
 <element name="C2" library="rcl" package="C025-024X044" value="4.7uF" x="41.3" y="66.8" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0" x="41.3" y="66.8" size="1.4" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="40.222" y="62.597" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="40.122" y="63.933" size="0.6" layer="27" ratio="10"/>
+<attribute name="NAME" x="41.322" y="63.597" size="1.27" layer="25" ratio="10" align="top-center"/>
+<attribute name="VALUE" x="41.422" y="64.433" size="0.6" layer="27" ratio="10" align="top-center"/>
 </element>
 <element name="IC2" library="SamacSys_Parts" package="DIP794W53P254L959H508Q8N" value="UCC27524P" x="47.9" y="69.1" smashed="yes" rot="R90">
 <attribute name="DESCRIPTION" value="Dual, 5A, High-Speed Low-Side Power MOSFET Driver" x="47.9" y="69.1" size="0.6" layer="27" rot="R90" display="off"/>
@@ -4037,13 +4037,13 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 </element>
 <element name="C3" library="rcl" package="C025-024X044" value="100nF" x="54.5" y="71.3" smashed="yes" rot="R270">
 <attribute name="PARTNO" value="K104K15X7RF5TL2" x="12.7" y="89.7" size="0.6" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="53.422" y="74.297" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="53.222" y="73.533" size="0.6" layer="27" ratio="10"/>
+<attribute name="NAME" x="54.478" y="74.503" size="1.27" layer="25" ratio="10" rot="R180" align="top-center"/>
+<attribute name="VALUE" x="54.678" y="73.667" size="0.6" layer="27" ratio="10" rot="R180" align="top-center"/>
 </element>
 <element name="C4" library="rcl" package="C025-024X044" value="4.7uF" x="54.5" y="66.8" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0" x="96.3" y="66.8" size="0.6" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="53.522" y="62.497" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="53.422" y="63.833" size="0.6" layer="27" ratio="10"/>
+<attribute name="NAME" x="54.522" y="63.597" size="1.27" layer="25" ratio="10" align="top-center"/>
+<attribute name="VALUE" x="54.622" y="64.433" size="0.6" layer="27" ratio="10" align="top-center"/>
 </element>
 <element name="IC3" library="SamacSys_Parts" package="DIP794W53P254L959H508Q8N" value="UCC27524P" x="61.1" y="69.1" smashed="yes" rot="R90">
 <attribute name="DESCRIPTION" value="Dual, 5A, High-Speed Low-Side Power MOSFET Driver" x="61.1" y="69.1" size="0.6" layer="27" rot="R90" display="off"/>
@@ -4075,13 +4075,13 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 </element>
 <element name="C5" library="rcl" package="C025-024X044" value="100nF" x="67.7" y="71.3" smashed="yes" rot="R270">
 <attribute name="PARTNO" value="K104K15X7RF5TL2" x="39.2" y="89.7" size="0.6" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="66.722" y="74.297" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="66.522" y="73.633" size="0.6" layer="27" ratio="10"/>
+<attribute name="NAME" x="67.678" y="74.503" size="1.27" layer="25" ratio="10" rot="R180" align="top-center"/>
+<attribute name="VALUE" x="67.778" y="73.667" size="0.6" layer="27" ratio="10" rot="R180" align="top-center"/>
 </element>
 <element name="C6" library="rcl" package="C025-024X044" value="4.7uF" x="67.7" y="66.8" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0" x="109.5" y="32.6" size="0.6" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="68.978" y="63.803" size="1.27" layer="25" ratio="10" rot="R180"/>
-<attribute name="VALUE" x="66.622" y="63.933" size="0.6" layer="27" ratio="10"/>
+<attribute name="NAME" x="67.622" y="63.597" size="1.27" layer="25" ratio="10" align="top-center"/>
+<attribute name="VALUE" x="67.722" y="64.433" size="0.6" layer="27" ratio="10" align="top-center"/>
 </element>
 <element name="IC4" library="SamacSys_Parts" package="DIP794W53P254L959H508Q8N" value="UCC27524P" x="74.3" y="69.1" smashed="yes" rot="R90">
 <attribute name="DESCRIPTION" value="Dual, 5A, High-Speed Low-Side Power MOSFET Driver" x="178" y="48.7" size="0.6" layer="27" rot="R90" display="off"/>
@@ -4111,15 +4111,15 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <attribute name="NAME" x="78.0066" y="76.0316" size="0.9906" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="78.4336" y="77.5114" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>
-<element name="C8" library="rcl" package="C025-024X044" value="100nF" x="80.9" y="66.8" smashed="yes" rot="R90">
-<attribute name="PARTNO" value="K104K15X7RF5TL2" x="199.8" y="66.8" size="0.6" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="81.978" y="63.803" size="1.27" layer="25" ratio="10" rot="R180"/>
-<attribute name="VALUE" x="79.622" y="73.633" size="0.6" layer="27" ratio="10"/>
+<element name="C8" library="rcl" package="C025-024X044" value="100nF" x="80.9" y="71.3" smashed="yes" rot="R270">
+<attribute name="PARTNO" value="K104K15X7RF5TL2" x="-38" y="71.3" size="0.6" layer="27" rot="R270" display="off"/>
+<attribute name="NAME" x="80.878" y="74.503" size="1.27" layer="25" ratio="10" rot="R180" align="top-center"/>
+<attribute name="VALUE" x="80.878" y="73.667" size="0.6" layer="27" ratio="10" rot="R180" align="top-center"/>
 </element>
-<element name="C7" library="rcl" package="C025-024X044" value="4.7uF" x="80.9" y="71.3" smashed="yes" rot="R270">
-<attribute name="PARTNO" value="810-FG14X5R1H475KRT0" x="-51.3" y="87.1" size="0.6" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="79.922" y="74.297" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="82.078" y="64.467" size="0.6" layer="27" ratio="10" rot="R180"/>
+<element name="C7" library="rcl" package="C025-024X044" value="4.7uF" x="80.9" y="66.8" smashed="yes" rot="R90">
+<attribute name="PARTNO" value="810-FG14X5R1H475KRT0" x="213.1" y="51" size="0.6" layer="27" rot="R90" display="off"/>
+<attribute name="NAME" x="80.822" y="63.697" size="1.27" layer="25" ratio="10" align="top-center"/>
+<attribute name="VALUE" x="80.822" y="64.433" size="0.6" layer="27" ratio="10" align="top-center"/>
 </element>
 <element name="PICO2" library="RaspberryPi_Pico" package="RPI_PICO_TH_NO_DEBUG" value="" x="134.6" y="27.3" rot="R180"/>
 <element name="D1" library="SamacSys_Parts" package="DIOAD1408W86L464D236" value="SB140-T" x="121.6" y="0.7" smashed="yes" rot="R180">
@@ -4213,13 +4213,13 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 </element>
 <element name="C9" library="rcl" package="C025-024X044" value="100nF" x="94.1" y="71.3" smashed="yes" rot="R270">
 <attribute name="PARTNO" value="K104K15X7RF5TL2" x="46.4" y="91.1" size="0.6" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="92.822" y="74.297" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="93.022" y="73.533" size="0.6" layer="27" ratio="10"/>
+<attribute name="NAME" x="93.978" y="74.503" size="1.27" layer="25" ratio="10" rot="R180" align="top-center"/>
+<attribute name="VALUE" x="94.078" y="73.667" size="0.6" layer="27" ratio="10" rot="R180" align="top-center"/>
 </element>
 <element name="C10" library="rcl" package="C025-024X044" value="4.7uF" x="94.1" y="66.8" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0" x="141.8" y="66.8" size="0.6" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="95.778" y="63.803" size="1.27" layer="25" ratio="10" rot="R180"/>
-<attribute name="VALUE" x="95.278" y="64.567" size="0.6" layer="27" ratio="10" rot="R180"/>
+<attribute name="NAME" x="94.122" y="63.697" size="1.27" layer="25" ratio="10" align="top-center"/>
+<attribute name="VALUE" x="94.122" y="64.433" size="0.6" layer="27" ratio="10" align="top-center"/>
 </element>
 <element name="J3" library="SamacSys_Parts" package="HDRV5W117P0X396_1X5_1981X762X1" value="640445-5" x="83.5" y="97.9" smashed="yes" rot="R180">
 <attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/TE-Connectivity/640445-5?qs=P8zzrVhehateG3JS5ZzrEg%3D%3D" x="83.5" y="97.9" size="1" layer="27" rot="R180" display="off"/>
@@ -4261,13 +4261,13 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 </element>
 <element name="C11" library="rcl" package="C025-024X044" value="100nF" x="107.3" y="71.3" smashed="yes" rot="R270">
 <attribute name="PARTNO" value="K104K15X7RF5TL2" x="59.6" y="91.1" size="1" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="105.722" y="74.197" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="106.122" y="73.533" size="0.6" layer="27" ratio="10"/>
+<attribute name="NAME" x="107.278" y="74.503" size="1.27" layer="25" ratio="10" rot="R180" align="top-center"/>
+<attribute name="VALUE" x="107.378" y="73.667" size="0.6" layer="27" ratio="10" rot="R180" align="top-center"/>
 </element>
 <element name="C12" library="rcl" package="C025-024X044" value="4.7uF" x="107.3" y="66.8" smashed="yes" rot="R90">
 <attribute name="PARTNO" value="810-FG14X5R1H475KRT0" x="155" y="66.8" size="1" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="108.578" y="63.903" size="1.27" layer="25" ratio="10" rot="R180"/>
-<attribute name="VALUE" x="108.278" y="64.567" size="0.6" layer="27" ratio="10" rot="R180"/>
+<attribute name="NAME" x="107.322" y="63.597" size="1.27" layer="25" ratio="10" align="top-center"/>
+<attribute name="VALUE" x="107.322" y="64.433" size="0.6" layer="27" ratio="10" align="top-center"/>
 </element>
 <element name="J11" library="SamacSys_Parts" package="HDRV2W66P0X254_1X2_762X572X100" value="640454-2" x="105.7" y="4.8" smashed="yes">
 <attribute name="MANUFACTURER_PART_NUMBER" value="640454-2" x="94.4" y="14.9" size="0.8" layer="27" display="off"/>
@@ -5821,9 +5821,8 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <wire x1="62.9" y1="70.03" x2="67.7" y2="70.03" width="1" layer="1"/>
 <wire x1="67.7" y1="70.03" x2="71.4" y2="70.03" width="1" layer="1"/>
 <wire x1="71.4" y1="70.03" x2="76.5" y2="70.03" width="1" layer="1"/>
-<wire x1="76.5" y1="70.03" x2="80.9" y2="70.03" width="1" layer="1"/>
 <wire x1="67.7" y1="68.07" x2="67.7" y2="70.03" width="0.5" layer="1"/>
-<wire x1="80.9" y1="68.07" x2="80.9" y2="70.03" width="1" layer="1"/>
+<wire x1="80.9" y1="70.03" x2="80.9" y2="68.07" width="1" layer="1"/>
 <wire x1="75.57" y1="73.07" x2="75.57" y2="70.96" width="1" layer="1"/>
 <wire x1="75.57" y1="70.96" x2="76.5" y2="70.03" width="1" layer="1"/>
 <wire x1="70.49" y1="73.07" x2="70.49" y2="70.94" width="1" layer="1"/>
@@ -5841,7 +5840,6 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <contactref element="IC5" pad="1"/>
 <contactref element="C10" pad="2"/>
 <contactref element="C9" pad="2"/>
-<wire x1="80.9" y1="70.03" x2="84.5" y2="70.03" width="1" layer="1"/>
 <wire x1="84.5" y1="70.03" x2="84.8" y2="70.03" width="1" layer="1"/>
 <wire x1="84.8" y1="70.03" x2="90.1" y2="70.03" width="1" layer="1"/>
 <wire x1="90.1" y1="70.03" x2="94.1" y2="70.03" width="1" layer="1"/>
@@ -5874,6 +5872,8 @@ diameter 2 mm, horizontal, grid 7.62 mm</description>
 <contactref element="J2" pad="5"/>
 <wire x1="112.14" y1="97.9" x2="112.14" y2="87.64" width="1" layer="16"/>
 <wire x1="112.14" y1="87.64" x2="109.3" y2="84.8" width="1" layer="16"/>
+<wire x1="76.5" y1="70.03" x2="80.9" y2="70.03" width="1" layer="1"/>
+<wire x1="84.5" y1="70.03" x2="80.9" y2="70.03" width="1" layer="1"/>
 </signal>
 <signal name="OUTCTL2">
 <contactref element="IC1" pad="4"/>

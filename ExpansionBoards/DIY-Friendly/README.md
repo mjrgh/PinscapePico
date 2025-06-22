@@ -235,10 +235,10 @@ should take a few years, since the battery is only powering the clock
 chip, which draws very little power.
 
 Workarounds: No workaround is outright necessary, since you can still
-safely get the battery in and out with a little effort.  If you don't
-like the idea of forcing the battery in and out, though, I can suggest
-one workaround:  don't install the clip, but instead substitute a
-free-standing CR2032 battery holder, such as [Eagle Plastic Devices 120-0110-GR](https://www.mouser.com/ProductDetail/122-0110-GR).
+get the battery in and out with a little force.  If you're not comfortable
+with that, I can suggest a workaround:  don't install the clip, but instead
+substitute a self-contained CR2032 battery holder that connects to the board with
+a pair of wires, such as [Eagle Plastic Devices 120-0110-GR](https://www.mouser.com/ProductDetail/122-0110-GR).
 Similar devices are available on Amazon.  Solder the red wire to one of
 positive post pads for BATT1 on the circuit board, and solder the
 black wire to BATT1's large round central ground pad.
@@ -270,17 +270,17 @@ functionality right after startup, before any PC software gets
 involved.
 
 Workaround: If you don't mind doing some surgery on the board, you can
-correct this by cutting the trace on the board between pin DS1307 pin 8
+correct this by cutting the trace on the board between DS1307 pin 8
 (VCC) and the secondary supply 5V line, and then soldering a jumper
 wire from DS1307 pin 8 to any convenient point on the VBUS network,
 such as the anode ("+" side) of D1.  You can cut the trace with a
 sharp knife, such as an X-Acto knife; the copper trace layer is quite
 thin, so you just have to score the board deep enough to break the
 copper.  Check your work by testing continuity with a multimeter -
-make absolutely sure that there's no continuity (infinite resistance)
-between DS1307 pin 8 and the secondary supply 5V.  If the trace
-is still connected, it will short-circuit the two 5V power supplies
-together, which could do damage.
+make absolutely sure that there's no continuity between DS1307 pin
+8 and the secondary supply 5V.  If the trace is still connected,
+it will short-circuit the two 5V power supplies together, which
+could do damage.
 
 <a href="DS1307-5V-patch-wire.jpg"><img src="DS1307-5V-patch-wire-thumb.jpg"></a>
 

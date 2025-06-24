@@ -475,6 +475,120 @@ public:
         virtual void Populate(PinscapePico::OutputPortDesc *desc) const override;
     };
 
+    // Share Group device.  This is a virtual device representing a pool
+    // of underlying ports that can be shared among one or more DOF
+    // ports.  When a Share Group device switches from OFF to ON, it
+    // looks for a device from the pool that's not currently in use, and
+    // if it finds one, it claims the pool device for the duration of
+    // the event.  When the Share Group devices switches from ON to OFF,
+    // the event ends, and it releases its underlying device back to the
+    // pool.
+    //
+    // The purpose of Share Groups is to make a small group of PHYSICAL
+    // devices look like a larger group of LOGICAL devices to DOF.  The
+    // most common use of this is for jet bumper solenoids.  The
+    // standard DOF configuration calls for six jet bumper ports,
+    // representing six points in space across the playfield layout, so
+    // that DOF can fire the device for each jet bumper event that's
+    // spatially nearest the simulated game element, so that the sound
+    // effects emanate from the same locations in space as the on-screen
+    // game events.  A small pin cab might not have room for all six jet
+    // bumper solenoid devices, though.  Share Groups address this by
+    // letting you designate a smaller number of physical solenoids as
+    // shared among the six DOF jet bumper ports.  This lets you use the
+    // standard DOF configuration, without having to reprogram
+    // everything on the DOF side for a smaller number of physical
+    // solenoids.
+    class ShareGroupContainer;
+    class ShareGroupDev : public Device
+    {
+    public:
+        ShareGroupDev(const char *name);
+        virtual const char *Name() const override { return "Group"; }
+        virtual const char *FullName(char *buf, size_t buflen) const override {
+            snprintf(buf, buflen, "Group(%s)", container->GetName()); return buf;
+        }
+        virtual void Set(uint8_t level) override;
+        virtual uint8_t Get() const override { return level; }
+        virtual void Populate(PinscapePico::OutputPortDesc *desc) const override;
+
+    protected:
+        // current virtual output level
+        uint8_t level = 0;
+        
+        // the group container for the group
+        ShareGroupContainer *container;
+
+        // pool port currently assigned from the group
+        Port *poolPort = nullptr;
+    };
+
+    // Share Group Container.  This object represents the whole of a
+    // share group.  It contains references to Port objects that belong
+    // to the pool of physical outputs assigned to the group, keeps
+    // track of which pool ports are assigned to which ShareGroupDev
+    // virtual devices.
+    class ShareGroupContainer
+    {
+    public:
+        ShareGroupContainer(const char *name, uint8_t id) : name(name), id(id) { }
+        const char *GetName() const { return name.c_str(); }
+        uint8_t GetID() const { return id; }
+
+        // Find a group by name, creating a new one of the given name
+        // if it doesn't already exist.
+        static ShareGroupContainer *FindOrCreate(const char *name);
+
+        // Add a port.  This is called during port creation when the
+        // port is configured with a shareGroup name matching this
+        // group.
+        void AddPort(Port *port) { pool.emplace_back(port); }
+
+        // Claim a port from the pool.  A ShareGroupDev virtual device
+        // calls this when it transitions from OFF to ON, to acquire a
+        // physical output port to actuate for the duration of the DOF
+        // effect.  If a port is available, this returns a pointer to
+        // the assigned port, which is now exclusively assigned to the
+        // caller until the caller releases the port.  Returns null if
+        // no ports are available.
+        Port *ClaimPort(ShareGroupDev *dev);
+
+        // Release a port back to the pool.  A ShareGroupDev virtual
+        // device calls this when it transitions from ON to OFF while
+        // holding a claim on a pool port.
+        void ReleasePort(ShareGroupDev *dev);
+
+    protected:
+        // group name
+        std::string name;
+
+        // Internal ID.  This is an arbitrary small integer value
+        // assigned at creation.  It's stable through a session, but it
+        // doesn't persist across sessions (a group with a given name
+        // won't necessarily have the same ID after a device reboot).
+        uint8_t id;
+
+        // Port pool.  This is the collection of physical device output
+        // ports forming the pool.  It keeps track of which ports are
+        // assigned to ShareGroupDev virtual devices and which are
+        // available for assignment to new events.
+        struct PoolPort
+        {
+            PoolPort(Port *port) : port(port) { }
+            Port *port;                         // the underlying physical device output port
+            ShareGroupDev *claimant = nullptr;  // the ShareGroupDev currently claiming the port, if any
+        };
+        std::vector<PoolPort> pool;
+
+        // The last port assigned to a claim.  We assign ports in
+        // round-robin order so that we distribute assignments evenly
+        // over the pool.
+        int claimIdx = 0;
+    };
+
+    // Share group map by name
+    static std::unordered_map<std::string, ShareGroupContainer> shareGroups;
+
     // common base class for GPIO port devices
     class GPIODev : public Device
     {
@@ -743,6 +857,11 @@ public:
         void SetLedWizSBA(bool on, uint8_t period);
         void SetLedWizPBA(uint8_t profile);
 
+        // Set the shared port DOF level.  When the port is assigned to
+        // a Share Group, this passes the shareGroup device level through
+        // to the logical level.
+        void SetShareGroupLevel(uint8_t level);
+
         // Get the latest device output level
         uint8_t GetOutLevel() const { return outLevel; }
 
@@ -811,6 +930,9 @@ public:
         // keeping the port numbering consistent between the host view and
         // the config file layout, but it's read-only on the host.
         DataSource *source = nullptr;
+
+        // Share group.
+        ShareGroupContainer *shareGroup = nullptr;
 
         // Is this a "noisy" output, subject to disabling when Night Mode is
         // activated?
@@ -938,9 +1060,9 @@ public:
         } lw;
 
         // "Logical" level, 0..255.  This is the nominal level for the port,
-        // after taking into account the host level, LedWiz port state, and the
-        // data source calculation, but before gamma correction and flipper
-        // logic attenuation.
+        // after taking into account the DOF level, LedWiz port state, share
+        // group assignment, and the data source calculation, but before gamma
+        // correction and flipper logic attenuation.
         uint8_t logLevel = 0;
 
         // Device output level.  This is the final value, 0..255, sent to

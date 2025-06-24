@@ -87,6 +87,9 @@ std::list<std::function<void(JSONParser&)>> OutputManager::postConfigCallbacks;
 // updated at the same time.
 static NudgeDevice::View *outputNudgeView = nullptr;
 
+// Share group container map by name
+std::unordered_map<std::string, OutputManager::ShareGroupContainer> OutputManager::shareGroups;
+
 // look up a port by number or name from a JSON configuration cross-reference
 OutputManager::Port *OutputManager::Get(JSONParser &, const JSONParser::Value *val)
 {
@@ -347,6 +350,14 @@ void OutputManager::Configure(JSONParser &json)
         port.flipperLogic.dtHighPowerMax = value->Get("timeLimit")->UInt32(0) * 1000;
         port.flipperLogic.dtCooling = value->Get("coolingTime")->UInt32(0) * 1000;
         port.flipperLogic.reducedPowerLevel = value->Get("powerLimit")->UInt8(0);
+
+        // check for a share group
+        if (auto *shareGroupName = value->Get("shareGroup"); !shareGroupName->IsUndefined())
+        {
+            // it has a share group - add the port to the group container
+            port.shareGroup = ShareGroupContainer::FindOrCreate(shareGroupName->String().c_str());
+            port.shareGroup->AddPort(&port);
+        }
 
         // check for a port name
         if (!nameVal->IsUndefined())
@@ -717,6 +728,11 @@ OutputManager::Device *OutputManager::ParseDevice(
     {
         // ZB Launch control
         device = new ZBLaunchDev();
+    }
+    else if (*devType == "shareGroup")
+    {
+        // Share group device
+        device = new ShareGroupDev(devSpec->Get("group")->String().c_str());
     }
     else if (*devType == "virtual")
     {
@@ -1172,6 +1188,10 @@ size_t OutputManager::QueryDevicePortLevels(uint8_t *buf, size_t bufSize)
 // set the host DOF port level
 void OutputManager::Port::SetDOFLevel(uint8_t newLevel)
 {
+    // shareGroup ports only accept commands from their share group
+    if (shareGroup != nullptr)
+        return;
+
     // remember the new DOF port level
     dofLevel = newLevel;
 
@@ -1184,9 +1204,26 @@ void OutputManager::Port::SetDOFLevel(uint8_t newLevel)
         SetLogicalLevel(newLevel);
 }
 
+// set the share group level
+void OutputManager::Port::SetShareGroupLevel(uint8_t newLevel)
+{
+    // assign this as the DOF level
+    dofLevel = newLevel;
+    lw.mode = false;
+
+    // If the port doesn't have a data source, and the output manager
+    // isn't suspended, apply it as the logical level
+    if (source == nullptr && !isSuspended)
+        SetLogicalLevel(newLevel);
+}
+
 // set the LedWiz SBA on/off state
 void OutputManager::Port::SetLedWizSBA(bool on, uint8_t period)
 {
+    // shareGroup ports only accept commands from their share group
+    if (shareGroup != nullptr)
+        return;
+    
     // remember the new SBA state and period, and set LedWiz mode for the port
     lw.on = on;
     lw.period = period < 1 ? 1 : period > 7 ? 7 : period;  // force to 1..7 valid range
@@ -1200,12 +1237,16 @@ void OutputManager::Port::SetLedWizSBA(bool on, uint8_t period)
 // set the LedWiz PBA brightness level/waveform state
 void OutputManager::Port::SetLedWizPBA(uint8_t profile)
 {
+    // shareGroup ports only accept commands from their share group
+    if (shareGroup != nullptr)
+        return;
+
     // remember the new profile state, and set LedWiz mode for the port
     lw.profile = profile;
     lw.mode = true;
 
     // update the logical state
-    if (source == nullptr && !isSuspended)
+    if (source == nullptr && shareGroup == nullptr && !isSuspended)
         SetLogicalLevel(lw.GetLiveLogLevel());
 }
 
@@ -2288,6 +2329,108 @@ void OutputManager::ZBLaunchDev::Populate(PinscapePico::OutputPortDesc *desc) co
     desc->devType = PinscapePico::OutputPortDesc::DEV_ZBLAUNCH;
 }
 
+// ---------------------------------------------------------------------------
+//
+// Share group device
+//
+
+OutputManager::ShareGroupDev::ShareGroupDev(const char *name)
+{
+    // find or add the share group container
+    container = ShareGroupContainer::FindOrCreate(name);
+}
+
+void OutputManager::ShareGroupDev::Set(uint8_t newLevel)
+{
+    // Check for an transition between ON and OFF states
+    if (level == 0 && newLevel != 0)
+    {
+        // OFF -> ON - try assigning a port from the share pool
+        poolPort = container->ClaimPort(this);
+    }
+    else if (level != 0 && newLevel == 0 && poolPort != nullptr)
+    {
+        // ON -> OFF - turn off the underlying port, and release it
+        // back to the pool
+        poolPort->SetShareGroupLevel(0);
+        container->ReleasePort(this);
+    }
+
+    // remember the new level
+    level = newLevel;
+
+    // if we have an underlying pool port assigned, pass through the new level
+    if (poolPort != nullptr)
+        poolPort->SetShareGroupLevel(newLevel);
+}
+
+void OutputManager::ShareGroupDev::Populate(PinscapePico::OutputPortDesc *desc) const
+{
+    desc->devType = PinscapePico::OutputPortDesc::DEV_SHAREGROUP;
+    desc->devId = container->GetID();
+}
+
+
+// ---------------------------------------------------------------------------
+//
+// Share group container
+//
+
+OutputManager::ShareGroupContainer *OutputManager::ShareGroupContainer::FindOrCreate(const char *name)
+{
+    // check for an existing group
+    if (auto it = shareGroups.find(name); it != shareGroups.end())
+        return &it->second;
+    
+    // It doesn't exist yet - create a new group.  For the internal ID,
+    // assign sequential values starting from zero as we create groups.
+    auto it = shareGroups.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(name, static_cast<uint8_t>(shareGroups.size())));
+
+    // return the new group
+    return &it.first->second;
+}
+
+OutputManager::Port *OutputManager::ShareGroupContainer::ClaimPort(ShareGroupDev *dev)
+{
+    // find the next unclaimed port in our pool
+    for (int startIdx = claimIdx ; ; )
+    {
+        // advance to the next index, wrapping at the end of the list
+        if (++claimIdx >= static_cast<int>(pool.size()))
+            claimIdx = 0;
+
+        // stop when we wrap back to the starting point, since that
+        // means that we've visited every port in the pool without
+        // finding a free entry
+        if (claimIdx == startIdx)
+            return nullptr;
+
+        // if this element is free, assign it
+        if (auto &ele = pool[claimIdx]; ele.claimant == nullptr)
+        {
+            // assign the port and return it back to the caller
+            ele.claimant = dev;
+            return ele.port;
+        }
+    }
+}
+
+void OutputManager::ShareGroupContainer::ReleasePort(ShareGroupDev *dev)
+{
+    // scan for the port assigned to the device
+    for (auto &ele : pool)
+    {
+        // if this port is assigned to this device, release it
+        if (ele.claimant == dev)
+        {
+            ele.claimant = nullptr;
+            return;
+        }
+    }
+}
 
 // ---------------------------------------------------------------------------
 //

@@ -3248,21 +3248,126 @@ outputs [object] optional
   controller chips, such as the various PWM controller chips, a GPIO
   extender chip, or a shift register chip.
 
-  <b>WARNING:</b> Pico GPIO ports are for low-power 3.3V devices only.
-  Never connect a motor, solenoid, incandescent lamp, or high-current LED
-  directly to a Pico GPIO port, and never connect any device with a power
-  supply voltage greater than 3.3V.  Connecting high-voltage or high-current
-  devices to a GPIO port runs the risk of damaging or destroying the Pico.
-  The Pico can directly control <b>small</b> LEDs, that run on 10mA or less,
-  but nothing more powerful than that.  For anything more, you <b>must</b>
-  use some kind of booster/amplifier circuit.  One solution is to use the
-  reference Expansion Boards, which provide built-in booster circuits for
-  devices at different power levels.  You can also find pre-built generic
-  driver boards on Amazon and eBay - a good search term is "MOSFET board".
-  Or you can build an amplifier circuit yourself.  The
-  <a href="http://mjrnet.org/pinscape/PWMWorker/DataSheet/PWMWorkerDataSheet.htm">PWM Worker Data Sheet</a>
-  shows several general-purpose amplifier circuit designs that work with
-  the Pico and are fairly easy to build.
+outputs[].shareGroup string optional
+  Places this port in a "share group" pool, which makes the physical
+  output device available for dynamic assignment to different logical
+  DOF ports as DOF events are fired.  The property value is a string
+  giving the name of the group to which the port belongs.
+
+  The purpose of a share group is to trick DOF into believing that you
+  have more physical devices than you really do, by sharing a small
+  number of physical devices across a larger number of logical DOF
+  ports.  Each time DOF fires one of its logical ports, Pinscape will
+  look in the share group pool for a device that's not currently in
+  use, and will assign it to the DOF port, <i>just for the duration
+  of this one event</i>.  When the event ends and DOF sets the port
+  to OFF, the physical device is released back into the pool for use
+  in a future event.
+
+  The most common use case for share groups is DOF jet bumper ports.
+  The standard DOF configuration calls for six ports assigned as
+  jet bumpers - back left, back center, back right, middle left,
+  middle center, middle right.  This lets DOF make sure that bumper
+  effects in the game are routed to the right spatial location in
+  your cabinet, so that the sound effect sounds like it's coming from
+  the on-screen location of the bumper.  In a small pin cab, though,
+  you might not have room for six separate bumper solenoids - there
+  might only be room for one or two.  But it's easier to let DOF
+  <i>think</i> you have the standard six, because that lets you
+  use the existing database of effects assignments, which is all
+  based on the assumption that every cab has six bumper devices.
+  Share groups address this use case by letting Pinscape manage
+  the association between six <b>virtual</b> DOF ports, representing
+  the six bumper devices DOF believes every pin cab should have,
+  and the smaller number of <b>physical</b> solenoids you have
+  installed in your cab.
+
+  To set up a share group, you have to configure two sets of ports.
+  The first is the <b>virtual DOF ports</b>.  This is the larger
+  group of ports that DOF sees.  For the DOF bumper ports example,
+  this would be a set of six ports corresponding to the six standard
+  DOF bumpers (back left, back center, etc).  Each of these virtual
+  ports is assigned a shareGroup device:
+  <pre>
+  outputs: [
+    // ... other ports ...
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF rear left bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF rear center bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF rear right bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF mid left bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF mid center bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF mid right bumper port
+    // ... other ports ...
+  ],
+  </pre>
+
+  Those virtual ports are the ones that you assign in your DOF Config Tool
+  configuration.  In your DOF Config Tool settings, under <b>Cabinet &gt; Devices &gt; Port Assignments</b>,
+  you assign the numbered Pinscape ports to the named DOF ports - in our
+  example, the six DOF bumper ports.
+
+  The second part of a share group is the <b>physical device ports</b>.
+  This is the smaller group of ports that represents the actual physical
+  devices that will be actuated when the DOF effects are triggered.  For
+  these ports, you configure them just like a normal device output port,
+  specifying the physical device assignment.  Then you add the <bb>shareGroup</bb>
+  property to the port.
+  <pre>
+  outputs: [
+    // ... other ports
+    { device: { type: "gpio", gp: 7 }, shareGroup: "bumpers" },
+    { device: { type: "gpio", gp: 8 }, shareGroup: "bumpers" },
+    // ... other ports
+  ],
+  </pre>
+  DOF doesn't address these ports directly, so you don't assign them to
+  anything at all in your DOF configuration.  DOF doesn't have to know
+  these ports even exist.  DOF only accesses them indirectly, through the
+  <tt>type:"shareGroup"</tt> ports.
+
+  Here's how this works during game play.  Say that the ball hits the
+  upper left bumper, causing DOF to activate the Pinscape port that you
+  assigned to "10 Bumper Back Left".  On the Pinscape side, this port is
+  assigned to a "shareGroup" device with the group name "bumpers", so
+  Pinscape looks for a port with <tt>shareGroup:"bumpers"</tt> in its
+  properties.  In the example above, it'll find the ports assigned to
+  GPIO ports 7 and 8.  Pinscape will pick one of these devices that's
+  not already being fired by some <i>other</i> shareGroup port, so let's
+  say that it chooses the one on GPIO 7.  Pinscape will activate that
+  port, and it'll also make a note that GPIO 7 is now being used by
+  the Back Left Bumper port for the duration of this event (that is,
+  as long as DOF continues to activate that port).
+
+  Now, suppose that we're in multiball mode, and a second ball hits
+  the Mid Right Bumper while this event on GPIO 7 is going on.  DOF
+  will fire the Mid Right "shareGroup" device port, and Pinscape will
+  go through the process of identifying an available ports in the
+  "bumpers" group.  Since the port on GPIO 7 is already being fired
+  by the Upper Left Bumper event, this event can't use that port.
+  But the port on GPIO 8 is still available, so Pinscape will assign
+  the event to that port.
+
+  If a third "bumpers" group event fires while both of these
+  events are still in progress, the third event will simply be
+  ignored, since there aren't any more physical devices available
+  to carry it out.
+
+  When DOF finishes with the events on the Back Left Bumper and
+  Mid Right Bumper ports, it'll set the ports to OFF, and Pinscape
+  will release the ports back to the pool of shared "bumper" ports
+  for use in new events.
+
+  Pinscape automatically cycles through the pool of shared ports
+  as events arrive, so that the devices get roughly equal use.
+  This is meant to add variety to the effects, so that every bumper
+  hit doesn't sound exactly the same as the last.
+
+  When a port is assigned to a share group, the port ignores DOF
+  commands sent directly to the port.  It <b>only</b> accepts commands
+  from the virtual <tt>type:"shareGroup"</tt> device port that's
+  currently controlling the share group port.  So DOF is still able
+  to send commands to a share group port, but only <i>indirectly</i>,
+  through the port's temporary share group assignment.
 
 outputs[].device object required
   Selects the physical output port associated with this logical DOF port.
@@ -3303,8 +3408,21 @@ outputs[].device.type string{table} required
     <tr><td>"gpio"</td><td>A Pico GPIO port</td></tr>
     <tr><td>"workerPico"</td><td>An output port on an auxiliary Pico running the PWMWorker firmware</td></tr>
     <tr><td>"zblaunch"</td><td>A virtual port that activates ZB Launch Mode when DOF signals that the port is on</td></tr>
+    <tr><td>"shareGroup"</td><td>A virtual port that sends output to a designated group of ports that can be shared with other "shareGroup" ports</td></tr>
     <tr><td>"virtual"</td><td>A virtual port that doesn't control any physical device</td></tr>
   </table>
+
+outputs[].device.type="shareGroup"
+  Connects the logical port to a pool of shared ports.
+
+  See the <a href="#outputs.shareGroup"><tt>shareGroup</tt></a> property for
+  an explanation of how share groups work and how to set them up.
+
+outputs[].device.type="shareGroup".group string required
+  Identifies the shared group of ports that this virtual device connects to.
+  The device will be connected to the group of ports that are labeled with
+  the same name in their <a href="#outputs.shareGroup"><tt>shareGroup</tt></a>
+  property.
 
 outputs[].device.type="workerPico"
   Connects the logical port to an output port on an auxiliary Pico running the PWMWorker firmware.
@@ -3486,6 +3604,26 @@ outputs[].device.type="gpio"
   Connects the logical port to a physical GPIO port on the Pico.  The GPIO is
   set up as an output port, which can drive a load up to about 10mA, such as a
   small LED.  Higher-current loads require amplifier circuits.
+
+  <b>WARNING:</b> Pico GPIO ports are for low-power 3.3V devices only.
+  Never connect a motor, solenoid, incandescent lamp, or high-current LED
+  directly to a Pico GPIO port, and never connect any device with a power
+  supply voltage greater than 3.3V.  Connecting high-voltage or high-current
+  devices to a GPIO port runs the risk of damaging or destroying the Pico.
+  The Pico can directly control <b>small</b> LEDs, that run on 10mA or less,
+  <b>and</b> 3.3V or less, but nothing exceeding those limits.  For anything
+  higher voltage or higher current, you <b>must</b> use some kind of
+  booster/amplifier circuit.  One solution is to use an expansion
+  board set that provides built-in booster circuits.  The Pinscape Pico
+  project on github includes a couple of reference designs for full-featured
+  expansion boards that provide plenty of high-power outputs, extra button
+  inputs, and other features that go beyond the Pico's basic built-in
+  capabilities.  You can also find pre-built general-purpose driver boards
+  on Amazon and eBay that work with the Pico and other microcontrollers;
+  try searching for "MOSFET board".   Or you can build a suitable booster
+  circuit yourself.  The <a href="http://mjrnet.org/pinscape/PWMWorker/DataSheet/PWMWorkerDataSheet.htm">PWM Worker Data Sheet</a>
+  shows several general-purpose amplifier circuit designs that work with
+  the Pico and are fairly easy to build.
 
 outputs[].device.type="gpio".gp number required
   The GPIO port number to use for the output.

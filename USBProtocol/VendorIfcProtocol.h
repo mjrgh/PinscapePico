@@ -2347,8 +2347,17 @@ namespace PinscapePico
         static const uint8_t F_COMPUTED     = 0x10;   // the port has a computed data source instead of direct host control
         static const uint8_t F_NAMED        = 0x20;   // the port has a user-assigned name string
 
-        // Device identification.  For all of the physical device types, this is the
-        // configuration index of the chip.  Unused for other types.
+        // Device identification.
+        //
+        // For all of the physical device types, this is the configuration index
+        // of the chip.
+        //
+        // For share group ports, this is an internal identifier for the share
+        // group, as an arbitrary small integer value assigned during device
+        // startup.  Since it's assigned during the configuration process, it's
+        // stable throughout a session, but doesn't persist across sessions.
+        //
+        // Unused for other types.
         uint8_t devId;
 
         // Underlying device type, as one of the DEV_xxx constants defined below
@@ -2363,14 +2372,19 @@ namespace PinscapePico
         static const uint8_t DEV_ZBLAUNCH = 8;    // ZB Launch virtual port
         static const uint8_t DEV_PWMWORKER = 9;   // external Pico running PWMWorker firmware
         static const uint8_t DEV_TLC5947 = 10;    // TLC5947 serial-interface PWM controller port
+        static const uint8_t DEV_SHAREGROUP = 11; // share group port
 
-        // Device port.  For GPIO ports, this is the nominal Pico GP number of the
-        // assigned port.  For all of the other physical devices, it's the nominal port
-        // number on the chip, using the chip's data sheet labeling for the output pins.
-        // Most of these chips use pin labeling of the form OUTPUT0..N, LED0..N, or
-        // something similar.  The port number we use here corresponds to the numeric
-        // suffix, so (for example) OUTPUT7 on a TLC59116 would be represented here by
-        // devPort == 7.
+        // Device port.
+        //
+        // For GPIO ports, this is the nominal Pico GP number of the assigned
+        // port.
+        //
+        // For all of the other physical devices, it's the nominal port number
+        // on the chip, using the chip's data sheet labeling for the output
+        // pins.  Most of these chips use pin labeling of the form OUTPUT0..N,
+        // LED0..N, or something similar.  The port number we use here
+        // corresponds to the numeric suffix, so (for example) OUTPUT7 on a
+        // TLC59116 would be represented here by devPort == 7.
         uint8_t devPort;
 
     } __PackedEnd;

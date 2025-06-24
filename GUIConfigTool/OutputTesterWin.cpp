@@ -293,7 +293,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
     {
         static const char *devName[] ={ 
             "Invalid", "Virtual", "Pico GPIO", "TLC59116", "TLC5940", "PCA9685", "PCA9555", "74HC595",
-            "ZBLaunch", "PWMWorker", "TLC5947" 
+            "ZBLaunch", "PWMWorker", "TLC5947", "ShareGroup",
         };
         using PortDesc = PinscapePico::OutputPortDesc;
         switch (devType)
@@ -301,6 +301,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
         case PortDesc::DEV_VIRTUAL:
         case PortDesc::DEV_ZBLAUNCH:
         case PortDesc::DEV_GPIO:
+        case PortDesc::DEV_SHAREGROUP:
             // these are unique devices, so don't include chain/chip information
             sprintf_s(buf, bufSize, "%s", devName[devType]);
             return devPort;
@@ -360,6 +361,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
         {
         case PortDesc::DEV_VIRTUAL:
         case PortDesc::DEV_ZBLAUNCH:
+        case PortDesc::DEV_SHAREGROUP:
             // no port information - just use the device name unchanged
             strcpy_s(buf, bufSize, devName);
             break;

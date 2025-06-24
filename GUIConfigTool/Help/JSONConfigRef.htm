@@ -524,6 +524,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
               <span class="propName"><a href="#outputs.device.type=pca9685.chip">chip</a></span>: <span class="typeNames">number</span>,
               <span class="propName"><a href="#outputs.device.type=pca9685.port">port</a></span>: <span class="typeNames">number</span>,
 
+              // type="shareGroup"
+              <span class="propName"><a href="#outputs.device.type=shareGroup.group">group</a></span>: <span class="typeNames">string</span>,
+
               // type="tlc59116"
               <span class="propName"><a href="#outputs.device.type=tlc59116.chip">chip</a></span>: <span class="typeNames">number</span>,
               <span class="propName"><a href="#outputs.device.type=tlc59116.port">port</a></span>: <span class="typeNames">number</span>,
@@ -551,6 +554,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
            <span class="propName"><a href="#outputs.name">name</a></span>: <span class="typeNames">string</span>,
            <span class="propName"><a href="#outputs.noisy">noisy</a></span>: <span class="typeNames">boolean</span>,
            <span class="propName"><a href="#outputs.powerLimit">powerLimit</a></span>: <span class="typeNames">number</span>,
+           <span class="propName"><a href="#outputs.shareGroup">shareGroup</a></span>: <span class="typeNames">string</span>,
            <span class="propName"><a href="#outputs.source">source</a></span>: <span class="typeNames">string</span>,
            <span class="propName"><a href="#outputs.timeLimit">timeLimit</a></span>: <span class="typeNames">number</span>,
         }
@@ -1244,6 +1248,19 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   Configures one or more ADS1115 analog-to-digital converter (ADC) chips.
   If multiple ADS1115 chips are connected, use an array of this object
   type, one for each chip.
+  </p><p>
+  Why would you want to use an external ADC like ADS1115, when the Pico
+  already has a built-in ADC of its own?  Because the Pico's built-in
+  ADC is mediocre at best.  An external ADC might be preferable if you're
+  using a potentiometer as your plunger position sensor, because the
+  quality of the position readings from a potentiometer depends upon the
+  quality of the ADC.  The Pico's built-in ADC only has about 8 bits of
+  digital resolution, so it can only distinguish a few hundred position
+  increments - and even fewer after taking into account analog noise.
+  That's not good enough for truly smooth animation in the pinball
+  simulators.  ADS1115 has 16-bit resolution, allowing for much
+  finer increments of position readings, which can make for smoother
+  animation and more consistent physics behavior in the simulators.
   </p><p>
   <img src="ADS1115-wiring.png" class="circuit-diagram">
   </p><p>
@@ -3643,7 +3660,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       </div>
       <div class="jsonClassDesc">
       <p>
-        A "hold" button is like an ordinary pushbutton, except that the action isn't activated
+        A "hold" button is like an ordinary pushbutton, except that its action isn't activated
         until the button has been held down for a set amount of time.  This can be used for
         buttons that have some kind of significant effect that you wouldn't want to be triggered
         accidentally, such as shutting down the computer or rebooting the Pico.  The hold time
@@ -3651,14 +3668,16 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         down for a few moments before anything happens.  It's the physical control panel
         analog of a Windows "Are You Sure...?" dialog box.
         </p><p>
-        A hold button can optionally also define an action to carry out after a "short press",
-        when the button is pressed and then released before the hold period ends.  Normally,
+        Optionally, a hold button can also define an action to carry out after a "short press",
+        when the button is pressed and then released before the hold period ends.  By default,
         a short press on a hold button has no effect at all, since the main action isn't
         triggered until the button has been held down for the full hold period.  If the button
-        has a short-press action defined, however, the button can now serve dual purposes:
-        it carries out one action on a short press, and carries out a different action on
-        a long press.  This is an alternative to "Shift" buttons, in that it provides another
-        way to make a single physical button serve two roles.
+        has a short-press action defined, though, the button triggers an action on every press:
+        the short-press action when the button is released before the hold period ends, and
+        the normal action otherwise.  This can be used an alternative to the "Shift" button
+        scheme when you want to make one physical button serve dual purposes.  In this case,
+        the user selects which of the two functions should be performed via the duration
+        of the button press.
       </p>
       </div>
     <a name="buttons.type=hold.holdTime"></a>
@@ -5030,9 +5049,19 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   Controls among the suggested applications, it's probably a good option.
   <li>The 15 Ohm resistor is the current-limiting resistor for the IR LED,
   chosen based on TSAL6400 at 250mA.  If using a different IR LED, adjust
-  the resistor to match (using any online LED resistor calculator to figure
-  the value based on 5V supply voltage and the forward voltage (V<sub>F</sub>)
-  shown in your chosen IR LED's data sheet).
+  the resistor to match.  You can use any online LED resistor calculator to figure
+  the resistor value, by entering the forward voltage (V<sub>F</sub>)shown in your
+  chosen IR LED's data sheet, the maximum forward current (I<sub>F</sub>) from
+  the data sheet, and 5V for the power supply voltage.
+  <li>Note that we used 250mA as the forward current for TSAL6400 based on the
+  maximum <b>pulsed</b> current specified in the data sheet.  IR remote control
+  protocols activate the LED only in short pulses, so it's usually safe to drive
+  an IR LED close to the maximum pulsed current shown in the data sheet, which
+  is typically much higher than the nominal I<sub>F</sub> for continuous
+  (steady-state) use.  Using a higher current results in higher IR luminosity,
+  which increases the distance range of the transmitter; this is usually
+  necessary to achieve enough range for the signal to reach across a room.
+  Leave a margin of safety of at least 20% below the stated maximum pulsed current.
   </ul>
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
@@ -6263,22 +6292,6 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   GPIO ports, or it can be a port on one of the supported external
   controller chips, such as the various PWM controller chips, a GPIO
   extender chip, or a shift register chip.
-  </p><p>
-  <b>WARNING:</b> Pico GPIO ports are for low-power 3.3V devices only.
-  Never connect a motor, solenoid, incandescent lamp, or high-current LED
-  directly to a Pico GPIO port, and never connect any device with a power
-  supply voltage greater than 3.3V.  Connecting high-voltage or high-current
-  devices to a GPIO port runs the risk of damaging or destroying the Pico.
-  The Pico can directly control <b>small</b> LEDs, that run on 10mA or less,
-  but nothing more powerful than that.  For anything more, you <b>must</b>
-  use some kind of booster/amplifier circuit.  One solution is to use the
-  reference Expansion Boards, which provide built-in booster circuits for
-  devices at different power levels.  You can also find pre-built generic
-  driver boards on Amazon and eBay - a good search term is "MOSFET board".
-  Or you can build an amplifier circuit yourself.  The
-  <a href="http://mjrnet.org/pinscape/PWMWorker/DataSheet/PWMWorkerDataSheet.htm">PWM Worker Data Sheet</a>
-  shows several general-purpose amplifier circuit designs that work with
-  the Pico and are fairly easy to build.
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{
@@ -6308,6 +6321,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
             <span class="propName"><a href="#outputs.device.type=pca9685.chip">chip</a></span>: <span class="typeNames">number</span>,
             <span class="propName"><a href="#outputs.device.type=pca9685.port">port</a></span>: <span class="typeNames">number</span>,
 
+            // type="shareGroup"
+            <span class="propName"><a href="#outputs.device.type=shareGroup.group">group</a></span>: <span class="typeNames">string</span>,
+
             // type="tlc59116"
             <span class="propName"><a href="#outputs.device.type=tlc59116.chip">chip</a></span>: <span class="typeNames">number</span>,
             <span class="propName"><a href="#outputs.device.type=tlc59116.port">port</a></span>: <span class="typeNames">number</span>,
@@ -6335,6 +6351,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
          <span class="propName"><a href="#outputs.name">name</a></span>: <span class="typeNames">string</span>,
          <span class="propName"><a href="#outputs.noisy">noisy</a></span>: <span class="typeNames">boolean</span>,
          <span class="propName"><a href="#outputs.powerLimit">powerLimit</a></span>: <span class="typeNames">number</span>,
+         <span class="propName"><a href="#outputs.shareGroup">shareGroup</a></span>: <span class="typeNames">string</span>,
          <span class="propName"><a href="#outputs.source">source</a></span>: <span class="typeNames">string</span>,
          <span class="propName"><a href="#outputs.timeLimit">timeLimit</a></span>: <span class="typeNames">number</span>,
       }
@@ -6471,7 +6488,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       </div>
       <div class="jsonPropDesc">
     <div class="jsonEnumVals">
-       One of: <span class="jsonEnumVal">"<a href="#outputs.device.type=74hc595">74hc595</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=gpio">gpio</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=pca9555">pca9555</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=pca9685">pca9685</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=tlc59116">tlc59116</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=tlc5940">tlc5940</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=tlc5947">tlc5947</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=virtual">virtual</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=workerPico">workerPico</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=zblaunch">zblaunch</a>"</span>
+       One of: <span class="jsonEnumVal">"<a href="#outputs.device.type=74hc595">74hc595</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=gpio">gpio</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=pca9555">pca9555</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=pca9685">pca9685</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=shareGroup">shareGroup</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=tlc59116">tlc59116</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=tlc5940">tlc5940</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=tlc5947">tlc5947</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=virtual">virtual</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=workerPico">workerPico</a>"</span>, <span class="jsonEnumVal">"<a href="#outputs.device.type=zblaunch">zblaunch</a>"</span>
     </div>
     <p>
       Selects the type of physical device associated with the port.
@@ -6486,6 +6503,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       <tr><td>"gpio"</td><td>A Pico GPIO port</td></tr>
       <tr><td>"workerPico"</td><td>An output port on an auxiliary Pico running the PWMWorker firmware</td></tr>
       <tr><td>"zblaunch"</td><td>A virtual port that activates ZB Launch Mode when DOF signals that the port is on</td></tr>
+      <tr><td>"shareGroup"</td><td>A virtual port that sends output to a designated group of ports that can be shared with other "shareGroup" ports</td></tr>
       <tr><td>"virtual"</td><td>A virtual port that doesn't control any physical device</td></tr>
       </table>
     </p>
@@ -6564,6 +6582,26 @@ For an introduction to the JSON syntax and the overall file layout, refer to
           Connects the logical port to a physical GPIO port on the Pico.  The GPIO is
           set up as an output port, which can drive a load up to about 10mA, such as a
           small LED.  Higher-current loads require amplifier circuits.
+          </p><p>
+          <b>WARNING:</b> Pico GPIO ports are for low-power 3.3V devices only.
+          Never connect a motor, solenoid, incandescent lamp, or high-current LED
+          directly to a Pico GPIO port, and never connect any device with a power
+          supply voltage greater than 3.3V.  Connecting high-voltage or high-current
+          devices to a GPIO port runs the risk of damaging or destroying the Pico.
+          The Pico can directly control <b>small</b> LEDs, that run on 10mA or less,
+          <b>and</b> 3.3V or less, but nothing exceeding those limits.  For anything
+          higher voltage or higher current, you <b>must</b> use some kind of
+          booster/amplifier circuit.  One solution is to use an expansion
+          board set that provides built-in booster circuits.  The Pinscape Pico
+          project on github includes a couple of reference designs for full-featured
+          expansion boards that provide plenty of high-power outputs, extra button
+          inputs, and other features that go beyond the Pico's basic built-in
+          capabilities.  You can also find pre-built general-purpose driver boards
+          on Amazon and eBay that work with the Pico and other microcontrollers;
+          try searching for "MOSFET board".   Or you can build a suitable booster
+          circuit yourself.  The <a href="http://mjrnet.org/pinscape/PWMWorker/DataSheet/PWMWorkerDataSheet.htm">PWM Worker Data Sheet</a>
+          shows several general-purpose amplifier circuit designs that work with
+          the Pico and are fairly easy to build.
         </p>
         </div>
       <a name="outputs.device.type=gpio.freq"></a>
@@ -6698,6 +6736,35 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       <p>
         The port number on the chip, 0 to 15, corresponding to the pins labeled
         LED0 through LED15 in the data sheet.
+      </p>
+        </div>
+      </div>
+      </div>
+      <a name="outputs.device.type=shareGroup"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">outputs[].device.</span><span class="jsonPropName">type="shareGroup"</span>
+        </div>
+        <div class="jsonClassDesc">
+        <p>
+          Connects the logical port to a pool of shared ports.
+          </p><p>
+          See the <a href="#outputs.shareGroup"><tt>shareGroup</tt></a> property for
+          an explanation of how share groups work and how to set them up.
+        </p>
+        </div>
+      <a name="outputs.device.type=shareGroup.group"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">outputs[].device.</span><span class="jsonPropName">group</span>
+          <span class="jsonPropType">string</span><span class="jsonPropRequired">Required</span>
+        </div>
+        <div class="jsonPropDesc">
+      <p>
+        Identifies the shared group of ports that this virtual device connects to.
+        The device will be connected to the group of ports that are labeled with
+        the same name in their <a href="#outputs.shareGroup"><tt>shareGroup</tt></a>
+        property.
       </p>
         </div>
       </div>
@@ -7009,6 +7076,134 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     for long periods without overheating the device.  This is given
     as a PWM level from 0 to 255, where 0 is fully off and 255 is
     fully on.
+  </p>
+    </div>
+  </div>
+  <a name="outputs.shareGroup"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">outputs[].</span><span class="jsonPropName">shareGroup</span>
+      <span class="jsonPropType">string</span><span class="jsonPropOptional">Optional</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    Places this port in a "share group" pool, which makes the physical
+    output device available for dynamic assignment to different logical
+    DOF ports as DOF events are fired.  The property value is a string
+    giving the name of the group to which the port belongs.
+    </p><p>
+    The purpose of a share group is to trick DOF into believing that you
+    have more physical devices than you really do, by sharing a small
+    number of physical devices across a larger number of logical DOF
+    ports.  Each time DOF fires one of its logical ports, Pinscape will
+    look in the share group pool for a device that's not currently in
+    use, and will assign it to the DOF port, <i>just for the duration
+    of this one event</i>.  When the event ends and DOF sets the port
+    to OFF, the physical device is released back into the pool for use
+    in a future event.
+    </p><p>
+    The most common use case for share groups is DOF jet bumper ports.
+    The standard DOF configuration calls for six ports assigned as
+    jet bumpers - back left, back center, back right, middle left,
+    middle center, middle right.  This lets DOF make sure that bumper
+    effects in the game are routed to the right spatial location in
+    your cabinet, so that the sound effect sounds like it's coming from
+    the on-screen location of the bumper.  In a small pin cab, though,
+    you might not have room for six separate bumper solenoids - there
+    might only be room for one or two.  But it's easier to let DOF
+    <i>think</i> you have the standard six, because that lets you
+    use the existing database of effects assignments, which is all
+    based on the assumption that every cab has six bumper devices.
+    Share groups address this use case by letting Pinscape manage
+    the association between six <b>virtual</b> DOF ports, representing
+    the six bumper devices DOF believes every pin cab should have,
+    and the smaller number of <b>physical</b> solenoids you have
+    installed in your cab.
+    </p><p>
+    To set up a share group, you have to configure two sets of ports.
+    The first is the <b>virtual DOF ports</b>.  This is the larger
+    group of ports that DOF sees.  For the DOF bumper ports example,
+    this would be a set of six ports corresponding to the six standard
+    DOF bumpers (back left, back center, etc).  Each of these virtual
+    ports is assigned a shareGroup device:
+    <pre>
+  outputs: [
+    // ... other ports ...
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF rear left bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF rear center bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF rear right bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF mid left bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF mid center bumper port
+    { device: { type: "shareGroup", group: "bumpers" } },   // DOF mid right bumper port
+    // ... other ports ...
+  ],</pre>
+    </p><p>
+    Those virtual ports are the ones that you assign in your DOF Config Tool
+    configuration.  In your DOF Config Tool settings, under <b>Cabinet &gt; Devices &gt; Port Assignments</b>,
+    you assign the numbered Pinscape ports to the named DOF ports - in our
+    example, the six DOF bumper ports.
+    </p><p>
+    The second part of a share group is the <b>physical device ports</b>.
+    This is the smaller group of ports that represents the actual physical
+    devices that will be actuated when the DOF effects are triggered.  For
+    these ports, you configure them just like a normal device output port,
+    specifying the physical device assignment.  Then you add the <bb>shareGroup</bb>
+    property to the port.
+    <pre>
+  outputs: [
+    // ... other ports
+    { device: { type: "gpio", gp: 7 }, shareGroup: "bumpers" },
+    { device: { type: "gpio", gp: 8 }, shareGroup: "bumpers" },
+    // ... other ports
+  ],</pre>
+    DOF doesn't address these ports directly, so you don't assign them to
+    anything at all in your DOF configuration.  DOF doesn't have to know
+    these ports even exist.  DOF only accesses them indirectly, through the
+    <tt>type:"shareGroup"</tt> ports.
+    </p><p>
+    Here's how this works during game play.  Say that the ball hits the
+    upper left bumper, causing DOF to activate the Pinscape port that you
+    assigned to "10 Bumper Back Left".  On the Pinscape side, this port is
+    assigned to a "shareGroup" device with the group name "bumpers", so
+    Pinscape looks for a port with <tt>shareGroup:"bumpers"</tt> in its
+    properties.  In the example above, it'll find the ports assigned to
+    GPIO ports 7 and 8.  Pinscape will pick one of these devices that's
+    not already being fired by some <i>other</i> shareGroup port, so let's
+    say that it chooses the one on GPIO 7.  Pinscape will activate that
+    port, and it'll also make a note that GPIO 7 is now being used by
+    the Back Left Bumper port for the duration of this event (that is,
+    as long as DOF continues to activate that port).
+    </p><p>
+    Now, suppose that we're in multiball mode, and a second ball hits
+    the Mid Right Bumper while this event on GPIO 7 is going on.  DOF
+    will fire the Mid Right "shareGroup" device port, and Pinscape will
+    go through the process of identifying an available ports in the
+    "bumpers" group.  Since the port on GPIO 7 is already being fired
+    by the Upper Left Bumper event, this event can't use that port.
+    But the port on GPIO 8 is still available, so Pinscape will assign
+    the event to that port.
+    </p><p>
+    If a third "bumpers" group event fires while both of these
+    events are still in progress, the third event will simply be
+    ignored, since there aren't any more physical devices available
+    to carry it out.
+    </p><p>
+    When DOF finishes with the events on the Back Left Bumper and
+    Mid Right Bumper ports, it'll set the ports to OFF, and Pinscape
+    will release the ports back to the pool of shared "bumper" ports
+    for use in new events.
+    </p><p>
+    Pinscape automatically cycles through the pool of shared ports
+    as events arrive, so that the devices get roughly equal use.
+    This is meant to add variety to the effects, so that every bumper
+    hit doesn't sound exactly the same as the last.
+    </p><p>
+    When a port is assigned to a share group, the port ignores DOF
+    commands sent directly to the port.  It <b>only</b> accepts commands
+    from the virtual <tt>type:"shareGroup"</tt> device port that's
+    currently controlling the share group port.  So DOF is still able
+    to send commands to a share group port, but only <i>indirectly</i>,
+    through the port's temporary share group assignment.
   </p>
     </div>
   </div>

@@ -129,6 +129,16 @@ something that's known to work, stick with the original Pico.  But if
 you do want to test against the new model, I'm interested in hearing
 how well it works.
 
+The "W" variations (Pico W and Pico 2W) are **not supported**.  The W
+versions have different fixed wiring for some of the GPIOs, to
+accommodate the WiFi chip, which changes how a few of the standard
+platform features work.  Pinscape seems to *mostly* work on the W, but
+some things might not work properly due to the pre-assigned GPIO
+differences.  I'd therefore recommend against using a W with Pinscape,
+especially considering that Pinscape doesn't make use of any of the
+WiFi features, so you don't get any benefits to compensate for the
+compatibility issues.
+
 
 ## Features
 

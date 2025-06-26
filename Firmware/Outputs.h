@@ -544,6 +544,9 @@ public:
         // group.
         void AddPort(Port *port) { pool.emplace_back(port); }
 
+        // get the pool size (the number of devices in the pool)
+        size_t GetPoolSize() const { return pool.size(); }
+
         // Claim a port from the pool.  A ShareGroupDev virtual device
         // calls this when it transitions from OFF to ON, to acquire a
         // physical output port to actuate for the duration of the DOF

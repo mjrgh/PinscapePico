@@ -490,6 +490,20 @@ void OutputManager::Configure(JSONParser &json)
         ++index;
     }
 
+    // Check for empty share group pools.  An empty pool isn't necessarily
+    // an error, but it's PROBABLY an error - it probably just means that
+    // there's a naming mismatch between the devices and the pool.
+    for (const auto &s : shareGroups)
+    {
+        if (s.second.GetPoolSize() == 0)
+        {
+            Log(LOG_WARNING, "Share group \"%s\" has no physical output ports assigned; "
+                "check type:\"shareGroup\" devices in the outputs list for typos in their "
+                "group: settings\n",
+                s.first.c_str());
+        }
+    }
+
     // configuration completed
     isConfigured = true;
 
@@ -2353,7 +2367,10 @@ void OutputManager::ShareGroupDev::Set(uint8_t newLevel)
         // ON -> OFF - turn off the underlying port, and release it
         // back to the pool
         poolPort->SetShareGroupLevel(0);
+
+        // release and forget the port
         container->ReleasePort(this);
+        poolPort = nullptr;
     }
 
     // remember the new level
@@ -2395,18 +2412,16 @@ OutputManager::ShareGroupContainer *OutputManager::ShareGroupContainer::FindOrCr
 
 OutputManager::Port *OutputManager::ShareGroupContainer::ClaimPort(ShareGroupDev *dev)
 {
+    // we can't claim a port if the pool is empty
+    if (pool.size() == 0)
+        return nullptr;
+    
     // find the next unclaimed port in our pool
     for (int startIdx = claimIdx ; ; )
     {
         // advance to the next index, wrapping at the end of the list
         if (++claimIdx >= static_cast<int>(pool.size()))
             claimIdx = 0;
-
-        // stop when we wrap back to the starting point, since that
-        // means that we've visited every port in the pool without
-        // finding a free entry
-        if (claimIdx == startIdx)
-            return nullptr;
 
         // if this element is free, assign it
         if (auto &ele = pool[claimIdx]; ele.claimant == nullptr)
@@ -2415,6 +2430,12 @@ OutputManager::Port *OutputManager::ShareGroupContainer::ClaimPort(ShareGroupDev
             ele.claimant = dev;
             return ele.port;
         }
+
+        // stop when we wrap back to the starting point, since that
+        // means that we've visited every port in the pool without
+        // finding a free entry
+        if (claimIdx == startIdx)
+            return nullptr;
     }
 }
 

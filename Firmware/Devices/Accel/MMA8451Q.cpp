@@ -183,9 +183,9 @@ void MMA8451Q::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
         // set the new ACTIVE mode bit (register 0x2A, bit 0x01 - 0=Standby, 1=Active)
         uint8_t newBit = active ? 0x01 : 0x00;
         buf[1] = (buf[1] & ~0x01) | newBit;
-        if (i2c_write_timeout_us(i2c, i2cAddr, buf, 2, false, 1000) != 1)
+        if (i2c_write_timeout_us(i2c, i2cAddr, buf, 2, false, 1000) != 2)
         {
-            Log(LOG_ERROR, "MMA8451Q: Error reading CTRL_REG1 (setting %s mode)\n", modeName);
+            Log(LOG_ERROR, "MMA8451Q: Error writing CTRL_REG1 (setting %s mode)\n", modeName);
             return false;
         }
         

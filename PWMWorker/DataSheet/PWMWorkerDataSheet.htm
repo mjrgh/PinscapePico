@@ -164,13 +164,16 @@ tt {
    circuits are presented later in this document.  Ports can be configured with
    active-high or active-low outputs, providing the flexibility to use
    amplifier circuits that require either kind of trigger level.  The
-   ports can be enabled and disabled as a group.  All ports are initially
-   disabled at reset, and disabled ports are in high-impedance state;
-   this combination makes it possible to design external amplifier
-   circuitry with deterministically glitch-free startup (i.e., guaranteeing
-   that all ports remain OFF until the host controller's software environment
-   has been fully initialized and ports are set to the desired configurations
-   and initial output levels).
+   ports can be enabled and disabled as a group.
+</p>
+<p>
+   At Pico reset, all GPIO ports (and thus all of the OUTn ports) are
+   configured as inputs, which connects the ports to GND through a high-value
+   resistor (about 50K ohms) internal to the Pico.  This is the OUTn port state
+   we refer to as "disabled".  This makes it possible to design external booster
+   circuits for glitch-free startup - that is, guaranteeing that all amplified
+   output ports remain OFF throughout the power-up and software initialization
+   process, without even brief activation.
 </p>
 <p>
    Features, benefits, and tradeoffs:
@@ -476,11 +479,11 @@ tt {
    or disable all outputs as a group; at reset, all outputs are disabled,
    allowing the host to configure outputs before they start driving their
    connected loads.  When outputs are disabled, all of the OUTn pins are
-   configured in INPUT mode, which places them in high-impedance
-   (floating) state.  When ports are enabled, the GPIOs are reconfigured
-   in OUTPUT mode, which makes them push/pull drivers at 3.3V.  Each
-   port in OUTPUT mode is capable of sinking or sourcing up to about
-   10 mA, which makes them suitable for driving small LEDs directly.
+   configured in INPUT mode, which connects them to GND through a high-value
+   internal resistor in the Pico (about 50K).  When ports are enabled, the
+   GPIOs are reconfigured in OUTPUT mode, which makes them push/pull drivers
+   at 3.3V.  Each port in OUTPUT mode is capable of sinking or sourcing up
+   to about 10 mA, which makes them suitable for driving small LEDs directly.
    For larger loads, an amplifier circuit with a logic-level trigger
    input must be used.  The host can configure ports individually to
    use active high or active low logic, which provides the flexibility
@@ -519,7 +522,7 @@ tt {
 </p>
 <p>
    <b>3V3_OUT</b> is the output from the Pico's internal 3.3V regulator.
-   This can be used to power other peripherals with 3.3V power.  
+   This can be used to power other peripherals with 3.3V power.
    This will typically be left unconnected in a PWMWorker application.
 </p>
 <p>
@@ -548,7 +551,7 @@ tt {
    be used as the host, as long as it's compatible with a 3.3V I2C bus.
    Microcontrollers with higher or lower logic voltages may also be used,
    by placing voltage level shifters on the SDA and SCL lines between the
-   Pico and the main bus. 
+   Pico and the main bus.
 </p>
 <p>
    The PWMWorker Pico does <b>not</b> need a USB data connection, since it
@@ -870,17 +873,19 @@ tt {
 <p>
    The Raspberry Pi Pico has internal circuitry that
    provides a deterministic electronic state on the ports during
-   the initial power-on reset period.  The Pico sets all ports to
-   high-impedance state at reset, and the ports remain in this state
-   until the firmware program explicitly reconfigures them.
+   the initial power-on reset period.  The Pico sets all GPIO ports
+   to INPUT mode at reset; in this state, each GPIO is connected to
+   GND through a high-value (50K ohm) resistor internal to the Pico.
+   Ports remain in this state until the firmware program explicitly
+   reconfigures them.
 </p>
 <p>
-   PWMWorker extends this period of deterministic high-impedance
+   PWMWorker extends this period of deterministic INPUT
    port state throughout its own initialization, <i>and</i> through
    the completion of the host controller's initialization
    (the host controller is the I2C bus master that's sending
    commands to the PWMWorker).  PWMWorker holds all ports in the
-   initial high-impedance state until the host sets the ENABLE
+   initial INPUT state until the host sets the ENABLE
    OUTPUTS bit (0x01) in Control Register 0 (CTRL0, address 0x18)
    to '1'.  Ports can be configured and set to the desired level
    while they're still disabled, so the host can ensure that all
@@ -891,24 +896,22 @@ tt {
    The only thing left that you have to worry about in your hardware
    design is to ensure that the circuit is configured in such a way
    that the controlled device remains deterministically OFF whenever
-   the GPIO port is in a high-impedance state.  For current-controlled
-   amplifiers (NPN transistors, Darlingtons), this is essentially inherent
-   in the nature of the transistor, and requires no extra components,
-   since a GPIO port in high-impedance state won't supply any
-   current to the transistor input.  For a voltage-controlled
-   device like a MOSFET, however, you must ensure that the control
-   input is in a deterministic OFF state when the GPIO port is
-   in high-impedance state.  This can usually be accomplished
-   simply by providing a pull-up or pull-down resistor that
-   forces the control voltage to the OFF state when the GPIO
-   port isn't driving the signal.  The pull-up/down resistor must
-   be weak enough that the Pico GPIO Port can override it once
-   it's in push-pull mode; a value around 10K is usually
-   suitable.  (The UCC27524P-based MOSFET circuit diagrammed above
-   satisfies this requirement through a pull-down resistor built
-   into the UCC27524P.)
+   the GPIO port is in INPUT state.  For amplifier circuits that
+   use HIGH level triggers, such as NPN transistors and N-channel
+   MOSFETs, the Pico's internal weak pull-down resistor might be
+   sufficient by itself, but a stronger external pull-down resistor
+   might still be desirable, especially if the trigger circuit has
+   high capacitance (such as a MOSFET gate).  For high-level trigger
+   circuits (P-channel MOSFETs, PNP drivers), a pull-up is required.
+   Choose a pull resistor that's strong enough to override the Pico's
+   internal 50K pull-down, but weak enough for the Pico's 10mA GPIO
+   driver; a value in the 4K to 10K range should work.
 </p>
-   
+<p>
+   The UCC27524P-based MOSFET circuit diagrammed above satisfies the
+   pull resistor requirement through a pull-down resistor built
+   into the UCC27524P.
+</p>
 
 
 <h2>Status LED</h3>
@@ -925,7 +928,7 @@ tt {
    
    <li><b>Standby:</b> Short flashes about once every 2 seconds.  This
    is the initial state after reset and initialization.  All output
-   ports are disabled (in high-impedance state).  The device can also
+   ports are disabled (set to GPIO INPUT mode).  The device can also
    be put back in this mode by an I2C command from the host, which
    the host might wish to do before powering down or going into
    sleep/standby mode.
@@ -1115,8 +1118,9 @@ tt {
          HIGH logic level during the OFF portion.
          <p>
             This is only applied when outputs are enabled through the CTRL0 configuration
-            register; when outputs are disabled, all OUTn ports are set to high-impedance
-            (floating) state.  However, the host can still set port levels while ports
+            register; when outputs are disabled, all OUTn ports are set to GPIO INPUT mode
+            (which connects them to GND through a high-value resistor internal to the Pico).
+            However, the host can still set port levels while ports
             are disabled, and the level settings are stored internally, and are applied
             as soon as outputs are enabled.  This allows the host to configure all outputs
             and set their levels before any outputs are enabled, so that all of the outputs
@@ -1192,10 +1196,10 @@ tt {
             <li><b>Bits 5-1 = Reserved</b>
 
             <li><b>Bit 0 (0x01) = Enable Outputs.</b>  Initially 0.  When zero,
-            all output ports are configured as Pico GPIO INPUT ports, which sets
-            them to high-impedance (floating) state.  When set to '1', all ports
-            are configured as OUTPUT ports, where they act as 3.3V push/pull
-            drivers.
+            all output ports are configured as Pico GPIO INPUT ports, which connects
+            them to GND through a high-value resistor internal to the Pico.
+            When set to '1', all ports are configured as OUTPUT ports, where
+            they act as 3.3V push/pull drivers.
          </ul>
       </td>
    </tr> 

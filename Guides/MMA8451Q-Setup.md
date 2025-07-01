@@ -1,68 +1,60 @@
-# LIS3DH Setup Guide
+# MMA8451Q Setup Guide
 
-This is a quick guide to setting up a LIS3DH accelerometer with a standalone
-Pico.  LIS3DH is a low-cost MEMS accelerometer chip made by STMicroelectronics.
-It's popular with robotics hobbyists because you can buy it on a "breakout
-board" - a little pre-assembled circuit board with the chip and a set of
-connector pins that you can easily wire to a Pico without any soldering.
+This is a quick guide to setting up an MMA8451Q accelerometer with a
+standalone Pico.  MMA8451Q is the accelerometer chip that was
+built into the venerable FRDM-KL25Z microcontroller board, which
+was the platform that the original Pinscape Controller software
+ran on.
 
-If you're using one of my reference Expansion Board designs, you won't
-need to go through the extra steps here, because the Expansion Board
-has a ready-made slot that fits the Adafruit LIS3DH breakout board.
-Just build the expansion board, and plug an Adafruit LIS3DH breakout
-board into the slot.  Note that the slot is specifically designed to
-fit the **Adafruit** LIS3DH breakout board, so you must use that
-specific product.  Generic LIS3DH boards from Amazon or eBay or
-AliExpress probably won't have the same pin layout and so won't work.
+MMA8451Q is no longer in production, but you can still buy them as of
+this writing (mid 2025), because Adafruit still has an inventory of
+their MMA8451Q breakout boards in stock.  The MMA8451Q is the best
+current option for Pinscape Pico accelerometers in terms of
+measurement accuracy, so if you're thinking about building a nudge
+device into your pin cab, you should go out and buy the Adafruit
+board now, while they're still available.
 
-Note that Adafruit also makes a similar breakout board for the MMA8451Q.
-That's the accelerometer chip that was used on the venerable FRDM-KL25Z,
-which was Pinscape's original home platform.  MMA8451Q is no longer in
-production, but Adafruit still has an inventory of the chips, so you can
-still buy them until they run out.  MMA8451Q is a better accelerometer
-than LIS3DH (in particular, it has better noise performance when
-standing still, which is good for pin cab nudge sensing), so I'd grab
-one while you still can.  See [MMA8451Q Setup](MMA8451Q-Setup.md) for
-instructions on setting up that board.
+If you're using a newer version of my DIY Expansion Board design, you
+won't need to go through the extra steps here, because the DIY board
+has a slot pre-wired for the Adafruit MMA8451Q breakout board.  Just
+build the expansion board, and plug the Adafruit board into the
+special slot.  Note that the slot is specifically designed for the **Adafruit**
+MMA8451Q breakout board, so you must use that specific product.  Generic
+MMA8451Q boards from Amazon or eBay or AliExpress probably won't have
+the same pin layout and so won't work.
 
-LIS3DH breakout boards are available from several sources, including
-Adafruit, Sparkfun, and no-name sellers on Amazon and eBay.  I use the
-one from Adafruit, but any of the others should work equally well.
-They're all equivalent as far as the Pinscape software is concerned,
-because they all have the same IC chip at their core, the LIS3DH.
+If you're reading this material some years after I wrote, and you find
+that the MMA8451Q is no longer available, the next device to try is
+probably LIS3DH, which is (as of 2025) in production and widely available.
+See [LIS3DH Setup](LIS3DH-Setup.md).
 
-There's an older variation on the LIS3DH called the LIS3DSH (that's
-just one letter difference, hidden in the middle of the name - the
-added **S**).  LIS3DH and LIS3DSH are different chips with different
-software interfaces, so you can't use them interchangeably.  However,
-Pinscape Pico has support for both, so you can use either one.  You
-just have to be sure to tell the software which type you're using when
-you set up the configuration.  Otherwise, setting up the two chips is
-the same, so you can use this guide with either type, as long as you
-set the correct type when you get to the JSON configuration steps.
 
 ## Pico pin-out diagram
 
 <img src="../GUIConfigTool/Help/PicoPinout.png">
 
-## Adafruit LIS3DH board diagram
+## Adafruit MMA8451Q board diagram
 
-You don't have to use the Adafruit board specifically, but there's no way I
-can show you diagrams of every single LIS3DH board out there, so I'll use
-this as the reference point.  The other LIS3DH boards might have different
-labels for some of the pins, but they should have all of the same actual
-pins - hopefully it won't be too hard to figure out the correspondences for
-any pins with different labels.
+If you're using an MMA8451Q board from some other vendor, it might not
+have exactly the same pin layout, but all of the same pins should still
+be there, possibly in a different order and with different labels.  There's
+no way I can show you a diagram of every other board that might be out
+there, so I'll have to leave it up to you to make the translation from
+the Adafruit layout shown above.
 
-<img src="Adafruit-LIS3DH-pinout.png">
+<img src="Adafruit-MMA8451Q-pinout.png">
 
 
 ## Wiring the chip
 
-All LIS3DH breakout boards should have the following external pins, which
+All MMA8451Q breakout boards should have the following external pins, which
 should be connected as follows:
 
-* 3.3V power input, labeled **VIN** on the Adafruit board (it might be **3.3V** or **3V3** on other boards).
+* 5V input, labeled **5V** on the Adafruit board.  **DO NOT CONNECT this pin.**
+The Pico is a 3.3V platform, so you **must not** connect this pin when using the chip with a Pico.
+(Non-Adafruit boards might not have a 5V input.)
+
+* 3.3V power input, labeled **3VO** on the Adafruit board (it might be **3.3V** or **3V3** on other boards).
 Connect to the Pico 3.3V power output pin (3V3 OUT, pin 36).
 
 * GND (ground).  Connect to any GND pin on the Pico.
@@ -71,17 +63,12 @@ Connect to the Pico 3.3V power output pin (3V3 OUT, pin 36).
 
 * SDA.  See the I2C connection notes below.
 
-* Interrupt, labeled **INT** on the Adafruit board (it might be **INT1** on other boards)
+* Interrupt 1, labeled **I1** on the Adafruit board (it might be **INT1** on other boards)
 Connect to any free GPIO pin on the Pico.  You can optionally leave this disconnected, but
 it improves overall Pico software performance if you connect it.
 
-* CS.  Connect to 3.3V (same as VIN).
-
-* SDO/SA0 (labeled **SDO** on the Adafruit board).  Connect to GND to select I2C address
-0x18, or 3.3V (same as VIN) to select address 0x19.
-
-Note that some boards also have a POWER OUT pin.  This is true of the Adafruit
-board (the pin labeled **3Vo**).  You can leave this disconnected.
+* SA0 (labeled **A** on the Adafruit board).  Connect to GND to select I2C address
+0x1C.  Connect to 3.3V (same as VIN) or simply leave unconnected to select address 0x1D.
 
 Some boards have other pins as well, and in most cases, you can leave these disconnected.
 But if your board came with instructions or a wiring diagram, pay attention to what they
@@ -89,7 +76,7 @@ say instead of my one-size-fits-all advice here.
 
 ### Sample breadboard wiring
 
-<img src="LIS3DH-on-breadboard.png">
+<img src="MMA8451Q-on-breadboard.png">
 
 ### I2C connections
 
@@ -109,13 +96,13 @@ pins, SDA and SCL, that are attached to the same I2Cx unit.
 For example, GP0 and GP1 are attached to I2C0 SDA and I2C0 SCL respectively, so you can
 use these as your I2C pins.
 
-Once you choose, just wire the SDA pin from the LIS3DH board to the chosen SDA GPIO pin
-the Pico, and likewise, wire SCL from the LIS3DH to the chosen SCL GPIO on the Pico.
+Once you choose, just wire the SDA pin from the MMA8451Q board to the chosen SDA GPIO pin
+the Pico, and likewise, wire SCL from the MMA8451Q to the chosen SCL GPIO on the Pico.
 
 ## Pinscape configuration setup
 
 There are two sections in the JSON configuration that you have to set up to use
-this chip: `i2c0` or `i2c1`, and `lis3dh`.
+this chip: `i2c0` or `i2c1`, and `mma8451q`.
 
 The first section configures the I2C unit.  An I2C bus can have
 several devices attached, so Pinscape separates the I2C configuration
@@ -139,19 +126,19 @@ The "0" in `i2c0` is the unit number, which must match the pins you selected in
 the wiring.  If you used pins that are labeled as I2C1 pins in the Pico diagram,
 change this to `i2c1` instead.
 
-If your LIS3DH board has its own pull-up resistors built-in, which many of these boards do,
+If your MMA8451Q board has its own pull-up resistors built-in, which many of these boards do,
 you can omit the `pullup: true` part.  But it doesn't usually do any harm to include it
 one way or the other.  An I2C bus *always* requires pull-up resistors on those lines, so
 most boards include them, but some leave it up to you to provide them to give you more
 flexibility in choosing the resistor size (which matters more when you have several
 devices attached to the bus).
 
-The second section sets up the LIS3DH unit itself.
+The second section sets up the MMA8451Q unit itself.
 
 ```
-lis3dh: {
+mma8451q: {
    i2c: 0,        // which I2C unit you're using - 0 if you connected the device to I2C0 pins, 1 for I2C1 pins
-   addr: 0x18,    // the chip's I2C address - 0x18 if you connected SDO/SA0 to GND, 0x19 if you connected it to 3V3 OUT
+   addr: 0x1D,    // the chip's I2C address - 0x1C if you connected "A" (SA0) to GND, 0x1D if you connected it to 3V3 OUT or left it unconnected
    interrupt: 22, // the GPIO port number where you connected the INTERRUPT (INT or INT1) pin - OMIT IF NOT CONNECTED
    gRange: 2,     // the "g" range to select - 2 selects +/- 2g, which is the most sensitive setting, and usually the best for virtual pinball
 },
@@ -172,7 +159,7 @@ nudge: {
 },
 ```
 
-The axis mapping lets you compensate for the orientation of the LIS3DH chip in the cabinet.
+The axis mapping lets you compensate for the orientation of the MMA8451Q chip in the cabinet.
 If you look very closely at the Adafruit board, it has a very small arrow with a "Y" printed
 on top, showing the direction of the physical chip's Y axis relative to the carrier board.
 In the virtual pinball world, the "X" axis represents left/right motion across the width
@@ -221,15 +208,15 @@ wiring shown earlier.
       speed: 400000,
    },
 
-   lis3dh: {
+   mma8451q: {
       i2c: 0,
-      addr: 0x19,
+      addr: 0x1D,
       interrupt: 15,
       gRange: 2,  
    },
   
    nudge: {
-      source: "lis3dh",
+      source: "mma8451q",
       x: "+X",
       y: "+Y",
       z: "+Z",  
@@ -253,7 +240,7 @@ and then click on the Nudge tab to bring up the Nudge Tester window.
 
 The simple test to perform here is to observe the **Accelerometer X/Y
 (Raw)** graph, and make sure the red crosshairs moves when you nudge
-the LIS3DH board.  When you apply side-to-side accelerations to the
+the MMA8451Q board.  When you apply side-to-side accelerations to the
 board, you should see the crosshairs move left and right.  When you
 apply front/back accelerations to the board, you should see the
 crosshairs move up and down.
@@ -272,8 +259,8 @@ the Pinscape Pico entry, and double-click it.
 
 You can now repeat the physical "nudge" tests, this time observing
 the **X Axis / Y Axis** crosshairs in the joystick viewer.  You should
-see the crosshairs move side-to-side when you move the LIS3DH board
-side-to-side, and up/down when you move the LIS3DH board front-to-back.
+see the crosshairs move side-to-side when you move the MMA8451Q board
+side-to-side, and up/down when you move the MMA8451Q board front-to-back.
 
 Again, if the directions are wrong, you can fix it easily by changing
 the axis mappings in the `nudge` settings in the configuration.
@@ -296,14 +283,14 @@ collected when you clicked the Calibrate button.
 
 ## Cabinet installation
 
-The LIS3DH board should be installed flat on the floor of your cabinet, square
+The MMA8451Q board should be installed flat on the floor of your cabinet, square
 with the cabinet walls.  The rotation doesn't matter, since you can always remap
 the axis assignments to match the orientation, but it's important to have the
-sides of the board parallel to the walls of the cabinet, so that one LIS3DH
+sides of the board parallel to the walls of the cabinet, so that one MMA8451Q
 horizontal axis is aligned with the side-to-side motion of the cabinet, and
 the other is aligned with front-to-back motion.  If you install the board
 at an angle, front-to-back and side-to-side motion will both be mixed into
-the readings on both LIS3DH horizontal axes, which will make the nudge response
+the readings on both MMA8451Q horizontal axes, which will make the nudge response
 muddy at best.
 
 The board should be attached securely to the cabinet floor, so that the device

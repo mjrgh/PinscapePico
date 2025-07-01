@@ -525,7 +525,11 @@ For an introduction to the JSON syntax and the overall file layout, refer to
               <span class="propName"><a href="#outputs.device.type=pca9685.port">port</a></span>: <span class="typeNames">number</span>,
 
               // type="shareGroup"
-              <span class="propName"><a href="#outputs.device.type=shareGroup.group">group</a></span>: <span class="typeNames">string</span>,
+              <span class="propName"><a href="#outputs.device.type=shareGroup.group">group</a></span>: <span class="typeNames">string|[string]</span>,
+              <span class="propName"><a href="#outputs.device.type=shareGroup.pulse">pulse</a></span>: {
+                 <span class="propName"><a href="#outputs.device.type=shareGroup.pulse.tOff">tOff</a></span>: <span class="typeNames">number</span>,
+                 <span class="propName"><a href="#outputs.device.type=shareGroup.pulse.tOn">tOn</a></span>: <span class="typeNames">number</span>,
+              },
 
               // type="tlc59116"
               <span class="propName"><a href="#outputs.device.type=tlc59116.chip">chip</a></span>: <span class="typeNames">number</span>,
@@ -554,7 +558,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
            <span class="propName"><a href="#outputs.name">name</a></span>: <span class="typeNames">string</span>,
            <span class="propName"><a href="#outputs.noisy">noisy</a></span>: <span class="typeNames">boolean</span>,
            <span class="propName"><a href="#outputs.powerLimit">powerLimit</a></span>: <span class="typeNames">number</span>,
-           <span class="propName"><a href="#outputs.shareGroup">shareGroup</a></span>: <span class="typeNames">string</span>,
+           <span class="propName"><a href="#outputs.shareGroup">shareGroup</a></span>: <span class="typeNames">string|[string]</span>,
            <span class="propName"><a href="#outputs.source">source</a></span>: <span class="typeNames">string</span>,
            <span class="propName"><a href="#outputs.timeLimit">timeLimit</a></span>: <span class="typeNames">number</span>,
         }
@@ -6322,7 +6326,11 @@ For an introduction to the JSON syntax and the overall file layout, refer to
             <span class="propName"><a href="#outputs.device.type=pca9685.port">port</a></span>: <span class="typeNames">number</span>,
 
             // type="shareGroup"
-            <span class="propName"><a href="#outputs.device.type=shareGroup.group">group</a></span>: <span class="typeNames">string</span>,
+            <span class="propName"><a href="#outputs.device.type=shareGroup.group">group</a></span>: <span class="typeNames">string|[string]</span>,
+            <span class="propName"><a href="#outputs.device.type=shareGroup.pulse">pulse</a></span>: {
+               <span class="propName"><a href="#outputs.device.type=shareGroup.pulse.tOff">tOff</a></span>: <span class="typeNames">number</span>,
+               <span class="propName"><a href="#outputs.device.type=shareGroup.pulse.tOn">tOn</a></span>: <span class="typeNames">number</span>,
+            },
 
             // type="tlc59116"
             <span class="propName"><a href="#outputs.device.type=tlc59116.chip">chip</a></span>: <span class="typeNames">number</span>,
@@ -6351,7 +6359,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
          <span class="propName"><a href="#outputs.name">name</a></span>: <span class="typeNames">string</span>,
          <span class="propName"><a href="#outputs.noisy">noisy</a></span>: <span class="typeNames">boolean</span>,
          <span class="propName"><a href="#outputs.powerLimit">powerLimit</a></span>: <span class="typeNames">number</span>,
-         <span class="propName"><a href="#outputs.shareGroup">shareGroup</a></span>: <span class="typeNames">string</span>,
+         <span class="propName"><a href="#outputs.shareGroup">shareGroup</a></span>: <span class="typeNames">string|[string]</span>,
          <span class="propName"><a href="#outputs.source">source</a></span>: <span class="typeNames">string</span>,
          <span class="propName"><a href="#outputs.timeLimit">timeLimit</a></span>: <span class="typeNames">number</span>,
       }
@@ -6497,6 +6505,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       <tr><th>Device type</th><th>Description</th></tr>
       <tr><td>"tlc59116"</td><td>An output port on a TLC59116 PWM output controller chip</td></tr>
       <tr><td>"tlc5940"</td><td>An output port on a TLC5940 PWM output controller chip</td></tr>
+      <tr><td>"tlc5947"</td><td>An output port on a TLC5947 PWM output controller chip</td></tr>
       <tr><td>"pca9685"</td><td>An output port on a PCA9685 PWM output controller chip</td></tr>
       <tr><td>"pca9555"</td><td>An output port on a PCA9555 GPIO extender chip (these are digital on/off ports, with no PWM control)</td></tr>
       <tr><td>"74hc595"</td><td>An output port on a 74HC595 shift register chip (the chip can be configured with digital on/off ports or PWM ports)</td></tr>
@@ -6757,15 +6766,92 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       <div class="jsonProp">
         <div class="jsonPropHdr">
           <span class="jsonPropPath">outputs[].device.</span><span class="jsonPropName">group</span>
-          <span class="jsonPropType">string</span><span class="jsonPropRequired">Required</span>
+          <span class="jsonPropType">string, array of string</span><span class="jsonPropRequired">Required</span>
         </div>
         <div class="jsonPropDesc">
       <p>
         Identifies the shared group of ports that this virtual device connects to.
         The device will be connected to the group of ports that are labeled with
         the same name in their <a href="#outputs.shareGroup"><tt>shareGroup</tt></a>
-        property.
+        property.  If the property is given as an array of strings, the device is
+        connected to all of the groups listed.
       </p>
+        </div>
+      </div>
+      <a name="outputs.device.type=shareGroup.pulse"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">outputs[].device.</span><span class="jsonPropName">pulse</span>
+          <span class="jsonPropType">object</span><span class="jsonPropOptional">Optional</span>
+        </div>
+        <div class="jsonPropDesc">
+      <p>
+        Enables "pulse mode" on the port.  When the port is in pulse mode, the
+        underlying physical device is only triggered for the duration of a timed
+        pulse when the virtual DOF port switches ON, and then again when it
+        switches back OFF.  In between the ON and OFF pulses, the physical
+        device port is left free for other virtual DOF ports to claim.
+        </p><p>
+        Pulse mode was designed especially for flippers.  Flippers have two
+        special characteristics that make them suitable for pulsed operation.
+        The first is that a flipper can be activated for a lengthy interval,
+        since the player might want to trap the ball.  The second is that
+        flippers only really make noise on a modern pinball machine when
+        moving - the clunk that happens when the flipper flips, and the
+        other clunk that happens when it un-flips.  This means that leaving
+        the DOF solenoid activated the whole time you're holding the flipper
+        button is kind of pointless in terms of the simulation experience.
+        Pulse mode takes advantage of this to free up the physical device
+        for the time between the ON and OFF pulses, so that other DOF
+        effects can produce overlapping sound effects on the same physical
+        device during the time you're holding down a flipper button.  You
+        still get the ON clunk and the OFF clunk, thank to the pulses,
+        while allowing the device to be shared by other parts during the
+        time in between.
+        </p><p>
+        Note that pulse mode might not be right for you if you want to
+        re-create the coil buzzing sound that older pinball machines made
+        Pulse mode is predicated on the idea that flippers don't need
+        to make any noise while being held on.  On older machines, made
+        before about 1980, the flipper coils tend to buzz because those
+        machines used AC electricity to power the flippers.  That causes
+        many coils to buzz audibly at the power line frequency, 60 Hz in
+        the US.  Newer machines use DC coils, which eliminates the buzz.
+        If you want to re-create the buzzing effect with a DC coil or
+        contactor, try running it on a PWM port with the frequency set to
+        60 Hz and the duty cycle set to 50% (DOF level 128).
+        </p><p>
+        To operate the port in normal "continuous" mode, where the DOF
+        port claims an underlying device continuously for the whole duration
+        of the DOF event (the time between the DOF port turning ON and
+        turning back OFF), simply omit the <tt>pulse</tt> element.
+      </p>
+        </div>
+        <a name="outputs.device.type=shareGroup.pulse.tOff"></a>
+        <div class="jsonProp">
+          <div class="jsonPropHdr">
+            <span class="jsonPropPath">outputs[].device.pulse.</span><span class="jsonPropName">tOff</span>
+            <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
+          </div>
+          <div class="jsonPropDesc">
+        <p>
+          The duration in mlliseconds of the OFF pulse, which occurs
+          when the DOF port switches from ON to OFF.
+        </p>
+          </div>
+        </div>
+        <a name="outputs.device.type=shareGroup.pulse.tOn"></a>
+        <div class="jsonProp">
+          <div class="jsonPropHdr">
+            <span class="jsonPropPath">outputs[].device.pulse.</span><span class="jsonPropName">tOn</span>
+            <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
+          </div>
+          <div class="jsonPropDesc">
+        <p>
+          The duration in milliseconds of the ON pulse, which occurs
+          when the DOF port switches from OFF to ON.
+        </p>
+          </div>
         </div>
       </div>
       </div>
@@ -7083,14 +7169,15 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   <div class="jsonProp">
     <div class="jsonPropHdr">
       <span class="jsonPropPath">outputs[].</span><span class="jsonPropName">shareGroup</span>
-      <span class="jsonPropType">string</span><span class="jsonPropOptional">Optional</span>
+      <span class="jsonPropType">string, array of string</span><span class="jsonPropOptional">Optional</span>
     </div>
     <div class="jsonPropDesc">
   <p>
     Places this port in a "share group" pool, which makes the physical
     output device available for dynamic assignment to different logical
     DOF ports as DOF events are fired.  The property value is a string
-    giving the name of the group to which the port belongs.
+    giving the name of the group to which the port belongs, or an array
+    of strings listing one or more groups.
     </p><p>
     The purpose of a share group is to trick DOF into believing that you
     have more physical devices than you really do, by sharing a small
@@ -7198,6 +7285,53 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     This is meant to add variety to the effects, so that every bumper
     hit doesn't sound exactly the same as the last.
     </p><p>
+    <b>Multiple groups:</b>  When a physical port's <tt>shareGroup</tt>
+    property is an array listing multiple groups, the port can be claimed
+    by virtual DOF ports that are assigned to any of the listed groups.
+    Likewise, when a <tt>type:"shareGroup"</tt> device lists multiple
+    groups in its <tt>group</tt> property, the device can claim ports
+    from any of the listed groups.  This lets you arrange the logical
+    and physical ports into overlapping groups to make better use of
+    the limited number of physical devices.
+    </p><p>
+    Going back to our jet bumpers example, suppose we have a mini-cab
+    with just two physical solenoids, one on the left, and one on the
+    right.  We'd like to make sure that all of the left-side DOF
+    bumpers get assigned to the left solenoid, so that the sound effects
+    come from the right spatial location, and likewise, that the right-side
+    DOF bumpers get assigned to the right solenoid.  That leaves the DOF
+    center bumpers.  Since we don't have a third solenoid, we'd like the
+    DOF center bumpers to just go to any solenoid, whichever is available.
+    We can accomplish this with overlapping groups:
+    outputs: [
+    // ... other ports ...
+    //
+    // DOF ports
+    { device: { type: "shareGroup", group: "left bumpers" } },     // DOF rear left bumper port
+    { device: { type: "shareGroup", group: "center bumpers" } },   // DOF rear center bumper port
+    { device: { type: "shareGroup", group: "right bumpers" } },    // DOF rear right bumper port
+    { device: { type: "shareGroup", group: "left bumpers" } },     // DOF mid left bumper port
+    { device: { type: "shareGroup", group: "center bumpers" } },   // DOF mid center bumper port
+    { device: { type: "shareGroup", group: "right bumpers" } },    // DOF mid right bumper port
+    //
+    // Physical ports
+    { device: { type: "gpio", gp: 7 }, shareGroup: ["left bumpers", "center bumpers"] },   // left-side physical solenoid
+    { device: { type: "gpio", gp: 8 }, shareGroup: ["right "bumpers", "center bumpers"] }, // right-side physical solenoid
+    //
+    // ... other ports ...
+    ],
+    </pre>
+    </p><p>
+    We've assigned each DOF virtual bumper port to a group based on
+    the cabinet location - left, center, or right. Each physical port
+    is assigned to <i>two</i> groups: one representing its left/right
+    location, and one for the center bumpers.  When a DOF "left bumpers"
+    port fires, it can <i>only</i> claim the left-side physical solenoid, since
+    it's the only solenoid in the "left bumpers" group.  But when a DOF
+    "center bumpers" port fires, it can claim either physical solenoid,
+    since both are in the "center bumpers" group.
+    </p><p>
+    <b>Interaction with direct DOF commands:</b>
     When a port is assigned to a share group, the port ignores DOF
     commands sent directly to the port.  It <b>only</b> accepts commands
     from the virtual <tt>type:"shareGroup"</tt> device port that's

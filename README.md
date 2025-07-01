@@ -48,19 +48,19 @@ also options to add just about as many extra ports as you'd like by
 adding some external chips, but that's not required if you can make do
 with 26 buttons.)
 
-* <b>Accelerometer-based nudge device:</b>  A slightly more complex
-setup adds an accelerometer, to detect when you nudge the cabinet,
-so that the pinball simulator can apply the nudge force within the game.
-Analog nudging adds a wonderful extra dimension to video pinball
-that lets you interact with the game in a much more natural,
-physical way.  The Pico doesn't have a built-in accelerometer,
-though, so this setup requires adding an external accelerometer.
-Fortunately, Adafruit and Sparkfun make inexpensive (under $10)
-breakout boards for the popular LIS3DH chip, which is relatively
-easy to connect to the Pico and works well with Pinscape.  You
-can combine this with button inputs, too (although you'll only
-get 24 buttons in this case, because the accelerometer connection
-takes up two of the GPIOs).
+* <b>Accelerometer-based nudge device:</b> A slightly more complex
+setup adds an accelerometer, to detect when you nudge the cabinet, so
+that the pinball simulator can apply the nudge force within the game.
+Analog nudging adds a wonderful extra dimension to video pinball that
+lets you interact with the game in a much more natural, physical way.
+The Pico doesn't have a built-in accelerometer, so this setup
+requires adding an external accelerometer.  But that's very easy
+to do, thanks to breakout boards available from Adafruit, Sparkfun,
+and others.  I recommend the Adafruit MMA8451Q and LIS3DH boards
+(MMA8451Q is the better choice in terms of sensor performance).
+You can combine nudge input with button inputs, too, although this
+will reduce the number of button ports to 24 (because the accelerometer
+requires two GPIO ports for its own use).
 
 * <b>Plunger:</b> You can also add a mechanical plunger position
 sensor.  Apart from the plunger sensor itself, no other hardware
@@ -200,25 +200,23 @@ or firing an output port
 * "Shift buttons", to allow mapping multiple functions to a single physical input; multiple
 shift buttons can be defined, to allow for shift "chords" (analogous to PC key combinations like Shift+Ctrl+X)
 
-* "Logical output" design that allows mapping physical outputs to DOF ports, internal sources, and
-"computed" sources that let you combine DOF ports, control multiple things with one DOF port,
-control ports based on timed events or internal device events, and all sorts of other things
+* Short-press/long-press buttons, to map two functions to one button based on press time
 
 * Native DOF support, via Pinscape Pico device recognition in DOF (present in unified R3++ DOF releases since late 2024)
 
-* Support for legacy LedWiz-only applications, via two levels of emulation:
-  <ul>
-    <li>Windows API-level emulation, via an open-source LEDWIZ.DLL replacement.  This is the preferred method, since it's compatible with all of the other Pinscape features.
-    <li>Full USB protocol emulation, for systems or applications where the LEDWIZ.DLL replacement can't be used.  This is a last resort when the first option doesn't work, because it restricts what other Pinscape features you can use.
-  </ul>
-    
-    These two approaches are mutually exclusive, and have certain trade-offs.
-    See [LedWiz Emulation Options](LedWizEmulationOptions.md) for more details.
+* "Logical output port" design that allows mapping physical outputs to DOF ports, internal sources,
+and "computed" sources that let you combine DOF ports, control multiple things with one DOF port,
+control ports based on timed events or internal device events, and all sorts of other things
+
+* Shared DOF output ports, for sharing a small number of physical feedback devices with a
+larger set of virtual DOF ports, ideal for setting up a mini-cab with limited space
 
 * Night Mode, to disable designated outputs as a group for quieter play
 
 * Time-of-day features, and support for an external real-time clock (RTC) chip to keep time
 while the power is off
+
+* [LedWiz emulation](LedWizEmulationOptions.md), for legacy applications that access the LedWiz directly (rather than through DOF);
 
 * IR remote control receiver/transmitter, with the full universal-learning-remote design from the KL25Z Pinscape
 
@@ -227,7 +225,7 @@ and the same support for a TV Relay and IR command activation when a power-on tr
 
 * Plunger sensor support for all of the KL25Z Pinscape sensors, with the same plunger logic features
 
-* Nudging, with support for multiple accelerometer chips (MXC6655XA, MC3416, LIS3DH, LIS3DSH),
+* Nudging, with support for multiple accelerometer chips (MMA8451Q, LIS3DH, LIS3DSH, MXC6655XA, MC3416),
 with an extensible design to allow support for more accelerometer chips to be added in the future
 
 * Nudge Velocity input support for the latest Visual Pinball

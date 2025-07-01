@@ -503,24 +503,86 @@ public:
     class ShareGroupDev : public Device
     {
     public:
-        ShareGroupDev(const char *name);
+        ShareGroupDev();
         virtual const char *Name() const override { return "Group"; }
-        virtual const char *FullName(char *buf, size_t buflen) const override {
-            snprintf(buf, buflen, "Group(%s)", container->GetName()); return buf;
-        }
+        virtual const char *FullName(char *buf, size_t buflen) const override;
         virtual void Set(uint8_t level) override;
         virtual uint8_t Get() const override { return level; }
         virtual void Populate(PinscapePico::OutputPortDesc *desc) const override;
+
+        // set the pulse mode times
+        void SetPulseMode(uint32_t tOn, uint32_t tOff);
+
+        // add a group container
+        void AddGroup(ShareGroupContainer *container) { containers.emplace_back(container); }
+
+        // count groups
+        size_t GetNGroups() const { return containers.size(); }
 
     protected:
         // current virtual output level
         uint8_t level = 0;
         
-        // the group container for the group
-        ShareGroupContainer *container;
-
-        // pool port currently assigned from the group
+        // pool port currently assigned from the pool
         Port *poolPort = nullptr;
+
+        // Pulse mode data.  A share group device can be configured to
+        // pulse a physical device at the OFF->ON and ON->OFF transitions,
+        // rather than claiming the port continuously the whole time the
+        // DOF port is activated.  This is useful for flippers in
+        // particular, because of two special characteristics of flippers:
+        // first, they can activated for long intervals, because the
+        // player can hold the flipper up indefinitely to trap a ball; and
+        // second, a flipper really only makes noise at the start and end
+        // of the flip, when the flipper moves.  The first property makes
+        // it likely that a flipper port could hog a shared feedback
+        // device for a long interval, starving other devices of noise
+        // effects the whole time.  The second property makes this port
+        // hogging pointless, since the feedback device isn't creating any
+        // kind of noticeable effect that enhances the simulation
+        // expreience for most of the event, the time between the ON and
+        // OFF transitions.  Pulse mode can solve this by configuring the
+        // virtual port to only claim the physical device briefly at the
+        // start and end of each virtual port event, leaving the port
+        // available for other events in the time between.
+        //
+        // To configure pulse mode, set tOn to a non-zero value.  When tOn
+        // is zero, the device is in ordinary continuous-activation mode.
+        struct PulseMode
+        {
+            // ON pulse time - the time after an OFF->ON transition to
+            // hold the physical device ON, in microseconds
+            uint32_t tOn = 0;
+
+            // OFF pulse time - the time after an ON->OFF transition to
+            // hold the physical device ON, in microseconds
+            uint32_t tOff = 0;
+
+            // Current pulse end time, on the microsecond Pico system
+            // clock.  This is set at the start of each transition pulse
+            // to the ending time for the pulse.  Zero means that no pulse
+            // is in effect.
+            uint64_t tPulseEnd = 0;
+
+            // The port claimed at the last ON transition.  When the
+            // corresponding OFF transition occurs, we'll attempt to claim
+            // the same port.  This is null if no port was available at
+            // the ON transition.
+            Port *onPort = nullptr;
+
+            // OFF pulse level.  This is non-zero when an OFF pulse is
+            // running, keeping track of the last level before the OFF
+            // transition.
+            uint8_t offPulseLevel = 0;
+        };
+        PulseMode pulse;
+
+        // the group containers for the group
+        std::vector<ShareGroupContainer*> containers;
+
+        // Last pool search index.  We search the pools in round-robin
+        // order to distribute usage across devices more evenly.
+        int poolIndex = 0;
     };
 
     // Share Group Container.  This object represents the whole of a
@@ -571,17 +633,8 @@ public:
         // won't necessarily have the same ID after a device reboot).
         uint8_t id;
 
-        // Port pool.  This is the collection of physical device output
-        // ports forming the pool.  It keeps track of which ports are
-        // assigned to ShareGroupDev virtual devices and which are
-        // available for assignment to new events.
-        struct PoolPort
-        {
-            PoolPort(Port *port) : port(port) { }
-            Port *port;                         // the underlying physical device output port
-            ShareGroupDev *claimant = nullptr;  // the ShareGroupDev currently claiming the port, if any
-        };
-        std::vector<PoolPort> pool;
+        // The ports making up this share group's pool of ports.
+        std::vector<Port*> pool;
 
         // The last port assigned to a claim.  We assign ports in
         // round-robin order so that we distribute assignments evenly
@@ -899,6 +952,10 @@ public:
         // with the 'tvon' config setcion.
         void SetDataSource(DataSource *source) { this->source = source; }
 
+        // Get/set/ a share group claimant
+        ShareGroupDev *GetShareGroupClaimant() const { return shareGroupClaimant; }
+        void SetShareGroupClaimant(ShareGroupDev *dev) { shareGroupClaimant = dev; }
+
     protected:
         // Set the logical port level.  This is called from SetDOFevel()
         // and from the derived data source calculator.
@@ -934,8 +991,14 @@ public:
         // the config file layout, but it's read-only on the host.
         DataSource *source = nullptr;
 
-        // Share group.
-        ShareGroupContainer *shareGroup = nullptr;
+        // Share groups that this port belongs to, via its shareGroup
+        // configuration property.
+        std::vector<ShareGroupContainer*> shareGroups;
+
+        // Share group claimant.  This is the ShareGroupDev that's currently
+        // claiming the port, or nullptr if the port isn't claimed.  This is
+        // only used for a port that belongs to a share group.
+        ShareGroupDev *shareGroupClaimant = nullptr;
 
         // Is this a "noisy" output, subject to disabling when Night Mode is
         // activated?

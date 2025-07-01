@@ -352,11 +352,18 @@ void OutputManager::Configure(JSONParser &json)
         port.flipperLogic.reducedPowerLevel = value->Get("powerLimit")->UInt8(0);
 
         // check for a share group
-        if (auto *shareGroupName = value->Get("shareGroup"); !shareGroupName->IsUndefined())
+        if (auto *shareGroupVal = value->Get("shareGroup"); !shareGroupVal->IsUndefined())
         {
-            // it has a share group - add the port to the group container
-            port.shareGroup = ShareGroupContainer::FindOrCreate(shareGroupName->String().c_str());
-            port.shareGroup->AddPort(&port);
+            // it has a share group or list of groups - add the port to the group containers
+            shareGroupVal->ForEach([&port](int index, const JSONParser::Value *val) {
+                auto *container = ShareGroupContainer::FindOrCreate(val->String().c_str());
+                port.shareGroups.emplace_back(container);
+                container->AddPort(&port);
+            }, true);
+
+            // warn if there aren't any share groups
+            if (port.shareGroups.size() == 0)
+                Log(LOG_WARNING, "Output[%d]: no groups listed in 'shareGroup' property\n", index + 1);
         }
 
         // check for a port name
@@ -746,7 +753,28 @@ OutputManager::Device *OutputManager::ParseDevice(
     else if (*devType == "shareGroup")
     {
         // Share group device
-        device = new ShareGroupDev(devSpec->Get("group")->String().c_str());
+        ShareGroupDev *shareGroupDev = new ShareGroupDev();
+        device = shareGroupDev;
+        if (auto *groupVal = devSpec->Get("group") ; !groupVal->IsUndefined())
+        {
+            devSpec->Get("group")->ForEach([shareGroupDev](int index, const JSONParser::Value *val) {
+                shareGroupDev->AddGroup(ShareGroupContainer::FindOrCreate(val->String().c_str()));
+            }, true);
+        }
+
+        // warn if the share group list is empty
+        if (shareGroupDev->GetNGroups() == 0)
+            Log(LOG_WARNING, "%s: share-group device 'group' property is missing or empty\n", jsonLocus);
+
+        // check for pulse mode
+        if (auto *pulseVal = devSpec->Get("pulseMode") ; !pulseVal->IsUndefined())
+        {
+            // Note the ON and OFF times; they're expressed in the property values
+            // in milliseconds, but we store them internally in microseconds.
+            shareGroupDev->SetPulseMode(
+                pulseVal->Get("tOn")->Int(0) * 1000UL,
+                pulseVal->Get("tOff")->Int(0) * 1000UL);
+        }
     }
     else if (*devType == "virtual")
     {
@@ -1203,7 +1231,7 @@ size_t OutputManager::QueryDevicePortLevels(uint8_t *buf, size_t bufSize)
 void OutputManager::Port::SetDOFLevel(uint8_t newLevel)
 {
     // shareGroup ports only accept commands from their share group
-    if (shareGroup != nullptr)
+    if (shareGroups.size() != 0)
         return;
 
     // remember the new DOF port level
@@ -1235,7 +1263,7 @@ void OutputManager::Port::SetShareGroupLevel(uint8_t newLevel)
 void OutputManager::Port::SetLedWizSBA(bool on, uint8_t period)
 {
     // shareGroup ports only accept commands from their share group
-    if (shareGroup != nullptr)
+    if (shareGroups.size() != 0)
         return;
     
     // remember the new SBA state and period, and set LedWiz mode for the port
@@ -1252,7 +1280,7 @@ void OutputManager::Port::SetLedWizSBA(bool on, uint8_t period)
 void OutputManager::Port::SetLedWizPBA(uint8_t profile)
 {
     // shareGroup ports only accept commands from their share group
-    if (shareGroup != nullptr)
+    if (shareGroups.size() != 0)
         return;
 
     // remember the new profile state, and set LedWiz mode for the port
@@ -1260,7 +1288,7 @@ void OutputManager::Port::SetLedWizPBA(uint8_t profile)
     lw.mode = true;
 
     // update the logical state
-    if (source == nullptr && shareGroup == nullptr && !isSuspended)
+    if (source == nullptr && !isSuspended)
         SetLogicalLevel(lw.GetLiveLogLevel());
 }
 
@@ -2348,29 +2376,124 @@ void OutputManager::ZBLaunchDev::Populate(PinscapePico::OutputPortDesc *desc) co
 // Share group device
 //
 
-OutputManager::ShareGroupDev::ShareGroupDev(const char *name)
+OutputManager::ShareGroupDev::ShareGroupDev()
 {
-    // find or add the share group container
-    container = ShareGroupContainer::FindOrCreate(name);
+}
+
+void OutputManager::ShareGroupDev::SetPulseMode(uint32_t tOn, uint32_t tOff)
+{
+    // Set the times.  For tOn, set a minimum of 1us, since 0 has the
+    // special meaning that pulse mode is disabled.
+    pulse.tOn = std::max(tOn, 1UL);
+    pulse.tOff = tOff;
+}
+
+const char *OutputManager::ShareGroupDev::FullName(char *buf, size_t buflen) const
+{
+    char *p = buf, *endp = buf + buflen;
+    auto Add = [&p, endp](const char *s) { for ( ; *s != 0 && p + 1 < endp ; *p++ = *s++) ; };
+    Add("Group(");
+    const char *sep = "";
+    for (auto *c : containers)
+    {
+        Add(sep);
+        Add(c->GetName());
+        sep = ",";
+    }
+    Add(")");
+    if (p + 1 == endp)
+    {
+        const char *fill = "...)";
+        const char *s = fill + strlen(fill);
+        while (p > buf && s > fill)
+            *--p = *--s;
+    }
+    if (p < endp)
+        *p = 0;
+    
+    return buf;
 }
 
 void OutputManager::ShareGroupDev::Set(uint8_t newLevel)
 {
-    // Check for an transition between ON and OFF states
+    // Check for a transition between ON and OFF states
     if (level == 0 && newLevel != 0)
     {
-        // OFF -> ON - try assigning a port from the share pool
-        poolPort = container->ClaimPort(this);
-    }
-    else if (level != 0 && newLevel == 0 && poolPort != nullptr)
-    {
-        // ON -> OFF - turn off the underlying port, and release it
-        // back to the pool
-        poolPort->SetShareGroupLevel(0);
+        // OFF -> ON transition.  Claim a port and turn it on at the new
+        // level.  If we're in Pulse mode, we'll only claim it for the
+        // duration of the ON Pulse; in normal mode, we'll claim the port
+        // as long as the calling port remains on.
 
-        // release and forget the port
-        container->ReleasePort(this);
-        poolPort = nullptr;
+        // reset pulse mode
+        pulse.onPort = nullptr;
+        pulse.offPulseLevel = 0;
+        pulse.tPulseEnd = 0;
+
+        // try claiming a port from a share pool
+        if (containers.size() != 0)
+        {
+            // search from the next pool index
+            for (int startIndex = poolIndex ; ; )
+            {
+                // advance to the next index, wrapping at end of list
+                if (++poolIndex >= static_cast<int>(containers.size()))
+                    poolIndex = 0;
+
+                // try claiming from this pool
+                if ((poolPort = containers[poolIndex]->ClaimPort(this)) != nullptr)
+                {
+                    // Success
+                    // If we're in Pulse mode, set the pulse port and time
+                    if (pulse.tOn != 0)
+                    {
+                        pulse.tPulseEnd = time_us_64() + pulse.tOn;
+                        pulse.onPort = poolPort;
+                    }
+                    
+                    // we can stop searching now - this->poolPort is set
+                    break;
+                }
+
+                // stop when we wrap back to the starting point
+                if (poolIndex == startIndex)
+                    break;
+            }
+        }
+    }
+    else if (level != 0 && newLevel == 0)
+    {
+        // ON -> OFF transition
+        if (poolPort != nullptr)
+        {
+            // we claimed a port for the duration of the event - turn it
+            // off and release the claim
+            poolPort->SetShareGroupLevel(0);
+            poolPort->SetShareGroupClaimant(nullptr);
+            poolPort = nullptr;
+        }
+        else if (pulse.tOn != 0 && pulse.tOff != 0 && pulse.onPort != nullptr)
+        {
+            // We don't have a claimed port now, but we did claim a port
+            // for the ON pulse at the OFF->ON transition.  Claim the same
+            // port again to generate an OFF pulse, if it's free.
+            if (pulse.onPort->shareGroupClaimant == nullptr)
+            {
+                // claim the port and start an ON pulse at the last logical level
+                poolPort = pulse.onPort;
+                poolPort->SetShareGroupLevel(level);
+                poolPort->SetShareGroupClaimant(this);
+                pulse.tPulseEnd = time_us_64() + pulse.tOff;
+                pulse.offPulseLevel = level;
+                Log(LOG_DEBUG, "ShareGroupDev: Starting OFF pulse at level %d\n", level);//$$$
+            }
+            else
+                Log(LOG_DEBUG, "ShareGroupDev: Can't start OFF pulse\n");//$$$
+
+
+            // this consumes the ON port memory for this event (whether or not
+            // we were able to re-claim the port)
+            pulse.onPort = nullptr;
+        }
     }
 
     // remember the new level
@@ -2378,13 +2501,36 @@ void OutputManager::ShareGroupDev::Set(uint8_t newLevel)
 
     // if we have an underlying pool port assigned, pass through the new level
     if (poolPort != nullptr)
-        poolPort->SetShareGroupLevel(newLevel);
+    {
+        // check for pulse timeout
+        if (pulse.tPulseEnd != 0 && time_us_64() > pulse.tPulseEnd)
+        {
+            // pulse timeout reached - turn off and release the port
+            poolPort->SetShareGroupLevel(0);
+            poolPort->SetShareGroupClaimant(nullptr);
+            poolPort = nullptr;
+
+            // clear the OFF pulse level
+            pulse.offPulseLevel = 0;
+        }
+        else if (pulse.offPulseLevel != 0)
+        {
+            // an OFF pulse is running - maintain the last level before
+            // the OFF transition
+            poolPort->SetShareGroupLevel(pulse.offPulseLevel);            
+        }
+        else
+        {
+            // set the new level in the underlying port
+            poolPort->SetShareGroupLevel(newLevel);
+        }
+    }
 }
 
 void OutputManager::ShareGroupDev::Populate(PinscapePico::OutputPortDesc *desc) const
 {
     desc->devType = PinscapePico::OutputPortDesc::DEV_SHAREGROUP;
-    desc->devId = container->GetID();
+    desc->devId = containers.size() != 0 ? containers.front()->GetID() : 0;
 }
 
 
@@ -2400,11 +2546,11 @@ OutputManager::ShareGroupContainer *OutputManager::ShareGroupContainer::FindOrCr
         return &it->second;
     
     // It doesn't exist yet - create a new group.  For the internal ID,
-    // assign sequential values starting from zero as we create groups.
+    // assign sequential values starting from 1 as we create groups.
     auto it = shareGroups.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(name),
-        std::forward_as_tuple(name, static_cast<uint8_t>(shareGroups.size())));
+        std::forward_as_tuple(name, static_cast<uint8_t>(shareGroups.size() + 1)));
 
     // return the new group
     return &it.first->second;
@@ -2424,11 +2570,11 @@ OutputManager::Port *OutputManager::ShareGroupContainer::ClaimPort(ShareGroupDev
             claimIdx = 0;
 
         // if this element is free, assign it
-        if (auto &ele = pool[claimIdx]; ele.claimant == nullptr)
+        if (auto *port = pool[claimIdx]; port->shareGroupClaimant == nullptr)
         {
             // assign the port and return it back to the caller
-            ele.claimant = dev;
-            return ele.port;
+            port->shareGroupClaimant = dev;
+            return port;
         }
 
         // stop when we wrap back to the starting point, since that
@@ -2436,20 +2582,6 @@ OutputManager::Port *OutputManager::ShareGroupContainer::ClaimPort(ShareGroupDev
         // finding a free entry
         if (claimIdx == startIdx)
             return nullptr;
-    }
-}
-
-void OutputManager::ShareGroupContainer::ReleasePort(ShareGroupDev *dev)
-{
-    // scan for the port assigned to the device
-    for (auto &ele : pool)
-    {
-        // if this port is assigned to this device, release it
-        if (ele.claimant == dev)
-        {
-            ele.claimant = nullptr;
-            return;
-        }
     }
 }
 

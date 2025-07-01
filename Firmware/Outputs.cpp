@@ -2484,11 +2484,7 @@ void OutputManager::ShareGroupDev::Set(uint8_t newLevel)
                 poolPort->SetShareGroupClaimant(this);
                 pulse.tPulseEnd = time_us_64() + pulse.tOff;
                 pulse.offPulseLevel = level;
-                Log(LOG_DEBUG, "ShareGroupDev: Starting OFF pulse at level %d\n", level);//$$$
             }
-            else
-                Log(LOG_DEBUG, "ShareGroupDev: Can't start OFF pulse\n");//$$$
-
 
             // this consumes the ON port memory for this event (whether or not
             // we were able to re-claim the port)

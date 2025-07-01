@@ -526,9 +526,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 
               // type="shareGroup"
               <span class="propName"><a href="#outputs.device.type=shareGroup.group">group</a></span>: <span class="typeNames">string|[string]</span>,
-              <span class="propName"><a href="#outputs.device.type=shareGroup.pulse">pulse</a></span>: {
-                 <span class="propName"><a href="#outputs.device.type=shareGroup.pulse.tOff">tOff</a></span>: <span class="typeNames">number</span>,
-                 <span class="propName"><a href="#outputs.device.type=shareGroup.pulse.tOn">tOn</a></span>: <span class="typeNames">number</span>,
+              <span class="propName"><a href="#outputs.device.type=shareGroup.pulseMode">pulseMode</a></span>: {
+                 <span class="propName"><a href="#outputs.device.type=shareGroup.pulseMode.tOff">tOff</a></span>: <span class="typeNames">number</span>,
+                 <span class="propName"><a href="#outputs.device.type=shareGroup.pulseMode.tOn">tOn</a></span>: <span class="typeNames">number</span>,
               },
 
               // type="tlc59116"
@@ -6327,9 +6327,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 
             // type="shareGroup"
             <span class="propName"><a href="#outputs.device.type=shareGroup.group">group</a></span>: <span class="typeNames">string|[string]</span>,
-            <span class="propName"><a href="#outputs.device.type=shareGroup.pulse">pulse</a></span>: {
-               <span class="propName"><a href="#outputs.device.type=shareGroup.pulse.tOff">tOff</a></span>: <span class="typeNames">number</span>,
-               <span class="propName"><a href="#outputs.device.type=shareGroup.pulse.tOn">tOn</a></span>: <span class="typeNames">number</span>,
+            <span class="propName"><a href="#outputs.device.type=shareGroup.pulseMode">pulseMode</a></span>: {
+               <span class="propName"><a href="#outputs.device.type=shareGroup.pulseMode.tOff">tOff</a></span>: <span class="typeNames">number</span>,
+               <span class="propName"><a href="#outputs.device.type=shareGroup.pulseMode.tOn">tOn</a></span>: <span class="typeNames">number</span>,
             },
 
             // type="tlc59116"
@@ -6778,10 +6778,10 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       </p>
         </div>
       </div>
-      <a name="outputs.device.type=shareGroup.pulse"></a>
+      <a name="outputs.device.type=shareGroup.pulseMode"></a>
       <div class="jsonProp">
         <div class="jsonPropHdr">
-          <span class="jsonPropPath">outputs[].device.</span><span class="jsonPropName">pulse</span>
+          <span class="jsonPropPath">outputs[].device.</span><span class="jsonPropName">pulseMode</span>
           <span class="jsonPropType">object</span><span class="jsonPropOptional">Optional</span>
         </div>
         <div class="jsonPropDesc">
@@ -6792,45 +6792,57 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         switches back OFF.  In between the ON and OFF pulses, the physical
         device port is left free for other virtual DOF ports to claim.
         </p><p>
-        Pulse mode was designed especially for flippers.  Flippers have two
-        special characteristics that make them suitable for pulsed operation.
-        The first is that a flipper can be activated for a lengthy interval,
-        since the player might want to trap the ball.  The second is that
+        Pulse mode was designed especially for flippers (but you can use it
+        on any port).  Flippers have two special characteristics that make
+        them good candidates for this option.  The first is that a flipper
+        can be activated for a lengthy interval, since the player might want
+        to trap the ball.  Lengthy activation is bad for sharing, since the
+        flipper port would (without pulse mode) hog the underlying physical
+        device the whole time you're holding the flipper button.  That would
+        prevent any other devices from being able to create a sound effect
+        with the same device.  In a small cab with only a few devices, this
+        might make all of the other sound effects stop for as long as you're
+        holding the flipper button, which would make for a really odd and
+        unnatural playing experience.
+        </p><p>
+        The second special feature of flippers is that modern pinball
         flippers only really make noise on a modern pinball machine when
-        moving - the clunk that happens when the flipper flips, and the
-        other clunk that happens when it un-flips.  This means that leaving
-        the DOF solenoid activated the whole time you're holding the flipper
-        button is kind of pointless in terms of the simulation experience.
-        Pulse mode takes advantage of this to free up the physical device
-        for the time between the ON and OFF pulses, so that other DOF
-        effects can produce overlapping sound effects on the same physical
-        device during the time you're holding down a flipper button.  You
-        still get the ON clunk and the OFF clunk, thank to the pulses,
-        while allowing the device to be shared by other parts during the
-        time in between.
+        moving: the clunk when the flipper flips, and another clunk when
+        it un-flips.  This means that leaving the DOF solenoid activated
+        the whole time you're holding the flipper button is not only
+        bad for sharing, but also kind of pointless.  Why tie up the
+        device when it's just sitting there not making any noise?
+        </p><p>
+        Pulse mode takes advantage of these two characteristics to free up
+        the physical device for the time between the ON and OFF pulses,
+        allowing other DOF ports to fire effects on the physical device
+        in the meantime.  You still get the ON clunk and the OFF clunks
+        when you press and release the flipper button, thank to the pulses,
+        but the port is free for other uses during times when you're
+        holding down the flipper button.
         </p><p>
         Note that pulse mode might not be right for you if you want to
-        re-create the coil buzzing sound that older pinball machines made
-        Pulse mode is predicated on the idea that flippers don't need
-        to make any noise while being held on.  On older machines, made
-        before about 1980, the flipper coils tend to buzz because those
-        machines used AC electricity to power the flippers.  That causes
-        many coils to buzz audibly at the power line frequency, 60 Hz in
-        the US.  Newer machines use DC coils, which eliminates the buzz.
-        If you want to re-create the buzzing effect with a DC coil or
-        contactor, try running it on a PWM port with the frequency set to
-        60 Hz and the duty cycle set to 50% (DOF level 128).
+        re-create the coil buzzing sound that many older pinball machines
+        make when the flippers are held on.  Most machines made before about
+        1980 use AC power for the flipper coils, which makes them buzz at
+        the power line frequency (60 Hz in the US) the whole time they're
+        on.  Newer machines don't tend to buzz, because their coils use
+        DC power.  By the same token, virtual pin cab solenoids don't tend
+        to buzz, because modern virtual cabs tend to use all DC power.
+        But you might be able to get a similar effect from a modern coil by
+        using a PWM port, with the PWM frequency set to 60 Hz and the duty
+        cycle set to 50% (which translates to DOF level 128).
         </p><p>
         To operate the port in normal "continuous" mode, where the DOF
         port claims an underlying device continuously for the whole duration
         of the DOF event (the time between the DOF port turning ON and
-        turning back OFF), simply omit the <tt>pulse</tt> element.
+        turning back OFF), simply omit the <tt>pulseMode</tt> element.
       </p>
         </div>
-        <a name="outputs.device.type=shareGroup.pulse.tOff"></a>
+        <a name="outputs.device.type=shareGroup.pulseMode.tOff"></a>
         <div class="jsonProp">
           <div class="jsonPropHdr">
-            <span class="jsonPropPath">outputs[].device.pulse.</span><span class="jsonPropName">tOff</span>
+            <span class="jsonPropPath">outputs[].device.pulseMode.</span><span class="jsonPropName">tOff</span>
             <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
           </div>
           <div class="jsonPropDesc">
@@ -6840,10 +6852,10 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         </p>
           </div>
         </div>
-        <a name="outputs.device.type=shareGroup.pulse.tOn"></a>
+        <a name="outputs.device.type=shareGroup.pulseMode.tOn"></a>
         <div class="jsonProp">
           <div class="jsonPropHdr">
-            <span class="jsonPropPath">outputs[].device.pulse.</span><span class="jsonPropName">tOn</span>
+            <span class="jsonPropPath">outputs[].device.pulseMode.</span><span class="jsonPropName">tOn</span>
             <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
           </div>
           <div class="jsonPropDesc">

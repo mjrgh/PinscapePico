@@ -24,7 +24,7 @@ MMA8451Q boards from Amazon or eBay or AliExpress probably won't have
 the same pin layout and so won't work.
 
 If you're reading this material some years after I wrote, and you find
-that the MMA8451Q is no longer available, the next device to try is
+that the MMA8451Q is no longer available, the next best device to look for is
 probably LIS3DH, which is (as of 2025) in production and widely available.
 See [LIS3DH Setup](LIS3DH-Setup.md).
 

@@ -7315,7 +7315,8 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     center bumpers.  Since we don't have a third solenoid, we'd like the
     DOF center bumpers to just go to any solenoid, whichever is available.
     We can accomplish this with overlapping groups:
-    outputs: [
+    <pre>
+  outputs: [
     // ... other ports ...
     //
     // DOF ports
@@ -7331,8 +7332,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     { device: { type: "gpio", gp: 8 }, shareGroup: ["right "bumpers", "center bumpers"] }, // right-side physical solenoid
     //
     // ... other ports ...
-    ],
-    </pre>
+  ],</pre>
     </p><p>
     We've assigned each DOF virtual bumper port to a group based on
     the cabinet location - left, center, or right. Each physical port

@@ -44,6 +44,18 @@ public:
     // GPIO ports that can be muxed to the ADC are 26-29.
     static bool IsValidADCGPIO(int gpio) { return gpio >= 26 && gpio <= 29; }
 
+    // Is the given GPIO number configured as an ADC input?  The Pico SDK (and
+    // even the hardware) doesn't have any way to determine if a GPIO is being
+    // used as an ADC input, other than the *current* ADC input.  That's
+    // because there's no gpio_function for ADC; the ADC simply reads whatever
+    // pin is currently assigned as its single-channel input, and in most cases
+    // the GPIO is configured in the multiplexer with function GPIO_FUNC_NULL.
+    // So there isn't really any notion in the hardware that a pin is an ADC
+    // input, other than that there can be one current ADC input.  But this
+    // class provides our own resource management that records pins as assigned
+    // to the ADC, so this queries our internal assignments.
+    bool IsADCGPIO(int gp) { return IsValidADCGPIO(gp) && std::find(gpios.begin(), gpios.end(), gp) != gpios.end(); }
+
     // Is the given GPIO port number a valid ADC temperature input?  We use
     // the non-existent GPIO port 30 to refer to the temperature sensor
     // input on ADC channel 4.  We treat this as an invalid port for the

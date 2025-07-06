@@ -616,6 +616,9 @@ namespace PinscapePico
 			// true -> output, false -> input
 			bool sioIsOutput = false;
 
+			// Pin is configured as an ADC input
+			bool isADCInput = false;
+
 			// Usage description.  This is human-readable string, intended 
 			// for display in a UI, describing the assigned function for for
 			// the port, based on the JSON configuration settings.

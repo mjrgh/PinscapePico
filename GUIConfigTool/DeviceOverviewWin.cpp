@@ -494,17 +494,21 @@ void DeviceOverviewWin::PaintPinoutDiagram(HDCHelper &hdc, int xOffset, int yOff
         using Func = VendorInterface::GPIOConfig::Func;
         switch (gp->func)
         {
-        case Func::I2C: bg = HRGB(0x1d6089); break;
-        case Func::SPI: bg = HRGB(0xa22c6f); break;
-        case Func::UART: bg = HRGB(0x613da5); break;
-        case Func::PWM: bg = HRGB(0xc65800); break;
+        case Func::I2C: bg = HRGB(0x439ed6); break;     // light blue
+        case Func::SPI: bg = HRGB(0xd83a94); break;     // pink
+        case Func::UART: bg = HRGB(0x613da5); break;    // violet
+        case Func::PWM: bg = HRGB(0xff8000); break;     // orange
         case Func::PIO0:
-        case Func::PIO1: bg = HRGB(0xaa0004); break;
-        case Func::SIO: bg = HRGB(0x3d9800); break;
-        case Func::GPCK: bg = HRGB(0x404040); break;
-        case Func::USB: bg = HRGB(0x606060); break;
-        case Func::NONE: bg = HRGB(0x808080); break;
+        case Func::PIO1: bg = HRGB(0x1d6089); break;    // dark blue
+        case Func::SIO: bg = HRGB(0x7ac943); break;     // light green
+        case Func::GPCK: bg = HRGB(0x9d89ce); break;    // light violet
+        case Func::USB: bg = HRGB(0x8b4513); break;     // brown
+        case Func::NONE: bg = HRGB(0x808080); break;    // gray
         }
+
+        // check for ADC pins
+        if (gp->isADCInput)
+            bg = HRGB(0x427f21);     // dark green
 
         // if it's for the printer, adjust the label colors
         if (forPrinter)

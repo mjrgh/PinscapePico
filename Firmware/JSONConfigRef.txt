@@ -3381,6 +3381,7 @@ outputs[].shareGroup string|[string] optional
   center bumpers.  Since we don't have a third solenoid, we'd like the
   DOF center bumpers to just go to any solenoid, whichever is available.
   We can accomplish this with overlapping groups:
+  <pre>
   outputs: [
     // ... other ports ...
     //

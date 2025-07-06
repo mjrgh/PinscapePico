@@ -419,7 +419,7 @@ void OutputManager::Configure(JSONParser &json)
 
                 // Log a warning if the data source doesn't yield a
                 // UINT8 value.  Some data sources yield float, RGB, or
-                // vector, values, which are meant to be used as inputs
+                // vector values, which are meant to be used as inputs
                 // for other functions, not as final port values.  The
                 // port level is always a UINT8, so the result of the
                 // calculated source expression should be a UINT8 to
@@ -757,7 +757,7 @@ OutputManager::Device *OutputManager::ParseDevice(
         device = shareGroupDev;
         if (auto *groupVal = devSpec->Get("group") ; !groupVal->IsUndefined())
         {
-            devSpec->Get("group")->ForEach([shareGroupDev](int index, const JSONParser::Value *val) {
+            groupVal->ForEach([shareGroupDev](int index, const JSONParser::Value *val) {
                 shareGroupDev->AddGroup(ShareGroupContainer::FindOrCreate(val->String().c_str()));
             }, true);
         }

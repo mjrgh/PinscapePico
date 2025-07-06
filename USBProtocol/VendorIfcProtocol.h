@@ -1690,8 +1690,9 @@ namespace PinscapePico
 
             // Flags - a combination of F_xxx bits defined below
             uint8_t flags;
-            static const uint8_t F_DIR_OUT = 0x01;  // for func=5 (SIO), port GPIO direction is Output
-                                                    // (if not set, port direction is Input)
+            static const uint8_t F_DIR_OUT = 0x01;  // for func=5 (SIO), port GPIO direction is Output; if
+                                                    // this bit isn't set for func=5, port direction is Input
+            static const uint8_t F_ADC = 0x02;      // pin is configured as ADC input
 
             // Port usage string, as an offset from the start of the GPIOConfig
             // struct.  The string is in 7-bit ASCII characters, terminated with

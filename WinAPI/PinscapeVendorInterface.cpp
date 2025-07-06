@@ -1239,6 +1239,7 @@ int VendorInterface::QueryGPIOConfig(GPIOConfig gpio[30])
 		// store the function and i/o direction
 		portDst->func = static_cast<GPIOConfig::Func>(portSrc->func);
 		portDst->sioIsOutput = ((portSrc->flags & portSrc->F_DIR_OUT) != 0);
+		portDst->isADCInput = ((portSrc->flags & portSrc->F_ADC) != 0);
 	
 		// Store the description string, if present.  The string is a 
 		// null-terminated 7-bit ASCII string embedded in the transfer

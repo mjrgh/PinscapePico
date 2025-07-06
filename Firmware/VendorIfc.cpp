@@ -48,6 +48,7 @@
 #include "Devices/GPIOExt/PCA9555.h"
 #include "Devices/ShiftReg/74HC165.h"
 #include "Devices/PWM/PWMWorker.h"
+#include "Devices/ADC/PicoADC.h"
 #include "Watchdog.h"
 
 // Tinyusb has a serious regression in the official 0.17.0 release that
@@ -892,6 +893,13 @@ void PinscapeVendorIfc::ProcessRequest()
                 // if it's a GPIO (function code SIO), set the OUT flag if it's set as an output port
                 if (func == GPIO_FUNC_SIO && gpio_is_dir_out(gpnum))
                     gc.port[gpnum].flags |= PinscapePico::GPIOConfig::Port::F_DIR_OUT;
+
+                // Check for ADC input mode.  The hardware multiplexer doesn't have a
+                // function code for ADC; the ADC will simply read from whatever pin
+                // in the ADC range you direct it to.  So we have to ask our own ADC
+                // resource manager if the pin is assigned as an ADC input.
+                if (PicoADC::GetInst()->IsADCGPIO(gpnum))
+                    gc.port[gpnum].flags |= PinscapePico::GPIOConfig::Port::F_ADC;
 
                 // Get the usage string.  If it's not null, add it to the transfer
                 // in the string pool section after the end of the struct.  If it's

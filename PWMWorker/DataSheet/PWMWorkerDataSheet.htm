@@ -598,9 +598,11 @@ tt {
    the host microcontroller.  If connected, this allows the host to perform
    a hard reset on the Pico under software control, by pulling the line LOW.
    The line must be either driven HIGH or allowed to float during normal
-   operation.  The line is pulled to 3.3V internally on the Pico, so it can
-   be left unconnected if reset control isn't required.
-
+   operation.  The line is pulled to 3.3V through a weak resistor (50K)
+   internal to the Pico, so it can be left unconnected if software reset
+   control isn't required.  However, Raspberry Pi recommends connecting
+   the line to a stronger external pull-up (perhaps 10K) anyway, to reduce
+   spurious Pico resets from transient voltages.
 </ul>
 
 <h3>Powering the Pico</h3>
@@ -1019,11 +1021,14 @@ tt {
 <h3>Slave address</h3>
 <p>
    The default I2C slave address is <b>011 0000</b>, or <b>0x30</b>.  (We use
-   7-bit address notation, for consistency with the Pico SDK.  There's also
-   an 8-bit notation, which some other device data sheets use, and which some
-   microcontrollers expect in their SDKs or hardware register interfaces.
-   To convert from 7-bit to 8-bit addressing, simply multiply by 2, so our
-   0x30 default address would become 0x60 in 8-bit notation.)
+   <b>7-bit address notation</b>, for consistency with the Pico SDK and Pico
+   I2C hardware modules.  There's also an 8-bit notation, which some other
+   device data sheets use, and which some microcontrollers use in their SDKs
+   or hardware register interfaces.  The difference between 7-bit and 8-bit
+   addressing is purely notational; the bits sent over the wire are the same
+   in either case.  To convert from 7-bit to 8-bit addressing, simply multiply
+   by 2, so our 0x30 default address becomes 0x60 when expressed in 8-bit
+   notation.)
 </p>
 <p>
    The I2C address can be easily reconfigured to any other valid I2C

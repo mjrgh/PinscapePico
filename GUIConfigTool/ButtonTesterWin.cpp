@@ -1560,16 +1560,18 @@ void ButtonTesterWin::PaintOffScreen(HDC hdc0)
             pt.x = max(pt.x + 8, startX + typeColWidth);
 
 			// source description
-			static const char *srcNames[] ={ "None", "GPIO", "BOOTSEL", "PCA9555", "74HC165", "Accelerometer", "Plunger", "ZB Launch", "IR RX", "Time", "Out Port" };
+			static const char *srcNames[] ={ "None", "GPIO", "BOOTSEL", "PCA9555", "74HC165", "Accelerometer", "Plunger", "ZB Launch", "IR RX", "Time", "Out Port", "ADC"};
 			char srcDesc[32];
-			if (pDesc->sourceType == PinscapePico::ButtonDesc::SRC_GPIO)
-				sprintf_s(srcDesc, "GPIO (GP%d)", pDesc->sourcePort);
-			else if (pDesc->sourceType == PinscapePico::ButtonDesc::SRC_PCA9555)
-				sprintf_s(srcDesc, "PCA9555[%d] port IO%d_%d", pDesc->sourceUnit, pDesc->sourcePort / 8, pDesc->sourcePort % 8);
-			else if (pDesc->sourceType == PinscapePico::ButtonDesc::SRC_74HC165)
-				sprintf_s(srcDesc, "74HC165[%d] chip %d port %c", pDesc->sourceUnit, pDesc->sourcePort / 8, (pDesc->sourcePort % 8) + 'A');
-			else if (pDesc->sourceType == PinscapePico::ButtonDesc::SRC_OUTPORT)
-				sprintf_s(srcDesc, "Output Port #%d", pDesc->sourcePort);
+            if (pDesc->sourceType == PinscapePico::ButtonDesc::SRC_GPIO)
+                sprintf_s(srcDesc, "GPIO (GP%d)", pDesc->sourcePort);
+            else if (pDesc->sourceType == PinscapePico::ButtonDesc::SRC_PCA9555)
+                sprintf_s(srcDesc, "PCA9555[%d] port IO%d_%d", pDesc->sourceUnit, pDesc->sourcePort / 8, pDesc->sourcePort % 8);
+            else if (pDesc->sourceType == PinscapePico::ButtonDesc::SRC_74HC165)
+                sprintf_s(srcDesc, "74HC165[%d] chip %d port %c", pDesc->sourceUnit, pDesc->sourcePort / 8, (pDesc->sourcePort % 8) + 'A');
+            else if (pDesc->sourceType == PinscapePico::ButtonDesc::SRC_OUTPORT)
+                sprintf_s(srcDesc, "Output Port #%d", pDesc->sourcePort);
+            else if (pDesc->sourceType == PinscapePico::ButtonDesc::SRC_ADC)
+                sprintf_s(srcDesc, "ADC channel [%d]", pDesc->sourcePort);
 			else
 				sprintf_s(srcDesc, "%s", (pDesc->sourceType < _countof(srcNames)) ? srcNames[pDesc->sourceType] : "Unknown");
 

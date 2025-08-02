@@ -435,6 +435,9 @@ void OutputManager::Configure(JSONParser &json)
             // set the source in the port
             portsByNumber[index + 1]->source = source;
         }
+        
+        // set enable-during-suspend mode, if applicable
+        portsByNumber[index + 1]->enableSourceDuringSuspend = value->Get("enableSourceDuringSuspend")->Bool();
     });
 
     // Go through all of the source expressions, and check for circular
@@ -1550,7 +1553,7 @@ void OutputManager::Port::Task()
     // level from the LedWiz port state.  This might change dynmically,
     // since some LW port states are waveforms.
     if (source != nullptr)
-        SetLogicalLevel(usbIfc.IsConnectionActive() ? source->Calc().AsUInt8() : 0);
+        SetLogicalLevel(usbIfc.IsConnectionActive() || enableSourceDuringSuspend ? source->Calc().AsUInt8() : 0);
     else if (lw.mode)
         SetLogicalLevel(lw.GetLiveLogLevel());
 

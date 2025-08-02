@@ -103,9 +103,12 @@ protected:
 // To accommodate a range of devices, we use a simple polling model.
 // Once enabled, the device takes samples continuously at a selected
 // rate, and the samples are available to the caller via polling.  We
-// don't provide an IRQ interface, because some underlying devices might
-// not be able to provide one (e.g., I2C devices), but the device itself
-// can use interrupts internally if desierd.
+// don't provide an IRQ model in the abstract interface, because some
+// devices might not have interrupt hardware capabilities.  A concrete
+// subclass can still use interrupts internally when the underlying
+// device provides IRQ features, though (and it's generally better to
+// take advantage of that when available, since interrupt-based access
+// usually has lower latency and less CPU overhead).
 //
 class ADC
 {
@@ -121,9 +124,18 @@ public:
     // Alternate configuration key.  For devices that allow multiple
     // instances to be configured, the first unit's config key is usually
     // the unardorned chip name, and additional units have names like
-    // "ads1115_1", "ads1115_2", etc.  This entry is here to enable that,
-    // to allow the first unit to go by two names.  Returns null if the
-    // unit has no alternate name.
+    // "ads1115_2", "ads1115_3", etc.  In these cases, we'd like the
+    // first unit to go by TWO names - the plain base name that would
+    // apply if only a single unit were configured ("ads1115"), AND the
+    // numbered version when multiple units are present ("ads1115_0").
+    // The alt key is how we provide this aliasing.  The point of the
+    // alias is that the user doesn't have to know about the numbering
+    // scheme in the common case where only one unit is present, and
+    // doesn't have to change references to the single unit if they
+    // add more units later (since the original first unit still
+    // matches the base name with no number suffix), while also
+    // maintaining consistency in the multi-unit case, by allowing
+    // the numbering notation to be used for every unit.
     const char *AltConfigKey() const { return altConfigKey; }
 
     // get the display name for messages

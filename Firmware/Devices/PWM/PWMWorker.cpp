@@ -104,6 +104,10 @@ void PWMWorker::Configure(JSONParser &json)
             // add it to the I2C bus manager for the selected bus
             I2C::GetInstance(bus, false)->Add(unit);
 
+            // set the initialization timeout, if specified, converting from millisecond
+            // units in the JSON to microsecond units internally
+            unit->initTimeout = value->Get("initTimeout")->UInt32(20) * 1000UL;
+
             // success
             Log(LOG_CONFIG, "workerPico[%d] configured on I2C%d addr 0x%02x\n", index, bus, addr);
         }, true);
@@ -166,7 +170,7 @@ void PWMWorker::Init()
     {
         // Set the RESET REGISTERS bit in CTRL0 to request a reset.  Allow
         // some time for the other Pico to complete its initialization.
-        uint64_t tEnd = time_us_64() + 20000;
+        uint64_t tEnd = time_us_64() + initTimeout;
         do
         {
             // try the reset; stop looping on success
@@ -176,6 +180,9 @@ void PWMWorker::Init()
                 ok = true;
                 break;
             }
+
+            // let the watchdog know that the delay is intentional
+            watchdog_update();
         } while (time_us_64() < tEnd);
 
         // if that was successful, wait for the reset to complete

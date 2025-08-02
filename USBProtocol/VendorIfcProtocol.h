@@ -1686,6 +1686,25 @@ namespace PinscapePico
             // also determined by the chip's wiring.  For example, when GP0 is
             // assigned function 2 (UART), it necessarily serves as UART0 TX.
             // Refer to the RP2040 data sheet for a list of the capabilities.
+            //
+            // Note that there's no pin function code for ADC input.  This is
+            // because the native hardware pin multiplexer has no such function.
+            // Instead, the ADC can be configured to read from any one of the
+            // four ADC-capable pins (GP 26 through 29) at any given time,
+            // regardless of the multiplexer functions assigned to those pins.
+            // We therefore provide a 'flags' bit, F_ADC, that indicates when
+            // a pin is assigned to the Pico ADC in the Pinscape configuration.
+            // (Readers who are familiar with the Pico hardware will be aware
+            // that the Pico ADC is only physically capable of reading from one
+            // GPIO pin at a time, and so might wonder if F_ADC changes from
+            // one USB call to the next based on which pin the ADC is sampling
+            // at the moment of the call.  The answer is no: F_ADC is based
+            // purely on the configuration, so it's consistent across calls.
+            // And this isn't just nominal, or a simplification for the API.
+            // When multiple pins are configured as ADC inputs, Pinscape
+            // programs the ADC to read from that set of pins in round-robin
+            // order, so in effect, they all really are acting as ADC pins all
+            // the time.)
             uint8_t func;
 
             // Flags - a combination of F_xxx bits defined below

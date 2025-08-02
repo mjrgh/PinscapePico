@@ -1004,6 +1004,9 @@ public:
         // activated?
         bool noisy = false;
 
+        // Is this port's source formula enabled during USB suspend/disconnect?
+        bool enableSourceDuringSuspend = false;
+
         // Flipper logic settings
         struct FlipperLogic
         {

@@ -1236,7 +1236,7 @@ int VendorInterface::QueryGPIOConfig(GPIOConfig gpio[30])
 		// get the transfer port struct at the current array offset
 		const auto *portSrc = reinterpret_cast<const PinscapePico::GPIOConfig::Port*>(portSrcPtr);
 
-		// store the function and i/o direction
+		// store the function and I/O direction
 		portDst->func = static_cast<GPIOConfig::Func>(portSrc->func);
 		portDst->sioIsOutput = ((portSrc->flags & portSrc->F_DIR_OUT) != 0);
 		portDst->isADCInput = ((portSrc->flags & portSrc->F_ADC) != 0);

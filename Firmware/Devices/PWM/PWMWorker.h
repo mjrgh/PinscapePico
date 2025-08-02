@@ -179,6 +179,9 @@ protected:
     // PWM frequency
     int pwmFreq = 20000;
 
+    // initialization timeout, in microseconds
+    uint32_t initTimeout = 20000;
+
     // Current/pending register.  The I2C service routine checks for
     // changes since the last update and transmits as needed.
     struct ChipReg

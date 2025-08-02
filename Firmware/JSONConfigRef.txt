@@ -1577,28 +1577,37 @@ xInput object optional
   TITLE: XBox Controller Emulation
   EXAMPLE:
   {
+     // typical configuration for PinballFX games
      xInput: {
          enable: true,
-         xRight: "nudge.x",
-         yRight: "nudge.y",
+         xLeft: "nudge.x",              // PinballFX nudge input is on left joystick X (left/right)...
+         yLeft: "nudge.y",              //  ...and Y (front/back)
+         xRight: "negate(plunger.z)",   // PinballFX plunger is on right X, using reversed direction from Pinscape convention
      },
   }
 
-  Configures a virtual XBox controller input to the PC.  Pinscape can optionally
-  present itself to the PC as an XBox 360 controller, with the standard set
-  of joystick axes and buttons on those devices.   Many PC games accept
-  input from these controllers, so this is a good way to give compatible
-  games access to the various Pico physical inputs (buttons, accelerometer, 
-  plunger sensor).  You can map which physical buttons trigger which
-  XBox buttons, and which Pico analog devices map to the joystick axes
-  on the XBox unit.  Pinscape only sets up the virtual XBox controller if you tell it
-  to via this object.  The virtual XBox unit can be combined with any of the other
-  virtual USB devices (keyboard, gamepad) - Pinscape can emulate
-  all of these devices at once.
+  Configures a virtual XBox controller input to the PC.  This makes the Pico emulate
+  an XBox 360 controller, including all of the standard XBox controller buttons, joysticks,
+  and triggers.  You select which physical buttons trigger which emulated XBox controller
+  buttons, and which analog inputs on the Pico sides map to which joystick axes on the 
+  virtual XBox controller.
 
-  <b>IMPORTANT:</b>  When you configure a virtual XBox controller input, you
-  <b>MUST</b> go through a manual device driver installation step in Windows
-  before you can use the device.  Here's the procedure:
+  The XBox controller emulation is optional.  Pinscape only enables it if you explicitly
+  tell it to, which you do by including the <tt>xInput</tt> section in your JSON configuration.
+  The XBox controller emulation can be combined with any of the other USB devices, including
+  the USB keyboard and USB gamepad emulations.
+
+  <b>PinballFX users:</b>
+  In a virtual pinball context, the XBox controller emulation is especially useful for
+  the PinballFX series of games, which have support for XBox input but not for regular
+  gamepads.  PinballFX accepts nudge input on the XBox left joystick axes:  <tt>xLeft</tt>
+  for left/right nudging, <tt>yLeft</tt> for front/back nudging.  PinballFX uses the right
+  joystick X axis (<tt>xRight</tt>) for plunger input, but it uses the opposite direction
+  from Pinscape (which follows the Visual Pinball convention).  You can accomplish the
+  direction reversal by mapping <tt>xRight</tt> to <tt>"negate(plunger.z)"</tt>.
+
+  <b>Device driver setup:</b>  When you configure a virtual XBox controller input, you
+  <b>MUST</b> go through a one-time manual device driver installation procedure in Windows:
   <ul>
     <li>First, finish configuring the Pico with the xInput section enabled
     <li>Save the new configuration to the Pico so that it reboots with the new settings in effect
@@ -1610,19 +1619,21 @@ xInput object optional
     <li>Find the <b>XBox 360 Peripherals</b> section, and select <b>XBox 360 Controller for Windows</b>
     <li>Click through the warning (this appears because Windows can tell from the USB IDs this isn't really an XBox controller)
   </ul>
-  This manual procedure is required because the Windows device driver for XBox controllers only installs
-  automatically when it recognizes a device matching the USB VID/PID codes that Microsoft
-  uses for its <i>real</i> XBox controller devices.  Pinscape Pico doesn't use those codes,
-  so the driver doesn't find it automatically.  If Pinscape <i>did</i> use those codes,
-  this manual driver step wouldn't be necessary, but this probably isn't a good idea,
-  since we don't want any other software operating at the USB hardware level to mistake
-  Pinscape for an actual XBox controller.
+  This manual procedure is required because Windows doesn't automatically recognize
+  a Pico as an XBox controller unit, even when you configure the Pico to perform the
+  emulation.  Windows only recognizes an XBox controller automatically when it
+  uses the official Microsoft USB VID/PID codes, which Pinscape doesn't do, because it
+  could create compatibility problems for other software if the Pico claimed to be
+  an XBox device at the USB level.  Fortunately, you can "force" Windows to recognize
+  the Pico as an XInput source using the manual driver setup procedure above
 
-  You should only have to complete this procedure during initial setup, although you
-  might have to repeat it if you change the device configuration to add or remove
-  USB interfaces (such as enabling or disabling keyboard or gamepad input).  If you're
-  unsure, just check Device Manager for a PinscapePicoXInput device flagged with a
-  warning or error icon, and repeat the procedure above if you find one.
+  You should only have to complete this manual procedure once, during initial setup,
+  although you might have to repeat it if you ever change the Pinscape configuration
+  in such a way that you add or remove USB interfaces - for example, if you enable or
+  disable the USB keyboard or gamepad emulations.  If you're not sure whether you
+  have to re-install the device drivers, just check Device Manager for a PinscapePicoXInput
+  device flagged with a warning or error icon.  If you see an error icon, repeat the
+  procedure above, and that should clear it up again.
 
 xInput.enable bool optional
   Enable the virtual XBox controller interface.  False by default.
@@ -3832,6 +3843,31 @@ outputs[].name string optional
   port.  A cross-reference by name isn't affected by changes to the order
   of the port list.
 
+outputs[].enableSourceDuringSuspend bool optional
+  If this is set to <tt>true</tt>, and the port has a <tt>source</tt> formula,
+  the source computation is applied even when the USB connection to the host
+  is suspended, or when the cable is disconnected.  "Suspended" means that the
+  host is physically connected but not sending data, which on Windows is usually
+  the case when the computer is one of the low-power modes - sleep, hibernate,
+  or shutdown.  By default, Pinscape stops applying the <tt>source</tt> formula
+  at these times, on the assumption that you don't want any feedback devices
+  to activate when the host is powered down.  There might be times when you
+  do want selected devices to continue operating during host shutdown, though,
+  such as power indicator lights or effects based on time-of-day considerations.
+  Setting this property to <tt>true</tt> tells Pinscape to continue operating
+  the port's <tt>source</tt> even when the USB connection is down.
+
+  This property doesn't have any effect if the port doesn't have a <tt>source</tt>
+  formula.  Ports that don't have computed sources take their instructions from
+  the host via the USB connection, so they'll necessarily be off when the USB
+  connection is suspended or broken.  This property also doesn't have any effect
+  when the power to the main Pico is off, for the obvious reason that the
+  Pinscape software can only run when the Pico is powered.  If the Pico receives
+  power only through the USB port, disconnecting the USB cable will have the
+  side effect of removing power to the Pico.  In order to continue running when
+  the USB cable is disconnected, the Pico must have a secondary power source
+  through its VSYS pin.
+
 outputs[].source string optional
   Defines a local "data source" for the port, overriding DOF control over
   the port.  Most ports don't have data sources, because you want DOF
@@ -3846,6 +3882,21 @@ outputs[].source string optional
 
   Enter the data source as a string, composed from the functions listed
   below.
+
+  <i>Italics</i> in the function descriptions represent placeholders.
+  These aren't meant to be written literally, but rather must be replaced
+  by the actual values you wish to use.  For example, in <tt>button(<i>n</i>, <i>on</i>, <i>off</i>)</tt>,
+  you don't write a literal <b><tt>n</tt></b> where it says <i>n</i>; instead, you substitute 
+  a button number.  Likewise, you don't write literally <b><tt>on</tt></b> or <b><tt>off</tt></b>
+  in those positions; you substitute the PWM level values to use when the button is
+  ON (pressed) or OFF (not pressed), respectively.  So you might write something
+  like <tt>'button(7, 255, 0)'</tt> to say that the output port should be at
+  PWM level 255 (100% duty cycle, full brightness) when button 7 is pressed,
+  and PWM level 0 (0% duty cycle, fully off) when the button is not pressed.
+  You can also use another source expression in these positions for more
+  complex effects.  For example, <tt>'button(7, blink(500, 500), 0)' makes
+  the output port blink on and off at 500ms intervals when the button is
+  pressed.
 
   <table id="outputSourceTable">
     <tr><th>Function</th><th>Description</th></tr>
@@ -3951,7 +4002,7 @@ outputs[].source string optional
     <tr><td>blink(<i>on</i>, <i>off</i>)</td><td>Returns 255 for the <i>on</i> period in milliseconds, then 0 for the <i>off</i> period in milliseconds, repeating after each cycle</td></tr>
     <tr><td>ramp(<i>t</i>)</td><td>Returns a value from 0 to 255 that increases a long a linear ramp over a period of <i>t</i> milliseconds, repeating after each period</td></tr>
     <tr><td>sawtooth(<i>t</i>)</td><td>Returns a value from 0 to 255 that corresponds to a "sawtooth" wave of amplitude 255 and a period of <i>t</i> milliseconds, repeating after each period</td></tr>
-    <tr><td>sine(<i>t</i></td><td>Returns a value from 0 to 255 that corresponds to a sine wave of amplitude 255 and a period of <i>t</i> milliseconds, repeating after each period</td></tr>
+    <tr><td>sine(<i>t</i>)</td><td>Returns a value from 0 to 255 that corresponds to a sine wave of amplitude 255 and a period of <i>t</i> milliseconds, repeating after each period</td></tr>
     <!-- -->
     <tr><td colspan="2" class="rowGroup">Math</td></tr>
     <tr><td>arctan(<i>y</i>, <i>x</i>)</td><td>Gets the arctangent of the angle relative to the X axis of a vector drawn from the origin to the given point, on a normalized 0..255 scale, where 0 represents -180 degrees and 255 is +180 degrees</td></tr>
@@ -5529,23 +5580,45 @@ workerPico.pwmFreq number optional
   depends on the types of devices you're controlling with the outputs, and
   the type of amplifier or booster circuit (if any).  If you're using the
   outputs to control LEDs or other lights, any setting above about 200 Hz
-  is usually fine, since that's fast enough to eliminate any flicker from
-  the PWM blinking pattern.  If you're controlling solenoids or motors,
-  it's usually ideal to use a setting above the human hearing range
-  (20000 Hz or higher), because that makes any mechanical vibration
-  that the PWM triggers too high-pitched to hear.  So it might seem
-  like "the higher, the better" applies here, but you might also have
-  an upper limit in your system imposed by the amplifier/booster circuits
-  connected to the outputs, if you're using anything like that.
-  All booster circuits have hard limits to how quickly they can
-  switch on and off, and even below those hard limits, high switching
-  speeds can cause excessive heating with some components, especially
-  MOSFETs.  So that's how we arrived at the default: 20000 Hz  should be
-  low enough to stay within the limits of most booster circuits, while
-  still being high enough to eliminate audible acoustic noise from
-  inductive devices, and well above what's needed to eliminate LED
-  flicker.
+  is usually fine, since that's fast enough to eliminate visual flicker
+  from the PWM blinking pattern.  If you're controlling solenoids or
+  motors, it's often necessary to set the rate even higher, to 20000 Hz
+  or more, so that the frequency is above the human hearing range.
+  (Using PWM to drive a mechanical device can induce vibration at the
+  PWM frequency, which manifests as audible noise.  The easiest way to
+  fix this is to set the PWM rate above the human hearing range - which
+  doesn't necessarily eliminate the vibration, but it at least makes
+  it so high-pitched that you can't hear it.)  So it might seem like
+  "the higher, the better", but setting it too high can create problems
+  for amplifier/booster circuits, because those circuits have a limit
+  to their switching speed.  Some booster circuits won't work at all
+  above some maximum frequency, and some will overheat more quickly
+  when working at higher speeds.  So that's how we arrived at the
+  default: 20000 Hz is high enough to eliminate all of the common
+  bothersome PWM side effects with LEDs, solenoids, and motors, but
+  it's also low enough to be compatible with most booster circuit designs.
 
+workerPico.initTimeout number optional
+  Sets the initialization timeout, in milliseconds.  This sets an upper
+  limit for how long the Pinscape firmware will wait during initial
+  startup for the Worker Pico to respond to commands.  Depending on
+  your hardware setup, the main Pico might finish powering up before
+  the Worker Pico does, in which case the main Pico might start sending
+  I2C commands to the Worker Pico before the Worker Pico is ready to
+  respond to them.  This timeout specifies how long the main Pico
+  should be willing to wait.  The default timeout is 20 ms.
+
+  To determine if this might help, you can try resetting the main Pico
+  <b>without interrupting power to either Pico</b>.  If Worker Pico 
+  initialization succeeds under these conditions, the problem is likely
+  the boot delay.  If initialization <b>always</b> fails, even when the
+  power is steadily on the whole time, the problem lies elsewhere, either
+  in the configuration or physical wiring between the two Picos.
+
+  Before increasing the wait time, you should first make sure that both
+  Picos are receiving power from the same source.  This will make it more
+  likely that both devices boot up at the same time, reducing the need for
+  a longer delay.
 
 aedr8300 object optional
   TOC: Peripheral Devices > Plunger Sensors > Quadrature Encoders > AEDR-8300

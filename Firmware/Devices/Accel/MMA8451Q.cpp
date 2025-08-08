@@ -75,7 +75,7 @@ void MMA8451Q::Configure(JSONParser &json)
 
         // Get the GPIO connected to the interrupt (INT1) pin, if any
         int gpIntr = -1;
-        if (auto valIntr = val->Get("interrupt") ; !val->IsUndefined())
+        if (auto valIntr = val->Get("interrupt") ; !valIntr->IsUndefined())
         {
             // validate it
             gpIntr = valIntr->Int(-1);

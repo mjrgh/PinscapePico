@@ -1617,7 +1617,7 @@ xInput object optional
     <li>Click <b>Browse my computer for drivers</b>
     <li>Click <b>Let me pick from a list of available drivers on my computer</b>
     <li>Find the <b>XBox 360 Peripherals</b> section, and select <b>XBox 360 Controller for Windows</b>
-    <li>Click through the warning (this appears because Windows can tell from the USB IDs this isn't really an XBox controller)
+    <li>Click through the warning (this appears because Windows can tell from the USB IDs that this isn't really an XBox controller)
   </ul>
   This manual procedure is required because Windows doesn't automatically recognize
   a Pico as an XBox controller unit, even when you configure the Pico to perform the

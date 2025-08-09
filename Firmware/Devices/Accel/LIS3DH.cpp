@@ -75,7 +75,7 @@ void LIS3DH::Configure(JSONParser &json)
 
         // Get the interrupt pin, if any
         int gpIntr = -1;
-        if (auto valIntr = val->Get("interrupt") ; !val->IsUndefined())
+        if (auto valIntr = val->Get("interrupt") ; !valIntr->IsUndefined())
         {
             // validate it
             gpIntr = valIntr->Int(-1);

@@ -524,44 +524,45 @@
 <wire x1="11.811" y1="-2.0828" x2="-3.683" y2="-2.0828" width="0.127" layer="21"/>
 <wire x1="-3.683" y1="-2.0828" x2="-3.683" y2="4.5212" width="0.127" layer="21"/>
 </package>
-<package name="SOIC127P1030X265-18N">
-<description>&lt;b&gt;DW (R-PDSO-G18)&lt;/b&gt;&lt;br&gt;
+<package name="SOIC127P1030X265-20N">
+<description>&lt;b&gt;DW0020A&lt;/b&gt;&lt;br&gt;
 </description>
-<smd name="1" x="-4.725" y="5.08" dx="1.95" dy="0.65" layer="1"/>
-<smd name="2" x="-4.725" y="3.81" dx="1.95" dy="0.65" layer="1"/>
-<smd name="3" x="-4.725" y="2.54" dx="1.95" dy="0.65" layer="1"/>
-<smd name="4" x="-4.725" y="1.27" dx="1.95" dy="0.65" layer="1"/>
-<smd name="5" x="-4.725" y="0" dx="1.95" dy="0.65" layer="1"/>
-<smd name="6" x="-4.725" y="-1.27" dx="1.95" dy="0.65" layer="1"/>
-<smd name="7" x="-4.725" y="-2.54" dx="1.95" dy="0.65" layer="1"/>
-<smd name="8" x="-4.725" y="-3.81" dx="1.95" dy="0.65" layer="1"/>
-<smd name="9" x="-4.725" y="-5.08" dx="1.95" dy="0.65" layer="1" thermals="no"/>
-<smd name="10" x="4.725" y="-5.08" dx="1.95" dy="0.65" layer="1"/>
-<smd name="11" x="4.725" y="-3.81" dx="1.95" dy="0.65" layer="1"/>
-<smd name="12" x="4.725" y="-2.54" dx="1.95" dy="0.65" layer="1"/>
-<smd name="13" x="4.725" y="-1.27" dx="1.95" dy="0.65" layer="1"/>
-<smd name="14" x="4.725" y="0" dx="1.95" dy="0.65" layer="1"/>
-<smd name="15" x="4.725" y="1.27" dx="1.95" dy="0.65" layer="1"/>
-<smd name="16" x="4.725" y="2.54" dx="1.95" dy="0.65" layer="1"/>
-<smd name="17" x="4.725" y="3.81" dx="1.95" dy="0.65" layer="1"/>
-<smd name="18" x="4.725" y="5.08" dx="1.95" dy="0.65" layer="1"/>
+<smd name="1" x="-4.725" y="5.715" dx="1.95" dy="0.65" layer="1"/>
+<smd name="2" x="-4.725" y="4.445" dx="1.95" dy="0.65" layer="1"/>
+<smd name="3" x="-4.725" y="3.175" dx="1.95" dy="0.65" layer="1"/>
+<smd name="4" x="-4.725" y="1.905" dx="1.95" dy="0.65" layer="1"/>
+<smd name="5" x="-4.725" y="0.635" dx="1.95" dy="0.65" layer="1"/>
+<smd name="6" x="-4.725" y="-0.635" dx="1.95" dy="0.65" layer="1"/>
+<smd name="7" x="-4.725" y="-1.905" dx="1.95" dy="0.65" layer="1"/>
+<smd name="8" x="-4.725" y="-3.175" dx="1.95" dy="0.65" layer="1"/>
+<smd name="9" x="-4.725" y="-4.445" dx="1.95" dy="0.65" layer="1"/>
+<smd name="10" x="-4.725" y="-5.715" dx="1.95" dy="0.65" layer="1"/>
+<smd name="11" x="4.725" y="-5.715" dx="1.95" dy="0.65" layer="1"/>
+<smd name="12" x="4.725" y="-4.445" dx="1.95" dy="0.65" layer="1"/>
+<smd name="13" x="4.725" y="-3.175" dx="1.95" dy="0.65" layer="1"/>
+<smd name="14" x="4.725" y="-1.905" dx="1.95" dy="0.65" layer="1"/>
+<smd name="15" x="4.725" y="-0.635" dx="1.95" dy="0.65" layer="1"/>
+<smd name="16" x="4.725" y="0.635" dx="1.95" dy="0.65" layer="1"/>
+<smd name="17" x="4.725" y="1.905" dx="1.95" dy="0.65" layer="1"/>
+<smd name="18" x="4.725" y="3.175" dx="1.95" dy="0.65" layer="1"/>
+<smd name="19" x="4.725" y="4.445" dx="1.95" dy="0.65" layer="1"/>
+<smd name="20" x="4.725" y="5.715" dx="1.95" dy="0.65" layer="1"/>
 <text x="0" y="0" size="1.27" layer="25" align="center">&gt;NAME</text>
 <text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
-<wire x1="-5.95" y1="6.125" x2="5.95" y2="6.125" width="0.05" layer="51"/>
-<wire x1="5.95" y1="6.125" x2="5.95" y2="-6.125" width="0.05" layer="51"/>
-<wire x1="5.95" y1="-6.125" x2="-5.95" y2="-6.125" width="0.05" layer="51"/>
-<wire x1="-5.95" y1="-6.125" x2="-5.95" y2="6.125" width="0.05" layer="51"/>
-<wire x1="-3.75" y1="5.775" x2="3.75" y2="5.775" width="0.1" layer="51"/>
-<wire x1="3.75" y1="5.775" x2="3.75" y2="-5.775" width="0.1" layer="51"/>
-<wire x1="3.75" y1="-5.775" x2="-3.75" y2="-5.775" width="0.1" layer="51"/>
-<wire x1="-3.75" y1="-5.775" x2="-3.75" y2="5.775" width="0.1" layer="51"/>
-<wire x1="-3.75" y1="4.505" x2="-2.48" y2="5.775" width="0.1" layer="51"/>
-<wire x1="-3.4" y1="5.775" x2="3.4" y2="5.775" width="0.2" layer="21"/>
-<wire x1="3.4" y1="5.775" x2="3.4" y2="-5.775" width="0.2" layer="21"/>
-<wire x1="3.4" y1="-5.775" x2="-3.4" y2="-5.775" width="0.2" layer="21"/>
-<wire x1="-3.4" y1="-5.775" x2="-3.4" y2="5.775" width="0.2" layer="21"/>
-<wire x1="-5.7" y1="5.755" x2="-3.75" y2="5.755" width="0.2" layer="21"/>
-<circle x="-2.413" y="4.699" radius="0.635" width="0.127" layer="21"/>
+<wire x1="-5.95" y1="6.75" x2="5.95" y2="6.75" width="0.05" layer="51"/>
+<wire x1="5.95" y1="6.75" x2="5.95" y2="-6.75" width="0.05" layer="51"/>
+<wire x1="5.95" y1="-6.75" x2="-5.95" y2="-6.75" width="0.05" layer="51"/>
+<wire x1="-5.95" y1="-6.75" x2="-5.95" y2="6.75" width="0.05" layer="51"/>
+<wire x1="-3.75" y1="6.4" x2="3.75" y2="6.4" width="0.1" layer="51"/>
+<wire x1="3.75" y1="6.4" x2="3.75" y2="-6.4" width="0.1" layer="51"/>
+<wire x1="3.75" y1="-6.4" x2="-3.75" y2="-6.4" width="0.1" layer="51"/>
+<wire x1="-3.75" y1="-6.4" x2="-3.75" y2="6.4" width="0.1" layer="51"/>
+<wire x1="-3.75" y1="5.13" x2="-2.48" y2="6.4" width="0.1" layer="51"/>
+<wire x1="-3.4" y1="6.4" x2="3.4" y2="6.4" width="0.2" layer="21"/>
+<wire x1="3.4" y1="6.4" x2="3.4" y2="-6.4" width="0.2" layer="21"/>
+<wire x1="3.4" y1="-6.4" x2="-3.4" y2="-6.4" width="0.2" layer="21"/>
+<wire x1="-3.4" y1="-6.4" x2="-3.4" y2="6.4" width="0.2" layer="21"/>
+<wire x1="-5.7" y1="6.39" x2="-3.75" y2="6.39" width="0.2" layer="21"/>
 </package>
 <package name="HDRV2W66P0X254_1X2_762X572X100">
 <description>&lt;b&gt;779&lt;/b&gt;&lt;br&gt;
@@ -1578,13 +1579,13 @@
 <pin name="6" x="20.32" y="-5.08" length="middle" rot="R180"/>
 <pin name="8" x="20.32" y="-7.62" length="middle" rot="R180"/>
 </symbol>
-<symbol name="ULN2803ADWR">
-<wire x1="5.08" y1="2.54" x2="20.32" y2="2.54" width="0.254" layer="94"/>
-<wire x1="20.32" y1="-22.86" x2="20.32" y2="2.54" width="0.254" layer="94"/>
-<wire x1="20.32" y1="-22.86" x2="5.08" y2="-22.86" width="0.254" layer="94"/>
-<wire x1="5.08" y1="2.54" x2="5.08" y2="-22.86" width="0.254" layer="94"/>
-<text x="21.59" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
-<text x="21.59" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
+<symbol name="ULN2803CDWR">
+<wire x1="5.08" y1="2.54" x2="22.86" y2="2.54" width="0.254" layer="94"/>
+<wire x1="22.86" y1="-25.4" x2="22.86" y2="2.54" width="0.254" layer="94"/>
+<wire x1="22.86" y1="-25.4" x2="5.08" y2="-25.4" width="0.254" layer="94"/>
+<wire x1="5.08" y1="2.54" x2="5.08" y2="-25.4" width="0.254" layer="94"/>
+<text x="24.13" y="7.62" size="1.778" layer="95" align="center-left">&gt;NAME</text>
+<text x="24.13" y="5.08" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
 <pin name="1B" x="0" y="0" length="middle"/>
 <pin name="2B" x="0" y="-2.54" length="middle"/>
 <pin name="3B" x="0" y="-5.08" length="middle"/>
@@ -1594,15 +1595,17 @@
 <pin name="7B" x="0" y="-15.24" length="middle"/>
 <pin name="8B" x="0" y="-17.78" length="middle"/>
 <pin name="GND" x="0" y="-20.32" length="middle"/>
-<pin name="1C" x="25.4" y="0" length="middle" rot="R180"/>
-<pin name="2C" x="25.4" y="-2.54" length="middle" rot="R180"/>
-<pin name="3C" x="25.4" y="-5.08" length="middle" rot="R180"/>
-<pin name="4C" x="25.4" y="-7.62" length="middle" rot="R180"/>
-<pin name="5C" x="25.4" y="-10.16" length="middle" rot="R180"/>
-<pin name="6C" x="25.4" y="-12.7" length="middle" rot="R180"/>
-<pin name="7C" x="25.4" y="-15.24" length="middle" rot="R180"/>
-<pin name="8C" x="25.4" y="-17.78" length="middle" rot="R180"/>
-<pin name="COM" x="25.4" y="-20.32" length="middle" rot="R180"/>
+<pin name="NC_1" x="0" y="-22.86" length="middle"/>
+<pin name="1C" x="27.94" y="0" length="middle" rot="R180"/>
+<pin name="2C" x="27.94" y="-2.54" length="middle" rot="R180"/>
+<pin name="3C" x="27.94" y="-5.08" length="middle" rot="R180"/>
+<pin name="4C" x="27.94" y="-7.62" length="middle" rot="R180"/>
+<pin name="5C" x="27.94" y="-10.16" length="middle" rot="R180"/>
+<pin name="6C" x="27.94" y="-12.7" length="middle" rot="R180"/>
+<pin name="7C" x="27.94" y="-15.24" length="middle" rot="R180"/>
+<pin name="8C" x="27.94" y="-17.78" length="middle" rot="R180"/>
+<pin name="COM" x="27.94" y="-20.32" length="middle" rot="R180"/>
+<pin name="NC_2" x="27.94" y="-22.86" length="middle" rot="R180"/>
 </symbol>
 <symbol name="640454-2">
 <wire x1="5.08" y1="2.54" x2="15.24" y2="2.54" width="0.254" layer="94"/>
@@ -2343,42 +2346,44 @@ Source: &lt;a href="http://multimedia.3m.com/mws/media/22504O/3mtm-100-in-loprof
 </device>
 </devices>
 </deviceset>
-<deviceset name="ULN2803ADWR" prefix="Q">
-<description>&lt;b&gt;Darlington Transistor Array&lt;/b&gt;&lt;p&gt;
-Source: &lt;a href="http://www.ti.com/lit/gpn/uln2803a"&gt; Datasheet &lt;/a&gt;</description>
+<deviceset name="ULN2803CDWR" prefix="IC">
+<description>&lt;b&gt;Bipolar (BJT) Transistor Array 8 NPN Darlington 50V 500mA Surface Mount 20-SOIC&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="https://www.ti.com/lit/ds/symlink/uln2803c.pdf?ts=1664254346163&amp;ref_url=https%3A%2F%2Fwww.ti.com%2Fproduct%2FULN2803C%3FkeyMatch%3DULN2803C%26tisearch%3Dsearch-everything%26usecase%3DGPN"&gt; Datasheet &lt;/a&gt;</description>
 <gates>
-<gate name="G$1" symbol="ULN2803ADWR" x="0" y="0"/>
+<gate name="G$1" symbol="ULN2803CDWR" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="SOIC127P1030X265-18N">
+<device name="" package="SOIC127P1030X265-20N">
 <connects>
 <connect gate="G$1" pin="1B" pad="1"/>
-<connect gate="G$1" pin="1C" pad="18"/>
+<connect gate="G$1" pin="1C" pad="20"/>
 <connect gate="G$1" pin="2B" pad="2"/>
-<connect gate="G$1" pin="2C" pad="17"/>
+<connect gate="G$1" pin="2C" pad="19"/>
 <connect gate="G$1" pin="3B" pad="3"/>
-<connect gate="G$1" pin="3C" pad="16"/>
+<connect gate="G$1" pin="3C" pad="18"/>
 <connect gate="G$1" pin="4B" pad="4"/>
-<connect gate="G$1" pin="4C" pad="15"/>
+<connect gate="G$1" pin="4C" pad="17"/>
 <connect gate="G$1" pin="5B" pad="5"/>
-<connect gate="G$1" pin="5C" pad="14"/>
+<connect gate="G$1" pin="5C" pad="16"/>
 <connect gate="G$1" pin="6B" pad="6"/>
-<connect gate="G$1" pin="6C" pad="13"/>
+<connect gate="G$1" pin="6C" pad="15"/>
 <connect gate="G$1" pin="7B" pad="7"/>
-<connect gate="G$1" pin="7C" pad="12"/>
+<connect gate="G$1" pin="7C" pad="14"/>
 <connect gate="G$1" pin="8B" pad="8"/>
-<connect gate="G$1" pin="8C" pad="11"/>
-<connect gate="G$1" pin="COM" pad="10"/>
+<connect gate="G$1" pin="8C" pad="13"/>
+<connect gate="G$1" pin="COM" pad="12"/>
 <connect gate="G$1" pin="GND" pad="9"/>
+<connect gate="G$1" pin="NC_1" pad="10"/>
+<connect gate="G$1" pin="NC_2" pad="11"/>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="DESCRIPTION" value="Darlington Transistor Array" constant="no"/>
+<attribute name="DESCRIPTION" value="Bipolar (BJT) Transistor Array 8 NPN Darlington 50V 500mA Surface Mount 20-SOIC" constant="no"/>
 <attribute name="HEIGHT" value="2.65mm" constant="no"/>
 <attribute name="MANUFACTURER_NAME" value="Texas Instruments" constant="no"/>
-<attribute name="MANUFACTURER_PART_NUMBER" value="ULN2803ADWR" constant="no"/>
-<attribute name="MOUSER_PART_NUMBER" value="595-ULN2803ADWR" constant="no"/>
-<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/Texas-Instruments/ULN2803ADWR?qs=zqbRmZ%252BfZD8M77SqrzUfYg%3D%3D" constant="no"/>
+<attribute name="MANUFACTURER_PART_NUMBER" value="ULN2803CDWR" constant="no"/>
+<attribute name="MOUSER_PART_NUMBER" value="595-ULN2803CDWR" constant="no"/>
+<attribute name="MOUSER_PRICE-STOCK" value="https://www.mouser.co.uk/ProductDetail/Texas-Instruments/ULN2803CDWR?qs=vvQtp7zwQdMA2JP56CSJyQ%3D%3D" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -14781,11 +14786,11 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="J4" library="SamacSys_Parts" deviceset="640456-9" device=""/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
 <part name="J8" library="SamacSys_Parts" deviceset="30308-6002HB" device=""/>
-<part name="IC19" library="SamacSys_Parts" deviceset="ULN2803ADWR" device=""/>
-<part name="IC20" library="SamacSys_Parts" deviceset="ULN2803ADWR" device=""/>
-<part name="IC21" library="SamacSys_Parts" deviceset="ULN2803ADWR" device=""/>
-<part name="IC22" library="SamacSys_Parts" deviceset="ULN2803ADWR" device=""/>
-<part name="IC23" library="SamacSys_Parts" deviceset="ULN2803ADWR" device=""/>
+<part name="IC19" library="SamacSys_Parts" deviceset="ULN2803CDWR" device=""/>
+<part name="IC20" library="SamacSys_Parts" deviceset="ULN2803CDWR" device=""/>
+<part name="IC21" library="SamacSys_Parts" deviceset="ULN2803CDWR" device=""/>
+<part name="IC22" library="SamacSys_Parts" deviceset="ULN2803CDWR" device=""/>
+<part name="IC23" library="SamacSys_Parts" deviceset="ULN2803CDWR" device=""/>
 <part name="J15" library="SamacSys_Parts" deviceset="640445-9" device=""/>
 <part name="J16" library="SamacSys_Parts" deviceset="640445-9" device=""/>
 <part name="R41" library="resistor" deviceset="R-US_" device="R0603" value="3.9K"/>
@@ -20206,9 +20211,9 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER1" class="0">
 <segment>
 <pinref part="IC19" gate="G$1" pin="2C"/>
-<wire x1="152.4" y1="185.42" x2="147.32" y2="185.42" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="185.42" x2="147.32" y2="185.42" width="0.1524" layer="91"/>
 <pinref part="IC19" gate="G$1" pin="1C"/>
-<wire x1="152.4" y1="187.96" x2="147.32" y2="187.96" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="187.96" x2="147.32" y2="187.96" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="185.42" x2="147.32" y2="187.96" width="0.1524" layer="91"/>
 <wire x1="144.78" y1="187.96" x2="147.32" y2="187.96" width="0.1524" layer="91"/>
 <label x="144.78" y="187.96" size="1.27" layer="95" rot="MR0" xref="yes"/>
@@ -20223,9 +20228,9 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER2" class="0">
 <segment>
 <pinref part="IC19" gate="G$1" pin="4C"/>
-<wire x1="152.4" y1="180.34" x2="147.32" y2="180.34" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="180.34" x2="147.32" y2="180.34" width="0.1524" layer="91"/>
 <pinref part="IC19" gate="G$1" pin="3C"/>
-<wire x1="152.4" y1="182.88" x2="147.32" y2="182.88" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="182.88" x2="147.32" y2="182.88" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="180.34" x2="147.32" y2="182.88" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="182.88" x2="144.78" y2="182.88" width="0.1524" layer="91"/>
 <label x="144.78" y="182.88" size="1.27" layer="95" rot="MR0" xref="yes"/>
@@ -20240,9 +20245,9 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER3" class="0">
 <segment>
 <pinref part="IC19" gate="G$1" pin="5C"/>
-<wire x1="152.4" y1="177.8" x2="147.32" y2="177.8" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="177.8" x2="147.32" y2="177.8" width="0.1524" layer="91"/>
 <pinref part="IC19" gate="G$1" pin="6C"/>
-<wire x1="152.4" y1="175.26" x2="147.32" y2="175.26" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="175.26" x2="147.32" y2="175.26" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="175.26" x2="147.32" y2="177.8" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="177.8" x2="144.78" y2="177.8" width="0.1524" layer="91"/>
 <label x="144.78" y="177.8" size="1.27" layer="95" rot="MR0" xref="yes"/>
@@ -20257,10 +20262,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER4" class="0">
 <segment>
 <pinref part="IC19" gate="G$1" pin="8C"/>
-<wire x1="152.4" y1="170.18" x2="147.32" y2="170.18" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="170.18" x2="147.32" y2="170.18" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="170.18" x2="147.32" y2="172.72" width="0.1524" layer="91"/>
 <pinref part="IC19" gate="G$1" pin="7C"/>
-<wire x1="147.32" y1="172.72" x2="152.4" y2="172.72" width="0.1524" layer="91"/>
+<wire x1="147.32" y1="172.72" x2="149.86" y2="172.72" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="172.72" x2="144.78" y2="172.72" width="0.1524" layer="91"/>
 <label x="144.78" y="172.72" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="147.32" y="172.72"/>
@@ -20274,10 +20279,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER5" class="0">
 <segment>
 <pinref part="IC20" gate="G$1" pin="2C"/>
-<wire x1="152.4" y1="147.32" x2="147.32" y2="147.32" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="147.32" x2="147.32" y2="147.32" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="147.32" x2="147.32" y2="149.86" width="0.1524" layer="91"/>
 <pinref part="IC20" gate="G$1" pin="1C"/>
-<wire x1="152.4" y1="149.86" x2="147.32" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="149.86" x2="147.32" y2="149.86" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="149.86" x2="144.78" y2="149.86" width="0.1524" layer="91"/>
 <label x="144.78" y="149.86" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="147.32" y="149.86"/>
@@ -20291,10 +20296,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER6" class="0">
 <segment>
 <pinref part="IC20" gate="G$1" pin="3C"/>
-<wire x1="152.4" y1="144.78" x2="147.32" y2="144.78" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="144.78" x2="147.32" y2="144.78" width="0.1524" layer="91"/>
 <pinref part="IC20" gate="G$1" pin="4C"/>
 <wire x1="147.32" y1="144.78" x2="144.78" y2="144.78" width="0.1524" layer="91"/>
-<wire x1="152.4" y1="142.24" x2="147.32" y2="142.24" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="142.24" x2="147.32" y2="142.24" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="142.24" x2="147.32" y2="144.78" width="0.1524" layer="91"/>
 <label x="144.78" y="144.78" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="147.32" y="144.78"/>
@@ -20308,10 +20313,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER7" class="0">
 <segment>
 <pinref part="IC20" gate="G$1" pin="5C"/>
-<wire x1="152.4" y1="139.7" x2="147.32" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="139.7" x2="147.32" y2="139.7" width="0.1524" layer="91"/>
 <pinref part="IC20" gate="G$1" pin="6C"/>
 <wire x1="147.32" y1="139.7" x2="144.78" y2="139.7" width="0.1524" layer="91"/>
-<wire x1="152.4" y1="137.16" x2="147.32" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="137.16" x2="147.32" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="137.16" x2="147.32" y2="139.7" width="0.1524" layer="91"/>
 <label x="144.78" y="139.7" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="147.32" y="139.7"/>
@@ -20325,10 +20330,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER8" class="0">
 <segment>
 <pinref part="IC20" gate="G$1" pin="7C"/>
-<wire x1="152.4" y1="134.62" x2="147.32" y2="134.62" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="134.62" x2="147.32" y2="134.62" width="0.1524" layer="91"/>
 <pinref part="IC20" gate="G$1" pin="8C"/>
 <wire x1="147.32" y1="134.62" x2="144.78" y2="134.62" width="0.1524" layer="91"/>
-<wire x1="152.4" y1="132.08" x2="147.32" y2="132.08" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="132.08" x2="147.32" y2="132.08" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="132.08" x2="147.32" y2="134.62" width="0.1524" layer="91"/>
 <label x="144.78" y="134.62" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="147.32" y="134.62"/>
@@ -20342,9 +20347,9 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER9" class="0">
 <segment>
 <pinref part="IC21" gate="G$1" pin="2C"/>
-<wire x1="218.44" y1="185.42" x2="213.36" y2="185.42" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="185.42" x2="213.36" y2="185.42" width="0.1524" layer="91"/>
 <pinref part="IC21" gate="G$1" pin="1C"/>
-<wire x1="218.44" y1="187.96" x2="213.36" y2="187.96" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="187.96" x2="213.36" y2="187.96" width="0.1524" layer="91"/>
 <wire x1="213.36" y1="187.96" x2="210.82" y2="187.96" width="0.1524" layer="91"/>
 <wire x1="213.36" y1="185.42" x2="213.36" y2="187.96" width="0.1524" layer="91"/>
 <label x="210.82" y="187.96" size="1.27" layer="95" rot="MR0" xref="yes"/>
@@ -20359,10 +20364,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER10" class="0">
 <segment>
 <pinref part="IC21" gate="G$1" pin="3C"/>
-<wire x1="218.44" y1="182.88" x2="213.36" y2="182.88" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="182.88" x2="213.36" y2="182.88" width="0.1524" layer="91"/>
 <pinref part="IC21" gate="G$1" pin="4C"/>
 <wire x1="213.36" y1="182.88" x2="210.82" y2="182.88" width="0.1524" layer="91"/>
-<wire x1="218.44" y1="180.34" x2="213.36" y2="180.34" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="180.34" x2="213.36" y2="180.34" width="0.1524" layer="91"/>
 <wire x1="213.36" y1="180.34" x2="213.36" y2="182.88" width="0.1524" layer="91"/>
 <label x="210.82" y="182.88" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="213.36" y="182.88"/>
@@ -20376,10 +20381,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER11" class="0">
 <segment>
 <pinref part="IC21" gate="G$1" pin="5C"/>
-<wire x1="218.44" y1="177.8" x2="213.36" y2="177.8" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="177.8" x2="213.36" y2="177.8" width="0.1524" layer="91"/>
 <pinref part="IC21" gate="G$1" pin="6C"/>
 <wire x1="213.36" y1="177.8" x2="210.82" y2="177.8" width="0.1524" layer="91"/>
-<wire x1="218.44" y1="175.26" x2="213.36" y2="175.26" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="175.26" x2="213.36" y2="175.26" width="0.1524" layer="91"/>
 <wire x1="213.36" y1="175.26" x2="213.36" y2="177.8" width="0.1524" layer="91"/>
 <label x="210.82" y="177.8" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="213.36" y="177.8"/>
@@ -20393,10 +20398,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER12" class="0">
 <segment>
 <pinref part="IC21" gate="G$1" pin="7C"/>
-<wire x1="218.44" y1="172.72" x2="213.36" y2="172.72" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="172.72" x2="213.36" y2="172.72" width="0.1524" layer="91"/>
 <pinref part="IC21" gate="G$1" pin="8C"/>
 <wire x1="213.36" y1="172.72" x2="210.82" y2="172.72" width="0.1524" layer="91"/>
-<wire x1="218.44" y1="170.18" x2="213.36" y2="170.18" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="170.18" x2="213.36" y2="170.18" width="0.1524" layer="91"/>
 <wire x1="213.36" y1="170.18" x2="213.36" y2="172.72" width="0.1524" layer="91"/>
 <label x="210.82" y="172.72" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="213.36" y="172.72"/>
@@ -20410,10 +20415,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER13" class="0">
 <segment>
 <pinref part="IC22" gate="G$1" pin="1C"/>
-<wire x1="218.44" y1="149.86" x2="213.36" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="149.86" x2="213.36" y2="149.86" width="0.1524" layer="91"/>
 <pinref part="IC22" gate="G$1" pin="2C"/>
 <wire x1="213.36" y1="149.86" x2="210.82" y2="149.86" width="0.1524" layer="91"/>
-<wire x1="218.44" y1="147.32" x2="213.36" y2="147.32" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="147.32" x2="213.36" y2="147.32" width="0.1524" layer="91"/>
 <wire x1="213.36" y1="147.32" x2="213.36" y2="149.86" width="0.1524" layer="91"/>
 <label x="210.82" y="149.86" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="213.36" y="149.86"/>
@@ -20427,10 +20432,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER14" class="0">
 <segment>
 <pinref part="IC22" gate="G$1" pin="3C"/>
-<wire x1="218.44" y1="144.78" x2="213.36" y2="144.78" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="144.78" x2="213.36" y2="144.78" width="0.1524" layer="91"/>
 <pinref part="IC22" gate="G$1" pin="4C"/>
 <wire x1="213.36" y1="144.78" x2="210.82" y2="144.78" width="0.1524" layer="91"/>
-<wire x1="218.44" y1="142.24" x2="213.36" y2="142.24" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="142.24" x2="213.36" y2="142.24" width="0.1524" layer="91"/>
 <wire x1="213.36" y1="142.24" x2="213.36" y2="144.78" width="0.1524" layer="91"/>
 <label x="210.82" y="144.78" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="213.36" y="144.78"/>
@@ -20444,10 +20449,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER15" class="0">
 <segment>
 <pinref part="IC22" gate="G$1" pin="5C"/>
-<wire x1="218.44" y1="139.7" x2="213.36" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="139.7" x2="213.36" y2="139.7" width="0.1524" layer="91"/>
 <pinref part="IC22" gate="G$1" pin="6C"/>
 <wire x1="213.36" y1="139.7" x2="210.82" y2="139.7" width="0.1524" layer="91"/>
-<wire x1="218.44" y1="137.16" x2="213.36" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="137.16" x2="213.36" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="213.36" y1="137.16" x2="213.36" y2="139.7" width="0.1524" layer="91"/>
 <label x="210.82" y="139.7" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="213.36" y="139.7"/>
@@ -20461,10 +20466,10 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="FLASHER16" class="0">
 <segment>
 <pinref part="IC22" gate="G$1" pin="7C"/>
-<wire x1="218.44" y1="134.62" x2="213.36" y2="134.62" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="134.62" x2="213.36" y2="134.62" width="0.1524" layer="91"/>
 <pinref part="IC22" gate="G$1" pin="8C"/>
 <wire x1="213.36" y1="134.62" x2="210.82" y2="134.62" width="0.1524" layer="91"/>
-<wire x1="218.44" y1="132.08" x2="213.36" y2="132.08" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="132.08" x2="213.36" y2="132.08" width="0.1524" layer="91"/>
 <wire x1="213.36" y1="132.08" x2="213.36" y2="134.62" width="0.1524" layer="91"/>
 <label x="210.82" y="134.62" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <junction x="213.36" y="134.62"/>
@@ -20478,7 +20483,7 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="LAMP1" class="0">
 <segment>
 <pinref part="IC23" gate="G$1" pin="1C"/>
-<wire x1="281.94" y1="187.96" x2="276.86" y2="187.96" width="0.1524" layer="91"/>
+<wire x1="279.4" y1="187.96" x2="276.86" y2="187.96" width="0.1524" layer="91"/>
 <label x="276.86" y="187.96" size="1.27" layer="95" rot="MR0" xref="yes"/>
 </segment>
 <segment>
@@ -20490,7 +20495,7 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="LAMP2" class="0">
 <segment>
 <pinref part="IC23" gate="G$1" pin="2C"/>
-<wire x1="281.94" y1="185.42" x2="276.86" y2="185.42" width="0.1524" layer="91"/>
+<wire x1="279.4" y1="185.42" x2="276.86" y2="185.42" width="0.1524" layer="91"/>
 <label x="276.86" y="185.42" size="1.27" layer="95" rot="MR0" xref="yes"/>
 </segment>
 <segment>
@@ -20502,7 +20507,7 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="LAMP3" class="0">
 <segment>
 <pinref part="IC23" gate="G$1" pin="3C"/>
-<wire x1="281.94" y1="182.88" x2="276.86" y2="182.88" width="0.1524" layer="91"/>
+<wire x1="279.4" y1="182.88" x2="276.86" y2="182.88" width="0.1524" layer="91"/>
 <label x="276.86" y="182.88" size="1.27" layer="95" rot="MR0" xref="yes"/>
 </segment>
 <segment>
@@ -20514,7 +20519,7 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="LAMP4" class="0">
 <segment>
 <pinref part="IC23" gate="G$1" pin="4C"/>
-<wire x1="281.94" y1="180.34" x2="276.86" y2="180.34" width="0.1524" layer="91"/>
+<wire x1="279.4" y1="180.34" x2="276.86" y2="180.34" width="0.1524" layer="91"/>
 <label x="276.86" y="180.34" size="1.27" layer="95" rot="MR0" xref="yes"/>
 </segment>
 <segment>
@@ -20526,7 +20531,7 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="LAMP5" class="0">
 <segment>
 <pinref part="IC23" gate="G$1" pin="5C"/>
-<wire x1="281.94" y1="177.8" x2="276.86" y2="177.8" width="0.1524" layer="91"/>
+<wire x1="279.4" y1="177.8" x2="276.86" y2="177.8" width="0.1524" layer="91"/>
 <label x="276.86" y="177.8" size="1.27" layer="95" rot="MR0" xref="yes"/>
 </segment>
 <segment>
@@ -20538,7 +20543,7 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="LAMP6" class="0">
 <segment>
 <pinref part="IC23" gate="G$1" pin="6C"/>
-<wire x1="281.94" y1="175.26" x2="276.86" y2="175.26" width="0.1524" layer="91"/>
+<wire x1="279.4" y1="175.26" x2="276.86" y2="175.26" width="0.1524" layer="91"/>
 <label x="276.86" y="175.26" size="1.27" layer="95" rot="MR0" xref="yes"/>
 </segment>
 <segment>
@@ -20550,7 +20555,7 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="LAMP7" class="0">
 <segment>
 <pinref part="IC23" gate="G$1" pin="7C"/>
-<wire x1="281.94" y1="172.72" x2="276.86" y2="172.72" width="0.1524" layer="91"/>
+<wire x1="279.4" y1="172.72" x2="276.86" y2="172.72" width="0.1524" layer="91"/>
 <label x="276.86" y="172.72" size="1.27" layer="95" rot="MR0" xref="yes"/>
 </segment>
 <segment>
@@ -20562,7 +20567,7 @@ emitter and base with resistance at least 10x the base resistor's.</text>
 <net name="LAMP8" class="0">
 <segment>
 <pinref part="IC23" gate="G$1" pin="8C"/>
-<wire x1="281.94" y1="170.18" x2="276.86" y2="170.18" width="0.1524" layer="91"/>
+<wire x1="279.4" y1="170.18" x2="276.86" y2="170.18" width="0.1524" layer="91"/>
 <label x="276.86" y="170.18" size="1.27" layer="95" rot="MR0" xref="yes"/>
 </segment>
 <segment>

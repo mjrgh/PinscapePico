@@ -71,6 +71,14 @@ wiring between the controller and panel very easy and neat.  Like the Power
 Distribution board, this one is designed to replace ad hoc wiring to make
 your build a little tidier, and it can be used with any I/O controller.
 
+## How to fabricate the boards
+
+See [Fabricating the Expansion Boards](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=expanFab)
+in the (Pinscape Build Guide)[http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php].
+That explains the process in terms of the original KL25Z Pinscape boards, but
+it applies equally well to the Pinscape Pico boards - just substitute the EAGLE
+files from this repository.
+
 
 ## Bills of Materials (BOMs)
 

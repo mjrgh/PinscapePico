@@ -158,8 +158,21 @@ void MMA8451Q::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
 
         if (ok)
         {
-            Log(whoAmI == 0x1A ? LOG_INFO : LOG_ERROR, "MMA8451Q: WHO_AM_I (reg 0x0F)=0x%02X (%s)\n", whoAmI,
-                whoAmI == 0x1A ? "OK" : "invalid; expected 0x1A");
+            switch (whoAmI)
+            {
+            case 0x1A:
+                Log(LOG_INFO, "MMA8451Q: WHO_AM_I (reg 0x0F)=0x1A, chip identified as MMA8451Q\n");
+                break;
+
+            case 0x2A:
+                Log(LOG_INFO, "MMA8451Q: WHO_AM_I (reg 0x0F)=0x2A, chip identified as MMA8452Q\n");
+                break;
+
+            default:
+                Log(LOG_ERROR, "MMA8451Q: WHO_AM_I (reg 0x0F)=0x%02X, expected 0x1A or 0x2A; this is not a supported "
+                    "MMA845x series chip ID, so the device might not function correctly\n", whoAmI);
+                break;
+            }
         }
         else
         {

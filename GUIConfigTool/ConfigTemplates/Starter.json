@@ -659,7 +659,7 @@
     //
     // pico_adc: {
     //     gpio: 26,
-    // }
+    // },
 
 
     // ADS1115 ADC.  This is analog-to-digital converter chip that you

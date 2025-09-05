@@ -27,7 +27,7 @@ and run the installer, and follow the on-screen prompts.
 
 ### How to install SDK 2.1.0
 
-Raspberry Pi moved to a Visual Studio extension for the 2.1.0 SDK,
+Raspberry Pi moved to a Visual Studio Code (VS Code) extension for the 2.1.0 SDK,
 replacing the Windows command-line build environment used in 1.5.1.
 In principle, that should be just as easy to set up, but it still
 seems to be a work in progress, so much so that I can't get it to

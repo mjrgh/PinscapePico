@@ -111,7 +111,7 @@ void ADS1115::Configure(JSONParser &json)
             {
                 // Find the closest available speed.  Each array element is the
                 // samples-per-second setting for the data rate value equal to
-                // that index.
+                // that element's array index.
                 int best = -1, delta = 0;
                 for (int i = 0 ; i < 8 ; ++i)
                 {

@@ -707,7 +707,7 @@ void Button::Configure(JSONParser &json)
                 holdButton->shortPressAction = ParseAction(subLocus, shortPress->Get("action"));
 
                 // Set the pulse time, converting from JSON milliseconds to stored microseconds
-                holdButton->shortPressActionDuration = val->Get("actionTime")->UInt32(20) * 1000UL;
+                holdButton->shortPressActionDuration = shortPress->Get("actionTime")->UInt32(20) * 1000UL;
             }
 
             // log status

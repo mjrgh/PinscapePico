@@ -755,22 +755,26 @@ public:
     class ADCSource : public Source
     {
     public:
-        ADCSource(ADC* adc, int channel, bool above, int32_t threshold);
+        ADCSource(ADC *adc, int channel, bool above, int32_t threshold);
         virtual bool Poll() override;
+        
         // display name for log messages
         virtual const char *FullName(char *buf, size_t buflen) const override { return fullName; }
+        
         // populate a vendor interface button descriptor
         virtual void PopulateDesc(PinscapePico::ButtonDesc *desc) const override { 
             desc->sourceType = PinscapePico::ButtonDesc::SRC_ADC;
             desc->sourcePort = channel;
         }
 
-    private:
+    protected:
         // The ADC and channel
-        ADC* adc;
+        ADC *adc;
         int channel;
+        
         // When true, the source is considered enabled when the threshold is above the reading from the sensor
         bool above;
+        
         // threshold level
         int32_t threshold;
 

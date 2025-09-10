@@ -532,7 +532,19 @@ buttons[].source.type="zblaunch".modal bool optional
 
 buttons[].source.type="adc"
   Sets up the logical button to trigger whenever an ADC (analog to
-  digital) value is either above or below the configured threshold value.
+  digital converter) reading is either above or below the configured
+  threshold value.
+
+  This is useful for connecting input controls that are based on
+  variable resistors (potentiometers) instead of simple on/off switches,
+  such as joysticks, dials, and slider controls.  You can connect this
+  kind of input control through an ADC - either the Pico's built-in
+  ADC, or an external ADC chip - and then treat it as a simple on/off
+  button using this logical button source type.  Physically, the device
+  will vary the voltage fed into the ADC as you move the control along
+  its range.  Pinscape will convert this into an on/off button action
+  by treating voltage readings on one side of the selected voltage
+  threshold as ON, and readings on the other side as OFF.
 
 buttons[].source.type="adc".adc string required
   The name of the ADC device to use as the input for the button.
@@ -544,14 +556,24 @@ buttons[].source.type="adc".adc string required
   for the third channel, and so on.
 
 buttons[].source.type="adc".above bool optional
-  If this is set to true, which is the default, the button only triggers
-  when the analog reading is above the set threshold value. When set to
-  false, the button only triggers when the analog reading is below the
-  set threshold value.
+  If this is set to true, which is the default, the button reads as ON
+  when the ADC reading is higher than the <tt>threshold</tt> value.  When
+  set to false, the button reads as ON when the analog reading is lower
+  than the <tt>threshold</tt> value.
 
 buttons[].source.type="adc".threshold number optional
-  Sets the value at which the button will trigger if it is above or below
-  this value. The range is 0..65535 and the default is 32767.
+  Sets the ADC reading at which the button will trigger, using the
+  "normalized" range of 0 to 65535.  The Pinscape software internally
+  maps every device's native range to the same 0..65535 scale, where 0
+  corresponds the minimum voltage that the device can register, and
+  65535 corresponds to the maximum voltage.  If this value is
+  omitted, the default is 32767, which represents the halfway point
+  on the ADC's voltage range.
+
+  If <tt>above</tt> is true, which is the default, the button will
+  read as ON (pressed) whenever the ADC reading is higher than the
+  <tt>threshold</tt> value.  Otherwise, the button is ON when the
+  ADC reading is below the threshold value.
 
 buttons[].source.active string{high low} optional
   "high" for a button whose port reads logic "1" when pressed, "low" for

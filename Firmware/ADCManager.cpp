@@ -111,10 +111,39 @@ void ADCManager::Add(ADC *adc)
 }
 
 // enumerate devices
-void ADCManager::Enumerate(std::function<void(ADC*)> func)
+void ADCManager::Enumerate(std::function<void(ADC*)> callback)
 {
     for (auto &adc : adcs)
-        func(adc.get());
+        callback(adc.get());
+}
+
+void ADCManager::EnumerateChannelsByConfigKey(std::function<void(const char *key, ADC *adc, int channelNum)> callback)
+{
+    // enumerate devices
+    for (auto &adc : adcs)
+    {
+        // enumerate channels under a key
+        auto EnumChannels = [&callback](const char *key, ADC *adc)
+        {
+            // enumerate channel 0 under the root key, with no channel number suffix
+            callback(key, adc, 0);
+
+            // enumerate each channel under a subkey with a channel number suffix, "[n]"
+            for (int i = 0, n = adc->GetNumLogicalChannels() ; i < n ; ++i)
+            {
+                char subkey[32];
+                snprintf(subkey, sizeof(subkey), "%s[%d]", key, i);
+                callback(subkey, adc, i);
+            }
+        };
+
+        // enumerate channels under the device's primary key
+        EnumChannels(adc->ConfigKey(), adc.get());
+
+        // enumerate channels under the device's alternate key, if it has one
+        if (const auto *altKey = adc->AltConfigKey() ; altKey != nullptr)
+            EnumChannels(altKey, adc.get());
+    }
 }
 
 // claim the Pico on-board ADC

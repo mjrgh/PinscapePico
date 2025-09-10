@@ -86,7 +86,32 @@ public:
     void Add(ADC *adc);
 
     // iterate over the configured devices
-    void Enumerate(std::function<void(ADC*)> func);
+    void Enumerate(std::function<void(ADC*)> callback);
+
+    // Iterate over the configured devices by config key.  This enumerats
+    // each channel of each device, under both the primary and alternate
+    // config keys.
+    //
+    // Each channel is enumerated under its channel number using the
+    // naming convention "key[n]", where 'n' is the channel number,
+    // starting at zero.  The zeroeth channel is ALSO enumerated with no
+    // '[0]' suffix, so that the user can refer to a single-channel
+    // device without a channel number suffix, AND still allowing the
+    // same notation for the first channel in the event the user later
+    // reconfigures the device to use multiple channels.  (It could be
+    // confusing for a user to have a plunger reference to 'pico_adc'
+    // break just because they configured a second Pico ADC channel,
+    // which would happen if we required the [n] suffix for multi-
+    // channel devices but not for single-channel devices.  And it would
+    // be annoying to require the [0] suffix for single-channel devices.
+    // So we really have to accept 'key' and 'key[0]' as synonmous in
+    // all cases to avoid the confusing edge case where we go from
+    // single-channel to multi-channel after a config change.)
+    //
+    // All channel keys (including the [n] suffix keys and the default
+    // key for channel 0) are repeated for the primary and alternate
+    // keys, if the device has an alternate key.
+    void EnumerateChannelsByConfigKey(std::function<void(const char *key, ADC *adc, int channelNum)> callback);
 
 protected:
     // List of configured ADC devices

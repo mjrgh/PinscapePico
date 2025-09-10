@@ -543,6 +543,7 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //                        // logical button when mapping IR input to PC keyboard keys, so that the repeat
 //                        // rate is controlled by the remote rather than the Windows auto-repeat function.
 //
+//
 // type: "output",        // Output port state
 //   port: <string|number>,   // logical output port name or number
 //   range: {             // if specified, the value range on the port that triggers the button; default is {min: 1}
@@ -553,14 +554,15 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //   },
 //
 //
-// type: "clock",         // button is pressed at certain times of day
-//   // TBD
-//
 // type: "adc",           // ADC based source
 //   adc: "<adc>",        // the adc entry, for example "pico_adc[0]", required
 //   threshold: <number>, // the adc threshold level to compare against the adc reading, default 0
 //   above: <bool>,       // true (default) -> read as ON when the adc reading is above the threshold
 //                        // false -> read as ON when the adc reading is below the threshold
+//
+// type: "clock",         // button is pressed at certain times of day
+//   // TBD
+//
 //
 // <Action> object details:
 // action: {
@@ -1065,62 +1067,31 @@ Button::Source *Button::ParseSource(
         // An ADC source is required
         if (auto *adcVal = srcVal->Get("adc") ; !adcVal->IsUndefined())
         {
-	        struct ADCEntry
-	        {
-	            ADCEntry(ADC* adc, int channel) : adc(adc), channel(channel) {}
-	            ADC* adc;
-	            int channel;
-	        };
-	
-	        std::unordered_map<std::string, ADCEntry> adcEntryMap;
-	
-	        // add ADC entries from the ADC Manager list
-	        adcManager.Enumerate([&adcEntryMap](ADC *adc)
-	        {
-	            // add the adc under a key
-	            auto Add = [&adcEntryMap](const char *key, ADC *adc)
-	            {
-	                // add an entry for the device with no suffix, as shorthand for
-	                // "device[0]" (logical channel 0 on the device)
-	                adcEntryMap.emplace(key, ADCEntry(adc, 0));
-	                Log(LOG_DEBUG, "ADCSource: added key %s for %s\n", key, adc->DisplayName());
-	                // add channel-numbered keys, with [n] suffixes
-	                for (int i = 0, n = adc->GetNumLogicalChannels() ; i < n ; ++i)
-	                {
-	                    char subkey[32];
-	                    snprintf(subkey, sizeof(subkey), "%s[%d]", key, i);
-	                    adcEntryMap.emplace(subkey, ADCEntry(adc, i));
-	                    Log(LOG_DEBUG, "ADCSource: added subkey %s for %s\n", subkey, adc->DisplayName());
-	                }
-	            };
-	
-	            // add an entry under its main key
-	            Add(adc->ConfigKey(), adc);
-	
-	            // add it under its alternate key, if it has one
-	            if (const auto* altKey = adc->AltConfigKey(); altKey != nullptr)
-	            {
-	                Add(altKey, adc);
-	                Log(LOG_DEBUG, "ADCSource: added altkey %s for %s\n", altKey, adc->DisplayName());
-	            }
-	        });
-            // look it up
+            // Look up the ADC by config key.  Do this by enumerating the
+            // channel config keys, and matching each against the one we
+            // find under the 'buttons[].source.adc' value.
             auto adcStr = adcVal->String();
-            if (auto it = adcEntryMap.find(adcStr); it != adcEntryMap.end())
+            ADCSource *adcSource = nullptr;
+            adcManager.EnumerateChannelsByConfigKey([&adcStr, &adcSource, srcVal](const char *key, ADC *adc, int channelNum)
             {
-                // select the named ADC entry
-                ADCEntry adcEntry = it->second;
-                int32_t threshold = srcVal->Get("threshold")->Int32(32767);
-                bool above = srcVal->Get("above")->Bool(true);
-                Log(LOG_CONFIG, "ADCSource: %s %d %s %d\n", 
-					adcEntry.adc->DisplayName(), adcEntry.channel, above ? "above" : "below", threshold);
-                return new Button::ADCSource(adcEntry.adc, adcEntry.channel, above, threshold);
-            }
-            else
-            {
-                // error - ADC not found
-                return Log(LOG_ERROR, "ADCSource: ADC \"%s\" is unknown, or not configured\n", adcStr.c_str()), nullptr;
-            }
+                // if we haven't already matched the name, try matching it to this key
+                if (adcSource == nullptr && strcmp(key, adcStr.c_str()) == 0)
+                {
+                    // success - create the new button source
+                    int32_t threshold = srcVal->Get("threshold")->Int32(32767);
+                    bool above = srcVal->Get("above")->Bool(true);
+                    Log(LOG_CONFIG, "ADCSource: %s %d %s %d\n",
+                        adc->DisplayName(), channelNum, above ? "above" : "below", threshold);
+                    adcSource = new Button::ADCSource(adc, channelNum, above, threshold);
+                }
+            });
+
+            // log an error if we didn't match the name
+            if (adcSource == nullptr)
+                Log(LOG_ERROR, "ADCSource: ADC \"%s\" is unknown, or not configured\n", adcStr.c_str());
+
+            // return the new source (if created)
+            return adcSource;
         }
         else
         {
@@ -2716,23 +2687,24 @@ void Button::DOFSource::PopulateDesc(PinscapePico::ButtonDesc *desc) const
 //
 // ADC Source
 //
-Button::ADCSource::ADCSource(ADC* adc, int channel, bool above, int32_t threshold) :
-    adc(adc), channel(channel), above(above), threshold(threshold) {
+Button::ADCSource::ADCSource(ADC *adc, int channel, bool above, int32_t threshold) :
+    adc(adc), channel(channel), above(above), threshold(threshold)
+{
     // enable sampling on the ADC
     adc->EnableSampling();
+
     // build the friendly name based on the ADC name
     fullName = Format("ADCSource(%s %i %s %i)", adc->DisplayName(), channel, above ? "above" : "below", threshold);
     Log(LOG_DEBUG, "ADCSource: %s\n", fullName);
 }
 
-bool Button::ADCSource::Poll() {
-    // Read the adc
-    ADC::Sample s = adc->ReadNorm(channel);
+bool Button::ADCSource::Poll()
+{
+    // Read the ADC
+    auto s = adc->ReadNorm(channel);
+
     // compare to the threshold
-    if (above) {
-        return s.sample > threshold;
-    }
-    return s.sample < threshold;
+    return above ? s.sample > threshold : s.sample < threshold;
 }
 
 // ---------------------------------------------------------------------------

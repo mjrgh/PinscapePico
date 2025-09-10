@@ -317,6 +317,11 @@ For an introduction to the JSON syntax and the overall file layout, refer to
               <span class="propName"><a href="#buttons.source.type=IR.firstRepeatDelay">firstRepeatDelay</a></span>: <span class="typeNames">number</span>,
               <span class="propName"><a href="#buttons.source.type=IR.latchTime">latchTime</a></span>: <span class="typeNames">number</span>,
 
+              // type="adc"
+              <span class="propName"><a href="#buttons.source.type=adc.above">above</a></span>: <span class="typeNames">boolean</span>,
+              <span class="propName"><a href="#buttons.source.type=adc.adc">adc</a></span>: <span class="typeNames">string</span>,
+              <span class="propName"><a href="#buttons.source.type=adc.threshold">threshold</a></span>: <span class="typeNames">number</span>,
+
               // type="bootsel"
               // (No additional properties)
 
@@ -1694,6 +1699,11 @@ For an introduction to the JSON syntax and the overall file layout, refer to
             <span class="propName"><a href="#buttons.source.type=IR.firstRepeatDelay">firstRepeatDelay</a></span>: <span class="typeNames">number</span>,
             <span class="propName"><a href="#buttons.source.type=IR.latchTime">latchTime</a></span>: <span class="typeNames">number</span>,
 
+            // type="adc"
+            <span class="propName"><a href="#buttons.source.type=adc.above">above</a></span>: <span class="typeNames">boolean</span>,
+            <span class="propName"><a href="#buttons.source.type=adc.adc">adc</a></span>: <span class="typeNames">string</span>,
+            <span class="propName"><a href="#buttons.source.type=adc.threshold">threshold</a></span>: <span class="typeNames">number</span>,
+
             // type="bootsel"
             // (No additional properties)
 
@@ -2797,7 +2807,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
       </div>
       <div class="jsonPropDesc">
     <div class="jsonEnumVals">
-       One of: <span class="jsonEnumVal">"<a href="#buttons.source.type=74hc165">74hc165</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=IR">IR</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=bootsel">bootsel</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=gpio">gpio</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=nudge">nudge</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=output">output</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=pca9555">pca9555</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=plunger">plunger</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=zblaunch">zblaunch</a>"</span>
+       One of: <span class="jsonEnumVal">"<a href="#buttons.source.type=74hc165">74hc165</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=IR">IR</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=adc">adc</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=bootsel">bootsel</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=gpio">gpio</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=nudge">nudge</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=output">output</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=pca9555">pca9555</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=plunger">plunger</a>"</span>, <span class="jsonEnumVal">"<a href="#buttons.source.type=zblaunch">zblaunch</a>"</span>
     </div>
     <p>
       The source type.  See the source types below for more details.
@@ -3060,6 +3070,86 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         will remain on continuously as long as you're holding down the remote
         button.  That smooths out the "pulse train" from the IR remote and turns
         it into what looks like a push-and-hold on the logical button.
+      </p>
+        </div>
+      </div>
+      </div>
+      <a name="buttons.source.type=adc"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">buttons[].source.</span><span class="jsonPropName">type="adc"</span>
+        </div>
+        <div class="jsonClassDesc">
+        <p>
+          Sets up the logical button to trigger whenever an ADC (analog to
+          digital converter) reading is either above or below the configured
+          threshold value.
+          </p><p>
+          This is useful for connecting input controls that are based on
+          variable resistors (potentiometers) instead of simple on/off switches,
+          such as joysticks, dials, and slider controls.  You can connect this
+          kind of input control through an ADC - either the Pico's built-in
+          ADC, or an external ADC chip - and then treat it as a simple on/off
+          button using this logical button source type.  Physically, the device
+          will vary the voltage fed into the ADC as you move the control along
+          its range.  Pinscape will convert this into an on/off button action
+          by treating voltage readings on one side of the selected voltage
+          threshold as ON, and readings on the other side as OFF.
+        </p>
+        </div>
+      <a name="buttons.source.type=adc.above"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">buttons[].source.</span><span class="jsonPropName">above</span>
+          <span class="jsonPropType">boolean</span><span class="jsonPropOptional">Optional</span>
+        </div>
+        <div class="jsonPropDesc">
+      <p>
+        If this is set to true, which is the default, the button reads as ON
+        when the ADC reading is higher than the <tt>threshold</tt> value.  When
+        set to false, the button reads as ON when the analog reading is lower
+        than the <tt>threshold</tt> value.
+      </p>
+        </div>
+      </div>
+      <a name="buttons.source.type=adc.adc"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">buttons[].source.</span><span class="jsonPropName">adc</span>
+          <span class="jsonPropType">string</span><span class="jsonPropRequired">Required</span>
+        </div>
+        <div class="jsonPropDesc">
+      <p>
+        The name of the ADC device to use as the input for the button.
+        If you configure an ADC device with multiple channels, and you want
+        to use one of those for a potentiometer plunger input, you'll have
+        to set this to specify which channel to use.  For the Pico on-board
+        ADC, set this to "pico_adc" to use the first configured channel for
+        the plunger, "pico_adc[1]" to use the second channel, "pico_adc[2]"
+        for the third channel, and so on.
+      </p>
+        </div>
+      </div>
+      <a name="buttons.source.type=adc.threshold"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">buttons[].source.</span><span class="jsonPropName">threshold</span>
+          <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
+        </div>
+        <div class="jsonPropDesc">
+      <p>
+        Sets the ADC reading at which the button will trigger, using the
+        "normalized" range of 0 to 65535.  The Pinscape software internally
+        maps every device's native range to the same 0..65535 scale, where 0
+        corresponds the minimum voltage that the device can register, and
+        65535 corresponds to the maximum voltage.  If this value is
+        omitted, the default is 32767, which represents the halfway point
+        on the ADC's voltage range.
+        </p><p>
+        If <tt>above</tt> is true, which is the default, the button will
+        read as ON (pressed) whenever the ADC reading is higher than the
+        <tt>threshold</tt> value.  Otherwise, the button is ON when the
+        ADC reading is below the threshold value.
       </p>
         </div>
       </div>

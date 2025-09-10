@@ -2192,7 +2192,7 @@ namespace PinscapePico
         static const uint8_t SRC_CLOCK = 0x09;     // time-of-day trigger
         static const uint8_t SRC_OUTPORT = 0x0A;   // output port trigger (DOF port); button is ON when the DOF port PWM level in a specified range
         static const uint8_t SRC_NULL = 0x0B;      // null source; always reads as off
-        static const uint8_t SRC_ADC = 0x0C;       // adc source
+        static const uint8_t SRC_ADC = 0x0C;       // ADC source
 
         // Source device details.  These elements vary by source type:
         //
@@ -2211,7 +2211,7 @@ namespace PinscapePico
         //
         // - Output (DOF) port: unit is zero, port is the output port number
         //
-        // - ADC: port is the channel
+        // - ADC: port is the channel number on the devcie
         // 
         // These fields are unused for other source types.
         uint8_t sourceUnit;

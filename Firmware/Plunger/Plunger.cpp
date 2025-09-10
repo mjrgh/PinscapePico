@@ -86,31 +86,9 @@ void Plunger::Configure(JSONParser &json)
         // get the default enabled/disabled mode
         isEnabled = val->Get("enabled")->Bool(true);
 
-        // add ADC sensors from the ADC Manager list
-        adcManager.Enumerate([this](ADC *adc)
-        {
-            // add the sensor under a key
-            auto Add = [this](const char *key, ADC *adc)
-            {
-                // add an entry for the device with no suffix, as shorthand for
-                // "device[0]" (logical channel 0 on the device)
-                sensors.emplace(key, new PotPlungerSensor(adc, 0));
-                
-                // add channel-numbered keys, with [n] suffixes
-                for (int i = 0, n = adc->GetNumLogicalChannels() ; i < n ; ++i)
-                {
-                    char subkey[32];
-                    snprintf(subkey, sizeof(subkey), "%s[%d]", key, i);
-                    sensors.emplace(subkey, new PotPlungerSensor(adc, i));
-                }
-            };
-
-            // add the sensor under its main key
-            Add(adc->ConfigKey(), adc);
-
-            // add it under its alternate key, if it has one
-            if (const auto *altKey = adc->AltConfigKey(); altKey != nullptr)
-                Add(altKey, adc);
+        // construct the map of available ADC devices and channels by config key
+        adcManager.EnumerateChannelsByConfigKey([this](const char *key, ADC *adc, int channelNum) {
+            sensors.emplace(key, new PotPlungerSensor(adc, channelNum));
         });
 
         // add special plunger sensors

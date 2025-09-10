@@ -119,6 +119,7 @@ class PCA9555;
 class C74HC165;
 class JSONParser;
 class IRCommandDesc;
+class ADC;
 
 
 // Abstract button class.  This defines a logical button, which can be
@@ -748,6 +749,37 @@ public:
         // OutputManager::Port is an incomplete nested class at this point,
         // and C++ doesn't currently have any way to declare such a thing.
         void *port = nullptr;
+    };
+
+    // ADC source. This source can translate analog values to a digital on/off.
+    class ADCSource : public Source
+    {
+    public:
+        ADCSource(ADC *adc, int channel, bool above, int32_t threshold);
+        virtual bool Poll() override;
+        
+        // display name for log messages
+        virtual const char *FullName(char *buf, size_t buflen) const override { return fullName; }
+        
+        // populate a vendor interface button descriptor
+        virtual void PopulateDesc(PinscapePico::ButtonDesc *desc) const override { 
+            desc->sourceType = PinscapePico::ButtonDesc::SRC_ADC;
+            desc->sourcePort = channel;
+        }
+
+    protected:
+        // The ADC and channel
+        ADC *adc;
+        int channel;
+        
+        // When true, the source is considered enabled when the threshold is above the reading from the sensor
+        bool above;
+        
+        // threshold level
+        int32_t threshold;
+
+        // full name of the AdcSource button; we build this based on the ADC's display name
+        const char *fullName;
     };
 
     // -----------------------------------------------------------------------

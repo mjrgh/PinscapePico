@@ -34,6 +34,7 @@
 #include "Nudge.h"
 #include "Outputs.h"
 #include "BootselButton.h"
+#include "ADCManager.h"
 #include "Plunger/Plunger.h"
 #include "Plunger/ZBLaunch.h"
 #include "IRRemote/IRCommand.h"
@@ -542,6 +543,7 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //                        // logical button when mapping IR input to PC keyboard keys, so that the repeat
 //                        // rate is controlled by the remote rather than the Windows auto-repeat function.
 //
+//
 // type: "output",        // Output port state
 //   port: <string|number>,   // logical output port name or number
 //   range: {             // if specified, the value range on the port that triggers the button; default is {min: 1}
@@ -551,6 +553,12 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //                        // false -> read as ON when the output port is less than min or greater than max
 //   },
 //
+//
+// type: "adc",           // ADC based source
+//   adc: "<adc>",        // the adc entry, for example "pico_adc[0]", required
+//   threshold: <number>, // the adc threshold level to compare against the adc reading, default 0
+//   above: <bool>,       // true (default) -> read as ON when the adc reading is above the threshold
+//                        // false -> read as ON when the adc reading is below the threshold
 //
 // type: "clock",         // button is pressed at certain times of day
 //   // TBD
@@ -1053,6 +1061,42 @@ Button::Source *Button::ParseSource(
             
         // return the new source
         return dofSource;
+    }
+    else if (srcType == "adc")
+    {
+        // An ADC source is required
+        if (auto *adcVal = srcVal->Get("adc") ; !adcVal->IsUndefined())
+        {
+            // Look up the ADC by config key.  Do this by enumerating the
+            // channel config keys, and matching each against the one we
+            // find under the 'buttons[].source.adc' value.
+            auto adcStr = adcVal->String();
+            ADCSource *adcSource = nullptr;
+            adcManager.EnumerateChannelsByConfigKey([&adcStr, &adcSource, srcVal](const char *key, ADC *adc, int channelNum)
+            {
+                // if we haven't already matched the name, try matching it to this key
+                if (adcSource == nullptr && strcmp(key, adcStr.c_str()) == 0)
+                {
+                    // success - create the new button source
+                    int32_t threshold = srcVal->Get("threshold")->Int32(32767);
+                    bool above = srcVal->Get("above")->Bool(true);
+                    Log(LOG_CONFIG, "ADCSource: %s %d %s %d\n",
+                        adc->DisplayName(), channelNum, above ? "above" : "below", threshold);
+                    adcSource = new Button::ADCSource(adc, channelNum, above, threshold);
+                }
+            });
+
+            // log an error if we didn't match the name
+            if (adcSource == nullptr)
+                Log(LOG_ERROR, "ADCSource: ADC \"%s\" is unknown, or not configured\n", adcStr.c_str());
+
+            // return the new source (if created)
+            return adcSource;
+        }
+        else
+        {
+            return Log(LOG_ERROR, "ADCSource: an \"adc\" item is required.\n"), nullptr;
+        }
     }
     else
     {
@@ -2639,6 +2683,29 @@ void Button::DOFSource::PopulateDesc(PinscapePico::ButtonDesc *desc) const
     desc->sourcePort = portNum;
 }
 
+// ---------------------------------------------------------------------------
+//
+// ADC Source
+//
+Button::ADCSource::ADCSource(ADC *adc, int channel, bool above, int32_t threshold) :
+    adc(adc), channel(channel), above(above), threshold(threshold)
+{
+    // enable sampling on the ADC
+    adc->EnableSampling();
+
+    // build the friendly name based on the ADC name
+    fullName = Format("ADCSource(%s %i %s %i)", adc->DisplayName(), channel, above ? "above" : "below", threshold);
+    Log(LOG_DEBUG, "ADCSource: %s\n", fullName);
+}
+
+bool Button::ADCSource::Poll()
+{
+    // Read the ADC
+    auto s = adc->ReadNorm(channel);
+
+    // compare to the threshold
+    return above ? s.sample > threshold : s.sample < threshold;
+}
 
 // ---------------------------------------------------------------------------
 //

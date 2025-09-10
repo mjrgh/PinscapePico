@@ -122,7 +122,7 @@ buttons[].source object required
   software sources, such as the plunger and nudge subsystems, or the IR
   remote control receiver.
 
-buttons[].source.type string{"gpio" "bootsel" "pca9555" "74hc165" "nudge" "IR" "plunger" "zblaunch" "clock" "output"} required
+buttons[].source.type string{"gpio" "bootsel" "pca9555" "74hc165" "nudge" "IR" "plunger" "zblaunch" "clock" "output" "adc"} required
   The source type.  See the source types below for more details.
 
 buttons[].source.type="output"
@@ -529,6 +529,29 @@ buttons[].source.type="zblaunch".modal bool optional
   when ZB Launch Mode is in effect, as set through the DOF port assigned
   as the ZB Launch indicator.  Set this to false to trigger the button
   on a ZB Launch gesture even when the mode isn't in effect.
+
+buttons[].source.type="adc"
+  Sets up the logical button to trigger whenever an ADC (analog to
+  digital) value is either above or below the configured threshold value.
+
+buttons[].source.type="adc".adc string required
+  The name of the ADC device to use as the input for the button.
+  If you configure an ADC device with multiple channels, and you want
+  to use one of those for a potentiometer plunger input, you'll have
+  to set this to specify which channel to use.  For the Pico on-board
+  ADC, set this to "pico_adc" to use the first configured channel for
+  the plunger, "pico_adc[1]" to use the second channel, "pico_adc[2]"
+  for the third channel, and so on.
+
+buttons[].source.type="adc".above bool optional
+  If this is set to true, which is the default, the button only triggers
+  when the analog reading is above the set threshold value. When set to
+  false, the button only triggers when the analog reading is below the
+  set threshold value.
+
+buttons[].source.type="adc".threshold number optional
+  Sets the value at which the button will trigger if it is above or below
+  this value. The range is 0..65535 and the default is 32767.
 
 buttons[].source.active string{high low} optional
   "high" for a button whose port reads logic "1" when pressed, "low" for

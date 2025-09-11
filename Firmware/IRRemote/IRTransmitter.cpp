@@ -187,6 +187,10 @@ void IRTransmitter::PushButton(int id, bool on)
 // queue a command
 bool IRTransmitter::QueueCommand(IRCommandDesc cmd, int count, volatile bool *state)
 {
+    // ignore if not configured
+    if (gpio < 0)
+        return false;
+
     // add it to the pending command queue; return failure if the
     // queue is full
     if (!adHocCommands.Write({ cmd, count, state }))

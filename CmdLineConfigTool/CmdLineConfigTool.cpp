@@ -1286,7 +1286,7 @@ static void ShowStats(VendorInterface *device)
 static void SendIR(VendorInterface *device, const char *irCmdStr)
 {
 	// check for a repeat count
-	static const std::regex irCmdPat("(.*)([0-9a-f]{2})\\.([0-9a-f]{2})\\.([0-9a-f]{4,16})).(\\*\\d+)?", std::regex_constants::icase);
+	static const std::regex irCmdPat("([0-9a-f]{2}\\.[0-9a-f]{2}\\.[0-9a-f]{4,16})(\\*\\d+)?", std::regex_constants::icase);
 	std::match_results<const char *> m;
 	if (std::regex_match(irCmdStr, m, irCmdPat))
 	{

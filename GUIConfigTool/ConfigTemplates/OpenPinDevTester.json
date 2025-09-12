@@ -1,0 +1,76 @@
+// Pinscape Pico Configuration - Open Pinball Device Tester
+// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+//
+// This configuration turns the Pico into an automated input source for
+// testing Open Pinball Device clients.  
+
+{
+    // Unit identification
+    id: {
+        unitNum: 1,
+        unitName: "OpenPinDev Tester",
+    },
+
+    // Serial ports - enable the USB virtual COM port for debug console access
+    serialPorts: {
+        usb: {
+            logging: true,       // enable logging on this port
+            console: {
+                enable: true,    // enable the interactive command line on this port
+                bufSize: 2048,   // buffer size for console output
+            },
+        },
+    },
+
+    // Logging
+    logging: {
+        filter: "error warning info config",
+        bufSize: 8192,
+        timestamps: true,
+        typeCodes: true,
+        colors: true,
+    },
+
+    // Open Pinball Device - enable it, and set up automated inputs on
+    // the nudge acceleration and plunger axes.  The automated inputs
+    // cycle through the axis ranges on timers, to provide predictable
+    // input to the client without the need for any hardware inputs
+    // to the Pico or any manual operation by the user.  The axes will
+    // all cycle through their ranges on a 2-second cycle.  (The
+    // scaling on the plunger axis is contrived to run through the
+    // typical usable cycle for the plunger motion, which is from
+    // +32767 for 100% retracted to about -5661 for fully pushed
+    // forward, with 0 representing the resting position.  The odd
+    // limit on the forward side is about 1/6 of the negative axis
+    // range, which is about how far forward a typical physical plunger
+    // can travel from its rest position, relative to its overall
+    // travel distance.)
+    openPinballDevice: {
+        enable: true,
+		axNudge: "sine(2000, 0)",
+		ayNudge: "sine(2000, 667)",
+		plungerPos: "offset(scale(sine(2000, 1333), 0.583), 14043)",
+    },
+
+    // Buttons - set up the Open Pinball Device flipper buttons to fire
+    // on periodic timers, to provide predictable input (as with the
+    // nudge and plunger axes above) without the need for any hardware
+    // inputs on the Pico or manual user action.  The flipper buttons
+    // will fire back and forth (left, right, left, right...) on a
+    // 2-second cycle.
+	buttons: [
+		{ action: { type: "openPinDev", button: "left flipper" }, source: { type: "output", port: "A" }, },
+		{ action: { type: "openPinDev", button: "right flipper" }, source: { type: "output", port: "B" }, }
+	],
+
+    // Outputs - we set up two virtual output ports, purely for use by
+    // buttons, as a source for their periodic timers.  (This inelegant
+    // bit is required because buttons don't have their own computed
+    // input mechanism, but they can take their input state from output
+    // ports, which do have a computed source mechanism.)
+	outputs: [
+		{ name: "A", source: "blink(1000, 1000)", device: { type: "virtual" }, },
+		{ name: "B", source: "255 - blink(1000, 1000)", device: { type: "virtual" }, },
+	],
+}
+

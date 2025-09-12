@@ -618,7 +618,7 @@ buttons[].action.type="openPinDev"
   interface.
 
   To use this type of button mapping, the Open Pinball Device HID
-  interface must be enabled via the <a href="#openPinballDevice.enable">openPinballDevice.enabled</a>
+  interface must be enabled via the <a href="#openPinballDevice.enable">openPinballDevice.enable</a>
   property.
 
 buttons[].action.type="openPinDev".button number|string required

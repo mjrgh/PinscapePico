@@ -4229,7 +4229,7 @@ mma8451q object optional
         i2c: 0,
         addr: 0x1D,
         interrupt: 7,
-        gRange, 2,
+        gRange: 2,
      },
   }
 

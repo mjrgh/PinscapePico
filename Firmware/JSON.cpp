@@ -660,8 +660,11 @@ bool JSONParser::GetToken(Token &token, TokenizerState &ts)
     return true;
 }
 
-bool JSONParser::ParseNumberToken(Token &token, TokenizerState &ts)
+uint32_t JSONParser::ParseNumberToken(Token &token, TokenizerState &ts)
 {
+    // start with no return flags
+    uint32_t flags = 0;
+
     // check for a sign
     bool neg = false;
     if (*ts.src == '-')
@@ -697,6 +700,9 @@ bool JSONParser::ParseNumberToken(Token &token, TokenizerState &ts)
     // 1970s anyway, back when 9-bit bytes were a thing.)
     if (*ts.src == '0' && ts.src + 1 < ts.endp && strchr("bBoOxX", *(ts.src + 1)) != nullptr)
     {
+        // numbers with radix markers are explicitly integers
+        flags |= NUMLEX_INT;
+        
         // skip the leading 0
         ++ts.src;
 
@@ -770,6 +776,10 @@ bool JSONParser::ParseNumberToken(Token &token, TokenizerState &ts)
         // if there's a decimal point, parse the fractional part
         if (ts.src < ts.endp && *ts.src == '.')
         {
+            // numbers with decimal points are explicitly floats (even if
+            // the fractional part is exactly zero)
+            flags |= NUMLEX_FLOAT;
+            
             // Accumulate the fractional part as (numerator / denominator).
             // Calculate these as integers simply because that's faster.
             // A 64-bit int has more precision than a double, so we won't
@@ -805,6 +815,9 @@ bool JSONParser::ParseNumberToken(Token &token, TokenizerState &ts)
         // check for an exponent
         if (ts.src < ts.endp && (*ts.src == 'e' || *ts.src == 'E'))
         {
+            // numbers with exponent markers are explicitly floats
+            flags |= NUMLEX_FLOAT;
+            
             // check for the exponent sign
             bool eneg = false;
             ++ts.src;
@@ -836,8 +849,8 @@ bool JSONParser::ParseNumberToken(Token &token, TokenizerState &ts)
     token.len = token.srcLen = ts.src - token.txt;
     token.lineNum = ts.lineNum;
    
-    // success
-    return true;
+    // return the flags
+    return flags;
 }
 
 bool JSONParser::ParseObject(Value &value, TokenizerState &ts)

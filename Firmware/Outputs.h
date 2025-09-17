@@ -1318,7 +1318,8 @@ public:
         using TraverseFunc = std::function<void(DataSource*)>;
         virtual void Traverse(TraverseFunc func) = 0;
 
-        // explicit downcasts (so that we don't have to enable compiler RTTI for dynamic_cast<>)
+        // explicit downcasts (so that we don't have to enable compiler RTTI for dynamic_cast<>,
+        // which would unacceptably bloat the firmware image size)
         virtual ConstantSource *AsConstantSource() { return nullptr; }
         virtual PortSource *AsPortSource() { return nullptr; }
     };
@@ -1888,15 +1889,18 @@ public:
         DataSource *y = nullptr;
     };
 
-    // Binary operand sources
+    // Binary operator sources
     class BinOpSource : public DataSource
     {
     public:
         virtual SourceVal Calc() override;
         virtual void Traverse(TraverseFunc func) override { func(lhs); func(rhs); }
         DataSource *lhs, *rhs;
+
+        // Figure the data
     };
 
+    // Comparison operator sources
     class ComparisonOpSource : public BinOpSource
     {
     public:
@@ -1912,11 +1916,68 @@ public:
     class IdentSource : public BinOpSource { public: virtual SourceVal Calc() override; };
     class NIdentSource : public IdentSource { public: virtual SourceVal Calc() override; };
 
-    class AddSource : public BinOpSource { public: virtual SourceVal Calc() override; };
-    class SubtractSource : public BinOpSource { public: virtual SourceVal Calc() override; };
-    class MulSource : public BinOpSource { public: virtual SourceVal Calc() override; };
-    class DivSource : public BinOpSource { public: virtual SourceVal Calc() override; };
-    class ModuloSource : public BinOpSource { public: virtual SourceVal Calc() override; };
+    // Arithmetic binary operator sources
+    class ArithmeticBinOpSource : public BinOpSource
+    {
+    public:
+        // Perform the calculation.  By default, this uses ApplyBinOp() to carry out
+        // the calculation.  This can be overridden as needed to perform special
+        // operations for specific combinations of operand types, such as vector
+        // multiplies.
+        virtual SourceVal Calc() override { return ApplyBinOp(lhs->Calc(), rhs->Calc()); }
+
+        // Apply the operator to a pair of operands, based on the types of the operands.
+        // This uses generic rules for combining types that work for most cases, so Calc()
+        // can usually be implemented by evaluating the operands and passing them to this,
+        // returning the result.  Some operations need special handling for combinations
+        // of types, such as vector*vector or vector/vector; those should check for the
+        // special type combinations in Calc(), and apply their special handling as
+        // needed, calling this as a fallback for type combinations that don't need to
+        // be handled specially.
+        SourceVal
+            ApplyBinOp(const SourceVal &a, const SourceVal &b) const;
+
+        // Apply the operator to two integer operands.  ApplyBinOp() calls this to
+        // calculate the result when it determines that the calculation should be
+        // done in the integer domain.
+        virtual int ApplyInt(int a, int b) const = 0;
+
+        // Apply the operator to two float operands.  ApplyBinOp() calls this to
+        // calculate the result when it dertermines that the calculation should
+        // be done in the float domain.
+        virtual float ApplyFloat(float a, float b) const = 0;
+    };
+    class AddSource : public ArithmeticBinOpSource
+    {
+    public:
+        virtual int ApplyInt(int a, int b) const override { return a + b; }
+        virtual float ApplyFloat(float a, float b) const override { return a + b; }
+    };
+    class SubtractSource : public ArithmeticBinOpSource
+    {
+    public:
+        virtual int ApplyInt(int a, int b) const override { return a - b; }
+        virtual float ApplyFloat(float a, float b) const override { return a - b; }
+    };
+    class MulSource : public ArithmeticBinOpSource
+    {
+    public:
+        virtual SourceVal Calc() override;
+        virtual int ApplyInt(int a, int b) const override { return a * b; }
+        virtual float ApplyFloat(float a, float b) const override { return a * b; }
+    };
+    class DivSource : public ArithmeticBinOpSource
+    {
+    public:
+        virtual int ApplyInt(int a, int b) const override { return a / b; }
+        virtual float ApplyFloat(float a, float b) const override { return a / b; }
+    };
+    class ModuloSource : public ArithmeticBinOpSource
+    {
+    public:
+        virtual int ApplyInt(int a, int b) const override { return a % b; }
+        virtual float ApplyFloat(float a, float b) const override { return fmodf(a, b); }
+    };
 
     // Internal storage for the ports.  They're allocated here, and
     // indexed by number in portsByNumber, and by name in portsByName.

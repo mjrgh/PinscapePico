@@ -94,6 +94,12 @@ public:
             Minus,         // minus sign (hyphen)
         };
 
+        // initialize to defaults
+        Token() { }
+
+        // initialize to a source location
+        Token(const char *txt) : txt(txt), srcTxt(txt) { }
+
         // type of this token
         Type type = Type::Invalid;
 
@@ -513,8 +519,24 @@ public:
         return GetToken(token, tmp); 
     }
 
-    // parse a number value
-    static bool ParseNumberToken(Token &token, TokenizerState &ts);
+    // Parse a number value.  Returns a combination of NUMLEX_xxx flags
+    // with details on the lexical format of the number.
+    static uint32_t ParseNumberToken(Token &token, TokenizerState &ts);
+
+    // If this bit is set in the ParseNumberToken() return flags, it
+    // means that the number is explicitly an integer lexically, because
+    // it contains a radix prefix.
+    static const uint32_t NUMLEX_INT = 0x0001;
+
+    // If this bit is set in the ParseNumberToken() return flags, it
+    // means that the number if explicitly a floating-point value lexcially,
+    // because it contains a '.' or an exponent marker.  Some callers might
+    // wish to distinguish floats from integer values even when the numeric
+    // value itself is an integer, since this can affect how the value is
+    // used in containing expressions.  For example, a caller implementing
+    // a C-like arithmetic expression language might treat "3" as an
+    // integer but "3.0" (or even just "3.") as a float.
+    static const uint32_t NUMLEX_FLOAT = 0x0002;
 
     // Skip a newline.  This skips a CR-LF pair if present.
     static void SkipNewline(const char* &p, const char *endp);

@@ -414,7 +414,7 @@ void OutputManager::Configure(JSONParser &json)
                     int len = end - p;
                     int col = p - start;
                     Log(LOG_ERROR, "outputs[%d].source, col %d: extraneous text at end, starting at \"%.*s%s\"\n",
-                        index, col, len > 16 ? 16 : len, len > 16 ? "..." : "");
+                        index, col, len > 16 ? 16 : len, p, len > 16 ? "..." : "");
                 }
 
                 // Log a warning if the data source doesn't yield a
@@ -2432,35 +2432,58 @@ void OutputManager::ShareGroupDev::Set(uint8_t newLevel)
         pulse.offPulseLevel = 0;
         pulse.tPulseEnd = 0;
 
-        // try claiming a port from a share pool
-        if (containers.size() != 0)
+        // Check to see if we're already holding a claim to a shared
+        // port - this will be the case if an OFF pulse is currently
+        // running.  In that case, just keep using the same port.
+        // Otherwise, try claiming a new port from a share pool.
+        if (poolPort != nullptr)
         {
-            // search from the next pool index
+            // We already have a port - keep using it.
+        }
+        else if (containers.size() != 0)
+        {
+            // We don't already have a port, so try claiming a new one
+            // from one of our share pools.
+            //
+            // Start at the next pool after the one we successfully claimed
+            // from last time.  To do this, start the loop index at the current
+            // pool index, since the loop increments the index BEFORE trying
+            // the index.  So if we allocated from pool #2 last time, this
+            // will have the effect of trying pool #3 first this time.  The
+            // point of this algorithm is to make sure that we rotate through
+            // the available devices, by always trying to avoid using the same
+            // device we used last time, to maximize variety in the physical
+            // effects we generate.  Real pinball machines have a lot of
+            // inherent randomness from their highly mechanical nature, so
+            // it will probably produce a more pleasing effect for the user
+            // if we likewise aim for plenty of variety in the effects.
+            // (Along those lines, it might actually be better to start each
+            // search at a random point in the pool, using a PRNG, so that
+            // we not only avoid reusing the same device every time, but
+            // also avoid generating repeating patterns of usage.)
             for (int startIndex = poolIndex ; ; )
             {
                 // advance to the next index, wrapping at end of list
                 if (++poolIndex >= static_cast<int>(containers.size()))
                     poolIndex = 0;
 
-                // try claiming from this pool
+                // try claiming from this pool - we can stop searching on success
                 if ((poolPort = containers[poolIndex]->ClaimPort(this)) != nullptr)
-                {
-                    // Success
-                    // If we're in Pulse mode, set the pulse port and time
-                    if (pulse.tOn != 0)
-                    {
-                        pulse.tPulseEnd = time_us_64() + pulse.tOn;
-                        pulse.onPort = poolPort;
-                    }
-                    
-                    // we can stop searching now - this->poolPort is set
                     break;
-                }
 
-                // stop when we wrap back to the starting point
+                // if we've wrapped back to the starting point, give up - we've
+                // tried all of the pools now without finding a free port
                 if (poolIndex == startIndex)
                     break;
             }
+        }
+
+        // If we're in pulse mode, and we successfully claimed a port,
+        // set up the ON pulse.
+        if (poolPort != nullptr && pulse.tOn != 0)
+        {
+            pulse.tPulseEnd = time_us_64() + pulse.tOn;
+            pulse.onPort = poolPort;
         }
     }
     else if (level != 0 && newLevel == 0)
@@ -4021,185 +4044,171 @@ OutputManager::SourceVal OutputManager::NIdentSource::Calc()
 
 // ---------------------------------------------------------------------------
 //
-// Math operator sources
+// Arithmetic operator sources
 //
 
-OutputManager::SourceVal OutputManager::AddSource::Calc()
+OutputManager::SourceVal OutputManager::ArithmeticBinOpSource::ApplyBinOp(const SourceVal &a, const SourceVal &b) const
 {
-    SourceVal a = lhs->Calc(), b = rhs->Calc();
+    // figure the result type based on the input types
     switch (a.type)
     {
     case SourceVal::Type::UInt8:
-        return SourceVal::MakeUInt8(SourceVal::ClipU8(a.i + b.AsUInt8()));
+        switch (b.type)
+        {
+        case SourceVal::Type::UInt8:
+            // UInt8 op UInt8 -> UInt8
+            return SourceVal::MakeUInt8(SourceVal::ClipU8(ApplyInt(a.i, b.i)));
+
+        case SourceVal::Type::Float:
+            // UInt8 op Float -> Float
+            return SourceVal::MakeFloat(ApplyFloat(a.AsFloat(), b.f));
+
+        case SourceVal::Type::Vector:
+            // UInt8 op Vector -> apply scalar operation to each vector component
+            return SourceVal::MakeVector(
+                SourceVal::ClipI16(ApplyInt(a.i, b.vec.x)),
+                SourceVal::ClipI16(ApplyInt(a.i, b.vec.y)));
+
+        case SourceVal::Type::RGB:
+            // UInt8 op RGB -> apply scalar operation to each RGB component
+            return SourceVal::MakeRGB(
+                SourceVal::ClipU8(ApplyInt(a.i, b.rgb.r)),
+                SourceVal::ClipU8(ApplyInt(a.i, b.rgb.g)),
+                SourceVal::ClipU8(ApplyInt(a.i, b.rgb.b)));
+        }
+        break;
 
     case SourceVal::Type::Float:
-        return SourceVal::MakeFloat(a.f + b.AsFloat());
+        switch (b.type)
+        {
+        case SourceVal::Type::UInt8:
+            // Float op UInt8 -> Float
+            return SourceVal::MakeFloat(ApplyFloat(a.f, b.AsFloat()));
+
+        case SourceVal::Type::Float:
+            // Float op Float -> Float
+            return SourceVal::MakeFloat(ApplyFloat(a.f, b.f));
+
+        case SourceVal::Type::Vector:
+            // Float op Vector -> apply scalar operation to each vector component
+            return SourceVal::MakeVector(
+                SourceVal::ClipI16(static_cast<int>(ApplyFloat(a.f, b.vec.x))),
+                SourceVal::ClipI16(static_cast<int>(ApplyFloat(a.f, b.vec.y))));
+
+        case SourceVal::Type::RGB:
+            // Float op RGB -> apply scalar operation to each RGB component
+            return SourceVal::MakeRGB(
+                SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.f, b.rgb.r))),
+                SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.f, b.rgb.g))),
+                SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.f, b.rgb.b))));
+        }
+        break;
 
     case SourceVal::Type::Vector:
-        if (b.type == a.type)
+        switch (b.type)
         {
-            // vector + vector - add the components
-            return SourceVal::MakeVector(SourceVal::ClipI16(a.vec.x + b.vec.x), SourceVal::ClipI16(a.vec.y + b.vec.y));
+        case SourceVal::Type::UInt8:
+            // Vector op UInt8 -> apply scalar operation to each vector component
+            return SourceVal::MakeVector(
+                SourceVal::ClipI16(ApplyInt(a.vec.x, b.i)),
+                SourceVal::ClipI16(ApplyInt(a.vec.y, b.i)));
+            
+        case SourceVal::Type::Float:
+            // Vector op Float -> apply scalar operation to each vector component
+            return SourceVal::MakeVector(
+                SourceVal::ClipI16(static_cast<int>(ApplyFloat(a.vec.x, b.f))),
+                SourceVal::ClipI16(static_cast<int>(ApplyFloat(a.vec.y, b.f))));
+
+        case SourceVal::Type::Vector:
+            // Vector op Vector -> apply scalar operation to each vector component.
+            // This yields intuitive results for ADD and SUBTRACT operations, but
+            // MULTIPLY should probably be overridden and computed as a dot product.
+            // I don't think there's any meaningful handling for DIVIDE or MODULO,
+            // so we can let this be component-by-component like ADD and SUBTRACT.
+            return SourceVal::MakeVector(
+                SourceVal::ClipI16(ApplyInt(a.vec.x, b.vec.x)),
+                SourceVal::ClipI16(ApplyInt(a.vec.y, b.vec.y)));
+
+        case SourceVal::Type::RGB:
+            // Vector op RGB.  I don't think this combination has any sensible
+            // interpreation, so we'll just take the vector magnitude and apply
+            // it to the RGB components.
+            {
+                float f = a.AsFloat();
+                return SourceVal::MakeRGB(
+                    SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.f, b.rgb.r))),
+                    SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.f, b.rgb.g))),
+                    SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.f, b.rgb.b))));
+            }
         }
-        else
-        {
-            // vector + anything else - convert to scalar and add as an offset to each vector component
-            float f = b.AsFloat();
-            return SourceVal::MakeVector(SourceVal::ClipI16(a.vec.x + f), SourceVal::ClipI16(a.vec.y + f));
-        }
+        break;
+
 
     case SourceVal::Type::RGB:
-        if (b.type == a.type)
+        switch (b.type)
         {
-            // RGB + RGB - add the components
+        case SourceVal::Type::UInt8:
+            // RGB op UInt8 -> apply scalar operation to each RGB component
             return SourceVal::MakeRGB(
-                SourceVal::ClipU8(a.rgb.r + b.rgb.r),
-                SourceVal::ClipU8(a.rgb.g + b.rgb.g),
-                SourceVal::ClipU8(a.rgb.b + b.rgb.b));
-        }
-        else
-        {
-            // RGB + anything else - convert to scalar and add as an offset to each component
-            uint8_t i = b.AsUInt8();
+                SourceVal::ClipU8(static_cast<int>(ApplyInt(a.rgb.r, b.i))),
+                SourceVal::ClipU8(static_cast<int>(ApplyInt(a.rgb.g, b.i))),
+                SourceVal::ClipU8(static_cast<int>(ApplyInt(a.rgb.b, b.i))));
+            
+        case SourceVal::Type::Float:
+            // RGB op Float -> apply scalar operation to each RGB component
             return SourceVal::MakeRGB(
-                SourceVal::ClipU8(a.rgb.r + i),
-                SourceVal::ClipU8(a.rgb.g + i),
-                SourceVal::ClipU8(a.rgb.b + i));
-        }
+                SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.rgb.r, b.f))),
+                SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.rgb.g, b.f))),
+                SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.rgb.b, b.f))));
 
-    default:
-        return a;
+        case SourceVal::Type::Vector:
+            // RGB op Vector.  I don't think this combination has any sensible
+            // interpreation, so we'll just take the vector magnitude and apply
+            // it to the RGB components.
+            {
+                float f = b.AsFloat();
+                return SourceVal::MakeRGB(
+                    SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.rgb.r, f))),
+                    SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.rgb.g, f))),
+                    SourceVal::ClipU8(static_cast<int>(ApplyFloat(a.rgb.b, f))));
+            }
+
+        case SourceVal::Type::RGB:
+            // RGB op RGB.  Apply the operation component-by-component.
+            return SourceVal::MakeRGB(
+                SourceVal::ClipU8(static_cast<int>(ApplyInt(a.rgb.r, b.rgb.r))),
+                SourceVal::ClipU8(static_cast<int>(ApplyInt(a.rgb.g, b.rgb.g))),
+                SourceVal::ClipU8(static_cast<int>(ApplyInt(a.rgb.b, b.rgb.b))));
+        }
+        break;
     }
-}
 
-OutputManager::SourceVal OutputManager::SubtractSource::Calc()
-{
-    SourceVal a = lhs->Calc(), b = rhs->Calc();
-    switch (a.type)
-    {
-    case SourceVal::Type::UInt8:
-        return SourceVal::MakeUInt8(SourceVal::ClipU8(static_cast<int>(a.i) - b.AsUInt8()));
-
-    case SourceVal::Type::Float:
-        return SourceVal::MakeFloat(a.f - b.AsFloat());
-
-    case SourceVal::Type::Vector:
-        if (b.type == a.type)
-        {
-            // vector - vector - subtract the components
-            return SourceVal::MakeVector(SourceVal::ClipI16(a.vec.x - b.vec.x), SourceVal::ClipI16(a.vec.y - b.vec.y));
-        }
-        else
-        {
-            // vector - anything else - convert to scalar and subtract as an offset to each vector component
-            float f = b.AsFloat();
-            return SourceVal::MakeVector(SourceVal::ClipI16(a.vec.x - f), SourceVal::ClipI16(a.vec.y - f));
-        }
-
-    case SourceVal::Type::RGB:
-        if (b.type == a.type)
-        {
-            // RGB - RGB - subtract the components
-            return SourceVal::MakeRGB(
-                SourceVal::ClipU8(static_cast<int>(a.rgb.r) - b.rgb.r),
-                SourceVal::ClipU8(static_cast<int>(a.rgb.g) - b.rgb.g),
-                SourceVal::ClipU8(static_cast<int>(a.rgb.b) - b.rgb.b));
-        }
-        else
-        {
-            // RGB - anything else - convert to scalar and subtract as an offset to each component
-            uint8_t i = b.AsUInt8();
-            return SourceVal::MakeRGB(
-                SourceVal::ClipU8(static_cast<int>(a.rgb.r) - i),
-                SourceVal::ClipU8(static_cast<int>(a.rgb.g) - i),
-                SourceVal::ClipU8(static_cast<int>(a.rgb.b) - i));
-        }
-
-    default:
-        return a;
-    }
+    // If we get here, we had a type combination that we didn't handle.
+    // Apply the operator in the float domain, as that preserves the
+    // most precision of our options.
+    return SourceVal::MakeFloat(ApplyFloat(a.AsFloat(), b.AsFloat()));
 }
 
 OutputManager::SourceVal OutputManager::MulSource::Calc()
 {
-    SourceVal a = lhs->Calc(), b = rhs->Calc();
-    switch (a.type)
-    {
-    case SourceVal::Type::UInt8:
-        return SourceVal::MakeUInt8(SourceVal::ClipU8(static_cast<int>(a.i) * b.AsUInt8()));
+    // get the source values
+    SourceVal a = lhs->Calc();
+    SourceVal b = rhs->Calc();
 
-    case SourceVal::Type::Float:
-        return SourceVal::MakeFloat(a.f * b.AsFloat());
+    // Vector*Vector -> dot product, as a float
+    if (a.type == SourceVal::Type::Vector && b.type == SourceVal::Type::Vector)
+        return SourceVal::MakeFloat(a.vec.x*b.vec.x + a.vec.y*b.vec.y);
 
-    case SourceVal::Type::Vector:
-        if (b.type == a.type)
-        {
-            // vector * vector - take dot product
-            return SourceVal::MakeFloat(a.vec.x*b.vec.x + a.vec.y*b.vec.y);
-        }
-        else
-        {
-            // vector * anything else - convert to scalar and multiply the components
-            float f = b.AsFloat();
-            return SourceVal::MakeVector(SourceVal::ClipI16(a.vec.x * f), SourceVal::ClipI16(a.vec.y * f));
-        }
+    // RGB*RGB -> dot product, as a float
+    if (a.type == SourceVal::Type::RGB && b.type == SourceVal::Type::RGB)
+        return SourceVal::MakeFloat(a.rgb.r*b.rgb.r + a.rgb.g*b.rgb.g * a.rgb.b*b.rgb.b);
 
-    case SourceVal::Type::RGB:
-    default:
-        // RGB/other multiplication makes no sense; just return the lhs
-        return a;
-    }
+    // For other type combinations, use the basic binary operator handling,
+    // which promotes types to the highest precision type in common and
+    // carries out the multiplication in terms of the promoted type.
+    return ApplyBinOp(a, b);
 }
 
-OutputManager::SourceVal OutputManager::DivSource::Calc()
-{
-    SourceVal a = lhs->Calc(), b = rhs->Calc();
-    switch (a.type)
-    {
-    case SourceVal::Type::UInt8:
-        return SourceVal::MakeUInt8(SourceVal::ClipU8(static_cast<int>(a.i) / b.AsUInt8()));
-
-    case SourceVal::Type::Float:
-        return SourceVal::MakeFloat(a.f / b.AsFloat());
-
-    case SourceVal::Type::Vector:
-        // vector / value -> convert rhs to scalar and divide the components
-        {
-            float f = b.AsFloat();
-            return SourceVal::MakeVector(SourceVal::ClipI16(a.vec.x / f), SourceVal::ClipI16(a.vec.y / f));
-        }
-
-    case SourceVal::Type::RGB:
-    default:
-        // RGB/other division makes no sense; just return the lhs
-        return a;
-    }
-}
-
-OutputManager::SourceVal OutputManager::ModuloSource::Calc()
-{
-    SourceVal a = lhs->Calc(), b = rhs->Calc();
-    switch (a.type)
-    {
-    case SourceVal::Type::UInt8:
-        return SourceVal::MakeUInt8(SourceVal::ClipU8(static_cast<int>(a.i) % b.AsUInt8()));
-
-    case SourceVal::Type::Float:
-        return SourceVal::MakeFloat(fmodf(a.f, b.AsFloat()));
-
-    case SourceVal::Type::Vector:
-        // vector % value -> convert rhs to scalar and modulo the components
-        {
-            float f = b.AsFloat();
-            return SourceVal::MakeVector(SourceVal::ClipI16(fmodf(a.vec.x, f)), SourceVal::ClipI16(fmodf(a.vec.y, f)));
-        }
-
-    case SourceVal::Type::RGB:
-    default:
-        // RGB/other modulo makes no sense; just return the lhs
-        return a;
-    }
-}
 
 // ---------------------------------------------------------------------------
 //
@@ -4695,10 +4704,11 @@ OutputManager::DataSource *OutputManager::ParseSourcePrimary(int index, const ch
     if (isdigit(*p) || *p == '-' || *p == '+')
     {
         // numeric constant - use the JSON parser's handy number token lexer
-        JSONParser::Token tok;
+        JSONParser::Token tok(p);
         int col = p - start;
         JSONParser::TokenizerState ts(p, end);
-        if (!JSONParser::ParseNumberToken(tok, ts) || tok.type != JSONParser::Token::Type::Number)
+        uint32_t numFlags = JSONParser::ParseNumberToken(tok, ts);
+        if (tok.type != JSONParser::Token::Type::Number)
         {
             Log(LOG_ERROR, "outputs[%d].source, col %d: syntax error in numeric constant\n", index, col);
             return nullptr;
@@ -4708,19 +4718,25 @@ OutputManager::DataSource *OutputManager::ParseSourcePrimary(int index, const ch
         p = ts.src;
 
         // Return a constant node.  If the number parsed out to a whole
-        // number in the uint8_t range, interpret it as an integer value,
-        // otherwise as a float.
-        double n = tok.num, intpart;
+        // number in the uint8_t range, and the source text doesn't contain
+        // a '.', interpret it as an integer value, otherwise as a float.
+        double n = tok.num;
         if (n < -FLT_MAX || n > FLT_MAX)
         {
             Log(LOG_ERROR, "outputs[%d].source, col %d: numeric value is out of range (%.f to %.f)\n",
                 index, col, -FLT_MAX, FLT_MAX);
             return nullptr;
         }
-        else if (modf(n, &intpart) == 0 && n >= 0 && n <= 255)
+        else if ((numFlags & JSONParser::NUMLEX_FLOAT) == 0 && n >= 0 && n <= 255)
+        {
+            Log(LOG_DEBUG, "outputs[%d].source: treating constant %.*s as UInt8, value %d\n", index, tok.len, tok.txt, static_cast<uint8_t>(n));
             return new ConstantSource(SourceVal::MakeUInt8(static_cast<uint8_t>(n)));
+        }
         else
+        {
+            Log(LOG_DEBUG, "outputs[%d].source: treating constant %.*s as Float, value %lf\n", index, tok.len, tok.txt, n);
             return new ConstantSource(SourceVal::MakeFloat(static_cast<float>(n)));
+        }
     }
     else if (*p == '\'' || *p == '"')
     {
@@ -4765,6 +4781,29 @@ OutputManager::DataSource *OutputManager::ParseSourcePrimary(int index, const ch
         // Return a port source.  Use raw mode if it's a self-reference,
         // otherwise use the computed value.
         return new PortSource(port, port == Get(index+1));
+    }
+    else if (*p == '(')
+    {
+        // Parenthesized subexpression - skip the open paren and
+        // parse the nested expression.
+        int parenCol = p - start;
+        ++p;
+        DataSource *subexpr = ParseSource(index, p, start, end);
+
+        // check for the closing paren
+        for ( ; p < end && isspace(*p) ; ++p) ;
+        if (p == end || *p != ')')
+        {
+            int col = p - start;
+            Log(LOG_ERROR, "outputs[%d].source, col %d: expected ')' (to match '(' at column %d)\n", index, col, parenCol);
+            return nullptr;
+        }
+
+        // skip the closing paren
+        ++p;
+
+        // return the parsed subexpression
+        return subexpr;
     }
     else if (isalpha(*p))
     {

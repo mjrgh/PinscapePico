@@ -36,17 +36,17 @@ article, but it might help to start with some more concrete examples
 of what your overall system might look like.
 
 * <b>Button controller:</b> A really simple way to use Pinscape is as
-a button encoder, for connecting arcade pushbuttons to the PC.  The
-Pico is the only piece of hardware you need for this, since you can
-just connect the buttons directly to the Pico's GPIO ports.  The Pico
-has a total of 26 external GPIO pins, so you can connect up to 26
-buttons.  Each button can be mapped to the PC as a keyboard key, a
-gamepad button, or a variety of other options, and the Pico responds
-to button presses within microseconds, for very small latencies
-sending input to the PC.  (If you need more than 26 buttons, there are
-also options to add just about as many extra ports as you'd like by
-adding some external chips, but that's not required if you can make do
-with 26 buttons.)
+a button encoder, for connecting arcade pushbuttons to a PC.  The
+Pico is the only piece of hardware you need for this (other than
+the buttons), since you can connect the buttons directly to the Pico's
+GPIO ports.  The Pico has a total of 26 external GPIO pins, so you can
+connect up to 26 buttons.  Each button can be mapped to the PC as a
+keyboard key, a gamepad button, or a variety of other options, and
+the Pico responds to button presses within microseconds, for very small
+latencies sending input to the PC.  (Pinscape can also handle many
+more buttons than just 26 if you need more, but that gets a little
+more complicated, because you have to add some external peripheral
+chips to create more ports beyond the Pico's 26 built-in GPIO pins.)
 
 * <b>Accelerometer-based nudge device:</b> A slightly more complex
 setup adds an accelerometer, to detect when you nudge the cabinet, so
@@ -56,11 +56,15 @@ lets you interact with the game in a much more natural, physical way.
 The Pico doesn't have a built-in accelerometer, so this setup
 requires adding an external accelerometer.  But that's very easy
 to do, thanks to breakout boards available from Adafruit, Sparkfun,
-and others.  I recommend the Adafruit MMA8451Q and LIS3DH boards
+and others.  (A breakout board is a small circuit board with a
+specific chip and all of the necessary supporting parts, fully
+soldered and assembled, so all you need to do to connect it to a
+Pico is run a few wires between the breakout board and the Pico
+GPIO pins.)  I recommend the Adafruit MMA8451Q and LIS3DH boards
 (MMA8451Q is the better choice in terms of sensor performance).
 You can combine nudge input with button inputs, too, although this
-will reduce the number of button ports to 24 (because the accelerometer
-requires two GPIO ports for its own use).
+will reduce the number of button ports to 24 (because the
+accelerometer requires two GPIO ports for its own use).
 
 * <b>Plunger:</b> You can also add a mechanical plunger position
 sensor.  Apart from the plunger sensor itself, no other hardware

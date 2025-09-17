@@ -1482,7 +1482,7 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
             snprintf(subloc, sizeof(subloc), "%s: action macro step[%d]", location, stepIndex);
             std::unique_ptr<Action> action(ParseAction(subloc, step->Get("action"), true));
 
-            // adjust the macro-relative start time by this step's offset from the pervious step
+            // adjust the macro-relative start time by this step's offset from the previous step
             curStartTime += start;
 
             // add the step

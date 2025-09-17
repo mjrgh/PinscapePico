@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <!-- Pinscape Pico / Copyright 2024 Michael J Roberts / BSD-3-Clause license / NO WARRANTY -->
+
+<!--
+    ATTENTION!
+
+    THIS FILE WAS GENERATED MECHANICALLY - DO NOT EDIT.
+
+    This file was created mechanically by ConfigDocParser from ..\firmware\JSONConfigRef.txt.
+    Hand-editing of this file isn't recommended, since the entire file will be
+    overwritten on the next full build.  Corrections should be made to the input
+    file (..\firmware\JSONConfigRef.txt) instead.
+-->
+
 <html>
 <head>
   <title>Pinscape Pico JSON Configuration Reference</title>
@@ -2401,7 +2413,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
           interface.
           </p><p>
           To use this type of button mapping, the Open Pinball Device HID
-          interface must be enabled via the <a href="#openPinballDevice.enable">openPinballDevice.enabled</a>
+          interface must be enabled via the <a href="#openPinballDevice.enable">openPinballDevice.enable</a>
           property.
         </p>
         </div>
@@ -7663,6 +7675,75 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     clipped to the 0-255 range; vector values are converted to their magnitudes,
     then clipped to the 0-255 range; and RGB values are converted to their grayscale
     equivalents.
+    </p><p>
+    Each named function has a specific datatype that it yields as a result.  Algebraic
+    expressions (such as <tt>3 + 4</tt>) yield the same types as their operands, so
+    <tt>3 + 4</tt> yields an integer value (<tt>7</tt>), because both operands are
+    integers, while <tt>3.5 + 4.5</tt> yields a floating-point value, <tt>8.0</tt>,
+    because the operands are floating-point.  A constant value is automatically
+    treated as floating-point if you include a '.' in it, so <tt>3.0</tt> is a
+    floating-point value, whereas <tt>3</tt> is an integer.  When you use an
+    algebraic operator on a mix of different operand types, the calculation is
+    done as follows:
+    </p><p>
+    <table>
+    <tr><th>Operand types</th><th>Result type</th></tr>
+    <tr><td>Integer, Integer</td><td>Integer</td></tr>
+    <tr><td>Float, Float</td><td>Float</td></tr>
+    <tr><td>Integer, Float</td><td>Float</td></tr>
+    <tr><td>Integer, Vector</td><td>Vector</td></tr>
+    <tr><td>Float, Vector</td><td>Vector</td></tr>
+    <tr><td>Vector, Vector</td><td>Vector (except Vector*Vector, which yields the dot product as a float)</td></tr>
+    <tr><td>Integer, RGB</td><td>RGB</td></tr>
+    <tr><td>Float, RGB</td><td>RGB</td></tr>
+    <tr><td>Vector, RGB</td><td>RGB (using the vector magnitude)</td></tr>
+    <tr><td>RGB, RGB</td><td>RGB</td></tr>
+    </table>
+    </p><p>
+    The combinations that yield vector and RGB values work by combining
+    each element of the input vector/RGB operand with the other operand.
+    This yields intuitive results for things like adding two vectors
+    (each vector component is added to the corresponding component of
+    the other vector) or multiplying a vector by a scalar value (each
+    element of the vector operand is multiplied by the scalar operand).
+    Some combinations don't make any sort of sense conceptually, such
+    as multiplying a vector by an RGB value, but the software allows them
+    anyway.
+    </p><p>
+    It's worth paying special attention to the way integer and floating
+    point values work, and how they combine.  An operation involving two
+    integer operands is calculated as an integer, and an operation on two
+    floats is calculated as a float.  When an integer and a float are
+    combined, the result is calculated as a float.  For example,
+    <tt>3.0 + 4</tt> implicitly converts the <tt>4</tt> to a float,
+    and then performs the arithmetic in terms of the float values,
+    yielding <tt>7.0</tt>.  In everyday life, we tend to think of the
+    integer value 7 and the floating-point value 7.0 as perfectly
+    interchangeable, but as with most matters, computers are obtuse
+    about this point, and can treat <tt>7</tt> and <tt>7.0</tt> quite differently
+    under certain conditions.  The place this tends to be most obvious is when
+    performing division: the integer expression <tt>1 / 2</tt> has the value 0,
+    because the whole calculation is performed using integer arithmetic, and
+    integer division by definition discards the fractional part of the result.  (It
+    doesn't even round the fraction!  It just discards it.)  In contrast, <tt>1.0 / 2.0</tt>
+    yields <tt>0.5</tt>: the inputs to the expression are both floating-point values, so the
+    whole calculation is done in floating-point arithmetic, where division preserves
+    the fractional part of the result, which is more in line with what most people
+    would consider intuitive.  The mixed expression <tt>1 / 2.0</tt> also
+    yields <tt>0.5</tt>, because of the rule that a mixture of integer and float
+    values is calculated in the floating-point domain.
+    </p><p>
+    Remember that the <b>final</b> result of any <tt>source</tt> calculation is always
+    converted to an 8-bit integer, no matter what the intermediate values look like
+    along the way, but the types of the intermediate can nonetheless be important.
+    For example, <tt>(1/2) * port(7)</tt> would always yield the result 0, because
+    the intermediate value of <tt>(1/2)</tt> is zero, as it's done using the
+    integer division rules where fractions are simply discarded.  Writing this as
+    <tt>(1.0/2) * port(7)</tt> would yield the result you probably intended, by
+    computing the first part as the floating-point value <tt>0.5</tt>.  The final
+    result is still converted back to an integer, but the type of the (1/2)
+    part makes the difference between multiplying by one-half and multiplying
+    by zero.
     </p><p>
     One simple use for computed outputs is to make adjustments to DOF outputs, to
     correct the DOF output to better fit a particular hardware device.  For example,

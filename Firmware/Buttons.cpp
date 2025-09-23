@@ -2159,6 +2159,9 @@ Button::SecondCoreDebouncedSource::SecondCoreDebouncedSource(
 {
     // add the global list entry for the second core task handler
     all.emplace_back(this);
+
+    // set the initial state to the physical OFF level
+    lastPhysicalState = debouncedPhysicalState = !activeHigh;
 }
 
 void Button::SecondCoreDebouncedSource::SecondCoreTask()

@@ -26,7 +26,7 @@
 #include "QuadraturePlunger.h"
 #include "LinearPhotoSensorPlunger.h"
 #include "Devices/ADC/ADS1115.h"
-#include "Devices/DistanceSensor/VL6180x.h"
+#include "Devices/DistanceSensor/VL6180X.h"
 #include "Devices/LinearPhotoSensor/TCD1103.h"
 #include "Devices/LinearPhotoSensor/TSL1410R.h"
 #include "Devices/ProxSensor/VCNL4010.h"

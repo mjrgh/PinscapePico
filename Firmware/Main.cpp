@@ -69,7 +69,7 @@
 #include "Devices/Accel/MC3416.h"
 #include "Devices/Accel/MMA8451Q.h"
 #include "Devices/Accel/MXC6655XA.h"
-#include "Devices/DistanceSensor/VL6180x.h"
+#include "Devices/DistanceSensor/VL6180X.h"
 #include "Devices/GPIOExt/PCA9555.h"
 #include "Devices/LinearPhotoSensor/TCD1103.h"
 #include "Devices/LinearPhotoSensor/TSL1410R.h"

@@ -22,7 +22,7 @@
 #include "I2C.h"
 #include "GPIOManager.h"
 #include "CommandConsole.h"
-#include "VL6180x.h"
+#include "VL6180X.h"
 
 // global singleton
 VL6180X *vl6180x = nullptr;

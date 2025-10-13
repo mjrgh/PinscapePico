@@ -373,7 +373,7 @@ the Picos without any de-soldering.  The sockets are generic parts
 available from multiple manufacturers; one example is Wurth
 61302011821, but any generic 0.1" socket header will work.  On Mouser
 or Digikey, search the Headers & Wire Housings category for
-2.54mm/0.1" pitch, 20 positions, 1 row, female, through-hole.)
+2.54mm/0.1" pitch, 20 positions, 1 row, female, through-hole.
 
 * <b>SMD Sockets:</b> This is an intermediate design, with the
 original direct-soldered Pico layout changed to use Harwin M20-7862042

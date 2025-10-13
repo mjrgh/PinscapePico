@@ -144,10 +144,22 @@ Each board set consists of two sub-boards, titled **Main** and **Power**.
 These two boards are designed to work together as a set.
 
 Each sub-board design is contained in a pair of EAGLE files: **.sch** is the schematic,
-and **.brd** is the physical board layout file.   If you want to have the
-board manufactured, you only need the **.brd** file, since this is the
-input to the EAGLE "CAM Processor", which generates the Gerber files
-that you upload to the fabricator.
+and **.brd** is the physical board layout file.  A **.brd** file represents
+the complete physical layout of the board, with the placement of all
+components and the copper connections between them.  The **.brd** file
+contains everything that a manufacturer needs to make a physical copy of the
+board.  The schematic in an **.sch** file is the electrical engineer's view of the
+board, showing the abstract connections between components in a way
+that's easier for humans to read, without the physical layout details.
+
+If you want to have a board manufactured, you only need the **.brd** file.
+But you don't usually give the **.brd** file directly to the manufacturer.
+Instead, you have to run it through the EAGLE CAM Processor, which is a
+command in EAGLE that exports the board in another format, known as Gerber
+files.  The Gerber files are what most manufacturers want you to upload.
+Gerbers contain the same information as **.brd** files, but manufacturers
+usually want you to provide the data in Gerber format because that's what
+their factory machinery is programmed to ingest.
 
 In addition, each board has a matching BOM (Bill of Materials) file,
 which is presented in CSV (Comma-Separated Values) format.  These contain
@@ -159,19 +171,14 @@ to construct shopping carts without a lot of manual data entry.
 
 ## Viewing an EAGLE file
 
-The **.sch** files are EAGLE schematics, and the **.brd** files are 
-EAGLE board layouts.  The **.brd** file contains all of the information
-that a manufacturer needs to make the board.  The **.sch** is the
-electrical engineer's view of the layout, showing the abstract functional
-connections between the components in a format that's easier for a human to
-read (at least, a human with some EE knowledge).
-
-EAGLE is a popular commercial CAD (computer-aided design) program for
-circuit boards.  There are a number of similar free and open-source
-programs that can import EAGLE files, such as KiCad and EasyEDA, so you
-can install one of those if you want to view the files without buying
-an EAGLE license.  There are also on-line EAGLE file viewers that you
-can find with a search term like **on-line EAGLE file viewer**.
+The **.brd** and **.sch** files are EAGLE documents.  The normal way
+to view or edit them is to open them in EAGLE.  EAGLE is commercial
+program, so you need to buy a license to use it.  Fortunately, there
+are a number of similar free and open-source programs that can import
+EAGLE files, such as KiCad and EasyEDA, so you can install one of
+those if you want to view the files without buying an EAGLE license.
+There are also on-line EAGLE file viewers that you can find with a
+search term like **on-line EAGLE file viewer**.
 
 
 

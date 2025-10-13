@@ -157,7 +157,54 @@ or Google Sheets, and Mouser and Digikey will accept these as uploads
 to construct shopping carts without a lot of manual data entry.
 
 
-## BOM Notes
+## BOM Versions
+
+<b>Important:</b> Always match the <b>version of the BOM</b> to the
+</b>version of the circuit board</b> you're building.  The specific
+components used, and their reference designator assignments ("R3",
+"IC7", etc), can change across versions.
+
+github keeps a full history of every file, but you have to
+deliberately go look for an old version if you need one, because the
+default view on github always shows you the latest version of
+everything.
+
+To see the full version history of a file, find the BOM file in
+the github tree, open it, and then click the <b>History</b> button
+at the top right of the page.
+
+<img src="git-history-button.png">
+
+Go down the list and find the version with the date that's closest to
+the revision date printed on your physical circuit board.  You should
+find the date printed on the top of the board, in the format "REV
+20250603".  That's the revision date, formatted as a year, month, and
+day - "20250603" means 2025 June 03.  In most cases, the file history
+version that's <b>after</b> that date and closest to it will be the
+one to use.
+
+For convenience, here are links to BOM versions for a few board
+revisions that I know people have manufactured so far.  This isn't
+comprehensive, though, so if you have a board version not listed, just
+use the procedure above to find the right version.
+
+<ul>
+    <li>Rev 20250203
+    <ul>
+        <li>Commit 6d375de
+        <li>Main: https://github.com/mjrgh/PinscapePico/blob/6d375de3afc79e1a0121002b1ce2c9939880554a/ExpansionBoards/DIY-Friendly/MainBoard/Pinscape%20Pico%20Expansion%20Board%20-%20DIY%20Friendly%20Main%20-%20BOM.csv
+        <li>Power: https://github.com/mjrgh/PinscapePico/blob/6d375de3afc79e1a0121002b1ce2c9939880554a/ExpansionBoards/DIY-Friendly/PowerBoard/Pinscape%20Pico%20Expansion%20Board%20-%20DIY%20Friendly%20Power%20-%20BOM.csv
+    </ul>
+    <li>Rev 20250603
+    <ul>
+        <li>Commit 1252a03
+        <li>Main: https://github.com/mjrgh/PinscapePico/blob/1252a03060d82a5c3b8f7cad5739bbce4cbe7fbf/ExpansionBoards/DIY-Friendly/MainBoard/Pinscape%20Pico%20Expansion%20Board%20-%20DIY%20Friendly%20Main%20-%20BOM.csv
+        <li>Power: https://github.com/mjrgh/PinscapePico/blob/1252a03060d82a5c3b8f7cad5739bbce4cbe7fbf/ExpansionBoards/DIY-Friendly/PowerBoard/Pinscape%20Pico%20Expansion%20Board%20-%20DIY%20Friendly%20Power%20-%20BOM.csv
+    </ul>
+</ul>
+
+
+## Important Notes on the BOM
 
 <b>Gate driver resistors (R1, R2, etc):</b> The BOM specifies three
 options for these resistors.  The recommended value is 200 Ohm.  Line

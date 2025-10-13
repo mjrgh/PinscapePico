@@ -358,13 +358,21 @@ Fix: In newer versions of the board, the silkscreen markings are
 rotated to match the KL25Z board markings.
 
 
-## Versions
+## Design Variants
 
-* <b>Socketed Pico:</b>  This is the latest version of the board,
-designed to install the Picos in 20-pin socket headers.  The sockets
-are generic parts available from multiple manufacturers; one example
-is Wurth 61302011821, but any generic 0.1" socket header will work.
-On Mouser or Digikey, search the Headers & Wire Housings category for
+There are three variants of the basic board design available in the
+repository.  The <b>Socketed Pico</b> variant is the official release
+version, and the only one that I intend to continue revising.  I
+consider the other two to be dead ends, but they might still be
+preferable to some people for particular applications, so I'm
+keeping them in the repository in case anyone finds them useful.
+
+* <b>Socketed Pico:</b> The Pico is connected to these boards through
+20-pin socket headers.  This makes it possible to remove and replace
+the Picos without any de-soldering.  The sockets are generic parts
+available from multiple manufacturers; one example is Wurth
+61302011821, but any generic 0.1" socket header will work.  On Mouser
+or Digikey, search the Headers & Wire Housings category for
 2.54mm/0.1" pitch, 20 positions, 1 row, female, through-hole.)
 
 * <b>SMD Sockets:</b> This is an intermediate design, with the
@@ -374,21 +382,25 @@ was meant to be a stopgap until I could finish converting to through-hole
 sockets, which are easier to solder to the board and easier to source.
 
 * <b>Soldered Pico:</b> The original version of the board, designed
-for the Pico to be directly soldered to the board.
+for the Pico to be directly soldered to the board.  This takes advantage
+of the "castellated" edge connectors on the Pico, which make it possible
+to solder a Pico directly to another circuit board as though it were an
+SMD component.  I started with this approach because it reduces the
+total number of parts needed and makes the boards more compact,
+but it has the disadvantage that the Pico can't be replaced (if it
+ever breaks) without a lot of difficult solder removal.
 
-The **Socketed Pico** version should be considered the most up-to-date
-and authoritative version of the board.  As of this writing, they're
-all functionally equivalent, but I don't plan to continue updating
-the older designs, because I think almost everyone building the DIY
-boards will prefer the through-hole-sockets version.  Installing the
-Pico in sockets is a big advantage because it lets you easily remove
-and replace the Pico if it ever breaks.  The SMD-sockets version of
-the board accomplishes that, too, but it violates the "through-hole
-parts only" mandate of this board set, plus the dependency on that
-unique Harwin part number might make it difficult to source parts in
-the future.  The through-hole sockets are generic commodity parts made
-by multiple manufacturers, so they should be easy to source
-indefinitely.
+I think almost everyone building the DIY boards will prefer the
+through-hole-sockets version, which is why I chose that as the final
+official design.  Installing the Pico in sockets is a big advantage
+over soldering it directly to the board, because it lets you easily
+remove and replace the Pico if it ever breaks.  The SMD-sockets
+version of the board accomplishes that, too, but it violates the
+"through-hole parts only" mandate of this board set, plus the
+dependency on that unique Harwin part number might make it difficult
+to source parts in the future.  The through-hole sockets are generic
+commodity parts made by multiple manufacturers, so they should be easy
+to source indefinitely.
 
 
 ## How to connect devices

@@ -157,6 +157,25 @@ or Google Sheets, and Mouser and Digikey will accept these as uploads
 to construct shopping carts without a lot of manual data entry.
 
 
+## Viewing an EAGLE file
+
+The **.sch** files are EAGLE schematics, and the **.brd** files are 
+EAGLE board layouts.  The **.brd** file contains all of the information
+that a manufacturer needs to make the board.  The **.sch** is the
+electrical engineer's view of the layout, showing the abstract functional
+connections between the components in a format that's easier for a human to
+read (at least, a human with some EE knowledge).
+
+EAGLE is a popular commercial CAD (computer-aided design) program for
+circuit boards.  There are a number of similar free and open-source
+programs that can import EAGLE files, such as KiCad and EasyEDA, so you
+can install one of those if you want to view the files without buying
+an EAGLE license.  There are also on-line EAGLE file viewers that you
+can find with a search term like **on-line EAGLE file viewer**.
+
+
+
+
 ## BOM Versions
 
 <b>Important:</b> Always match the <b>version of the BOM</b> to the
@@ -164,10 +183,10 @@ to construct shopping carts without a lot of manual data entry.
 components used, and their reference designator assignments ("R3",
 "IC7", etc), can change across versions.
 
-github keeps a full history of every file, but you have to
-deliberately go look for an old version if you need one, because the
-default view on github always shows you the latest version of
-everything.
+github keeps a full history of every file (that's really the whole
+point of git), but you have to deliberately go look for an old version
+if you need one, because github's default view simply shows you the
+latest version of everything.
 
 To see the full version history of a file, find the BOM file in
 the github tree, open it, and then click the <b>History</b> button
@@ -202,6 +221,20 @@ use the procedure above to find the right version.
         <li>Power: https://github.com/mjrgh/PinscapePico/blob/1252a03060d82a5c3b8f7cad5739bbce4cbe7fbf/ExpansionBoards/DIY-Friendly/PowerBoard/Pinscape%20Pico%20Expansion%20Board%20-%20DIY%20Friendly%20Power%20-%20BOM.csv
     </ul>
 </ul>
+
+If you're ever unsure about a version match, you can verify it by
+checking the version of the **.brd** file that's stored under the same
+github commit number (the six-digit hexadecimal code listed alongside
+each version in the history view).  Each commit represents a **complete snapshot of the entire repository,**
+so you can be sure
+that all of the files at a given commit number are in sync with each
+other.  Once you find the BOM version you think is right, you can look
+at the **.brd** file history, find the same commit number in the list,
+and then check the REV number on that version by opening the **.brd**
+file in an EAGLE viewer.
+
+<img src="git-commit-numbers-in-history.png">
+
 
 
 ## Important Notes on the BOM

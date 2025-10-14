@@ -998,10 +998,36 @@ buttons[].action.type="xInput".button string{table} required
 buttons[].action.type="reset"
   Activating the button resets the Pico, optionally activating its Boot Loader mode.
 
-buttons[].action.type="reset".mode string{"normal" "bootloader"} optional
-  Reset mode.  "normal" resets the Pico and restarts the Pinscape firmware.
-  "bootloader" puts the Pico into its native Boot Loader moder, where it
-  presents itself as a virtual thumb drive for installing new firmware.
+buttons[].action.type="reset".mode string{table} optional
+  Reset mode.  This is a string specifying the mode the Pico enters after the reset.
+  The default if <tt>type</tt> isn't specified is "normal".
+  <table>
+    <tr><th>Type name</th><th>Description</th></tr>
+    <tr>
+      <td>"normal"</td>
+      <td>Restarts the Pinscape firmware currently stored in the Pico's flash memory.  This is the default.</td>
+    </tr>
+    <tr>
+      <td>"bootloader"</td>
+      <td>Restarts the Pico in Boot Loader mode, where it appears as a virtual USB thumb drive that will accept new firmware via a .UF2 file transfer.</td>
+    </tr>
+    <tr>
+      <td>"safe"</td>
+      <td>
+        Reboots into Safe Mode.  This restarts the Pinscape firmware, but loads the Safe Mode configuration instead of the normal JSON configuration.
+        Safe Mode is normally invoked if the Pinscape software crashes or the Pico unexpectedly resets, but it can also be useful
+        to invoke deliberately if you want to bypass the normal configuration settings.
+      </td>
+    </tr>
+    <tr>
+      <td>"factory"</td>
+      <td>
+        Reboots into Factory Mode.  This is similar to Safe Mode, except that it doesn't load any JSON configuration settings,
+        and instead uses defaults for all settings.  This is the basic configuration that you get with a new Pico that
+        you haven't customized with any JSON settings yet.
+      </td>
+    </tr>
+  </table>
 
 buttons[].action.type="reset".holdTime number optional
   The time the button must be held down, in milliseconds, before the reset

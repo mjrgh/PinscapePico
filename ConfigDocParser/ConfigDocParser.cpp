@@ -1076,7 +1076,7 @@ void ConfigDocParser::GenerateSchemaStructs(const char *filename)
 		<< "// This file was created mechanically by ConfigDocParser from " << srcfile << ".\n"
 		<< "// Hand-editing isn't recommended, since the entire file will be overwritten\n"
         << "// on the next full build.  Corrections should be made to the source file\n"
-        << "(" << srcfile << ") instead.\n"
+        << "// (" << srcfile << ") instead.\n"
 		<< "//\n"
 		<< "// The file defines a series of static structs of types defined in\n"
 		<< "// GUIConfigTool\\ConfigEditorWin.cpp.\n"

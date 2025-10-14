@@ -6,10 +6,10 @@
 
     THIS FILE WAS GENERATED MECHANICALLY - DO NOT EDIT.
 
-    This file was created mechanically by ConfigDocParser from ..\firmware\JSONConfigRef.txt.
+    This file was created mechanically by ConfigDocParser from firmware\JSONConfigRef.txt.
     Hand-editing of this file isn't recommended, since the entire file will be
     overwritten on the next full build.  Corrections should be made to the input
-    file (..\firmware\JSONConfigRef.txt) instead.
+    file (firmware\JSONConfigRef.txt) instead.
 -->
 
 <html>
@@ -2556,13 +2556,36 @@ For an introduction to the JSON syntax and the overall file layout, refer to
           <span class="jsonPropType">string</span><span class="jsonPropOptional">Optional</span>
         </div>
         <div class="jsonPropDesc">
-      <div class="jsonEnumVals">
-         One of: <span class="jsonEnumVal">"bootloader"</span>, <span class="jsonEnumVal">"normal"</span>
-      </div>
       <p>
-        Reset mode.  "normal" resets the Pico and restarts the Pinscape firmware.
-        "bootloader" puts the Pico into its native Boot Loader moder, where it
-        presents itself as a virtual thumb drive for installing new firmware.
+        Reset mode.  This is a string specifying the mode the Pico enters after the reset.
+        The default if <tt>type</tt> isn't specified is "normal".
+        <table>
+        <tr><th>Type name</th><th>Description</th></tr>
+        <tr>
+        <td>"normal"</td>
+        <td>Restarts the Pinscape firmware currently stored in the Pico's flash memory.  This is the default.</td>
+        </tr>
+        <tr>
+        <td>"bootloader"</td>
+        <td>Restarts the Pico in Boot Loader mode, where it appears as a virtual USB thumb drive that will accept new firmware via a .UF2 file transfer.</td>
+        </tr>
+        <tr>
+        <td>"safe"</td>
+        <td>
+        Reboots into Safe Mode.  This loads the Pinscape firmware, but loads the Safe Mode configuration instead of the normal JSON configuration.
+        Safe Mode is normally invoked if the Pinscape software crashes or the Pico unexpectedly resets, but it can also be useful
+        to invoke deliberately if you want to bypass the normal configuration settings.
+        </td>
+        </tr>
+        <tr>
+        <td>"factory"</td>
+        <td>
+        Reboots into Factory Mode.  This is similar to Safe Mode, except that it doesn't load any JSON configuration data,
+        and instead uses defaults for all settings.  This is the basic configuration that you get with a new Pico that
+        you haven't customized with any JSON settings yet.
+        </td>
+        </tr>
+        </table>
       </p>
         </div>
       </div>

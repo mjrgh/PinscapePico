@@ -127,21 +127,24 @@ actually tested against is the original Pico.
 As of 0.1.13, the release package also includes a build for the
 Raspberry Pi Pico2 RP2350.  I haven't tested the Pico2 build beyond
 the most basic checks that it loads correctly with the basic factory
-configuration, so I'd only recommend the Pico2 at this point if you're
-willing to play the part of an early beat tester.  If you want
-something that's known to work, stick with the original Pico.  But if
-you do want to test against the new model, I'm interested in hearing
-how well it works.
+configuration, and I'm still doing all of my development and testing
+work on the original RP2040, so I'd only recommend using the Pico2 if
+you're comfortable using something more experimental.  Pinscape
+doesn't take any particular advantage of the hardware upgrades in the
+Pico2, but the Pico2 shouldn't present any disadvantages, either,
+since it seems to have good upward compatibility by design.
 
-The "W" variations (Pico W and Pico 2W) are **not supported**.  The W
-versions have different fixed wiring for some of the GPIOs, to
-accommodate the WiFi chip, which changes how a few of the standard
-platform features work.  Pinscape seems to *mostly* work on the W, but
-some things might not work properly due to the pre-assigned GPIO
-differences.  I'd therefore recommend against using a W with Pinscape,
-especially considering that Pinscape doesn't make use of any of the
-WiFi features, so you don't get any benefits to compensate for the
-compatibility issues.
+The "W" variations (Pico W and Pico 2W) are **not supported** at the
+moment.  The W differs from the original Pico in how some of the
+internal peripherals are connected, so it requires some special
+handling in the firmware, which Pinscape doesn't do.  Some people have
+reported that Pinscape *mostly* works on the W; the .uf2 files for the
+base Pico work on the W, and the only problem reported is that the
+on-board LED doesn't work.  So you can use a W if you can live with
+the LED not working, and with any other problems that might still be
+lurking.  But I don't see any reason you'd want to: yes, the W has
+that spiffy wireless module, but Pinscape can't take any advantage of
+it, so it might as well not be there.
 
 
 ## Features
@@ -294,7 +297,7 @@ has a lot of material that's specifically about how to build and set up the
 original Pinscape KL25Z system, and so far I haven't written anything equivalent
 for the new Pico software.
 
-Here's what I do have for you so far:
+Here's what's I do have:
 
 <b>[JSON Configuration Reference](http://mjrnet.org/pinscape/PinscapePico/Help/JSONConfigRef.html):</b>
 This has the most comprehensive documentation on the firmware's
@@ -306,8 +309,10 @@ guides for most of the supported peripheral hardware devices.
 When you're using the configuration editor in the Config Tool, the
 editor keeps track of your editing location, and can take you straight
 to the reference section on the topic you're currently editing.
-Just click the link at the upper right corner of the editor window
-to bring up the help for the current JSON section.
+At the upper right corner of the editor window, there's a link showing
+the current JSON element, which automatically updates to match the
+JSON at the text cursor position.  Click the link to open the
+reference section for the current JSON element.
 
 <b>[Config Tool help](http://mjrnet.org/pinscape/PinscapePico/Help/ConfigTool.htm):</b>  This documents the Config Tool in detail.
 It's built into the Config Tool UI, and is also available online.

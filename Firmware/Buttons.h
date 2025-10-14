@@ -1,4 +1,4 @@
-// Pinscape Pico firmware - buttons
+// Pinscape Pico firmware - Buttons
 // Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 // This defines the button interface.  A button represents a two-state input
@@ -985,9 +985,22 @@ public:
     class ResetAction : public Action
     {
     public:
-        ResetAction(bool bootLoaderMode, uint16_t holdTime_ms) :
-            bootLoaderMode(bootLoaderMode), holdTime_us(static_cast<uint32_t>(holdTime_ms) * 1000) { }
-        virtual void GenName() { sprintf(nameBuf, "Reset(%shold=%dms)", bootLoaderMode ? "BootLoader," : "", holdTime_us/1000); }
+        // reset mode
+        enum class Mode
+        {
+            Normal = 0,       // normal reset, loads flash-resident firmware program
+            BootLoader = 1,   // ROM Boot Loader mode
+            SafeMode = 2,     // safe mode
+            Factory = 3,      // factory reset mode
+        };
+        Mode mode;
+
+        // mode names - indexed by static_cast<int>(mode)
+        static const char *modeName[];
+
+        ResetAction(Mode mode, uint16_t holdTime_ms) :
+            mode(mode), holdTime_us(static_cast<uint32_t>(holdTime_ms) * 1000) { }
+        virtual void GenName() { sprintf(nameBuf, "Reset(mode=%s, hold=%dms)", modeName[static_cast<int>(mode)], holdTime_us/1000); }
         virtual void PopulateDesc(PinscapePico::ButtonDesc *desc) const override { desc->actionType = PinscapePico::ButtonDesc::ACTION_RESET; }
         virtual void OnStateChange(bool state) override;
         virtual void Task() override;

@@ -515,8 +515,8 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 // type: "plunger",       // plunger input; converts plunger position or motion into a button event
 //   fire: <bool>,        // if true, read as ON when a plunger firing event is in progress; ignores firing events otherwise
 //   range: {             // if specified, read as ON when the plunger position is inside or outside the given range
-//     min: <number>,     // minimum end of range
-//     max: <number>,     // maximum end of range
+//     min: <number>,     // minimum end of range, inclusive
+//     max: <number>,     // maximum end of range, inclusive
 //     inside: <bool>,    // true -> read as ON when plunger position in between min and max, inclusive;
 //                        // false -> read as ON when plunger position is less than min or greater than max
 //   },
@@ -542,7 +542,6 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //                        // feel right for most key input.  Tip: use a "pulse" button type for the enclosing
 //                        // logical button when mapping IR input to PC keyboard keys, so that the repeat
 //                        // rate is controlled by the remote rather than the Windows auto-repeat function.
-//
 //
 // type: "output",        // Output port state
 //   port: <string|number>,   // logical output port name or number
@@ -597,16 +596,16 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 // type: "reset",         // reset the Pico when button is pressed and held for the specified hold time
 //   mode: <string>,      // reset mode: "normal" (reset the Pinscape software), "bootloader" (switch to Pico native boot loader mode)
 //   holdTime: <number>,  // required button hold time in milliseconds; shorter presses are ignored
-// }
 //
-// type: "nightmode",     // engage Night Mode when the button is on
+//
+// type: "nightmode",     // engage Night Mode when the button is ON
 //   // no parameters
 //
 // type: "plungercal",    // engage plunger calibration mode; button must be held ON for about 2 seconds to engage
 //   // no parameters
 //
 // type: "IR",            // send an IR command when the button is pressed
-//   code: "string",      // IR command to send, in our universal IR format; see IRRemote/IRCommand.h
+//   code: <string>,      // IR command to send, using the Pinscape universal IR code format; see IRRemote/IRCommand.h
 //   autoRepeat: <bool>,  // is auto-repeat enabled? if true, the transmission will auto-repeat as long as the logical button stays on,
 //                        // otherwise it'll be sent just once each time the logical control switches from off to on
 //
@@ -615,7 +614,7 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //   runToCompletion: true,  // if true, run the macro to completion even if the button is released early; default is true;
 //                           // if false, releasing the button halts the macro
 //   steps: [             // list of steps to perform
-//     { step1 },         // frist step
+//     { step1 },         // first step
 //     { step2 },         // second setp
 //     ...
 //   ],
@@ -1392,14 +1391,26 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
     else if (actionType == "reset")
     {
         // Pico reset action - regular reboot or bootloader mode
-        std::string mode = actionVal->Get("mode")->String("normal");
+        std::string modeStr = actionVal->Get("mode")->String("normal");
         uint16_t holdTime = actionVal->Get("holdTime")->UInt16(2000);
-        bool bootLoaderMode = (mode == "bootloader");
-        if (!(bootLoaderMode || mode == "normal"))
-            return Log(LOG_ERROR, "%s: invalid reset mode \"%s\"\n", location, mode.c_str()), nullptr;
+
+        // look up the mode name in the name list; the list is indexed by
+        // Button::ResetAction::Mode enum element, so the index in the list
+        // is the same as the enum value to use to create the action
+        int modeID = -1;
+        for (int i = 0 ; Button::ResetAction::modeName[i] != nullptr ; ++i)
+        {
+            if (modeStr == Button::ResetAction::modeName[i])
+            {
+                modeID = i;
+                break;
+            }
+        }
+        if (modeID < 0)
+            return Log(LOG_ERROR, "%s: invalid reset mode \"%s\"\n", location, modeStr.c_str()), nullptr;
 
         // create the reset action
-        return new Button::ResetAction(bootLoaderMode, holdTime);
+         return new Button::ResetAction(static_cast<Button::ResetAction::Mode>(modeID), holdTime);
     }
     else if (actionType == "nightmode")
     {
@@ -2888,6 +2899,8 @@ void Button::IRAction::OnStateChange(bool state)
 // Reset action
 //
 
+const char *Button::ResetAction::modeName[] = { "normal", "bootloader", "safe", "factory", nullptr };
+
 void Button::ResetAction::OnStateChange(bool state)
 {
     // if we're switching from OFF to ON, note the start of the new hold time
@@ -2902,7 +2915,26 @@ void Button::ResetAction::Task()
 {
     // if the button is ON and we've reached the hold time, execute the reset
     if (lastState && time_us_64() - t0 > holdTime_us)
-        picoReset.Reboot(bootLoaderMode);
+    {
+        switch (mode)
+        {
+        case Mode::Normal:
+            picoReset.Reboot(false);
+            break;
+
+        case Mode::BootLoader:
+            picoReset.Reboot(true);
+            break;
+
+        case Mode::SafeMode:
+            picoReset.Reboot(false, PicoReset::BootMode::SafeMode);
+            break;
+
+        case Mode::Factory:
+            picoReset.Reboot(false, PicoReset::BootMode::FactoryMode);
+            break;
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------

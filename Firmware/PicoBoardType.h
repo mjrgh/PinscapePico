@@ -1,18 +1,18 @@
 // Pinscape Pico firmware - Pico board type abstraction layer
 // Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
-// This module defines an abstract interface to fucntions that vary across
+// This module defines an abstract interface to functions that vary across
 // Pico hardware implementations.  The Pico has many variations, including
-// official variants from Raspberry Pi (Pico W, Pico 2, Pico 2w) and numerous
+// official variants from Raspberry Pi (Pico W, Pico 2, Pico 2W) and numerous
 // third-party versions.  All Pico variants are *mostly* the same, since
 // they're all based on the RP2040 or RP2350 system-on-chip, which integrates
 // nearly all system components, including RAM and many I/O peripherals.
 // But there are a couple of key components that the SOC lacks and that all
-// Pico boards must provide off-chip, including flash memory and power
+// Pico boards must thus provide off-chip, including flash memory and power
 // management.  In addition, nearly all Pico boards include some kind of
 // status indicator LED, and some have additional unique peripherals, such
 // as the wireless transponder chip on the Pico W and 2W.  Most of these
-// external peripherals require connections Pico GPIO pins for control and
+// external peripherals require Pico GPIO pin connections for control and
 // status I/O - and that's where the different boards manifest differences
 // in the programming model.  The official Pico SDK provides abstractions
 // for *some* of these differences, but not all of them.  That's where this
@@ -20,24 +20,24 @@
 // variations in the programming model that matter to the Pinscape software.
 //
 // This abstraction layer is divided into an INTERFACE, which is common
-// across all board variants, and an IMPLEMENTATION, which must be implemented
+// across all board variants, and an IMPLEMENTATION, which must be written
 // separately for each board variant that has differences in how it handles
 // the functionality defined in the interface.  All of the Pinscape code
 // works in terms of the abstract interface, so that the Pinscape code
 // doesn't contain any dependencies on different boards.  As a matter of
 // policy, we try to avoid EVER writing code of the form "if the board is
 // a Pico 2W, then...".  Instead, the Pinscape code should always work in
-// terms of the abstraction, so that it doesn't contain any assumptions
-// about differences among the boards, and leave it to the per-board
-// implementation layer to carry out the function defined in the abstraction
-// in the correct way for the actual board targeted in the build.  The
-// implementation layer is baked into the build at the LINKER level, so
-// all of the testing along the lines of "if the board is a 2W then..."
-// should be isolated to CMakeLists.txt.  So the interfaces defined below
-// will be implemented in more than one .cpp file.  Each target board will
-// have its own .cpp file that implements the interfaces, and the build
-// will link in the one appropriate .cpp file based on the target board
-// selected in the build configuration.
+// terms of the abstractions defined here, so that it doesn't contain any
+// assumptions about differences among the boards, and leave it to the
+// per-board implementation layer to carry out the function defined in the
+// abstraction in the correct way for the actual board targeted in the
+// build.  The implementation layer is baked into the build at the LINKER
+// level, so all of the testing along the lines of "if the board is a 2W
+// then..." should be isolated to CMakeLists.txt.  So the interfaces
+// defined below will be implemented in more than one .cpp file.  Each
+// target board will have its own .cpp file that implements the interfaces,
+// and the build will link in the one appropriate .cpp file based on the
+// target board selected in the build configuration.
 //
 // The implementation .cpp file is selected by NAMING CONVENTION in
 // the build.  The standard SDK build system defines a cmake variable

@@ -30,6 +30,7 @@
 
 // local project headers
 #include "Pinscape.h"
+#include "PicoBoardType.h"
 #include "Main.h"
 #include "MultiCore.h"
 #include "FaultHandler.h"
@@ -141,6 +142,9 @@ int main()
 
     // restore the time-of-day information stashed before the reset, if possible
     timeOfDay.RestoreAfterReset();
+
+    // perform additional target board initialization
+    PicoBoardType::Init();
 
     // Check for a watchdog reboot.  This indicates that the software
     // crashed or froze, and the watchdog intervened by resetting the

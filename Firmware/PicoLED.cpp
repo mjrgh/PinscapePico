@@ -16,17 +16,15 @@
 
 // project headers
 #include "PicoLED.h"
-#include "GPIOManager.h"
+#include "PicoBoardType.h"
 
 // global singleton
-PicoLED picoLED(PICO_DEFAULT_LED_PIN);
+PicoLED picoLED;
 
-PicoLED::PicoLED(int ledPin) : ledPin(ledPin)
+PicoLED::PicoLED()
 {
-    // set up the standard Pico LED
-    gpioManager.Claim("Pico LED", ledPin);
-    gpio_init(ledPin);
-    gpio_set_dir(ledPin, GPIO_OUT);
+    // set up the Pico LED (which can vary by target board)
+    PicoBoardType::LED::Init();
 }
 
 // update the blink state
@@ -62,7 +60,7 @@ void PicoLED::Task()
     }
 
     // update the LED state
-    gpio_put(ledPin, on);
+    PicoBoardType::LED::Write(on);
 }
 
 void PicoLED::SetUSBStatus(bool mounted, bool suspended)

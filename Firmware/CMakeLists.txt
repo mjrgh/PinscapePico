@@ -111,6 +111,7 @@ pico_sdk_init()
 add_executable(
     PinscapePico
     Main.cpp
+    PicoBoardType_${PICO_BOARD}.cpp
     Version.cpp
     Utils.cpp
     ButtonHelper.cpp

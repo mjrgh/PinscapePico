@@ -25,7 +25,7 @@
 class PicoLED
 {
 public:
-    PicoLED(int ledPin);
+    PicoLED();
 
     // update the blink state - the main loop must call this periodically
     // (as frequently as possible) to keep the blinker running
@@ -59,9 +59,6 @@ protected:
 
     // set the interval - called internally from UpdateBlinkTime()
     void SetInterval(int on_ms, int off_ms) { intervalOn = on_ms*1000; intervalOff = off_ms*1000; }
-
-    // Pico LED GPIO pin
-    int ledPin;
 
     // current USB status (set by the USB subsystem on detecting a connection change)
     enum class USBStatus

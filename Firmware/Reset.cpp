@@ -14,6 +14,7 @@
 // local project headers
 #include "Pinscape.h"
 #include "Reset.h"
+#include "PicoBoardType.h"
 #include "Outputs.h"
 #include "Config.h"
 #include "TimeOfDay.h"
@@ -122,7 +123,7 @@ void PicoReset::TryReset()
     if (bootLoaderMode)
     {
         // Reset into the USB boot loader
-        reset_usb_boot(1 << PICO_DEFAULT_LED_PIN, 0);
+        reset_usb_boot(PicoBoardType::LED::GetResetUSBBootMask(), 0);
     }
     else
     {    

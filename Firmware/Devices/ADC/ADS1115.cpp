@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <algorithm>
 
 #include <pico/stdlib.h>
 #include <hardware/i2c.h>

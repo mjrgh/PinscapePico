@@ -7,6 +7,7 @@
 #pragma once
 #include <stdlib.h>
 #include <stdint.h>
+#include <algorithm>
 #include <pico/stdlib.h>
 #include <hardware/adc.h>
 #include "ADCManager.h"

@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <algorithm>
 
 // Pico SDK headers
 #include <pico/stdlib.h>

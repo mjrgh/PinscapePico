@@ -119,6 +119,7 @@
 
 // forward/external declarations
 class ConsoleCommandContext;
+class ADC;
 
 
 // Logical axis control source.  This is used for gamepads and
@@ -302,6 +303,17 @@ class PlungerSpeedAxisSource : public LogicalAxis
 public:
     PlungerSpeedAxisSource(const CtorParams &params) { }
     virtual int16_t Read() override;
+};
+
+// Digital GPIO axis source.  This reads the current ON/OFF status from
+// a physical GPIO, mapping OFF to the negative extreme of the axis
+// (-32768) and ON as the positive extreme (32767).
+class DigitalGPIOAxisSource : public LogicalAxis
+{
+public:
+    DigitalGPIOAxisSource(const CtorParams &params, std::vector<std::string> &args);
+    virtual int16_t Read() override { return static_cast<int16_t>(gpio_get(gpio) ? 32767 : -32768); }
+    int gpio = -1;
 };
 
 // Logical axis negating source.  This reverses the sign of

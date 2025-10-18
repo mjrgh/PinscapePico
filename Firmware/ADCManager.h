@@ -204,7 +204,7 @@ public:
     virtual Sample ReadNative(int channel) = 0;
 
     // Read a sample in normalized units, 0..65535.  Double-ended inputs
-    // should be re-centered at +32767 so that all reported values fit in
+    // should be re-centered at +32768 so that all reported values fit in
     // the UINT16 range.
     //
     // Callers can do their own normalization based on GetNativeMin/Max, but

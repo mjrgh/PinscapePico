@@ -47,6 +47,8 @@
 #include "TimeOfDay.h"
 #include "TVON.h"
 #include "Nudge.h"
+#include "GPIOManager.h"
+#include "ADCManager.h"
 #include "Plunger/Plunger.h"
 #include "CommandConsole.h"
 
@@ -1413,6 +1415,7 @@ std::unordered_map<std::string, LogicalAxis::CreateFunc> LogicalAxis::nameMap{
     { "plunger.z",      [](const CtorParams &params, Strs &strs) -> LogicalAxis* { return new PlungerZAxisSource(params); } },
     { "plunger.z0",     [](const CtorParams &params, Strs &strs) -> LogicalAxis* { return new PlungerZ0AxisSource(params); } },
     { "plunger.speed",  [](const CtorParams &params, Strs &strs) -> LogicalAxis* { return new PlungerSpeedAxisSource(params); } },
+    { "gpio",           [](const CtorParams &params, Strs &strs) -> LogicalAxis* { return new DigitalGPIOAxisSource(params, strs); } },
     { "sine",           [](const CtorParams &params, Strs &strs) -> LogicalAxis* { return new SineAxisSource(params, strs); } },
     { "negate",         [](const CtorParams &params, Strs &strs) -> LogicalAxis* { return new NegativeAxisSource(params, strs); } },
     { "offset",         [](const CtorParams &params, Strs &strs) -> LogicalAxis* { return new OffsetAxisSource(params, strs); } },
@@ -1635,6 +1638,46 @@ SineAxisSource::SineAxisSource(const CtorParams &params, std::vector<std::string
     if (args.size() >= 3)
         Log(LOG_WARNING, "%s.%s: extra arguments to sine() ignored, expected (period,phase)\n", params.deviceName, params.propName);
 }
+
+// ---------------------------------------------------------------------------
+//
+// Digital GPIO axis source
+//
+DigitalGPIOAxisSource::DigitalGPIOAxisSource(const CtorParams &params, std::vector<std::string> &args)
+{
+    if (args.size() >= 1)
+    {
+        // get the pin number
+        gpio = atoi(args[0].c_str());
+
+        // check for a pull up/down specification
+        bool pullUp = false;
+        bool pullDown = false;
+        if (args.size() >= 2)
+        {
+            if (args[1] == "pull-up")
+                pullUp = true;
+            else if (args[1] == "pull-down")
+                pullDown = true;
+            else
+                Log(LOG_ERROR, "%s.%s: invalid pull mode \"%s\" in gpio(), expected \"pull-up\" or \"pull-down\"\n",
+                    params.deviceName, params.propName, args[1].c_str());
+        }
+
+        // validate and claim the GPIO
+        if (!IsValidGP(gpio))
+            Log(LOG_ERROR, "%s.%s: invalid GPIO number (%d) for gpio()\n", params.deviceName, params.propName, gpio);
+        else
+            gpioManager.ClaimSharedInput(Format("%s.%s gpio() axis", params.deviceName, params.propName), gpio, pullUp, pullDown, true);
+
+        // check for extraneous arguments
+        if (args.size() > 2)
+            Log(LOG_WARNING, "%s.%s: extra arguments to gpio() ignored\n", params.deviceName, params.propName);
+    }
+    else
+        Log(LOG_ERROR, "%s.%s: gpio() pin number argument missing\n", params.deviceName, params.propName);
+}
+
 
 // ---------------------------------------------------------------------------
 //

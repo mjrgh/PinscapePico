@@ -583,7 +583,7 @@
     //
     // mxc6655xa: {
     //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
-    //     interrupt: 18,     // GPIO port connected to interrupt pin; set to -1 if not connected
+    //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
     //     gRange: 2,         // set the device's dynamic range to +/- 2g
     // },
 
@@ -592,7 +592,7 @@
     // mc3416: {
     //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
     //     addr: 0x4c,        // I2C address: 0x4C or 0x6C, configured via VPP pin on chip
-    //     interrupt: 18,     // GPIO port connected to interrupt pin; set to -1 if not connected
+    //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
     //     gRange: 2,         // dynamic range +/- 2g
     // },
 
@@ -601,7 +601,7 @@
     // lis3dh: {
     //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
     //     addr: 0x18,        // I2C address: 0x18 if SDO/SA0 is wired to GND, 0x19 if wired to 3.3V
-    //     interrupt: 18,     // GPIO port connected to interrupt pin; set to -1 if not connecte
+    //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
     //     gRange: 2,         // dynamic range +/- 2g
     // },
 
@@ -679,7 +679,7 @@
     // ads1115: {
     //     i2c: 0,              // I2C bus number, 0 for I2C0, 1 for I2C1
     //     addr: 0x48,          // I2C address, set on the chip via pin inputs, 0x48 to 0x4B
-    //     ready: 15,           // GPIO connected to the chip's READY pin, or -1 if not connected
+    //     ready: 15,           // GPIO connected to the chip's READY pin; omit this line if READY isn't connected
     //     channel: 0,          // ADC channel number (0 to 3) on the chip where the pot is connected
     // },
 
@@ -695,7 +695,7 @@
     // vcnl4010: {
     //     i2c: 0,             // I2C bus number, 0 for I2C0, 1 for I2C1
     //     iredCurrent: 200,   // IRED current, in mA, 10 to 200
-    //     interrupt: 19,      // GPIO port of chip's INTERRUPT connection; optional, use -1 if not connected
+    //     interrupt: 19,      // GPIO port of chip's INTERRUPT connection; optional, omit this line if INTERRUPT isn't connected
     // },
 
 
@@ -707,7 +707,7 @@
     //
     //  vl6180x: {
     //      i2c: 0,            // I2C bus number, 0 for I2C0, 1 for I2C1
-    //      interrupt: 19,     // GPIO port of chip's INTERRUPT connection; optional, use -1 if not connected
+    //      interrupt: 19,     // GPIO port of chip's INTERRUPT connection; optional, omit this line if INTERRUPT isn't connected
     //  },
 
 
@@ -996,7 +996,7 @@
     //     {
     //         i2c: 0,         // which Pico I2C bus it's connected to, 0 for I2C0, 1 for I2C1
     //         addr: 0x20,     // the chip's address set by its pin inputs, always 0x20 to 0x27
-    //         interrupt: 3,   // GPIO port where the chip's INTERRUPT pin is connected, or -1 if not connected
+    //         interrupt: 3,   // GPIO port where the chip's INTERRUPT pin is connected; omit this line if INTERRUPT isn't connected
     //     },
     //
     //     // second chip
@@ -1196,8 +1196,8 @@
     //     shift: 10,     // GPIO pin connected to shift clock pin (SHCP)
     //     latch: 11,     // GPIO pin connected to latch (STCP); MUST BE shift+1
     //     data: 12,      // GPIO pin of serial data pin (DS)
-    //     reset: 13,     // GPIO of master reset pin (/MR); optional, set to -1 if not connected
-    //     enable: 14,    // GPIO of enable pin (/OE); optional, set to -1 if not connected
+    //     reset: 13,     // GPIO of master reset pin (/MR); optional, omit this line if RESET isn't connected
+    //     enable: 14,    // GPIO of enable pin (/OE); optional, omit this line if ENABLE isn't connected
     // },
 }
 

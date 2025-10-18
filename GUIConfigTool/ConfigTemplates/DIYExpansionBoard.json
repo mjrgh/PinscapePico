@@ -1208,7 +1208,7 @@
     // vcnl4010: {
     //     i2c: 1,             // plungers use I2C1
     //     iredCurrent: 200,   // IRED current, in mA, 10 to 200
-    //     interrupt: 10,      // plunger interrupt port 2; use -1 if not wired to sensor
+    //     interrupt: 10,      // plunger interrupt port; omit this line if interrupt line isn't wired
     // },
 
     // VL6180X IR distance sensor.  This is an I2C device, so you also
@@ -1219,7 +1219,7 @@
     //
     //  vl6180x: {
     //      i2c: 0,            // plungers use I2C0
-    //      interrupt: 13,     // plunger interrupt port 2; use -1 if not wired to sensor
+    //      interrupt: 13,     // plunger interrupt port; omit this line if interrupt line isn't wired
     //  },
 
     // AEDR-8300.  This chip connects to two GPIO ports on the Pico.

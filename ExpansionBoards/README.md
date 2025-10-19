@@ -74,7 +74,7 @@ your build a little tidier, and it can be used with any I/O controller.
 ## How to fabricate the boards
 
 See [Fabricating the Expansion Boards](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php?sid=expanFab)
-in the (Pinscape Build Guide)[http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php].
+in the [Pinscape Build Guide](http://mjrnet.org/pinscape/BuildGuideV2/BuildGuide.php).
 That explains the process in terms of the original KL25Z Pinscape boards, but
 it applies equally well to the Pinscape Pico boards - just substitute the EAGLE
 files from this repository.
@@ -108,3 +108,4 @@ with an electronics background can point you in the right direction.
 The expansion board material is released under the same copyright and
 license terms as the rest of the Pinscape Pico project.  Copyright 2025
 Michael J Roberts; released under a BSD 3-clause license with NO WARRANTY.
+

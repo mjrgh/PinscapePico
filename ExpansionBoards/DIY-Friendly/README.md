@@ -309,7 +309,7 @@ the main board, so that you can place them in convenient locations
 where transmitters and receivers can "see" each other properly.  This
 lets the signals get in and out even if the main board is buried deep
 inside your pinball cabinet.  The off-board devices connect to
-the main board through cables, which connect to header on the main
+the main board through cables, which connect to headers on the main
 board (the headers labeled IR-TX, for the transmitter, and IR-RX, for
 the receiver).
 
@@ -322,8 +322,8 @@ After wiring the LED, plug it into the IR-TX header on the main board.
 
 Note that the BOM lists two options for the IR LED: VSLB4940 and
 TSAL6400.  You only need one or the other, and they're
-interchangeable, so you can pick whichever one is more readily
-available or cheaper.  No changes are required to the expansion board.
+interchangeable, so you can pick whichever one is cheaper or more
+readily available.  No changes are required to the expansion board.
 Other things being equal, I'd go with VSLB4940, because it has
 slightly better luminosity specs, which should give it slightly better
 range.

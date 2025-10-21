@@ -522,7 +522,7 @@ the receiver).
 board, but it doesn't require its own separate circuit board, because
 the whole receiver consists of just a single small LED.  You simply
 solder wires directly to the LED and run them back to the main
-board.  See (../IR-TX/) for help with wiring the IR LED.
+board.  See the [IR-TX](../IR-TX/) folder for help with wiring the IR LED.
 After wiring the LED, plug it into the IR-TX header on the main board.
 
 Note that the BOM lists two options for the IR LED: VSLB4940 and
@@ -535,8 +535,8 @@ range.
 
 <b>Receiver:</b> The receiver requires a small "satellite" circuit
 board, because the sensor that does the receiving has a couple of
-extra supporting parts that have to be installed alongside it.  See
-(../IR-RX/) for the receiver circuit board design.  After building the
+extra supporting parts that have to be installed alongside it.  See the
+[IR-RX](../IR-RX/) folder for the receiver circuit board design.  After building the
 board and wiring the cable, plug the cable into the IR-RX header on
 the main board.
 

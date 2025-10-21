@@ -21658,10 +21658,15 @@ with 215083-4 on-cable IDC connector.</text>
 Resistor sets current to I(LED) = 0.5V/R
 R=2.5 ohms -&gt; 200mA current</text>
 <text x="7.62" y="81.28" size="1.778" layer="91">IR REMOTE CONTROL TRANSMITTER
-Use with TSAL6400 IRED or equivalent, with
-a peak wavelength around 940nm.  Set the
-current-sense resistor according to the
-desired forward current on the IR LED.
+Use with VSLB4940, TSAL6400, or a similar
+IR LED with a peak wavelength around
+940nm.  Set the current-sense resistor
+according to the desired forward current
+on the IR LED.  Set to 200 mA for VSLB4940
+or TSAL6400; for others, use a current
+between the "continuous" and "peak" I(F)
+values listed in the Absolute Maximum
+Values section of the data sheet.
 
 No external current-limiting resistor is
 needed.

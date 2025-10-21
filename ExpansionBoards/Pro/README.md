@@ -500,45 +500,46 @@ requirement to choose a fixed current level was too inflexible.
 
 ### IR Remote
 
-Like the original Pinscape boards, this board has support for an IR
-remote input and output.  There are some slight changes.
+This board has support for an optional IR remote control transmitter
+and receiver.  You can connect either or both as desired.  The IR
+transmitter lets you send commands to your TVs and any other devices
+that can receive IR signals, which you can use to send them commands
+to power on, select inputs or video modes, etc.  The IR receiver lets
+Pinscape receive IR remote control codes from just about any IR remote
+control you have handy.  You can use IR remote inputs as though they
+were physical buttons on the cabinet, to send commands to the PC host.
 
-First, the output port is designed for one TSAL6400 IRED, with the
-driver transistor and current-limiting resistor sized to run the
-device at the device's short-pulse current limit.  The original
-Pinscape board was only designed to run the device at its continuous
-current limit, which made the IR signal a lot weaker than it should
-be.  The IRED can be safely operated at the higher short-pulse limit
-because the signal is inherently modulated into short pulses.  The
-higher current increases the signal strength to allow for longer
-transmission distances.
+Both the transmitter and receiver are designed to be separated from
+the main board, so that you can place them in convenient locations
+where transmitters and receivers can "see" each other properly.  This
+lets the signals get in and out even if the main board is buried deep
+inside your pinball cabinet.  The off-board devices connect to
+the main board through cables, which connect to header on the main
+board (the headers labeled IR-TX, for the transmitter, and IR-RX, for
+the receiver).
 
-Second, as with the original boards, the board has space to install
-the TSOP38438 receiver directly on the board.  But the new board also
-has a header for installing the TSOP38438 on a separate satellite
-board.  A satellite board installation makes it possible to position
-the receiver in an opening in the cabinet so that you can send signals
-to it with a remote control from outside the cabinet.  The original
-boards only really allowed for an on-board receiver, because my
-original conception of the feature was that you'd only need to use the
-receiver to "teach" the software commands that you wanted it to be
-able to send on the emitter.  But the Pinscape firmware has an
-additional use case that allows the firmware to receive and act on IR
-commands received, as an additional kind of "button" input; if you
-want to use this feature, you'd want to position the receiver to
-receive signals from outside the cabinet, so you'd need the off-board
-receiver installation.  The addition of the header makes this easier.
-The wiring only allows for one receiver, so if you install the
-on-board receiver, you can't use an external one, and vice versa.
-When building the board, then, **only one** of the the on-board
-receiver block **or** the off-board header should be populated.  Note
-that the off-board receiver should be built on a small PCB that
-includes the capacitor-and-resistor power supply filter recommended in
-TSOP38438 the data sheet; those parts are meant to be physically
-located close to the receiver, since the whole point is to filter
-electrical noise on the power supply wiring coming into the receiver,
-so they can't be located on the main board when the off-board receiver
-is to be used.
+<b>Transmitter:</b>  The IR transmitter is located off of the main
+board, but it doesn't require its own separate circuit board, because
+the whole receiver consists of just a single small LED.  You simply
+solder wires directly to the LED and run them back to the main
+board.  See (../IR-TX/) for help with wiring the IR LED.
+After wiring the LED, plug it into the IR-TX header on the main board.
+
+Note that the BOM lists two options for the IR LED: VSLB4940 and
+TSAL6400.  You only need one or the other, and they're
+interchangeable, so you can pick whichever one is more readily
+available or cheaper.  No changes are required to the expansion board.
+Other things being equal, I'd go with VSLB4940, because it has
+slightly better luminosity specs, which should give it slightly better
+range.
+
+<b>Receiver:</b> The receiver requires a small "satellite" circuit
+board, because the sensor that does the receiving has a couple of
+extra supporting parts that have to be installed alongside it.  See
+(../IR-RX/) for the receiver circuit board design.  After building the
+board and wiring the cable, plug the cable into the IR-RX header on
+the main board.
+
 
 ### Power sensing circuit
 

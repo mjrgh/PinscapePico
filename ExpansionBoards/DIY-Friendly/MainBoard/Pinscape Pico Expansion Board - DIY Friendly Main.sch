@@ -13656,10 +13656,15 @@ Pinscape v1 board compatible connector</text>
 <description>IR Remote</description>
 <plain>
 <text x="12.7" y="76.2" size="1.778" layer="91">IR REMOTE CONTROL TRANSMITTER
-Use with TSAL6400 IRED or equivalent, with
-a peak wavelength around 940nm.  Set the
-current-sense resistor according to the
-desired forward current on the IR LED.
+Use with VSLB4940, TSAL6400, or a similar
+IR LED with a peak wavelength around
+940nm.  Set the current-sense resistor
+according to the desired forward current
+on the IR LED.  Set to 200 mA for VSLB4940
+or TSAL6400; for others, use a current
+between the "continuous" and "peak" I(F)
+values listed in the Absolute Maximum
+Values section of the data sheet.
 
 No external current-limiting resistor is
 needed.
@@ -13680,7 +13685,7 @@ Resistor sets current to I(LED) = 0.5V/R
 R=2.5 ohms -&gt; 200mA current</text>
 <text x="60.96" y="33.02" size="1.778" layer="91" align="center-left">NPN substitutes: choose any medium-power NPN
 with Hfe around 100</text>
-<text x="63.5" y="111.76" size="1.778" layer="91">IR EMITTER / IR RECEIVER
+<text x="63.5" y="124.46" size="1.778" layer="91">IR EMITTER / IR RECEIVER
 The emitter and receiver are designed to be
 installed remotely to allow placing them in
 suitable line-of-sight locations.</text>

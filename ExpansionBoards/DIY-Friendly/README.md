@@ -261,15 +261,19 @@ capacitance is combined with a small gate resistor.  The recommended
 operation without risk of UCC27524 damage, even for high-capacitance
 MOSFETs.
 
-<b>IR emitter:</b> Two IR emitters are listed.  You only need one.
-TSAL6400 is the one specified for the original KL25Z boards, so it's a
-known quantity.  VSLB4940 is a newer part with higher luminosity
-specs, it might improve transmission range somewhat.  It works well in
-my initial testing, yielding at least 10 feet of transmission range
-with the random consumer electronics gear I tried it with, so I'm
-recommending it as the reference part.  I'm leaving TSAL6400 in the BOM
-with quantity zero for reference, and as a backup in case VSLB4940 isn't
-readily available when you go shopping.
+<b>IR emitter:</b> Two different part numbers are listed for the IR
+emitter: VSLB4940 and TSAL6400.  You only need one or the other, and
+they're interchangeable as far as the expansion boards are concerned.
+You can use either one without making any changes to the boards.
+Both will work equally well, but VSLB4940 is a newer device with
+slightly higher luminosity specs, so it will probably work over
+slightly longer distances than TSAL6400.  TSAL6400 is a tried-and-true
+device that I recommended for the original Pinscape KL25Z expansion
+boards, so it will work well too.  Choose based on price and
+availability, but other things being equal, I'd go with the slightly
+brighter VSLB4940.  In my testing, I got at least 10 feet of range
+with that emitter.
+
 
 <b>MTA-156 and MTA-100 connectors:</b> The BOM includes the pin header
 <b>and</b> matching IDC wire housing for each connector.  The wire
@@ -287,6 +291,49 @@ for the respective jobs, and it's easy to source wire in those sizes.
 From a cost perspective, it's better to minimize the number of
 different wire types you use so you can buy big spools of a few types,
 rather than lots of little spools.
+
+
+### IR Remote
+
+This board has support for an optional IR remote control transmitter
+and receiver.  You can connect either or both as desired.  The IR
+transmitter lets you send commands to your TVs and any other devices
+that can receive IR signals, which you can use to send them commands
+to power on, select inputs or video modes, etc.  The IR receiver lets
+Pinscape receive IR remote control codes from just about any IR remote
+control you have handy.  You can use IR remote inputs as though they
+were physical buttons on the cabinet, to send commands to the PC host.
+
+Both the transmitter and receiver are designed to be separated from
+the main board, so that you can place them in convenient locations
+where transmitters and receivers can "see" each other properly.  This
+lets the signals get in and out even if the main board is buried deep
+inside your pinball cabinet.  The off-board devices connect to
+the main board through cables, which connect to header on the main
+board (the headers labeled IR-TX, for the transmitter, and IR-RX, for
+the receiver).
+
+<b>Transmitter:</b>  The IR transmitter is located off of the main
+board, but it doesn't require its own separate circuit board, because
+the whole receiver consists of just a single small LED.  You simply
+solder wires directly to the LED and run them back to the main
+board.  See (../IR-TX/) for help with wiring the IR LED.
+After wiring the LED, plug it into the IR-TX header on the main board.
+
+Note that the BOM lists two options for the IR LED: VSLB4940 and
+TSAL6400.  You only need one or the other, and they're
+interchangeable, so you can pick whichever one is more readily
+available or cheaper.  No changes are required to the expansion board.
+Other things being equal, I'd go with VSLB4940, because it has
+slightly better luminosity specs, which should give it slightly better
+range.
+
+<b>Receiver:</b> The receiver requires a small "satellite" circuit
+board, because the sensor that does the receiving has a couple of
+extra supporting parts that have to be installed alongside it.  See
+(../IR-RX/) for the receiver circuit board design.  After building the
+board and wiring the cable, plug the cable into the IR-RX header on
+the main board.
 
 
 ## Errata in revisions prior to 20250326

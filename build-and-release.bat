@@ -17,6 +17,7 @@ rem
 goto main
 
 rem Clean firmware
+rem Usage:  call :CleanFirmware (folder-path) (output-file-base-name) (target-platform)
 :CleanFirmware
   pushd "%~1"
   if exist Makefile nmake /nologo clean
@@ -27,6 +28,7 @@ rem Clean firmware
   goto EOF
 
 rem Build firmware for a single target board
+rem Usage:  call :BuildFirmwareForTarget (folder-path) (output-file-base-name) (target-platform)
 :BuildFirmwareForTarget
   call :CleanFirmware "%~1" %2 %3
   pushd "%~1"
@@ -40,6 +42,7 @@ rem Build firmware for a single target board
 rem Build firmware for all target boards.  Build for the base Pico
 rem last, so that we leave the working development environment set
 rem for Pico.
+rem Usage:  call :BuildFirmware (folder-path) (name) (platform)
 :BuildFirmware
   call :BuildFirmwareForTarget "%~1" %2 pico2
   call :BuildFirmwareForTarget "%~1" %2 pico
@@ -70,6 +73,7 @@ if not %1# == # (
 rem  Check for mandatory arguments
 if %rlsVersionTag%# == # (
   echo No version specified - use --version ^<tag^>
+  echo Tag should be of the form "v1.2.3"
   goto EOF
 )
 

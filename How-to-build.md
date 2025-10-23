@@ -10,20 +10,33 @@ systems; see below for instructions for each.
 ## Pico SDK setup
 
 Building the firmware requires the Pico C++ SDK from Raspberry Pi.
-For most of the project's development phase, I was using SDK 1.5.1;
-shortly before the first release, I made the (perhaps risky) move of
-updating to the latest SDK version, 2.1.0.  Even though 1.5.1 is
-the more thoroughly tested of the two options, I'd still recommend moving
-to 2.1.0, **with the the important caveat** that you should use my **corrected**
-version of 2.1.0 instead of the official one, which has a couple
-of serious bugs.
+For the project's initial development phase, I was using SDK 1.5.1;
+shortly before the first release, I migrated to the latest SDK version
+at the time, 2.1.0.  In October 2025, for the version 1.0.0 release,
+I migrated the release build to SDK 2.2.0.
 
-### How to install SDK 1.5.1
+The full project will currently build against any of those SDK
+versions (1.5.1, 2.1.0, or 2.2.0).  Since I'm currently using 2.2.0
+for my official release builds, I recommend using that, so that your
+environment matches mine - that tends to save a lot of time if you
+need to contact me with any questions about the build.
 
-If you want to go with the tried-and-true 1.5.1, that's easy.
-Raspberry Pi provides an official one-click Windows installer, at
-https://github.com/raspberrypi/pico-setup-windows/.  Download
-and run the installer, and follow the on-screen prompts.
+
+### How to install SDK 2.2.0
+
+For people who want to do command-line builds on Windows (which is how
+I build the project), I created a ready-to-install snapshot of my Pico
+SDK 2.2.0 build environment for Windows x64, complete with pre-built
+binaries of all of the required gcc toolchain and SDK SDK build tools
+executables:
+
+* Download it from https://github.com/mjrgh/pico-sdk-2.2.0
+
+* In that repo, open README.MD file, and follow the instructions under **How to Install**
+
+The Pico SDK is also available for Linux and Mac.  Refer to the official
+Raspberry Pi SDK release for those platforms.
+
 
 ### How to install SDK 2.1.0
 
@@ -56,6 +69,13 @@ to the Raspberry Pi site and follow their instructions.  However,
 ones contain the errors I mentioned.  You should set up the official
 SDK environment per Raspberry Pi's instructions, then replace the
 pico-sdk/ subtree with my corrected version from https://github.com/mjrgh/pico-sdk-2.1.0.
+
+### How to install SDK 1.5.1
+
+If you want to go with the tried-and-true 1.5.1, that's easy.
+Raspberry Pi provides an official one-click Windows installer, at
+https://github.com/raspberrypi/pico-setup-windows/.  Download
+and run the installer, and follow the on-screen prompts.
 
 ### NMAKE
 

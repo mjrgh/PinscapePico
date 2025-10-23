@@ -1034,8 +1034,37 @@ buttons[].action.type="reset".holdTime number optional
   occurs.  Default is 2000ms (2 seconds).
 
 buttons[].action.type="nightmode"
-  Sets up the button as a Night Mode control.  Pressing the button toggles
-  the current Night mode setting.
+  Sets up the button as a Night Mode control.  The specific way that
+  the button controls Night Mode depends upon the <tt>action.mode</tt>
+  property.
+
+buttons[].action.type="nightmode".mode string{table} optional
+  Selects how the button action controls Night Mode.  If not
+  specified, the default is "follow".
+  <table>
+    <tr><th><tt>mode</tt> value</th><th>Description</th></tr>
+    <tr><td>"follow"</td><td>Night Mode follows the state of the button: each time the button state changes to ON, Night Mode is activated, and each time the button state changes to OFF, Night Mode is deactivated</td></tr>
+    <tr><td>"toggle"</td><td>Toggles Night Mode ON or OFF each time the button is pressed (that is, each time the button state changes from OFF to ON)</td></tr>
+    <tr><td>"set"</td><td>Activates Night Mode each time the button is pressed (when the button state changes from OFF to ON)</td></tr>
+    <tr><td>"clear"</td><td>Deactivates Night Mode each time the button is pressed (when the button state changes from OFF to ON)</td></tr>
+  </table>
+
+  The "follow" mode is most useful with a physical toggle switch,
+  where you want Night Mode to be ON when you flip the switch to the
+  ON position, and OFF when you flip the switch OFF.  It can be used
+  just as well with a logical toggle button, although in that case
+  you can just use the "toggle" mode instead.  The "set" and "clear"
+  modes could be useful if you want separate ON and OFF buttons, so
+  that you can always make sure Night Mode is engaged or disengaged
+  with a single button press, without having to remember (or figure
+  out) whether it's already on.
+
+  For "toggle" mode, if the button you're using has an indicator
+  light, you could wire the indicator light to a Pinscape output
+  port that's set to <tt>source: "nightmode(255,0)"</tt>.  That
+  will make the button indicator light up when Night Mode is
+  engaged, so that you can see just by looking at the button if
+  Night Mode is in effect.
 
 buttons[].action.type="plungercal"
   Sets up the button to act as the plunger calibration mode control

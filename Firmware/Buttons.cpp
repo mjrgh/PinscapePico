@@ -1414,8 +1414,24 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
     }
     else if (actionType == "nightmode")
     {
-        // night mode toggle
-        return new Button::NightModeAction();
+        // Night Mode action
+
+        // get the sub-mode
+        std::string modeStr = actionVal->Get("mode")->String("follow");
+        int modeID = -1;
+        for (int i = 0 ; Button::NightModeAction::modeName[i] != nullptr ; ++i)
+        {
+            if (modeStr == Button::NightModeAction::modeName[i])
+            {
+                modeID = i;
+                break;
+            }
+        }
+        if (modeID < 0)
+            return Log(LOG_ERROR, "%s: invalid mode name \"%s\" for Night Mode button\n", location, modeStr.c_str()), nullptr;
+
+        // create the action
+        return new Button::NightModeAction(static_cast<Button::NightModeAction::Mode>(modeID));
     }
     else if (actionType == "plungercal")
     {
@@ -2859,10 +2875,37 @@ void Button::OpenPinDevPinballButtonAction::OnStateChange(bool state)
 // Night Mode action
 //
 
+const char *Button::NightModeAction::modeName[] = { "follow", "toggle", "set", "clear" };
+
 void Button::NightModeAction::OnStateChange(bool state)
 {
     // Set the global Night Mode status to the new state
-    nightModeControl.Set(state);
+    switch (mode)
+    {
+    case Mode::Follow:
+        // Follow -> set Night Mode to match the button state
+        nightModeControl.Set(state);
+        break;
+
+    case Mode::Toggle:
+        // Toggle -> toggle Night Mode on each button press (a "press"
+        // is an OFF -> ON transition)
+        if (state)
+            nightModeControl.Toggle();
+        break;
+
+    case Mode::Set:
+        // Set -> turn Night Mode ON when the button is newly pressed
+        if (state)
+            nightModeControl.Set(true);
+        break;
+
+    case Mode::Clear:
+        // Clear -> turn Night Mode OFF when the button is newly pressed
+        if (state)
+            nightModeControl.Set(false);
+        break;
+    }
 }
 
 // ---------------------------------------------------------------------------

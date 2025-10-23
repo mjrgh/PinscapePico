@@ -974,8 +974,21 @@ public:
     class NightModeAction : public Action
     {
     public:
-        NightModeAction() { }
-        virtual const char *Name() override { return "NightMode"; }
+        // action mode
+        enum class Mode
+        {
+            Follow = 0,      // NightMode follows button state
+            Toggle = 1,      // toggle NightMode on each button press
+            Set = 2,         // set NightMode on each button press
+            Clear = 3        // clear NightMode on each button press
+        };
+        Mode mode;
+
+        // mode names - indexed by static_cast<int>(mode)
+        static const char *modeName[];
+
+        NightModeAction(Mode mode) : mode(mode) { }
+        virtual void GenName() override { sprintf(nameBuf, "NightMode(%s)", modeName[static_cast<int>(mode)]); }
         virtual void OnStateChange(bool state) override;
         virtual void PopulateDesc(PinscapePico::ButtonDesc *desc) const override { desc->actionType = PinscapePico::ButtonDesc::ACTION_NIGHTMODE; }
     };

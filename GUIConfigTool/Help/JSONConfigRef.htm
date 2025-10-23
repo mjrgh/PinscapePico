@@ -289,7 +289,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
               <span class="propName"><a href="#buttons.action.type=media.key">key</a></span>: <span class="typeNames">string</span>,
 
               // type="nightmode"
-              // (No additional properties)
+              <span class="propName"><a href="#buttons.action.type=nightmode.mode">mode</a></span>: <span class="typeNames">string</span>,
 
               // type="none"
               // (No additional properties)
@@ -1671,7 +1671,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
             <span class="propName"><a href="#buttons.action.type=media.key">key</a></span>: <span class="typeNames">string</span>,
 
             // type="nightmode"
-            // (No additional properties)
+            <span class="propName"><a href="#buttons.action.type=nightmode.mode">mode</a></span>: <span class="typeNames">string</span>,
 
             // type="none"
             // (No additional properties)
@@ -2386,10 +2386,51 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         </div>
         <div class="jsonClassDesc">
         <p>
-          Sets up the button as a Night Mode control.  Pressing the button toggles
-          the current Night mode setting.
+          Sets up the button as a Night Mode control.  The specific way that
+          the button controls Night Mode depends upon the <tt>action.mode</tt>
+          property.
         </p>
         </div>
+      <a name="buttons.action.type=nightmode.mode"></a>
+      <div class="jsonProp">
+        <div class="jsonPropHdr">
+          <span class="jsonPropPath">buttons[].action.</span><span class="jsonPropName">mode</span>
+          <span class="jsonPropType">string</span><span class="jsonPropOptional">Optional</span>
+        </div>
+        <div class="jsonPropDesc">
+      <div class="jsonEnumVals">
+         One of: <span class="jsonEnumVal">"clear"</span>, <span class="jsonEnumVal">"follow"</span>, <span class="jsonEnumVal">"set"</span>, <span class="jsonEnumVal">"toggle"</span>
+      </div>
+      <p>
+        Selects how the button action controls Night Mode.  If not
+        specified, the default is "follow".
+        <table>
+        <tr><th><tt>mode</tt> value</th><th>Description</th></tr>
+        <tr><td>"follow"</td><td>Night Mode follows the state of the button: each time the button state changes to ON, Night Mode is activated, and each time the button state changes to OFF, Night Mode is deactivated.  </td></tr>
+        <tr><td>"toggle"</td><td>Toggles Night Mode ON or OFF each time the button is pressed (that is, each time the button state changes from OFF to ON).</td></tr>
+        <tr><td>"set"</td><td>Activates Night Mode each time the button is pressed (when the button state changes from OFF to ON)</td></tr>
+        <tr><td>"clear"</td><td>Deactivates Night Mode each time the button is pressed (when the button state changes from OFF to ON)</td></tr>
+        </table>
+        </p><p>
+        The "follow" mode is most useful with a physical toggle switch,
+        where you want Night Mode to be ON when you flip the switch to the
+        ON position, and OFF when you flip the switch OFF.  It can be used
+        just as well with a logical toggle button, although in that case
+        you can just use the "toggle" mode instead.  The "set" and "clear"
+        modes could be useful if you want separate ON and OFF buttons, so
+        that you can always make sure Night Mode is engaged or disengaged
+        with a single button press, without having to remember (or figure
+        out) whether it's already on.
+        </p><p>
+        For "toggle" mode, if the button you're using has an indicator
+        light, you could wire the indicator light to a Pinscape output
+        port that's set to <tt>source: "nightmode(255,0)"</tt>.  That
+        will make the button indicator light up when Night Mode is
+        engaged, so that you can see just by looking at the button if
+        Night Mode is in effect.
+      </p>
+        </div>
+      </div>
       </div>
       <a name="buttons.action.type=none"></a>
       <div class="jsonProp">
@@ -2572,7 +2613,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         <tr>
         <td>"safe"</td>
         <td>
-        Reboots into Safe Mode.  This loads the Pinscape firmware, but loads the Safe Mode configuration instead of the normal JSON configuration.
+        Reboots into Safe Mode.  This restarts the Pinscape firmware, but loads the Safe Mode configuration instead of the normal JSON configuration.
         Safe Mode is normally invoked if the Pinscape software crashes or the Pico unexpectedly resets, but it can also be useful
         to invoke deliberately if you want to bypass the normal configuration settings.
         </td>
@@ -2580,7 +2621,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         <tr>
         <td>"factory"</td>
         <td>
-        Reboots into Factory Mode.  This is similar to Safe Mode, except that it doesn't load any JSON configuration data,
+        Reboots into Factory Mode.  This is similar to Safe Mode, except that it doesn't load any JSON configuration settings,
         and instead uses defaults for all settings.  This is the basic configuration that you get with a new Pico that
         you haven't customized with any JSON settings yet.
         </td>
@@ -4572,6 +4613,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     <tr><td>"abs(<i>source</t>)"</td><td>Takes another source, such as "nudge.x", and takes the absolute value of each reading</td></tr>
     <tr><td>"ads1115[<i>n</i>]"</td><td>If an <a href="#ads1115">ADS1115</a> ADC chip is configured, reports the reading from the <i>n</i>th logical channel, numbered from 0</td></tr>
     <tr><td>"ads1115_<i>m</i>[<i>n</i>]"</td><td>If multiple <a href="#ads1115">ADS1115</a> ADC chips are configured, reports the reading from the <i>n</i>th logical channel of the <i>m</i>th chip, numbered from 0; for example, "ads1115_1[0]" selects the first channel of the second chip</td></tr>
+    <tr><td>"gpio(<i>number</i>, <i>pull-mode</i>)"</td><td>Reads from the specified GPIO pin in digital (ON/OFF) mode, with a LOW reading (0V) reported as -32768, and HIGH (3.3V) reported as 32767; the optional <i>pull-mode</i> can be "pull-up" or "pull-down" to configure the internal pull-up/down resistor on the pin</td></tr>
     <tr><td>"lis3dh.temperature"</td><td>If an LIS3DH accelerometer is configured, reports the reading from its temperature sensor</td></tr>
     <tr><td>"lis3dh.x"</td><td>If an LIS3DH accelerometer is configured, reports the raw reading from its X axis</td></tr>
     <tr><td>"lis3dh.y"</td><td>If an LIS3DH accelerometer is configured, reports the raw reading from its Y axis</td></tr>

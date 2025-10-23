@@ -30,8 +30,11 @@ public:
     // Turn night mode on or off
     void Set(bool state);
 
-    // Get the current mode
+    // Get the current Night Mode state (true -> Night Mode activated, false -> normal "day" mode)
     bool Get() const { return state; }
+
+    // toggle the current state
+    void Toggle() { Set(!state); }
 
     // Subscribe for state change notifications.  Note that the night
     // mode object retains the pointer, so the subscriber must unsubscribe

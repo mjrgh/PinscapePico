@@ -7,7 +7,7 @@
 
 
 #include "PicoBoardType.h"
-
+#include "GPIOManager.h"
 
 // Additional target-board-specific intialization
 void PicoBoardType::Init()

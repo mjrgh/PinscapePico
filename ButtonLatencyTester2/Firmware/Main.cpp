@@ -162,6 +162,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <list>
+#include <algorithm>
 
 // Pico SDK headers
 #include <pico/stdlib.h>

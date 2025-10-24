@@ -600,23 +600,24 @@ console provides simple tab-completion for commands and option flags.
 ## Background
 
 The original Pinscape software runs on the NXP FRDM-KL25Z, a
-microcontroller based on the Arm M0+.  The KL25Z was marketed as an
-"evaluation" board for its NXP MKL25Z CPU, meaning that they hoped
+microcontroller based on the Arm M0+.  NXP marketed the FRDM-KL25Z as
+an "evaluation" board for its MKL25Z CPU, meaning that they hoped
 professional engineers would use the board to create quick prototypes
 based on the MKL25Z CPU, and then those engineers' employers would buy
-thousands of the CPUs to sell in the final products that came out of
-the prototypes.  So the FRDM-KL25Z was essentially a marketing tool.
-But along the way, they accidentally created a great microcontroller
-for virtual pinball.  The board has just about everything you'd want
-in a virtual pinball controller: a generous complement of GPIOs, an
-excellent MEMS accelerometer on board, built-in USB, an integrated
-high-resolution ADC, and on-chip hardware interfaces for all of the
-common peripheral interconnects (UART, SPI, I2C).  And it was quite
-reasonably priced, at about $15.  The only big thing it lacked for pin
-cab use is PWM channels; it only has 10, and a full pin cab needs
-upwards of 30.  The KL25Z also can't control high-power loads directly
-(solenoids, motors, etc.), but no microcontroller can; you always need
-an external MOSFET or relay circuit for that.
+thousands of the CPUs to build into the final products that came out
+of the prototypes.  So the FRDM-KL25Z was essentially a marketing tool
+for CPU chips.  But along the way, they accidentally created a great
+microcontroller for virtual pinball.  The board has just about
+everything you'd want in a virtual pinball controller: a generous
+complement of GPIOs, an excellent MEMS accelerometer on board,
+built-in USB, an integrated high-resolution ADC, and on-chip hardware
+interfaces for all of the common peripheral interconnects (UART, SPI,
+I2C).  And it was quite reasonably priced, at about $15.  The only big
+thing it lacked for pin cab use was PWM channels; it only has 10, and a
+full pin cab needs upwards of 30.  The KL25Z also can't control
+high-power loads directly (solenoids, motors, etc.), but no
+microcontroller can; you always need an external MOSFET or relay
+circuit for that.
 
 But alas, NXP's last production run of the original KL25Z was around
 2018, and most retailers that sold them ran out of inventory around

@@ -664,18 +664,19 @@ to the KL25Z - we can't just wire 20 or 30 button inputs to GPIOs, which
 we could get away with on the KL25Z with its 50+ ports.
 
 What the Pico lacks in on-board peripherals, it more than makes up for
-with excellent hardware support for external peripherals.  The Pico
-has a novel and extremely flexible hardware subsystem that makes it
-possible to interface to a wide range of external devices with minimal
-CPU load.  Pinscape Pico takes advantage of the Pico's unique hardware
-to provide support for large number of external peripherals, with
-extremely flexible configuration options.  It offers several different
-ways to attach ample sets of button inputs and feedback device
-outputs, using only a few GPIO ports; it supports multiple
-accelerometers, with an open architecture that will allow expanding to
-new devices in the future; it supports multiple external ADCs to
-supplement the somewhat meager on-board ADC; and it supports all
-of the original Pinscape KL25Z plunger sensors.
+in I/O interface support.  The Pico has built-in hardware support for
+all of the common bus protocols, plus a novel programmable hardware
+subsystem designed to connect to peripherals with I/O interfaces that
+are <b>un</b>common, or even unique, with minimal CPU load.  Pinscape
+Pico takes much advantage of that special hardware to provide support
+for a large number of external peripherals, with extremely flexible
+configuration options.  Pinscape offers several different ways to
+attach ample sets of button inputs and feedback device outputs, using
+only a few GPIO ports; it supports multiple accelerometers, with an
+open architecture designed to make it easy to add support for new
+types of accelerometers in the future; it supports multiple external
+ADCs, to supplement the mediocre on-board ADC; and it supports all of
+the original Pinscape KL25Z plunger sensors.
 
 
 ## How Pinscape uses the Pico's flash memory

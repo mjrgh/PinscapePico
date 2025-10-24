@@ -626,12 +626,13 @@ but it does eliminate a major advantage the KL25Z had in the past.)
 That's what motivated the new project on the Pico.  The Pico is a more
 powerful device than the KL25Z, but the big reason I wanted to move to
 the Pico is long-term availability.  The Pico is amply available, and
-unlike NXP, hobbyist boards like the Pico are Raspberry Pi's main
-business and primary mission.  Raspberry Pi is actively developing new
-Pico versions (the Pico 2 came out in late 2024) has has publicly
-committed to keeping the Pico in production for years to come.  What's
-more, the Pico is even more affordable than the KL25Z ever was, at
-only $4 MSRP apiece.
+unlike NXP, where the KL25Z was just a sideline to their main business
+of selling CPUs, Rasbperry Pi is entirely focused on hobbyist boards
+like the Pico.  That's their whole business and primary mission.
+Raspberry Pi is actively developing new Pico versions (the Pico 2 came
+out in late 2024) has has publicly committed to keeping the Pico in
+production for years to come.  What's more, the Pico is even more
+affordable than the KL25Z ever was, at only $4 MSRP apiece.
 
 Like the KL25Z, the Pico is based on the Arm M0+ CPU core, but that's
 about the only thing that the devices have in common technologically.

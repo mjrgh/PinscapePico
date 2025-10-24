@@ -613,19 +613,25 @@ PWM controllers, since the KL25Z didn't have as many PWM control channels as
 are needed for a typical virtual pin cab.  The KL25Z was also quite reasonably
 priced, at under $20 MSRP.
 
-But alas, NXP hasn't produced new KL25Z units since around 2018, and
-most retailers that sold them ran out of inventory around 2021.  It's
-been getting increasingly difficult to find them available for sale in
-the years since.  Sellers who do have any left know how scarce they are
-and are demanding scalper prices, as much as 5X MSRP.  The Pico,
-in contrast, is amply available, and Raspberry Pi has publicly committed
-to keeping them in production for many years to come.  (Raspberry Pi
-also recently released the Pico 2, an updated version with an even faster
-CPU.  That will extend the life of the product family even further.)
-The Pico is also even less expensive than the KL25Z's original retail
-price, at just $4 MSRP.
+But alas, NXP's last production run of the original KL25Z was around
+2018, and most retailers that sold them ran out of inventory around
+2021.  NXP did produce a batch of new units in 2025, but
+unfortunately, the accelerometer chip was long out of production by
+then, and NXP didn't want to redesign the board, so the new units ship
+without accelerometer chips.  That makes them much less interesting
+for virtual pinball users.
 
-Like the KL25Z, the Pico based on the Arm M0+ CPU core, but that's
+That's what motivated the new project on the Pico.  The Pico is a more
+powerful device than the KL25Z, but the big reason I wanted to move to
+the Pico is long-term availability.  The Pico is amply available, and
+unlike NXP, hobbyist boards like the Pico are Raspberry Pi's main
+business and primary mission.  Raspberry Pi is actively developing new
+Pico versions (the Pico 2 came out in late 2024) has has publicly
+committed to keeping the Pico in production for years to come.  What's
+more, the Pico is even more affordable than the KL25Z ever was, at
+only $4 MSRP apiece.
+
+Like the KL25Z, the Pico is based on the Arm M0+ CPU core, but that's
 about the only thing that the devices have in common technologically.
 Arm's CPUs are designed to be customized by the OEM, so the M0+ from
 NXP and the M0+ from Raspberry Pi are quite different, sharing a common

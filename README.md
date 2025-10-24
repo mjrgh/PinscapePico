@@ -619,7 +619,9 @@ But alas, NXP's last production run of the original KL25Z was around
 unfortunately, the accelerometer chip was long out of production by
 then, and NXP didn't want to redesign the board, so the new units ship
 without accelerometer chips.  That makes them much less interesting
-for virtual pinball users.
+for virtual pinball users.  (The Pico doesn't have an on-board accelerometer
+either, so this isn't exactly put the KL25Z at a disadvantage to the Pico,
+but it does eliminate a major advantage the KL25Z had in the past.)
 
 That's what motivated the new project on the Pico.  The Pico is a more
 powerful device than the KL25Z, but the big reason I wanted to move to

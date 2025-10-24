@@ -600,28 +600,35 @@ console provides simple tab-completion for commands and option flags.
 ## Background
 
 The original Pinscape software runs on the NXP FRDM-KL25Z, a
-microcontroller based on the Arm M0+.  The KL25Z was marketed primarily
-as a development platform for NXP's Arm CPUs, but in many ways, it was
-an ideal platform for something like Pinscape: it has a generous complement
-of GPIOs, an excellent MEMS accelerometer on board, built-in USB, an
-integrated high-resolution ADC, and on-chip hardware interfaces for all
-of the common peripheral interconnects (UART, SPI, I2C).  It has almost
-everything you'd need for a virtual pin cab controller built into the board;
-the only thing that pin cab builders had to add externally was MOSFET drivers
-to switch high-power devices.  In a full system, we also had to add external
-PWM controllers, since the KL25Z didn't have as many PWM control channels as
-are needed for a typical virtual pin cab.  The KL25Z was also quite reasonably
-priced, at under $20 MSRP.
+microcontroller based on the Arm M0+.  The KL25Z was marketed as an
+"evaluation" board for its NXP MKL25Z CPU, meaning that they hoped
+professional engineers would use the board to create quick prototypes
+based on the MKL25Z CPU, and then those engineers' employers would buy
+thousands of the CPUs to sell in the final products that came out of
+the prototypes.  So the FRDM-KL25Z was essentially a marketing tool.
+But along the way, they accidentally created a great microcontroller
+for virtual pinball.  The board has just about everything you'd want
+in a virtual pinball controller: a generous complement of GPIOs, an
+excellent MEMS accelerometer on board, built-in USB, an integrated
+high-resolution ADC, and on-chip hardware interfaces for all of the
+common peripheral interconnects (UART, SPI, I2C).  And it was quite
+reasonably priced, at about $15.  The only big thing it lacked for pin
+cab use is PWM channels; it only has 10, and a full pin cab needs
+upwards of 30.  The KL25Z also can't control high-power loads directly
+(solenoids, motors, etc.), but no microcontroller can; you always need
+an external MOSFET or relay circuit for that.
 
 But alas, NXP's last production run of the original KL25Z was around
 2018, and most retailers that sold them ran out of inventory around
-2021.  NXP did produce a batch of new units in 2025, but
-unfortunately, the accelerometer chip was long out of production by
-then, and NXP didn't want to redesign the board, so the new units ship
-without accelerometer chips.  That makes them much less interesting
-for virtual pinball users.  (The Pico doesn't have an on-board accelerometer
-either, so this doesn't by itself put the KL25Z at a disadvantage to the Pico,
-but it does eliminate a major advantage the KL25Z had in the past.)
+2021.  This was a huge source of frustration for any pin cab builders
+who hoped to use Pinscape in their new builds.  NXP finally produced a
+new batch in 2025, but unfortunately, the accelerometer chip was long
+out of production by then, and NXP didn't want to redesign the board,
+so the new units ship without any accelerometer chips installed.  That
+makes them much less interesting for virtual pinball users.  (The Pico
+doesn't have an on-board accelerometer either, so this doesn't by
+itself put the KL25Z at a disadvantage to the Pico, but it does
+eliminate a major advantage the KL25Z had in the past.)
 
 That's what motivated the new project on the Pico.  The Pico is a more
 powerful device than the KL25Z, but the big reason I wanted to move to

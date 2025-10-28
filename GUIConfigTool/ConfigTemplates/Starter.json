@@ -589,12 +589,12 @@
 
     //
     // Now let's cover the setup for the various accelerometer chips.
-    // Remember, you need BOTH the "nudge:" section AND the device
-    // section below for the accelerometer chip you're using - see
-    // the notes about the "nudge:" section above.
+    // Remember, you need BOTH the "nudge:" section above (which is
+    // common to all devices) AND the device-specific section below
+    // that corresponds to the accelerometer chip you're using.
     //
 
-    // MXC6655XA I2C accelerometer (remember, you ALSO need a "nudge:" section - see above)
+    // MXC6655XA I2C accelerometer (you ALSO need a "nudge:" section - see above)
     //
     // mxc6655xa: {
     //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
@@ -602,7 +602,7 @@
     //     gRange: 2,         // set the device's dynamic range to +/- 2g
     // },
 
-    // MC3416 I2C accelerometer (remember, you ALSO need a "nudge:" section - see above)
+    // MC3416 I2C accelerometer (you ALSO need a "nudge:" section - see above)
     //
     // mc3416: {
     //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
@@ -611,7 +611,7 @@
     //     gRange: 2,         // dynamic range +/- 2g
     // },
 
-    // LIS3DH I2C accelerometer (remember, you ALSO need a "nudge:" section - see above)
+    // LIS3DH I2C accelerometer (you ALSO need a "nudge:" section - see above)
     //
     // lis3dh: {
     //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
@@ -620,7 +620,7 @@
     //     gRange: 2,         // dynamic range +/- 2g
     // },
     
-    // MMA8451Q I2C accelerometer (remember, you ALSO need a "nudge:" section - see above)
+    // MMA8451Q I2C accelerometer (you ALSO need a "nudge:" section - see above)
     //
     // mma8451q: {
     //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1

@@ -517,59 +517,67 @@
     //
     // We'll start with the general "nudge" settings.
     //
-    // The optional auto-centering feature periodically sets the resting
-    // point for the accelerometer readings to the average of recent
-    // readings after a period of stillness.  This automatically
-    // corrects for any slight tilt in the chip's orientation.  If the
-    // chip isn't perfectly level, it'll pick up a constant acceleration
-    // from the Earth's gravity along the tilted axis.  It's almost
-    // impossible to get it perfectly level, so instead, the software
-    // determines the constant acceleration coming from the tilt by
-    // monitoring the readings over time, and subtracts that out
-    // automatically.  You can disable this if you want, but you really
-    // shouldn't, since the alternative is that you have to get the
-    // physical installation perfectly level, which is just about
-    // impossible within the sensitivity of these devices.
+    // The first thing here is the physical device (the accelerometer
+    // chip) that supplies the nudge data.  This is actually only
+    // required if you have multiple accelerometer chips in the same
+    // system, which I suspect no one will ever do.  If you only have
+    // a single accelerometer chip installed, Pinscape will automatically
+    // use it as the nudge source, since there's no question about where
+    // else the nudge data might be coming from - so you don't have to
+    // bother telling Pinscape which accelerometer to use.  But if for
+    // some unfathomable reason you do have multiple accelerometers,
+    // you have to choose one as your nudge source, by supplying the
+    // "source:" line (below) selecting the accelerometer to use.
     //
-    // The "g Range" sets the sensitivity of the accelerometer, in units
-    // of the Earth's gravity, or "g".  Most accelerometer chips let you
-    // set their range between about 1g to 8g, plus or minus.  When you
-    // set the range to 2g, it means that the device will report
-    // anything higher than 2g as 2g - readings are clipped at the
-    // maximum, in other words.  So why not just set the range as high
-    // as it can go?  Because the trade-off is that the wider range
-    // comes with lower precision at smaller readings.  If the device is
-    // set to 8g range, it won't be able to distinguish small bumps as
-    // finely as it can if you set the range to 1g.  For pin cabs, the
-    // sweet spot seems to be about a 2g range.  Anything above 2g is
-    // such a sharp nudge that it might as well be infinity, so there's
-    // no real value in setting the range higher, whereas it's nice to
-    // be able to distinguish smaller nudges for more accurate results
-    // in the simulation.
+    // If you do want (or need) to supply the "source:" spec, just
+    // put in the name of the chip you want to use as the nudge data
+    // source, in quotes, in lower case: "mmc6655xa", "mc3416",
+    // "lis3dh", "mma8451q", etc.
     //
-    // Finally, you have to tell Pinscape how your chip is oriented in
+    // The other thing that goes here is your chip's orientation in
     // the cabinet.  This is done by mapping each of the physical axes
-    // on the device to a "logical" axis in Pinscape, via the logicalX,
-    // logicalY, and logicalZ properties.  For each one, you set the
-    // name and direction of the chip axis to use: "+X" for the X axis
-    // on the chip, "-X" for the reversed X axis on the chip, and so on.
-    // The simplest mapping is to set each logical axis to the same chip
-    // axis, which requires installing the chip with its physical X axis
-    // across the width of the cabinet, its Y axis across the length
-    // (front to back) of the cabinet, and its Z axis straight up and
-    // down.  The easiest way to figure out the correct mounting is
-    // to try it with the default mapping shown below, and then observe
-    // the effect to see if you need to rotate the settings.
+    // on the device to a "logical" axis in Pinscape, via the "x:",
+    // "y:", and "z:" properties.  For each one, you set the name and
+    // direction of the chip axis to use: "+X" for the chip's physical
+    // X axis, "-X" for the REVERSED X axis on the chip, and so on.
     //
-    // You don't have to set the sensor type anywhere in the "nudge"
-    // section.  When you configure the hardware for your chosen chip,
-    // Pinscape will recognize it as an accelerometer and will
-    // automatically use it for the acceleration inputs.  However, if
-    // for some reason you're connecting more than one accelerometer
-    // chip to the Pico, you can specify which one to use for nudging
-    // via the "source" property - set that to the chip name of the
-    // sensor to use, in lower case: "mmc6655xa", "mc3416", "lis3dh",
-    // "mma8451q", etc.
+    // What is the difference between "logical" and "physical" axes?
+    // The LOGICAL axes are the ones that Pinscape reports to the PC
+    // host.  In this view, X is always side-to-side motion across
+    // the width of the cabinet, Y is always front-to-back motion
+    // down the length of the cabinet, and Z is the vertical.  -X is
+    // left, +X is right, +Y is away from the player, -Y is towards
+    // the player, +Z is up, and -Z is down.  The PHYSICAL axes are
+    // the ones that your chip reports.  They're permanent features
+    // of the chip that are determined by its electronic design, and
+    // you can look them up in the chip's data sheet.
+    //
+    // If you orient the chip so that its X axis is left-to-right
+    // across the cabinet's width, then logical and physical X are
+    // the same.  Likewise, if Y is oriented so that it points down
+    // the length of the cabinet, logical and physical Y are the same.
+    // But it might not be convenient to install the chip in that
+    // exact orientation, which is why the "nudge:" section has the
+    // logical axis assignments.  The logical axis assignments let
+    // you install the chip in any "cardinal" orientation, where one
+    // of the chip's native axes is oriented across the width of the
+    // cabinet, one is oriented along the length.
+    //
+    // How do you figure out the logical/physical axis mapping?  If
+    // you want to be analytical about it, get out the chip's data
+    // sheet and find the diagram (there's always a diagram) showing
+    // how the physical axes are arranged relative to the chip's
+    // little plastic surface-mount package.  Then figure out how
+    // this is installed in your cabinet, and which chip axis aligns
+    // with the left-to-right width of the cabinet (that'll be logical
+    // X) and which aligns with the front-to-back length of the
+    // cabinet (that'll be logical Y).  Alternatively, you can start
+    // with the X=X, Y=Y, Z=Z arrangement and see how that looks in
+    // the nudge viewer in the Config Tool.  If ACTUAL side-to-side
+    // motion registers as front-to-back motion in the viewer, swap
+    // X and Y.  If one of the directions is reversed (pushing left
+    // registers as a swing to the right in the viewer), reverse the
+    // sign on that axis - change "+X" to "-X", for example.
     //
     // nudge: {
     //     source: "PUT YOUR ACCELEROMETER TYPE HERE - SEE ABOVE",  // device source (only needed if multiple accelerometers are configured)

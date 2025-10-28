@@ -504,8 +504,10 @@
     //
     //  Memsic MC3416
     //  Memsic MXC6655XA
+    //  STMicroelectronics LIS3DH
+    //  NXP Semiconductors MMA8451Q
     //
-    // There are two steps to configuring the nudge device:
+    // There are TWO STEPS required for configuring the nudge device:
     //
     // - First, set up the "nudge" property with some general options
     //   for how Pinscape reads the accelerometer
@@ -566,17 +568,22 @@
     // for some reason you're connecting more than one accelerometer
     // chip to the Pico, you can specify which one to use for nudging
     // via the "source" property - set that to the chip name of the
-    // sensor to use (in lower case: "mmc6655xa", "mc3416").
+    // sensor to use, in lower case: "mmc6655xa", "mc3416", "lis3dh",
+    // "mma8451q", etc.
     //
     // nudge: {
-    //     source: "mxc6655xa",  // device source (only needed if multiple accelerometers are configured)
+    //     source: "PUT YOUR ACCELEROMETER TYPE HERE - SEE ABOVE",  // device source (only needed if multiple accelerometers are configured)
     //     x: "+X",              // map the chip's X axis to Pinscape's nudge X axis
     //     y: "+Y",              // map the chip's Y axis to Pinscape's nudge Y axis
     //     z: "+Z",              // map the chip's Z axis to Pinscape's nudge Z axis
     // },
+    //
 
     //
-    // Now let's cover the setup for the various accelerometer chips...
+    // Now let's cover the setup for the various accelerometer chips.
+    // Remember, you need BOTH the "nudge:" section AND the device
+    // section below for the accelerometer chip you're using - see
+    // the notes about the "nudge:" section above.
     //
 
     // MXC6655XA I2C accelerometer
@@ -603,6 +610,15 @@
     //     addr: 0x18,        // I2C address: 0x18 if SDO/SA0 is wired to GND, 0x19 if wired to 3.3V
     //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
     //     gRange: 2,         // dynamic range +/- 2g
+    // },
+    
+    // MMA8451Q I2C accelerometer
+    //
+    // mma8451q: {
+    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
+    //     addr: 0x1c,        // I2C address, determined by physical SA0 pin wiring: GND -> 0x1C, 3.3V -> 0x1D
+    //     interrupt: 18,     // GPIO port connected to INT1 (Interrupt 1) pin on chip; omit this line if INT1 isn't connected to a GPIO
+    //     gRange: 2,         // dynamic range +-/ 2g; other options are 4 (for +/- 4g) and 8 (for +/- 8g)
     // },
 
 

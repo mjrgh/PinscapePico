@@ -530,13 +530,21 @@
     // these chips let you configure them AT THE HARDWARE LEVEL to use
     // one of two or more possible addresses.  The address in the JSON
     // must match the address that the chip is actually using, according
-    // to the hardware configuration.  The hardware address is always
-    // determined by how certain pins are connected on the chip.  This
-    // is briefly explained for each device in the examples, so just be
-    // sure to pay attention to that and change the "addr:" line if
-    // needed.  If there's no "addr:" line in the example, it means that
-    // the chip only has one possible address, so there's no need to
-    // configure it manually.
+    // to the hardware wiring setup.  The hardware address is always
+    // determined by how certain pins are connected on the chip.  The
+    // address pin wiring for each chip is briefly explained in the
+    // examples, so just be sure to pay attention to that and change
+    // the "addr:" line if needed.  If there's no "addr:" line in the
+    // example, it means that the chip only has one possible address,
+    // so there's no need to configure it manually.  I belabor this
+    // because I've had a bunch of people write me to say "everything
+    // works, except that my board is broken because its address was
+    // different from your example".  I just want to make it clear that
+    // the address is SUPPOSED TO BE changeable on many of these chips,
+    // so your chip isn't broken if it is indeed wired for one of the
+    // alternative addresses, and likewise the JSON below isn't wrong,
+    // it's just an example which might have to be changed to match the
+    // reality of your chip.
 
     // MXC6655XA I2C accelerometer (you ALSO need a "nudge:" section - see below)
     //

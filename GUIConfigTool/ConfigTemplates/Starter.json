@@ -509,33 +509,103 @@
     //
     // There are TWO STEPS required for configuring the nudge device:
     //
-    // - First, set up the "nudge" property with some general options
-    //   for how Pinscape reads the accelerometer
-    //
-    // - Second, set up the hardware definition for the specific sensor
+    // - First, set up the hardware definition for the specific sensor
     //   chip you're using
     //
-    // We'll start with the general "nudge" settings.
+    // - Second, set up the "nudge" property with some general options
+    //   for how Pinscape reads the accelerometer
     //
-    // The first thing here is the physical device (the accelerometer
-    // chip) that supplies the nudge data.  This is actually only
-    // required if you have multiple accelerometer chips in the same
-    // system, which I suspect no one will ever do.  If you only have
-    // a single accelerometer chip installed, Pinscape will automatically
-    // use it as the nudge source, since there's no question about where
-    // else the nudge data might be coming from - so you don't have to
-    // bother telling Pinscape which accelerometer to use.  But if for
-    // some unfathomable reason you do have multiple accelerometers,
-    // you have to choose one as your nudge source, by supplying the
-    // "source:" line (below) selecting the accelerometer to use.
+    // We'll start with the device setup.  This specifies which type of
+    // chip you're using, and tells Pinscape how it's physically wired
+    // to the Pico.  Below we provide an example setup for each type of
+    // accelerometer chip currently supported.  Find the one corresponding
+    // to the chip you're using, un-comment it to make it active, and then
+    // carefully read through each line to see if there are any changes you
+    // need to make for your specific setup.  Note that these are just
+    // examples!  Your actual setup will probably be different in some of
+    // the details, such as which GPIO ports are connected to which pins.
+    // 
+    // One really important detail that you might have to change is the
+    // chip's "address", usually set by the "addr:" property.  Most of
+    // these chips let you configure them AT THE HARDWARE LEVEL to use
+    // one of two or more possible addresses.  The address in the JSON
+    // must match the address that the chip is actually using, according
+    // to the hardware configuration.  The hardware address is always
+    // determined by how certain pins are connected on the chip.  This
+    // is briefly explained for each device in the examples, so just be
+    // sure to pay attention to that and change the "addr:" line if
+    // needed.  If there's no "addr:" line in the example, it means that
+    // the chip only has one possible address, so there's no need to
+    // configure it manually.
+
+    // MXC6655XA I2C accelerometer (you ALSO need a "nudge:" section - see below)
     //
-    // If you do want (or need) to supply the "source:" spec, just
-    // put in the name of the chip you want to use as the nudge data
-    // source, in quotes, in lower case: "mmc6655xa", "mc3416",
-    // "lis3dh", "mma8451q", etc.
+    // mxc6655xa: {
+    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
+    //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
+    //     gRange: 2,         // set the device's dynamic range to +/- 2g
+    // },
+
+    // MC3416 I2C accelerometer (you ALSO need a "nudge:" section - see below)
+    //
+    // mc3416: {
+    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
+    //     addr: 0x4c,        // I2C address: 0x4C or 0x6C, configured via VPP pin on chip
+    //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
+    //     gRange: 2,         // dynamic range +/- 2g
+    // },
+
+    // LIS3DH I2C accelerometer (you ALSO need a "nudge:" section - see below)
+    //
+    // lis3dh: {
+    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
+    //     addr: 0x18,        // I2C address: 0x18 if SDO/SA0 is wired to GND, 0x19 if wired to 3.3V
+    //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
+    //     gRange: 2,         // dynamic range +/- 2g
+    // },
+    
+    // MMA8451Q I2C accelerometer (you ALSO need a "nudge:" section - see below)
+    //
+    // mma8451q: {
+    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
+    //     addr: 0x1c,        // I2C address, determined by physical SA0 pin wiring: GND -> 0x1C, 3.3V -> 0x1D
+    //     interrupt: 18,     // GPIO port connected to INT1 (Interrupt 1) pin on chip; omit this line if INT1 isn't connected to a GPIO
+    //     gRange: 2,         // dynamic range +-/ 2g; other options are 4 (for +/- 4g) and 8 (for +/- 8g)
+    // },
+
+    
+    // *** NUDGE SECTION ***
+    // 
+    // AFTER you get your accelerometer chip hardware configuration squared
+    // away, from the list above, you ALSO need to add a "nudge:" section.
+    // This is required for ALL ACCELEROMETER CHIPS, because it specifies
+    // some basic settings that are common to all of the chips.  These
+    // configure the Pinscape "Nudge Device", which is an abstraction in
+    // the Pinscape code that provides a bridge between the nitty-gritty
+    // hardware details of the accelerometer and the gamepad inputs that
+    // get sent to the PC.
+    //
+    // The first thing that goes here is the selection of which physical
+    // accelerometer chip you want to use to supply the nudge data.  If
+    // you only have one accelerometer chip connected to the Pico, then
+    // you don't need to bother entering this information, because Pinscape
+    // is smart enough to pick the one available accelerometer by itself
+    // when there is indeed only one available.  But if, for some reason,
+    // you do have two or more accelerometer chips connected, you have
+    // to tell Pinscape which one to use, which you do via the "source:"
+    // line below.  Just enter the name of the accelerometer chip you
+    // want to use as the nudge data source, using the exact same name
+    // (all in lower case) that's used for the accelerometer chip
+    // configuration section above: "mmc6655xa", "mc3416", "lis3dh",
+    // "mma8451q", etc.
     //
     // The other thing that goes here is your chip's orientation in
-    // the cabinet.  This is done by mapping each of the physical axes
+    // the cabinet.  This tells Pinscape how the data from the chip
+    // maps to the left/right and forward/back directions in your
+    // cabinet, so that it can pass this information in the correct
+    // format to the pinball simulators on the PC.
+    //
+    // You set the orientation by mapping each of the physical axes
     // on the device to a "logical" axis in Pinscape, via the "x:",
     // "y:", and "z:" properties.  For each one, you set the name and
     // direction of the chip axis to use: "+X" for the chip's physical
@@ -580,54 +650,19 @@
     // sign on that axis - change "+X" to "-X", for example.
     //
     // nudge: {
-    //     source: "PUT YOUR ACCELEROMETER TYPE HERE - SEE ABOVE",  // device source (only needed if multiple accelerometers are configured)
+    //     // Device that serves as the data source for the nudge
+    //     // data.  THis is required ONLY IF multiple accelerometers
+    //     // are configured.  If only one accelerometer is present,
+    //     // Pinscape doesn't need to be told which one to use, since
+    //     // it'll see that there's only one possible source and
+    //     // select it automatically.
+    //     source: "PUT YOUR ACCELEROMETER TYPE HERE - SEE ABOVE",
+    //
     //     x: "+X",              // map the chip's X axis to Pinscape's nudge X axis
     //     y: "+Y",              // map the chip's Y axis to Pinscape's nudge Y axis
     //     z: "+Z",              // map the chip's Z axis to Pinscape's nudge Z axis
     // },
     //
-
-    //
-    // Now let's cover the setup for the various accelerometer chips.
-    // Remember, you need BOTH the "nudge:" section above (which is
-    // common to all devices) AND the device-specific section below
-    // that corresponds to the accelerometer chip you're using.
-    //
-
-    // MXC6655XA I2C accelerometer (you ALSO need a "nudge:" section - see above)
-    //
-    // mxc6655xa: {
-    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
-    //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
-    //     gRange: 2,         // set the device's dynamic range to +/- 2g
-    // },
-
-    // MC3416 I2C accelerometer (you ALSO need a "nudge:" section - see above)
-    //
-    // mc3416: {
-    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
-    //     addr: 0x4c,        // I2C address: 0x4C or 0x6C, configured via VPP pin on chip
-    //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
-    //     gRange: 2,         // dynamic range +/- 2g
-    // },
-
-    // LIS3DH I2C accelerometer (you ALSO need a "nudge:" section - see above)
-    //
-    // lis3dh: {
-    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
-    //     addr: 0x18,        // I2C address: 0x18 if SDO/SA0 is wired to GND, 0x19 if wired to 3.3V
-    //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
-    //     gRange: 2,         // dynamic range +/- 2g
-    // },
-    
-    // MMA8451Q I2C accelerometer (you ALSO need a "nudge:" section - see above)
-    //
-    // mma8451q: {
-    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
-    //     addr: 0x1c,        // I2C address, determined by physical SA0 pin wiring: GND -> 0x1C, 3.3V -> 0x1D
-    //     interrupt: 18,     // GPIO port connected to INT1 (Interrupt 1) pin on chip; omit this line if INT1 isn't connected to a GPIO
-    //     gRange: 2,         // dynamic range +-/ 2g; other options are 4 (for +/- 4g) and 8 (for +/- 8g)
-    // },
 
 
     // -------------------------------------------------------------------

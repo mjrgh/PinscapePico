@@ -429,7 +429,7 @@ StatusRGB::RGB StatusRGB::CalcColor() const
     if (plunger.IsCalMode())
         return blue;
 
-    // We're not in plunger calibration mode, so check i the calibration
+    // We're not in plunger calibration mode, so check if the calibration
     // button is being held down.  If so, flash blue.
     if (plunger.IsCalButtonPushed())
         return Flash(blue, { 0, 0, 0}, 500, 250);

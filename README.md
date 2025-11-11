@@ -322,6 +322,45 @@ to setting up a LIS3DH accelerometer with a standalone Pico.  This will
 probably be the most common initial setup for people who don't need the
 Expansion Boards, so I wrote this guide to help get started.
 
+## LED Status Codes
+
+The Pico has a small green LED on top, which the Pinscape software uses
+as a very coarse status indicator.  When everything is running properly,
+the LED flashes slowly, about one second on and one second off.  When
+the USB connection is interrupted, such as when the host PC is in sleep
+mode, the LED shows a very short flash about every two seconds.  If the
+LED isn't flashing at all (either stuck on or stuck off), the software
+isn't working properly.
+
+<b>Expansion board RGB: </b> If you're using one of the Expansion
+Board designs, the board features a full-color RGB LED, which the
+software uses to display a slightly more detailed status indication:
+
+* Slow alternating Blue/Green: connected, running properly, plunger sensor calibrated (or no plunger configured)
+
+* Slow alternating Green/Yellow: connected, running properly, plunger sensor not yet calibrated
+
+* Two short yellow flashes every two seconds: waiting for host PC to establish USB connection
+
+* Two short red flashes every two seconds: USB connection interrupted
+
+* One short green flash every two seconds: host PC is in sleep mode
+
+* Blue on/off every half second: TV ON countdown in progress
+
+* Fast Blue flashes: TV ON feature is transmitting IR commands
+
+* Fast alternating Red/Orange: Safe Mode is in effect
+
+* Slow alternating Green/Dim Green: Factory Reset mode is in effect
+
+* Solid Blue: Plunger calibration is in progress
+
+* Fast Blue flashes: Plunger calibration button is being pressed (keep holding to activate calibration)
+
+* Solid Violet: Nudge noise level calibration is in progress
+
+
 
 <a name="SetupDetails"></a>
 ## More details on installation

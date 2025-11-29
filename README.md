@@ -332,7 +332,7 @@ mode, the LED shows a very short flash about every two seconds.  If the
 LED isn't flashing at all (either stuck on or stuck off), the software
 isn't working properly.
 
-<b>Expansion board RGB: </b> If you're using one of the Expansion
+<b>Expansion board RGB:</b> If you're using one of the Expansion
 Board designs, the board features a full-color RGB LED, which the
 software uses to display a slightly more detailed status indication:
 
@@ -340,13 +340,13 @@ software uses to display a slightly more detailed status indication:
 
 * Slow alternating Green/Yellow: connected, running properly, plunger sensor not yet calibrated
 
-* Two short yellow flashes every two seconds: waiting for host PC to establish USB connection
+* Two short yellow flashes every two seconds: waiting for host PC to establish the USB connection
 
-* Two short red flashes every two seconds: USB connection interrupted
+* Two short red flashes every two seconds: USB connection interrupted (cable disconnected or data/protocol error communicating with the PC)
 
 * One short green flash every two seconds: host PC is in sleep mode
 
-* Blue on/off every half second: TV ON countdown in progress
+* Blue on/off every half second: TV ON countdown in progress after system powered on
 
 * Fast Blue flashes: TV ON feature is transmitting IR commands
 

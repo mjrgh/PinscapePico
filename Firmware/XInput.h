@@ -52,6 +52,13 @@
 //
 // https://www.partsnotincluded.com/how-to-emulate-an-xbox-controller-with-arduino-xinput/
 // https://www.partsnotincluded.com/xbox-360-controller-led-animations-info/
+//
+// Microsoft has since published official specifications for the XInput
+// USB protocols.  The Microsoft specs fill in some gaps in the reverse-
+// engineering work, and should generally be considered authoritative.
+//
+// https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-xusbi/c79474e7-3968-43d1-8d2f-175d47bef43e
+//
 
 #pragma once
 

@@ -1111,9 +1111,9 @@ buttons[].action.type="macro"
                  // to engage the modifier keys first, pause briefly to let the
                  // PC see the modifier keys, then press the "A" key while
                  // still holding the modifier keys down.
-                 { start: 0, duration: "hold", action: { type: "key", key: "left shift" },  // hold SHIFT until button released
-                 { start: 0, duration: "hold", action: { type: "key", key: "left ctrl" },   // hold CTRL at the same time, until button released
-                 { start: 10, duration: "hold", action: { type: "key", key: "A" },          // wait 10ms, then press A, and hold until button released
+                 { start: 0, duration: "hold", action: { type: "key", key: "left shift" }, },  // hold SHIFT until button released
+                 { start: 0, duration: "hold", action: { type: "key", key: "left ctrl" }, },   // hold CTRL at the same time, until button released
+                 { start: 10, duration: "hold", action: { type: "key", key: "A" }, },          // wait 10ms, then press A, and hold until button released
               ],
            },
         },

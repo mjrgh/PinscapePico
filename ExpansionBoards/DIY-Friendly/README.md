@@ -138,7 +138,7 @@ using TVs that don't remember their power state)
 across Pico resets, even when the board is unpowered
 
 
-## Files
+## Board Design Files
 
 Each board set consists of two sub-boards, titled **Main** and **Power**.
 These two boards are designed to work together as a set.
@@ -152,35 +152,65 @@ board.  The schematic in an **.sch** file is the electrical engineer's view of t
 board, showing the abstract connections between components in a way
 that's easier for humans to read, without the physical layout details.
 
-If you want to have a board manufactured, you only need the **.brd** file.
-But you don't usually give the **.brd** file directly to the manufacturer.
-Instead, you have to run it through the EAGLE CAM Processor, which is a
-command in EAGLE that exports the board in another format, known as Gerber
-files.  The Gerber files are what most manufacturers want you to upload.
-Gerbers contain the same information as **.brd** files, but manufacturers
-usually want you to provide the data in Gerber format because that's what
-their factory machinery is programmed to ingest.
 
-In addition, each board has a matching BOM (Bill of Materials) file,
-which is presented in CSV (Comma-Separated Values) format.  These contain
-shopping lists for the parts you need to populate the board.  You can
-view these in a spreadsheet program like Microsoft Excel, Apple Numbers,
-or Google Sheets, and Mouser and Digikey will accept these as uploads
-to construct shopping carts without a lot of manual data entry.
+### Viewing an EAGLE file
 
+The **.brd** and **.sch** files are EAGLE documents.  EAGLE is a
+circuit designer program published by Autodesk, with a free
+personal-use version available at https://www.autodesk.com/products/eagle/free-download.
+The free version has restrictions on how large a board you can edit,
+but it does let you **view** boards of any size, and it also lets
+you run the CAM Job Processor, which is how you create Gerber files
+for submission to fabricators (see below).
 
-## Viewing an EAGLE file
-
-The **.brd** and **.sch** files are EAGLE documents.  The normal way
-to view or edit them is to open them in EAGLE.  EAGLE is commercial
-program, so you need to buy a license to use it.  Fortunately, there
-are a number of similar free and open-source programs that can import
-EAGLE files, such as KiCad and EasyEDA, so you can install one of
-those if you want to view the files without buying an EAGLE license.
-There are also on-line EAGLE file viewers that you can find with a
-search term like **on-line EAGLE file viewer**.
+There are also a number of on-line EAGLE file viewers - try searching
+for **on-line EAGLE file viewer**.  Those might be more convenient
+if you only want to view the files, since there's nothing to install.
 
 
+### Gerber Files
+
+If you want to have a board manufactured, you only need the **.brd**
+file.  That contains all of the information needed to manufacturer the
+board.  However, you don't usually give the **.brd** file directly to
+the fabricator.  Instead, most fabricators want "Gerber files", which
+you create as follows:
+
+* Go to your chosen PCB fabricator's Web site and find their submission instructions
+Look for the EAGLE section.  That should provide links to the vendor's **.cam** file
+for EAGLE.
+
+* Load the Pinscape .BRD file into EAGLE (https://www.autodesk.com/products/eagle/free-download)
+
+* In the board viewer window, select **File** &gt; **CAM Processor**
+
+* In the CAM Processor window, select **File** &gt; **Open** &gt; **Job**
+
+* In the file dialog, select the **.cam** file that you downloaded from your PCB vendor
+
+* Click **Process Job**
+
+* You should now find a collection of new files in the folder containing the
+BRD file.  These typically use the following extensions (although the exact
+ones might vary by vendor): .GBL .GBO .GBP .GBS .GKO .GTL .GTO .GTP .GTS .XLN.
+These are the Gerber files.
+
+* You'll have to check your vendor's instructions for the next step,
+but in most cases, you simply create a ZIP file containing all of the
+Gerber files created above, and upload the ZIP file to the vendor, and
+they'll take it from there.
+
+
+## Parts Lists - "Bill of Materials" (BOM)
+
+In addition to the EAGLE design files (SCH and BRD), each board has a
+matching BOM (Bill of Materials) file.  The BOM is provided in CSV
+(Comma-Separated Values) format.  BOMs are essentially shopping lists
+for the electronic components you need to populate the board.  You can
+view CSV files in spreadsheet programs like Microsoft Excel, Apple
+Numbers, or Google Sheets.  Mouser and Digikey accept CSV files as
+direct uploads to construct shopping carts, so that you don't have to
+re-type all of the part numbers.
 
 
 ## BOM Versions
@@ -1231,11 +1261,11 @@ ground plane on the board.  The Pico data sheet allows that this is
 acceptable "if the ADC is not used or ADC performance is not
 critical", but it's conspicuously silent on what you should do instead
 if the ADC *is* used and you *do* care about its performance.  The
-authors probably felt that the subject is too complex to boil down to
-a one-size-fits-all wiring diagram, so they left it as an exercise.
-But I'm not an analog engineer, so in the absence of any such
-guidelines, I just went with the naive approach of connecting the AGND
-pin straight through to the main ground plane.
+authors probably felt that it's too large a subject to address
+adequately within the confines of the data sheet, and left it to the
+reader to do their own research as needed.  I haven't done that
+research myself, so I just went with the naive approach of connecting
+the AGND pin straight through to the main ground plane.
 
 Which I think will be fine for our purposes.  Pinscape does use the
 ADC - for plunger input, if the plunger sensor is one of the types

@@ -176,13 +176,13 @@ board.  However, you don't usually give the **.brd** file directly to
 the fabricator.  Instead, most fabricators want "Gerber files", which
 you create as follows:
 
-* Go to your chosen PCB fabricator's Web site and find their submission instructions
+* Go to your chosen PCB fabricator's Web site and find their submission instructions.
 Look for the EAGLE section.  That should provide links to the vendor's **.cam** file
 for EAGLE.
 
 * Load the Pinscape .BRD file into EAGLE (https://www.autodesk.com/products/eagle/free-download)
 
-* In the board viewer window, select **File** &gt; **CAM Processor**
+* In the EAGLE board viewer window, select **File** &gt; **CAM Processor**
 
 * In the CAM Processor window, select **File** &gt; **Open** &gt; **Job**
 

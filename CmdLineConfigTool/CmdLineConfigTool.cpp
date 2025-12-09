@@ -1432,6 +1432,41 @@ static void SetTVRelay(VendorInterface *device, bool on)
 
 // --------------------------------------------------------------------------
 //
+// Night Mode
+//
+static void SetNightMode(VendorInterface *device, bool on)
+{
+	// Night Mode is controlled through the Feedback Controller
+	std::unique_ptr<FeedbackControllerInterface> fb;
+	if (HRESULT hr = device->OpenFeedbackControllerInterface(fb); !SUCCEEDED(hr))
+		ErrorExit("Error opening Feedback Controller interface for device", hr);
+
+	// apply the change
+	if (!fb->SetNightMode(on, 1000))
+		ErrorExit("Error sending Night Mode command to device");
+
+	// done
+	printf("Night Mode set to %s\n", on ? "ON" : "OFF");
+}
+
+static void QueryNightMode(VendorInterface *device)
+{
+	// Night Mode is controlled through the Feedback Controller
+	std::unique_ptr<FeedbackControllerInterface> fb;
+	if (HRESULT hr = device->OpenFeedbackControllerInterface(fb); !SUCCEEDED(hr))
+		ErrorExit("Error opening Feedback Controller interface for device", hr);
+
+	// query the mode
+	FeedbackControllerInterface::StatusReport status;
+	if (!fb->QueryStatus(status, 1000))
+		ErrorExit("Error querying device status");
+
+	// show the result
+	printf("Night Mode is currently set to %s\n", status.nightMode ? "ON" : "OFF");
+}
+
+// --------------------------------------------------------------------------
+//
 // Fix the JOY.CPL display, by deleting the DirectInput registry keys
 // that screw up the display.
 // 
@@ -1575,6 +1610,7 @@ static void UsageExit()
 		"  --factory-reset               delete all configuration data from device\n"
 		"  --fix-joycpl                  fix JOY.CPL display (deletes corrupted registry keys)\n"
 		"  --put-safemode-config <file>  install <file> as the safe-mode config file\n"
+		"  --nightmode ON|OFF|SHOW       set Night Mode to ON or OFF, or display the status\n"
 		"  --ir-learn                    wait for an IR command to be received, display it\n"
 		"  --ir-send <code>              send <code> through the IR transmitter\n"
 	    "  --pulse-tv-relay              pulse the TV ON relay for the configured interval\n"
@@ -1856,10 +1892,26 @@ int main(int argc, char **argv)
 		{
 			// get the mode option
 			if (++argi >= argc)
-				ErrorExit("Missing ON/OFF mode for --tv-relay\n");
+				ErrorExit("Missing ON/OFF mode argument for --tv-relay\n");
 
 			// send the command
 			SetTVRelay(device.get(), _stricmp(argv[argi], "on") == 0);
+		}
+		else if (strcmp(argv[argi], "--nightmode") == 0)
+		{
+			// get the ON/OFF option
+			if (++argi >= argc)
+				ErrorExit("Missing ON/OFF argument for --nightmode\n");
+
+			// send the command
+			const char *modeArg = argv[argi];
+			bool on = _stricmp(modeArg, "on") == 0;
+			if (on || _stricmp(modeArg, "off") == 0)
+				SetNightMode(device.get(), _stricmp(argv[argi], "on") == 0);
+			else if (_stricmp(modeArg, "show") == 0)
+				QueryNightMode(device.get());
+			else
+				ErrorExit("Expected ON, OFF, or SHOW argument for --nightmode\n");
 		}
 		else if (strcmp(argv[argi], "--fix-joycpl") == 0)
 		{

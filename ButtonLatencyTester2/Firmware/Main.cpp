@@ -70,7 +70,7 @@
 // taking into account the specific code paths that that application
 // goes through to handle input events.
 //
-// This measurement tool firwmare runs on its own standalone Pico, NOT
+// This measurement tool firmware runs on its own standalone Pico, NOT
 // on the microcontroller whose latency we're measuring.  This
 // completely isolates the measurement tool from the device being
 // tested, ensuring that there's no unaccounted latency from other CPU

@@ -46,7 +46,7 @@
 // the window class is part of the PinscapePico namespace
 using namespace PinscapePico;
 
-// statics
+// statistics
 std::unordered_set<std::basic_string<TCHAR>> BaseWindow::classesRegistered;
 HCURSOR BaseWindow::arrowCursor = NULL;
 

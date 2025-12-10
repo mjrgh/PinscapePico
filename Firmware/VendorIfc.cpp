@@ -1419,7 +1419,7 @@ int PinscapeVendorIfc::ProcessClockSync(const Request::Args::TimeSync &req, Resp
             // (This of course assumes that the frame is within the past 2.048
             // seconds, so that it hasn't rolled over more than once.  That's
             // always true as long as the caller captures the USB frame information
-            // immediatly before sending the request.)
+            // immediately before sending the request.)
             int dFrame = static_cast<int>(picoCurFrameNum) - static_cast<int>(req.usbFrameNumber);
             if (dFrame < 0)
                 dFrame += 2048;

@@ -217,7 +217,7 @@ uint64_t VendorIfc::HostTimeToPicoTime(int32_t hostTimeToSof, uint16_t hostFrame
     // number was recorded.  (This of course assumes that the frame is
     // within the past 1.024 seconds, so that it hasn't rolled over more
     // than once.  That's always true as long as the caller captures
-    // the USB frame information immediatly before sending the request.)
+    // the USB frame information immediately before sending the request.)
     int dFrame = static_cast<int>(picoCurFrameNum) - static_cast<int>(hostFrameNum);
     if (dFrame < 0)
         dFrame += 2048;

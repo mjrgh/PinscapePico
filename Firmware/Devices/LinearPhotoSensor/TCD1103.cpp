@@ -240,7 +240,7 @@ bool TCD1103::Init()
         // maximum.  The TCD1103 data sheet mentions that its logic
         // input gates have relatively high capacitance, which requires
         // high-current drive for fast switching speeds to meet the
-        // chip's timing requirments, especially on the master clock
+        // chip's timing requirements, especially on the master clock
         // signal.  The whole point of the inverted logic mode is that
         // the data sheet recommends using a 74HC04 inverter to buffer
         // the inputs, since that chip provides higher drive strength

@@ -1150,7 +1150,7 @@ int CommandConsole::FindHistory(int n)
     if (--i < 0)
         i = history.size() - 1;
 
-    // Now work backwards, seeking the start of each comamnd by finding
+    // Now work backwards, seeking the start of each command by finding
     // the null byte at the end of prior command.  
     for (;;)
     {

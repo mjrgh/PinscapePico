@@ -49,7 +49,7 @@
 // The test is here to make your life easier, by saving you the trouble
 // of building a firmware binary that won't work properly, which is what
 // you'll get if you build against the official 2.1.0 SDK.  There are
-// two valid ways to satify this error check:
+// two valid ways to satisfy this error check:
 //
 // 1. Build against some official SDK release OTHER THAN 2.1.0, such
 // as 1.5.1.  2.1.0 is the only SDK that includes the buggy TinyUSB

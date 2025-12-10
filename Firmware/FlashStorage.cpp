@@ -890,7 +890,7 @@ int FlashStorage::OpenWrite(const char *name, uint32_t curSize, uint32_t maxSize
                             FlashSafeWrite(nextHeaderSector, oldContents.get(), oldContentsBufSize, 100, "Opening (for write) file ", name);
 
                             // Debugging
-                            Log(LOG_DEBUG, "OpenWrite: dirty sector for append, successul erase-and-restore\n");
+                            Log(LOG_DEBUG, "OpenWrite: dirty sector for append, successful erase-and-restore\n");
                         }
                     }
                 }

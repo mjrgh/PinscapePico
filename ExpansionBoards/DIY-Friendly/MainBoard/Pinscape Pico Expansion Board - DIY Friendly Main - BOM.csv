@@ -59,5 +59,5 @@ Qty,Value,Parts,Description,PARTNO,Comments,ExtDescription
 1,LIS3DH,,Adafruit LIS3DH STEMMA module,485-2809,,Adafruit LIS3DH STEMMA module ()
 1,VSLB4940,,"Vishay IR emitter, 940nm, T-1, VSLB4940",VSLB4940,"IR emitter LED, connects to J11 for off-board placement","Vishay IR emitter, 940nm, T-1, VSLB4940 ()"
 0,TSAL6400,,"Vishay IR emitter, 940nm, T-1.75, TSAL6400",TSAL6400,"IR emitter LED, connects to J11 for off-board placement (alternate, if VSLB4940 isn't available)","Vishay IR emitter, 940nm, T-1.75, TSAL6400 ()"
-10,641994-1,,MTA-100 keying plugs,641994-1,"Optional, for connector keying, to prevent inserting a plug into the wrong header",MTA-100 keying plugs ()
-10,641623-1,,MTA-156 keying plugs,641623-1,"Optional, for connector keying, to prevent inserting a plug into the wrong header",MTA-156 keying plugs ()
+1,641994-1,,"MTA-100 keying plugs, 10-pack",641994-1,"Optional, for connector keying, to prevent inserting a plug into the wrong header; part number shown is for a package of 10 plugs","MTA-100 keying plugs, 10-pack ()"
+1,641623-1,,"MTA-156 keying plugs, 10-pack",641623-1,"Optional, for connector keying, to prevent inserting a plug into the wrong header; part number shown is for a package of 10 plugs","MTA-156 keying plugs, 10-pack ()"

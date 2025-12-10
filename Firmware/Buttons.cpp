@@ -2521,7 +2521,7 @@ Button::IRSource::IRSource(const IRCommandDesc &cmd,
     latchingInterval_us(latchingInterval_ms * 1000),
     firstRepeatDelay_us(firstRepeatDelay_ms * 1000)
 {
-    // subscribe for events that match our command desciptor
+    // subscribe for events that match our command descriptor
     irReceiver.Subscribe(this, { cmd });
 }
 

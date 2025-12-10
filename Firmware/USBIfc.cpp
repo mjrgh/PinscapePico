@@ -772,7 +772,7 @@ bool USBIfc::VendorControlXfer(uint8_t rhport, uint8_t stage, const tusb_control
         return true;
 
     default:
-        // uknown stage
+        // unknown stage
         return false;
     }
 }

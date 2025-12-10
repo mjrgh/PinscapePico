@@ -743,7 +743,7 @@ void TCD1103::GetPix(const uint8_t* &pix, uint64_t &timestamp)
     // up to 24us of overlap in the transfers, which is a quite
     // leisurely interval on a 125MHz M0+.)
     //
-    // This analysis depends upon the DMA transfer actually occuring in
+    // This analysis depends upon the DMA transfer actually occurring in
     // 5us of real time, so we do have to turn off interrupts while
     // setting up the DMA transfer, to be sure that a random IRQ handler
     // from another subsystem can't steal any of our 5us during the DMA

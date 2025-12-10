@@ -491,7 +491,7 @@ static const uint8_t xinputDescriptors[] = {
     // One detail that's known is that the endpoint addresses and report lengths are
     // embedded, as commented below.  The rest of the contents are opaque.
     0x11, TUSB_DESC_CS_DEVICE,         // descriptor length and type
-    0x00, 0x01, 0x01,                  // uknown
+    0x00, 0x01, 0x01,                  // unknown
     0x25,                              // unknown
     USBIfc::EndpointInXInput, 0x14,    // endpoint in, maximum data size
     0x00, 0x00, 0x00, 0x00, 0x13,      // unknown

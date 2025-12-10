@@ -70,7 +70,7 @@
 // taking into account the specific code paths that that application
 // goes through to handle input events.
 //
-// This measurement tool firwmare runs on its own standalone Pico, NOT
+// This measurement tool firmware runs on its own standalone Pico, NOT
 // on the microcontroller whose latency we're measuring.  This
 // completely isolates the measurement tool from the device being
 // tested, ensuring that there's no unaccounted latency from other CPU
@@ -873,7 +873,7 @@ int main()
         "options:\n"
         "  -s, --show       show statistics\n"
         "  -a, --all        show stats for all buttons, even those with no events recorded\n"
-        "  -r, --reset      reset statitics\n"
+        "  -r, --reset      reset statistics\n"
         "\n"
         "With no option flags, shows statistics (same as --show).\n",
         Command_latencyStats);

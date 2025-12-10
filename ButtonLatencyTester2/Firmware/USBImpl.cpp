@@ -241,7 +241,7 @@ const uint8_t *USBImpl::GetDeviceDescriptor()
                                     // are valid). For HS devices is fixed to 64
 
         vid,                        // idVendor - Vendor ID (assigned by the USB-IF) - dynamic data to be filled in
-        pid,                        // idProduct - Product ID (assigned by the manufacturer) - dyanmic data to be filled in
+        pid,                        // idProduct - Product ID (assigned by the manufacturer) - dynamic data to be filled in
         0x0100,                     // bcdDevice - Device release number in binary-coded decimal
 
         0x01,                       // iManufacturer - Index of string descriptor describing manufacturer

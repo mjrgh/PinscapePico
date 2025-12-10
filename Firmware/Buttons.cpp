@@ -1938,7 +1938,7 @@ void OnOffButton::Poll()
 // time-related APIs use), so we must convert units here.  Converting is
 // almost as simple as multiplying by 1000 (us per ms), with the little
 // detail that we should also widen the values to 32 bits to ensure that
-// longer time values don't overflow.  The inputs are given in millseconds
+// longer time values don't overflow.  The inputs are given in milliseconds
 // and passed in uint16_t arguments because that's the natural scsale for
 // these intervals: you don't want to use intervals shorter than a few
 // milliseconds, because whatever you're connecting as the output action

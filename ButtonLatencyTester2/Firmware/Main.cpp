@@ -873,7 +873,7 @@ int main()
         "options:\n"
         "  -s, --show       show statistics\n"
         "  -a, --all        show stats for all buttons, even those with no events recorded\n"
-        "  -r, --reset      reset statitics\n"
+        "  -r, --reset      reset statistics\n"
         "\n"
         "With no option flags, shows statistics (same as --show).\n",
         Command_latencyStats);

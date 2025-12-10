@@ -30,7 +30,7 @@
 // IRQ handler is for DMA completion rather than ADC completion, so it
 // only fires once ever N/2 samples (where N is the buffer size in
 // samples).  If we make N = 1024, this gives us 512*2us = 1ms between
-// interrupts, which (a) reduces interrupt overhead to neglible levels,
+// interrupts, which (a) reduces interrupt overhead to negligible levels,
 // and (b) gives us an extremely long latency cushion to respond to
 // interrupts, since we only have to response to the Channel A interrupt
 // before Channel B finishes 1ms later, and vice versa.  This gives us

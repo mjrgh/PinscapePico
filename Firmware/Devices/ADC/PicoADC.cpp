@@ -234,7 +234,7 @@ void PicoADC::StartDMALoop()
     // B completes its transfer.  In that event, A's write pointer will still
     // be at the end of its buffer, where it could plow ahead into memory space
     // it doesn't own.  So we can't link channel B until channel A is re-armed
-    // with its write pointer set correctly for a new trasnfer.
+    // with its write pointer set correctly for a new transfer.
     dma_channel_config dmaConfB = dma_channel_get_default_config(dmaChannelB);
     channel_config_set_read_increment(&dmaConfB, false);
     channel_config_set_write_increment(&dmaConfB, true);

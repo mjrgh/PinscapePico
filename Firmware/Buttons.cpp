@@ -1343,7 +1343,7 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
             // to be descriptive of the functions defined in the spec.  The point
             // of the pre-defined function buttons is that simulators can map these
             // functions to their own corresponding functions without any need for
-            // the user to configure the mapping, since the funtion for each button
+            // the user to configure the mapping, since the function for each button
             // slot is well-defined in the spec and common to all devices that
             // implement the spec.
             static const std::unordered_map<std::string, int> nameMap{

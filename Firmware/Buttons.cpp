@@ -2990,7 +2990,7 @@ void Button::MacroAction::OnStateChange(bool state)
     // check the new state
     if (state)
     {
-        // off -> on - activate the macro if it's not alerady running
+        // off -> on - activate the macro if it's not already running
         if (!isRunning)
             StartMacro(state);
     }

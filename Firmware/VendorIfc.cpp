@@ -56,7 +56,7 @@
 // The error was a regression in 0.17.0, and was fixed in the official
 // 0.18.0, so it ONLY affects *exactly* version 0.17.0.  Unfortunately,
 // that's the version in the current official Raspberry Pi SDK (2.1.0),
-// so anyone buliding against the official SDK will get the buggy code.
+// so anyone building against the official SDK will get the buggy code.
 // I added the fix to my UNOFFICIAL build of the 2.1.0 SDK, along with
 // a marker macro to let client code know that the fix is included.
 //

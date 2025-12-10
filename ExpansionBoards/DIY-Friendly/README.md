@@ -144,13 +144,23 @@ Each board set consists of two sub-boards, titled **Main** and **Power**.
 These two boards are designed to work together as a set.
 
 Each sub-board design is contained in a pair of EAGLE files: **.sch** is the schematic,
-and **.brd** is the physical board layout file.  A **.brd** file represents
-the complete physical layout of the board, with the placement of all
-components and the copper connections between them.  The **.brd** file
-contains everything that a manufacturer needs to make a physical copy of the
-board.  The schematic in an **.sch** file is the electrical engineer's view of the
-board, showing the abstract connections between components in a way
-that's easier for humans to read, without the physical layout details.
+and **.brd** is the physical board layout file.
+
+The **.sch** file is a schematic, which is a special symbolic language
+that electrical engineers use to describe the connections between
+components in a circuit.  The symbology is more or less standardized,
+so anyone with a basic knowledge of electronics should be able to read
+it.  The schematic doesn't have any details on how the parts are laid
+out physically, so it can't be used by itself to manufacture a board.
+It's primarily for use by humans, to understand how the board works at
+the electronic level.
+
+The **.brd** file represents the complete physical layout of the
+board.  This implements the same abstract network of connections
+contained in the schematic, but it adds full details on the exact
+physical placement of each component, and the layout of the copper
+traces between components.  The **.brd** file contains everything that
+a manufacturer needs to make a physical copy of the board.
 
 
 ### Viewing an EAGLE file
@@ -164,17 +174,26 @@ you run the CAM Job Processor, which is how you create Gerber files
 for submission to fabricators (see below).
 
 There are also a number of on-line EAGLE file viewers - try searching
-for **on-line EAGLE file viewer**.  Those might be more convenient
+for **on-line EAGLE file viewer**.  One of those might be more convenient
 if you only want to view the files, since there's nothing to install.
 
 
-### Gerber Files
+### Gerber Files (what you send to the board fabricator)
 
-If you want to have a board manufactured, you only need the **.brd**
-file.  That contains all of the information needed to manufacturer the
-board.  However, you don't usually give the **.brd** file directly to
-the fabricator.  Instead, most fabricators want "Gerber files", which
-you create as follows:
+Most board fabricators require you to supply them with a special file
+format called **Gerber files**.  The exact format for the Gerber files
+varies slightly by fabricator, so there's no practical way that we
+can include pre-built Gerbers for every vendor out there.  Instead,
+we provide the **.brd** files, and leave it up to you to generate
+the Gerber files for your chosen fabricator.
+
+Fortunately, the process to convert a **.brd** file to Gerber files is
+essentially automatic in EAGLE.  All you need is the Pinscape **.brd** file,
+and a separate that your fabricator providers, called the **.cam**
+file.  The **.cam** file contains programmed instructions for the
+vendor-specific Gerber rules.  EAGLE has a simple procedure you can
+follow that combines the **.brd** and **.cam** files to produce the
+Gerber files for your specific vendor:
 
 * Go to your chosen PCB fabricator's Web site and find their submission instructions.
 Look for the EAGLE section.  That should provide links to the vendor's **.cam** file
@@ -675,11 +694,18 @@ devices activated **at the same time**, 44A, for the same reason.
 ### MOSFET outputs (main board and power board)
 
 Each individual MOSFET output must not exceed 11A, **or** 80% of the
-I<sub>D</sub>[Max] for the MOSFET selected (22A for FDPF085N10A),
-whichever is lower.
+I<sub>D</sub>[Max] for the MOSFET selected, whichever is lower.
 
 In addition, the power supply voltage for each device must be below
-the MOSFET's drain-to-source voltage limit (100V for FDPF085N10A).
+the MOSFET's drain-to-source voltage limit.
+
+Refer to the data sheet for your chosen MOSFET to determine the limits,
+shown in the **Maximum Ratings** (sometimes **Absolute Maximum**)
+section under the symbols <b>I<sub>D</sub></b> (maximum continuous drain
+current) and <b>V<sub>DS</sub></b> (maximum drain-to-source voltage).
+For most large power MOSFETs in TO220 packages (as required to fit the
+board), these values will be at least 10A and 50V, respectively, but
+typically more like 20A and 100V.
 
 (Rationale: The current through these ports has to flow through both
 the connector pins and the MOSFET, so it can't exceed the safe limit

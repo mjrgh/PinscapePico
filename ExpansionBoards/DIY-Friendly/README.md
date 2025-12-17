@@ -401,7 +401,8 @@ have the markings, it should still match the pin layout shown below.
 
 A few notes on the markings:
 
-* The pins marked GND are the Ground/Common connection.  For every
+* The pins marked GND (the leftmost pin on each header) are the
+Ground/Common connection.  For every
 switch, wire one terminal to GND, and wire the other terminal to an
 individual button port.  The Ground/Common wires can all be connected
 together, so it's usually easier (and saves a lot of wire) to run
@@ -430,6 +431,14 @@ prevent you from inserting the cable into that header.  It's
 intended to make it easier to avoid mistakes when connecting
 or re-connecting the wires, by making it obvious when the cable
 doesn't match the header you're trying to plug it into.
+
+* The remaining pins (besides the ones marked "GND" and "X") are
+the individual button ports.  Each header has 8 button inputs,
+numbered in ascending order **from right to left**.  (For one
+reason or another, it's a common convention for circuit boards
+to number the pins on a header from right to left, even though
+that seems backwards to those of us who do most of our ordinary
+reading and writing using Western alphabets.)
 
 
 

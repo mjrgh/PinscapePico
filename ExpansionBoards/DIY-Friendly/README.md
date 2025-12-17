@@ -384,6 +384,7 @@ extra supporting parts that have to be installed alongside it.  See the
 board and wiring the cable, plug the cable into the IR-RX header on
 the main board.
 
+<a name="ButtonPinLabels"></a>
 ## Button pin labels
 
 The button input headers on the originally published boards lacked
@@ -629,6 +630,12 @@ Each button header includes a ground terminal.  This is purely for
 your convenience in finding places to connect the grounds.  All of
 the grounds are wired together, so none of them are "special" and
 none of them have to be connected to specific buttons.
+
+See <a href="#ButtonPinLabels">Button Pin Labels</a> above for a
+diagram of the pin layout of the button headers.  (Newer versions
+of the board have these markings directly on the silkscreen, but
+older versions didn't.  The diagram might be helpful if you have a
+version without the markings.)
 
 ### Button lamps
 

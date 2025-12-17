@@ -384,6 +384,53 @@ extra supporting parts that have to be installed alongside it.  See the
 board and wiring the cable, plug the cable into the IR-RX header on
 the main board.
 
+## Button pin labels
+
+The button input headers on the originally published boards lacked
+markings showing exactly which pin corresponds to which button, which
+makes it a little puzzling to wire.  You can always refer to the
+schematic, but most people don't want to figure out how to use EAGLE
+just to see which buttons go where.  I left out the labels originally
+because there simply wasn't much room for them, but on the whole it's
+probably better to cram in some tiny markings.  For reference, here's
+a diagram showing the new button labels - even if your board doesn't
+have the markings, it should still match the pin layout shown below.
+
+<img src="ButtonPinLabels.png">
+
+A few notes on the markings:
+
+* The pins marked GND are the Ground/Common connection.  For every
+switch, wire one terminal to GND, and wire the other terminal to an
+individual button port.  The Ground/Common wires can all be connected
+together, so it's usually easier (and saves a lot of wire) to run
+a single Common/Ground wire from one button to the next in a giant
+daisy chain.
+
+* Note that the GND connections on the four button input headers are
+all connected together internally, so you can use any GND pin from
+any of the headers as the source of the Ground/Common connection to
+any buttons.  The only reason that each header has its own separate
+GND pin is convenience, so that you have several GND pins to choose
+from when setting up your wiring.
+
+* The pins marked "X" are "keying" pins.  They're not connected to
+anything on the board.  The idea of a keying pin is that you can
+snip off the pin on the header, and insert a "keying plug" in the
+corresponding position in the wire housing, to ensure that the plug
+can only fit in that one header.  You'll notice that each button
+header has its "X" keying pin in a different position.  That's so
+that you can't plug the cable intended for J5 into J6, J7, or J8,
+because the blocked-up socket where you inserted the keying plug
+will only fit into J5, where you snipped off the pin for the
+blocked-up keying position.  All of the other headers will still
+have a pin in that position, which will block the keying plug and
+prevent you from inserting the cable into that header.  It's
+intended to make it easier to avoid mistakes when connecting
+or re-connecting the wires, by making it obvious when the cable
+doesn't match the header you're trying to plug it into.
+
+
 
 ## Errata in revisions prior to 20250326
 

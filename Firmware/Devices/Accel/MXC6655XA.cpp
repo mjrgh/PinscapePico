@@ -230,7 +230,7 @@ void MXC6655XA::IRQ()
 // I2C bus available for our use
 bool MXC6655XA::OnI2CReady(I2CX *i2c)
 {
-    // If the interrrupt is asserted, or the interrupt line isn't
+    // If the interrupt is asserted, or the interrupt line isn't
     // connected, read interrupt status and axis registers.  It's more
     // efficient to check the interrupt line when we have GPIO access
     // to it, since we can avoid an unnecessary I2C transaction when

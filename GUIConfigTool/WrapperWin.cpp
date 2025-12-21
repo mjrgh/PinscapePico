@@ -45,7 +45,7 @@
 
 using namespace PinscapePico;
 
-// statics
+// statistics
 uint64_t WrapperWin::LeftPanelButton::nextUniqueID = 1;
 
 // JSON key for our saved window placement

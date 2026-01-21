@@ -6,10 +6,10 @@
 
     THIS FILE WAS GENERATED MECHANICALLY - DO NOT EDIT.
 
-    This file was created mechanically by ConfigDocParser from ..\firmware\JSONConfigRef.txt.
+    This file was created mechanically by ConfigDocParser from firmware\JSONConfigRef.txt.
     Hand-editing of this file isn't recommended, since the entire file will be
     overwritten on the next full build.  Corrections should be made to the input
-    file (..\firmware\JSONConfigRef.txt) instead.
+    file (firmware\JSONConfigRef.txt) instead.
 -->
 
 <html>
@@ -1427,6 +1427,15 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     can connect up to four ADS1115 chips to the Pico, so if you
     need multiple inputs <i>and</i> maximum speed per input, the
     best approach is to connect multiple ADS1115 chips.
+    </p><p>
+    Note that a double-ended input <i>doesn't</i> slow down sampling.
+    A double-ended input counts as a single input channel for timing
+    purposes, because the ADC samples the two pins making up a
+    double-ended pair <i>at the same time</i>, by reading the physical
+    differential voltage between the two pins.  The difference voltage
+    is what's sampled, not the individual voltages on the two pins.
+    So a double-ended input has exactly the same cycle timing as a
+    single-ended input.
   </p>
     </div>
   </div>

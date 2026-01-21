@@ -97,7 +97,7 @@ void C74HC595::Configure(JSONParser &json)
 
         // get the enable port, which can be either a GPIO or an Output Manager port
         std::unique_ptr<OutputManager::Device> enablePort;
-        if (auto *enableVal = value->Get("enable"); !value->IsUndefined())
+        if (auto *enableVal = value->Get("enable"); !enableVal->IsUndefined())
         {
             // parse the port
             char jsonLocus[32];

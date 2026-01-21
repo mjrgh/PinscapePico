@@ -245,5 +245,5 @@ pico_add_extra_outputs(PinscapePico)
 # Disable stdio on all device interfaces (UART and USB).  We use our
 # own custom logging mechanism in place of stdio, and we don't want
 # stdio claiming either type of device.
-#pico_enable_stdio_uart(PinscapePico 0)
-#pico_enable_stdio_usb(PinscapePico 0)
+pico_enable_stdio_uart(PinscapePico 0)
+pico_enable_stdio_usb(PinscapePico 0)

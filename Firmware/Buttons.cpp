@@ -865,8 +865,9 @@ Button::Source *Button::ParseSource(
     }
     else if (srcType == "74hc165")
     {
-        // get the chain number 
-        int chainNum = srcVal->Get("chain")->Int(0);
+        // get the chain number
+        const auto *chainVal = srcVal->Get("chain");
+        int chainNum = chainVal->Int(0);
         int lpFilterRise_us = srcVal->Get("lowPassFilterRiseTime")->Int(0);
         int lpFilterFall_us = srcVal->Get("lowPassFilterFallTime")->Int(0);
         int debounceTimeOn_us = srcVal->Get("debounceTimeOn")->Int(1500);
@@ -877,7 +878,7 @@ Button::Source *Button::ParseSource(
 
         // get the optional chip number
         int chip = srcVal->Get("chip")->Int(-1);
-        if (chip >= 0 && chain != nullptr && !chain->IsValidPort(chip*8 + 7))
+        if (!chainVal->IsUndefined() && chain != nullptr && !chain->IsValidPort(chip*8 + 7))
             Log(LOG_ERROR, "%s: invalid 74HC165 chip number %d\n", jsonLocus, chip);
 
         // get the port

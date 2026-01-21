@@ -122,6 +122,7 @@ add_executable(
     FlashStorage.cpp
     ExpansionBoard.cpp
     TimeOfDay.cpp
+    TimeRange.cpp
     USBIfc.cpp
     Keyboard.cpp
     Gamepad.cpp

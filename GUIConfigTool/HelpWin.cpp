@@ -26,7 +26,7 @@ using Microsoft::WRL::Callback;
 // global singleton
 std::shared_ptr<BaseWindow> HelpWindow::inst;
 
-// statics
+// statistics
 bool HelpWindow::isWebView2Installed = false;
 
 // JSON key for our saved window placement

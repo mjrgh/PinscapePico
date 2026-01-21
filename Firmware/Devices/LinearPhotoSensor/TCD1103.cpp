@@ -240,7 +240,7 @@ bool TCD1103::Init()
         // maximum.  The TCD1103 data sheet mentions that its logic
         // input gates have relatively high capacitance, which requires
         // high-current drive for fast switching speeds to meet the
-        // chip's timing requirments, especially on the master clock
+        // chip's timing requirements, especially on the master clock
         // signal.  The whole point of the inverted logic mode is that
         // the data sheet recommends using a 74HC04 inverter to buffer
         // the inputs, since that chip provides higher drive strength
@@ -745,7 +745,7 @@ void TCD1103::GetPix(const uint8_t* &pix, uint64_t &timestamp)
     // up to 24us of overlap in the transfers, which is a quite
     // leisurely interval on a 125MHz M0+.)
     //
-    // This analysis depends upon the DMA transfer actually occuring in
+    // This analysis depends upon the DMA transfer actually occurring in
     // 5us of real time, so we do have to turn off interrupts while
     // setting up the DMA transfer, to be sure that a random IRQ handler
     // from another subsystem can't steal any of our 5us during the DMA

@@ -39,7 +39,7 @@
     publicKeyToken='6595b64144ccf1df' \
     language='*'\"")
 
-// statics
+// statistics
 std::unordered_set<std::basic_string<TCHAR>> BaseWindow::classesRegistered;
 HCURSOR BaseWindow::arrowCursor = NULL;
 

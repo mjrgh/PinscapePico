@@ -51,7 +51,7 @@ bool QuadratureEncoder::ConfigureBase(const char *name, const JSONParser::Value 
     this->gpA = a;
     this->gpB = b;
 
-    // successul configuration - initialize the device and return the result
+    // successful configuration - initialize the device and return the result
     return Init();
 }
 

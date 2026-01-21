@@ -404,6 +404,14 @@ bool C74HC165::Init()
     const uint32_t pioFreq = shiftClockFreq * 2;
     const float pioClockDiv = static_cast<float>(sysFreq) / static_cast<float>(pioFreq);
 
+    // the valid PIO divider range is 1.0 to 65536.0
+    if (pioClockDiv < 1.0f || pioClockDiv > 65536.0f)
+    {
+        Log(LOG_ERROR, "74HC165[%d]: shiftClockFreq out of range; must be %d to %d\n",
+            chainNum, static_cast<int>(ceilf(static_cast<float>(sysFreq)/(2.0f*65536.0f))), sysFreq/2);
+        return false;
+    }
+
     // Configure the PIO state machine
     pio_sm_set_enabled(pio, piosm, false);    
     auto piocfg = C74HC165_program_get_default_config(pioOffset);

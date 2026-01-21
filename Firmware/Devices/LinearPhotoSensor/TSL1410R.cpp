@@ -372,6 +372,7 @@ void TSL1410R::StartDMALoop()
 
     // Pre-load the CLK PIO's ISR with (adcCycleTicks-16)/2-2 - see the PIO program comments
     pio_sm_put_blocking(pioCLK.pio, pioCLK.sm, (adcCycleTicks - 16)/2 - 2);
+    pio_sm_exec(pioCLK.pio, pioCLK.sm, pio_encode_pull(false, false)); // PULL noblock  ; load OSR from FIFO
     pio_sm_exec(pioCLK.pio, pioCLK.sm, pio_encode_out(pio_isr, 32));   // OUT ISR, 32   ; move 32 bits from OSR to ISR
 
     // Configure the SI PIO state machine.  This generates the Serial
@@ -387,6 +388,7 @@ void TSL1410R::StartDMALoop()
 
     // Pre-load ISR with the SI pulse duration, which is fixed at (ISR+2)*8ns
     pio_sm_put_blocking(pioSI.pio, pioSI.sm, siPulseTicks - 2);
+    pio_sm_exec(pioSI.pio, pioSI.sm, pio_encode_pull(false, false));   // PULL noblock  ; load OSR from FIFO
     pio_sm_exec(pioSI.pio, pioSI.sm, pio_encode_out(pio_isr, 32));     // OUT ISR, 32   ; move 32 bits from OSR to ISR
 
     // Set up pulse times for the first two frames.  We always have the

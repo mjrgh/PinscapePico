@@ -9,9 +9,11 @@ devices such as lights, shaker motors, fans, and solenoids.  It can be
 used on a standalone Pico, and also with a wide range of peripheral
 devices that expand the Pico's hardware capabilities: accelerometers,
 PWM/LED driver chips, shift registers, GPIO expanders, ADCs, and
-clock/calendar chips.  The project includes hardware designs for a
-number of expansion boards that implement particular collections of
-peripherals selected to meet the needs of most pin cab builders.
+clock/calendar chips.  The project includes reference hardware designs for
+several expansion boards that implement particular collections of
+peripherals selected to meet the needs of most pin cab builders, and
+all of the hardware interfaces are documented, so that you can design
+your own custom boards if you prefer.
 
 This project is a sequel to the original [Pinscape KL25Z controller](https://github.com/mjrgh/Pinscape_Controller),
 but it's all new code, not a port of the KL25Z software.  The Pico is

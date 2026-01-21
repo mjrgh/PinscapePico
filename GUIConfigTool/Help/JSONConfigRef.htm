@@ -6,10 +6,10 @@
 
     THIS FILE WAS GENERATED MECHANICALLY - DO NOT EDIT.
 
-    This file was created mechanically by ConfigDocParser from firmware\JSONConfigRef.txt.
+    This file was created mechanically by ConfigDocParser from ..\firmware\JSONConfigRef.txt.
     Hand-editing of this file isn't recommended, since the entire file will be
     overwritten on the next full build.  Corrections should be made to the input
-    file (firmware\JSONConfigRef.txt) instead.
+    file (..\firmware\JSONConfigRef.txt) instead.
 -->
 
 <html>
@@ -2197,9 +2197,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
                  // to engage the modifier keys first, pause briefly to let the
                  // PC see the modifier keys, then press the "A" key while
                  // still holding the modifier keys down.
-                 { start: 0, duration: "hold", action: { type: "key", key: "left shift" },  // hold SHIFT until button released
-                 { start: 0, duration: "hold", action: { type: "key", key: "left ctrl" },   // hold CTRL at the same time, until button released
-                 { start: 10, duration: "hold", action: { type: "key", key: "A" },          // wait 10ms, then press A, and hold until button released
+                 { start: 0, duration: "hold", action: { type: "key", key: "left shift" }, },  // hold SHIFT until button released
+                 { start: 0, duration: "hold", action: { type: "key", key: "left ctrl" }, },   // hold CTRL at the same time, until button released
+                 { start: 10, duration: "hold", action: { type: "key", key: "A" }, },          // wait 10ms, then press A, and hold until button released
               ],
            },
         },
@@ -4613,7 +4613,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     <tr><td>"abs(<i>source</t>)"</td><td>Takes another source, such as "nudge.x", and takes the absolute value of each reading</td></tr>
     <tr><td>"ads1115[<i>n</i>]"</td><td>If an <a href="#ads1115">ADS1115</a> ADC chip is configured, reports the reading from the <i>n</i>th logical channel, numbered from 0</td></tr>
     <tr><td>"ads1115_<i>m</i>[<i>n</i>]"</td><td>If multiple <a href="#ads1115">ADS1115</a> ADC chips are configured, reports the reading from the <i>n</i>th logical channel of the <i>m</i>th chip, numbered from 0; for example, "ads1115_1[0]" selects the first channel of the second chip</td></tr>
-    <tr><td>"gpio(<i>number</i>, <i>pull-mode</i>)"</td><td>Reads from the specified GPIO pin in digital (ON/OFF) mode, with a LOW reading (0V) reported as -32768, and HIGH (3.3V) reported as 32767; the optional <i>pull-mode</i> can be "pull-up" or "pull-down" to configure the internal pull-up/down resistor on the pin</td></tr>
+    <tr><td>"gpio(<i>number</i>, <i>pull-mode</i>)"</td><td>Reads from the specified GPIO pin in digital (ON/OFF) mode, with a LOW reading (0V) reported as -32768, and HIGH (3.3V) reported as 32767; the optional <i>pull-mode</i> can be <tt>pull-up</tt> or <tt>pull-down</tt> to configure the internal pull-up/down resistor on the pin</td></tr>
     <tr><td>"lis3dh.temperature"</td><td>If an LIS3DH accelerometer is configured, reports the reading from its temperature sensor</td></tr>
     <tr><td>"lis3dh.x"</td><td>If an LIS3DH accelerometer is configured, reports the raw reading from its X axis</td></tr>
     <tr><td>"lis3dh.y"</td><td>If an LIS3DH accelerometer is configured, reports the raw reading from its Y axis</td></tr>

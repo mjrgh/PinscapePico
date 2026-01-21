@@ -99,7 +99,7 @@ void C74HC595::Configure(JSONParser &json)
         std::unique_ptr<OutputManager::Device> enablePort;
         if (auto *enableVal = value->Get("enable"); !enableVal->IsUndefined())
         {
-            // parse the port
+            // parse the port specification
             char jsonLocus[32];
             snprintf(jsonLocus, _countof(jsonLocus), "74hc595[%d].enable", index);
             enablePort.reset(OutputManager::ParseDevice(
@@ -188,7 +188,8 @@ void C74HC595::Configure(JSONParser &json)
             "  <chipNum> selects a chip on the chain; default is zero\n"
             "\n"
             "options:\n"
-            "  <port>=<level>    set a port (A-H, QA-QA, 0-7, Q0-Q7) to level (0-255)\n"
+            "  <port>=<level>    set a port (A-H, QA-QA, 0-7, Q0-Q7) to level; level is 0-255 for PWM\n"
+            "                    ports, 0-1 or low/high for digital ports\n"
             "  --levels, -l      list port levels\n"
             "  --stats, -s       show statistics\n"
             "  --reset-stats     reset statistics\n"
@@ -583,6 +584,14 @@ bool Digital74HC595::Init()
     const uint32_t pioFreq = shiftClockFreq * 2;
     const float pioClockDiv = static_cast<float>(sysFreq) / static_cast<float>(pioFreq);
 
+    // the valid PIO divider range is 1.0 to 65536.0
+    if (pioClockDiv < 1.0f || pioClockDiv > 65536.0f)
+    {
+        Log(LOG_ERROR, "74HC595[%d]: shiftClockFreq out of range; must be %d to %d\n",
+            chainNum, static_cast<int>(ceilf(static_cast<float>(sysFreq)/(2.0f*65536.0f))), sysFreq/2);
+        return false;
+    }
+
     // Configure the PIO state machine
     pio_sm_set_enabled(pio, piosm, false);    
     auto piocfg = C74HC595DIG_program_get_default_config(pioOffset);
@@ -600,6 +609,7 @@ bool Digital74HC595::Init()
 
     // pre-load ISR with the port count minus 1 (per the PIO do-while(x--) loop convention)
     pio_sm_put_blocking(pio, piosm, nPorts - 1);
+    pio_sm_exec(pio, piosm, pio_encode_pull(false, false));   // PULL noblock  ; load OSR from FIFO
     pio_sm_exec(pio, piosm, pio_encode_out(pio_isr, 32));     // OUT ISR, 32   ; move 32 bits from OSR to ISR
 
     // Assign the pins to the PIO
@@ -967,6 +977,14 @@ bool PWM74HC595::Init()
     const uint32_t pioFreq = shiftClockFreq * 2;
     const float pioClockDiv = static_cast<float>(sysFreq) / static_cast<float>(pioFreq);
 
+    // the valid PIO divider range is 1.0 to 65536.0
+    if (pioClockDiv < 1.0f || pioClockDiv > 65536.0f)
+    {
+        Log(LOG_ERROR, "74HC595[%d]: shiftClockFreq out of range; must be %d to %d\n",
+            chainNum, static_cast<int>(ceilf(static_cast<float>(sysFreq)/(2.0f*65536.0f))), sysFreq/2);
+        return false;
+    }
+
     // Configure the PIO state machine
     pio_sm_set_enabled(pio, piosm, false);    
     auto piocfg = C74HC595PWM_program_get_default_config(pioOffset);
@@ -978,6 +996,7 @@ bool PWM74HC595::Init()
 
     // pre-load ISR with the port count minus 1 (per the PIO do-while(x--) loop convention)
     pio_sm_put_blocking(pio, piosm, nPioPorts - 1);
+    pio_sm_exec(pio, piosm, pio_encode_pull(false, false));   // PULL noblock  ; load OSR from FIFO
     pio_sm_exec(pio, piosm, pio_encode_out(pio_isr, 32));     // OUT ISR, 32   ; move 32 bits from OSR to ISR
 
     // set the PIO pin directions

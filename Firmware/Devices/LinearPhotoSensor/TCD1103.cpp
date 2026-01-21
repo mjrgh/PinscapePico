@@ -489,6 +489,7 @@ void TCD1103::StartDMALoop()
 
     // Set ISR for the SH pulse duration, which is fixed at (ISR+2)*8ns
     pio_sm_put_blocking(pioSH.pio, pioSH.sm, shPulseTicks - 2);
+    pio_sm_exec(pioSH.pio, pioSH.sm, pio_encode_pull(false, false));   // PULL noblock  ; load OSR from FIFO
     pio_sm_exec(pioSH.pio, pioSH.sm, pio_encode_out(pio_isr, 32));     // OUT ISR, 32   ; move 32 bits from OSR to ISR
 
     // Configure the ICG PIO state machine.  This generates the Integration
@@ -504,6 +505,7 @@ void TCD1103::StartDMALoop()
 
     // Set ISR for the ICG pulse duration, which is fixed at (ISR+2)*8ns
     pio_sm_put_blocking(pioICG.pio, pioICG.sm, icgPulseTicks - 2);
+    pio_sm_exec(pioICG.pio, pioICG.sm, pio_encode_pull(false, false));   // PULL noblock  ; load OSR from FIFO
     pio_sm_exec(pioICG.pio, pioICG.sm, pio_encode_out(pio_isr, 32));     // OUT ISR, 32   ; move 32 bits from OSR to ISR
 
     // Set up pulse times for the first two frames.  We always have the

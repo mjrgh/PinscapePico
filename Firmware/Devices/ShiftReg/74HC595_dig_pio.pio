@@ -1,7 +1,8 @@
 ; Pinscape Pico - 74HC595 PIO state machine program - Digital output mode
 ; Copyright 2024, 2025 Michael J Roberts / New BSD license / NO WARRANTY
 ;
-; This 
+; Generates SHIFT, DATA, and LATCH outputs to a 74HC595 daisy chain, with
+; digital (ON/OFF) output control.
 ;
 ; Protocol:
 ;

@@ -1614,7 +1614,7 @@ gamepad.x string{table} optional
     <tr><td>"abs(<i>source</t>)"</td><td>Takes another source, such as "nudge.x", and takes the absolute value of each reading</td></tr>
     <tr><td>"ads1115[<i>n</i>]"</td><td>If an <a href="#ads1115">ADS1115</a> ADC chip is configured, reports the reading from the <i>n</i>th logical channel, numbered from 0</td></tr>
     <tr><td>"ads1115_<i>m</i>[<i>n</i>]"</td><td>If multiple <a href="#ads1115">ADS1115</a> ADC chips are configured, reports the reading from the <i>n</i>th logical channel of the <i>m</i>th chip, numbered from 0; for example, "ads1115_1[0]" selects the first channel of the second chip</td></tr>
-    <tr><td>"gpio(<i>number</i>, <i>pull-mode</i>)"</td><td>Reads from the specified GPIO pin in digital (ON/OFF) mode, with a LOW reading (0V) reported as -32768, and HIGH (3.3V) reported as 32767; the optional <i>pull-mode</i> can be "pull-up" or "pull-down" to configure the internal pull-up/down resistor on the pin</td></tr>
+    <tr><td>"gpio(<i>number</i>, <i>pull-mode</i>)"</td><td>Reads from the specified GPIO pin in digital (ON/OFF) mode, with a LOW reading (0V) reported as -32768, and HIGH (3.3V) reported as 32767; the optional <i>pull-mode</i> can be <tt>pull-up</tt> or <tt>pull-down</tt> to configure the internal pull-up/down resistor on the pin</td></tr>
     <tr><td>"lis3dh.temperature"</td><td>If an LIS3DH accelerometer is configured, reports the reading from its temperature sensor</td></tr>
     <tr><td>"lis3dh.x"</td><td>If an LIS3DH accelerometer is configured, reports the raw reading from its X axis</td></tr>
     <tr><td>"lis3dh.y"</td><td>If an LIS3DH accelerometer is configured, reports the raw reading from its Y axis</td></tr>
@@ -4842,6 +4842,15 @@ ads1115.channel number|string|[number|string] optional
   can connect up to four ADS1115 chips to the Pico, so if you
   need multiple inputs <i>and</i> maximum speed per input, the
   best approach is to connect multiple ADS1115 chips.
+
+  Note that a double-ended input <i>doesn't</i> slow down sampling.
+  A double-ended input counts as a single input channel for timing
+  purposes, because the ADC samples the two pins making up a
+  double-ended pair <i>at the same time</i>, by reading the physical
+  differential voltage between the two pins.  The difference voltage
+  is what's sampled, not the individual voltages on the two pins.
+  So a double-ended input has exactly the same cycle timing as a
+  single-ended input.
 
 ads1115.voltageRange number optional
   Sets the full-scale voltage range for the ADS1115 inputs.  The

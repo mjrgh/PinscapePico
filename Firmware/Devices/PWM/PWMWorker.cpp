@@ -227,7 +227,7 @@ void PWMWorker::Init()
     }
 
     // check the WHOAMI ID and version
-    char verInfo[64];
+    char verInfo[80];
     {
         uint8_t addr = REG_VERSION;
         uint8_t buf[2];
@@ -235,6 +235,7 @@ void PWMWorker::Init()
             || i2c_read_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) != _countof(buf))
         {
             Log(LOG_ERROR, "WorkerPico[%d]: I2C error reading device ID registers\n");
+            verInfo[0] = 0;
             ok = false;
         }
         else if (buf[1] == WHOAMI_ID)

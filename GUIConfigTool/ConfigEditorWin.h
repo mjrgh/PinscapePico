@@ -179,8 +179,24 @@ namespace PinscapePico
 		const char *curLocHelpLink = nullptr;
 		RECT rcHelpLink{ 0, 0, 0, 0 };
 
-		// call tip help link
+		// Call Tip help link.  A Call Tip is the Scintilla tooltip that pops
+		// up when the mouse hovers over a syntax element, providing a brief
+		// help message for the element.  It's called a Call Tip because it's
+		// typically used in C-like languages to show the function prototype
+		// when hovering over a function or method name: a Tip on how to Call
+		// the function.
 		const char *callTipHelpLink = nullptr;
+
+		// Call Tip cancel pending.  When we move off a syntax element that
+		// triggered a Call Tip, Scintilla notifies us via a Dwell End message.
+		// We set a timer to remove the call tip after a short time.  We don't
+		// cancel it immediately, though, so that the user can move the mouse
+		// over the tip itself to click on it, to jump to the help section
+		// associated with the tip.  This flag records that we're in the
+		// interim between the Dwell End message and the timer removal, so
+		// that we know to cancel the timer if we show a new tip during this
+		// time.
+		bool callTipCanceling = false;
 
 		// Set the Scintilla editor content text
 		void SetConfigText(const std::vector<char> &text, bool resetUndo);
@@ -205,6 +221,7 @@ namespace PinscapePico
 
 		// timer IDs
 		static const int TIMER_ID_PARSE = 219;	
+		static const int TIMER_ID_REMOVE_CALL_TIP = 220;
 
 		// window class
 		const TCHAR *GetWindowClassName() const override { return _T("PinscapePicoConfigEditor"); }

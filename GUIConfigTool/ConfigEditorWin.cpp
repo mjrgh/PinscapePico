@@ -2190,6 +2190,15 @@ void ConfigEditorWin::OnTimer(WPARAM timerId)
         // this is a one-shot timer, so delete it
         KillTimer(hwnd, timerId);
         break;
+
+    case TIMER_ID_REMOVE_CALL_TIP:
+        // remove the call tip
+        CallSci(SCI_CALLTIPCANCEL);
+        callTipCanceling = false;
+
+        // this is a one-shot
+        KillTimer(hwnd, timerId);
+        break;
     }
 
     // inherit the default handling
@@ -2559,7 +2568,7 @@ bool ConfigEditorWin::OnNotify(WPARAM id, NMHDR *nmhdr, LRESULT &lresult)
 
         case SCN_DWELLSTART:
             // if we're not showing another popup, show a call tip
-            if (!CallSci(SCI_AUTOCACTIVE) && !CallSci(SCI_CALLTIPACTIVE))
+            if (!CallSci(SCI_AUTOCACTIVE) && (!CallSci(SCI_CALLTIPACTIVE) || callTipCanceling))
             {
                 // find the parse position of the hover point
                 JSONParserExt::Path path;
@@ -2573,6 +2582,18 @@ bool ConfigEditorWin::OnNotify(WPARAM id, NMHDR *nmhdr, LRESULT &lresult)
                 // if we found a property, show its summary as the call tip
                 if (prop != nullptr && prop->summary != nullptr)
                 {
+                    // remove any prior call tip
+                    if (callTipCanceling)
+                    {
+                        // remove the old tip
+                        CallSci(SCI_CALLTIPCANCEL);
+
+                        // cancel the cancellation
+                        KillTimer(hwnd, TIMER_ID_REMOVE_CALL_TIP);
+                        callTipCanceling = false;
+                    }
+
+                    // show the new tip
                     CallSci(SCI_CALLTIPSHOW, pos, reinterpret_cast<INT_PTR>(prop->summary));
                     callTipHelpLink = prop->link;
                 }
@@ -2580,9 +2601,14 @@ bool ConfigEditorWin::OnNotify(WPARAM id, NMHDR *nmhdr, LRESULT &lresult)
             break;
 
         case SCN_DWELLEND:
-            // cancel the tip
+            // If there's a tip, schedule it for removal after a brief delay.
+            // Don't remove it immediately, so that the user has a chance to move
+            // the mouse over the tip itself and click on it.
             if (CallSci(SCI_CALLTIPACTIVE))
-                CallSci(SCI_CALLTIPCANCEL);
+            {
+                SetTimer(hwnd, TIMER_ID_REMOVE_CALL_TIP, 2500, NULL);
+                callTipCanceling = true;
+            }
             break;
 
         case SCN_CALLTIPCLICK:
@@ -2595,7 +2621,7 @@ bool ConfigEditorWin::OnNotify(WPARAM id, NMHDR *nmhdr, LRESULT &lresult)
             // way to allow this in the future.  (For now, the user can press F1 to
             // jump to the current tip help link.)
             if (callTipHelpLink != nullptr)
-                ShowHelpFile("JSONConfigRef.htm", curLocHelpLink);
+                ShowHelpFile("JSONConfigRef.htm", callTipHelpLink);
             break;
         }
     }
@@ -2911,10 +2937,10 @@ void ConfigEditorWin::CheckBeginAutoComplete()
                                     list.append(" ");
                                 }
                             }
-
-                            // set lexical stops for property names
-                            stops = ".:{}[](),\n\r ";
                         }
+
+                        // set lexical stops for property names
+                        stops = ".:{}[](),\n\r ";
                     }
                 }
 

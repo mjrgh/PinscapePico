@@ -810,6 +810,10 @@ buttons[].action.type="key".key number|string required
     <tr><td>"colon"</td><td>0x33</td><td>Keyboard ; and :</td></tr>
     <tr><td>"'"</td><td>0x34</td><td>Keyboard ' and "</td></tr>
     <tr><td>"\""</td><td>0x34</td><td>Keyboard ' and "</td></tr>
+    <tr><td>"grave"</td><td>0x35</td><td>Keyboard ` and ~</td></tr>
+    <tr><td>"tilde"</td><td>0x35</td><td>Keyboard ` and ~</td></tr>
+    <tr><td>"`"</td><td>0x35</td><td>Keyboard ` and ~</td></tr>
+    <tr><td>"~"</td><td>0x35</td><td>Keyboard ` and ~</td></tr>
     <tr><td>","</td><td>x36</td><td>Keyboard , and <</td></tr>
     <tr><td>"<"</td><td>0x36</td><td>Keyboard , and <</td></tr>
     <tr><td>"comma"</td><td>x36</td><td>Keyboard , and <</td></tr>

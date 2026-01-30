@@ -103,7 +103,7 @@ void Button::Add(Button *button)
 // going back to the documentation to look up every key name.  Most of
 // the keys that aren't common on US PC keyboards are left unnamed.  The
 // JSON can still assign any key, whether we give it a name or not, by
-// using its UBS usage number directly.
+// using its USB usage number directly.
 static const std::unordered_map<std::string, uint8_t> usbKeyNames{
 //  { "", 0x00 },                // 00 Reserved
 //  { "", 0x01 },                // 01 Keyboard ErrorRollOver
@@ -186,11 +186,14 @@ static const std::unordered_map<std::string, uint8_t> usbKeyNames{
     { ";", 0x33 },               // 33 Keyboard ; and :
     { ":", 0x33 },               // 33 Keyboard ; and :
     { "semicolon", 0x33 },       // 33 Keyboard ; and :
-    { "colon", 0x33 },       // 33 Keyboard ; and :
+    { "colon", 0x33 },           // 33 Keyboard ; and :
     { "'", 0x34 },               // 34 Keyboard ' and "
     { "\"", 0x34 },              // 34 Keyboard ' and "
     { "quote", 0x34 },           // 34 Keyboard ' and "
-//  { "", 0x35 },                // 35 Keyboard Grave Accent and Tilde
+    { "grave", 0x35 },           // 35 Keyboard Grave Accent and Tilde
+    { "tilde", 0x35 },           // 35 Keyboard Grave Accent and Tilde
+    { "`", 0x35 },               // 35 Keyboard Grave Accent and Tilde
+    { "~", 0x35 },               // 35 Keyboard Grave Accent and Tilde
     { ",", 0x36 },               // 36 Keyboard , and <
     { "<", 0x36 },               // 36 Keyboard , and <
     { "comma", 0x36 },           // 36 Keyboard , and <

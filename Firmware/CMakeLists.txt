@@ -243,8 +243,19 @@ target_link_libraries(
 # create map/bin/hex files
 pico_add_extra_outputs(PinscapePico)
 
-# Disable stdio on all device interfaces (UART and USB).  We use our
-# own custom logging mechanism in place of stdio, and we don't want
-# stdio claiming either type of device.
+# Disable stdio on all device interfaces (UART and USB).  The Pico
+# SDK provides a stdio implementation that can optionally present a
+# terminal-style interface on a UART and/or a USB virtual COM (CDC)
+# port.  We don't need or want the SDK console interface, so disable
+# it in the build.
+#
+# Note that we must EXPLICITLY DISABLE the stdio console options,
+# because the SDK's base build configuration enables them by default.
+# The console features are actively harmful when enabled, because
+# they'll claim certain resources (GP0, GP1, and UART0), interfering
+# with our own use of the resources.  This can happen EVEN IF we never
+# call any stdio console functions, because some SDK libraries (Tinyusb
+# in particular) will initialize stdio on their own if stdio is enabled.
+# Disabling the console features at build time prevents this.
 pico_enable_stdio_uart(PinscapePico 0)
 pico_enable_stdio_usb(PinscapePico 0)

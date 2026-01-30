@@ -64,6 +64,6 @@ pico_add_extra_outputs(PWMWorker)
 # Disable stdio on UART, enable on USB.  We'll use USB for debug output.
 # We assign all of the pins as either PWM outputs or I2C ports, so there
 # are no pins left over to assign to the UART.
-#pico_enable_stdio_uart(PWMWorker 0)
-pico_enable_stdio_usb(PWMWorker 1)
+pico_enable_stdio_uart(PWMWorker 0)
+pico_enable_stdio_usb(PWMWorker 0)
 target_compile_definitions(PWMWorker PRIVATE PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=30000)

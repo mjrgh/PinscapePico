@@ -815,7 +815,6 @@ int main()
         if (uint16_t newFreq; GetReg16(REG_FREQL, newFreq) && newFreq != freq)
             pwmManager.SetFreq(freq = newFreq);
 
-
         // check for an OUTPUT ENABLE change
         if (bool newEna = ((i2cReg[REG_CTRL0] & CTRL0_ENABLE_OUTPUTS) != 0); newEna != outputsEnabled)
             pwmManager.EnableOutputs(outputsEnabled = newEna);

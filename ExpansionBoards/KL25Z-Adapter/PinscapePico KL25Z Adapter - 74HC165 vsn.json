@@ -1045,7 +1045,7 @@
     // TV ON
     // 
 
-    tvOn: {
+    tvon: {
         // power sensing circuit - the Expansion Board circuit's ports
         // are wired to the Adapter Board PCA9555 IC1
         powerDetect: {
@@ -1146,12 +1146,19 @@
     // expansion board functions.  Note that these aren't used for any
     // button inputs in this board - all of the buttons are connected
     // to 74HC165 ports instead.
+    //
+    // The PCA9555 interrupt pin (/INT) isn't connected, so the Pico
+    // will poll the chip for input.  Most of the PCA9555 ports are
+    // used as outputs, and the ones that are used as inputs aren't
+    // particularly sensitive to latency, so there's no need for the
+    // interrupt signal.  (And the whole point of using the PCA9555
+    // in the first place is that we're out of GPIOs on the Pico, so
+    // we don't want to tie up a GPIO with the /INT signal.)
     pca9555: [
         // IC1 on Adapter Board
         {
             i2c: 0,
             addr: 0x20,
-            interrupt: 12,
 
             // Set initial outputs for peripheral control lines:
             //   IO0_3 -> 74HC595 /ENABLE -> hold HIGH during initialization

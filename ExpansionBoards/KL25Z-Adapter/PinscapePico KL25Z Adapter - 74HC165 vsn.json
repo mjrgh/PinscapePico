@@ -20,16 +20,24 @@
 // can overheat if energized for more than a few moments at a time.
 //
 // Every Expansion Board system has one Main board, since that's where
-// the KL25Z CPU that runs the whole thing connects.  You can then Power
-// and Chime boards as needed.  The most common configurations are:
+// the KL25Z CPU that runs the whole thing connects.  You can then add
+// optional Power and Chime boards as needed to add ports for feedback
+// devices.  The most common configurations are:
 //
 //   Main board only
 //   Main board + one Power board
 //   Main board + one Power board + one Chime board
 //
-// This configuration is written with the assumption that you have the
+// Many other configurations are possible, because the only fixed
+// requirement is that there's one Main board.  Beyond that, you can
+// have any mix of zero or more Power and/or Chime boards.  But very
+// few virtual pin cab systems will ever need more than one of each,
+// so the configurations listed above are the most common.
+//
+// This JSON file is written with the assumption that you have the
 // MAIN + POWER + CHIME configuration, with one of each board.  You'll
-// have to make some small manual edits if you have a different setup.
+// have to make some small manual edits if you have a different setup,
+// as explained below.
 //
 // TO DO: CUSTOMIZE FOR YOUR SETUP
 //

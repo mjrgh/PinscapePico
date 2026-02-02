@@ -1347,7 +1347,7 @@ Button::Action *Button::ParseAction(const char *location, const JSONParser::Valu
             // to be descriptive of the functions defined in the spec.  The point
             // of the pre-defined function buttons is that simulators can map these
             // functions to their own corresponding functions without any need for
-            // the user to configure the mapping, since the funtion for each button
+            // the user to configure the mapping, since the function for each button
             // slot is well-defined in the spec and common to all devices that
             // implement the spec.
             static const std::unordered_map<std::string, int> nameMap{
@@ -1887,7 +1887,7 @@ void ToggleButton::Poll()
             usbIfc.SetWakePending();
     }
 
-    // reecord the new source state for next time
+    // record the new source state for next time
     lastSourceState = sourceState;
 }
 
@@ -1940,9 +1940,9 @@ void OnOffButton::Poll()
 // Construct.  Note that the time arguments are expressed in milliseconds,
 // but we use microseconds internally (since that's the unit that the Pico's
 // time-related APIs use), so we must convert units here.  Converting is
-// almost as simple as muliplying by 1000 (us per ms), with the little
+// almost as simple as multiplying by 1000 (us per ms), with the little
 // detail that we should also widen the values to 32 bits to ensure that
-// longer time values don't overflow.  The inputs are given in millseconds
+// longer time values don't overflow.  The inputs are given in milliseconds
 // and passed in uint16_t arguments because that's the natural scsale for
 // these intervals: you don't want to use intervals shorter than a few
 // milliseconds, because whatever you're connecting as the output action
@@ -2525,7 +2525,7 @@ Button::IRSource::IRSource(const IRCommandDesc &cmd,
     latchingInterval_us(latchingInterval_ms * 1000),
     firstRepeatDelay_us(firstRepeatDelay_ms * 1000)
 {
-    // subscribe for events that match our command desciptor
+    // subscribe for events that match our command descriptor
     irReceiver.Subscribe(this, { cmd });
 }
 
@@ -2994,7 +2994,7 @@ void Button::MacroAction::OnStateChange(bool state)
     // check the new state
     if (state)
     {
-        // off -> on - activate the macro if it's not alerady running
+        // off -> on - activate the macro if it's not already running
         if (!isRunning)
             StartMacro(state);
     }

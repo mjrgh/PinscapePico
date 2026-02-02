@@ -56,7 +56,7 @@
 // The error was a regression in 0.17.0, and was fixed in the official
 // 0.18.0, so it ONLY affects *exactly* version 0.17.0.  Unfortunately,
 // that's the version in the current official Raspberry Pi SDK (2.1.0),
-// so anyone buliding against the official SDK will get the buggy code.
+// so anyone building against the official SDK will get the buggy code.
 // I added the fix to my UNOFFICIAL build of the 2.1.0 SDK, along with
 // a marker macro to let client code know that the fix is included.
 //
@@ -69,7 +69,7 @@
 // The test is here to make your life easier, by saving you the trouble
 // of building a firmware binary that won't work properly, which is what
 // you'll get if you build against the official 2.1.0 SDK.  There are
-// two valid ways to satify this error check:
+// two valid ways to satisfy this error check:
 //
 // 1. Build against some official SDK release OTHER THAN 2.1.0, such
 // as 1.5.1.  2.1.0 is the only SDK that includes the buggy TinyUSB
@@ -1419,7 +1419,7 @@ int PinscapeVendorIfc::ProcessClockSync(const Request::Args::TimeSync &req, Resp
             // (This of course assumes that the frame is within the past 2.048
             // seconds, so that it hasn't rolled over more than once.  That's
             // always true as long as the caller captures the USB frame information
-            // immediatly before sending the request.)
+            // immediately before sending the request.)
             int dFrame = static_cast<int>(picoCurFrameNum) - static_cast<int>(req.usbFrameNumber);
             if (dFrame < 0)
                 dFrame += 2048;

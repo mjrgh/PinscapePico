@@ -303,7 +303,7 @@ const uint8_t *USBIfc::GetDeviceDescriptor()
                                     // are valid). For HS devices is fixed to 64
 
         vid,                        // idVendor - Vendor ID (assigned by the USB-IF) - dynamic data to be filled in
-        pid,                        // idProduct - Product ID (assigned by the manufacturer) - dyanmic data to be filled in
+        pid,                        // idProduct - Product ID (assigned by the manufacturer) - dynamic data to be filled in
         0x0100,                     // bcdDevice - Device release number in binary-coded decimal
 
         0x01,                       // iManufacturer - Index of string descriptor describing manufacturer
@@ -491,7 +491,7 @@ static const uint8_t xinputDescriptors[] = {
     // One detail that's known is that the endpoint addresses and report lengths are
     // embedded, as commented below.  The rest of the contents are opaque.
     0x11, TUSB_DESC_CS_DEVICE,         // descriptor length and type
-    0x00, 0x01, 0x01,                  // uknown
+    0x00, 0x01, 0x01,                  // unknown
     0x25,                              // unknown
     USBIfc::EndpointInXInput, 0x14,    // endpoint in, maximum data size
     0x00, 0x00, 0x00, 0x00, 0x13,      // unknown
@@ -772,7 +772,7 @@ bool USBIfc::VendorControlXfer(uint8_t rhport, uint8_t stage, const tusb_control
         return true;
 
     default:
-        // uknown stage
+        // unknown stage
         return false;
     }
 }

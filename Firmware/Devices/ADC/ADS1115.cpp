@@ -21,7 +21,7 @@
 #include "ADS1115.h"
 #include "CommandConsole.h"
 
-// statics
+// statistics
 ADS1115 *ADS1115::chips[8];
 int ADS1115::nChipsConfigured = 0;
 

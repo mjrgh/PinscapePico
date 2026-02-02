@@ -145,7 +145,7 @@ static const int INDICATOR_FIND = INDICATOR_CONTAINER + 0;
 static const UINT MSG_FINDREPLACEDLG = WM_USER + 601;  // Find/Replace button click; WPARAM = button ID
 static const UINT MSG_OFFERTEMPLATE = WM_USER + 602;   // offer to load a template file
 
-// statics
+// statistics
 ConfigEditorWin::Options ConfigEditorWin::options;
 
 // construction

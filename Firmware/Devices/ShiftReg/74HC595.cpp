@@ -66,7 +66,7 @@ std::vector<std::unique_ptr<C74HC595>> C74HC595::chains;
 // varying from one startup to the next.  The Pinscape software turns
 // off all of the ports during the software initialization, so any
 // random port firing will only last for a few milliseconds, but that
-// can be enough to trigger noticable mechanical action if a port is
+// can be enough to trigger noticeable mechanical action if a port is
 // controlling a motor or a solenoid or something similar.  Wiring
 // Enable to a GPIO, with a pull-up resistor to VCC, should eliminate
 // startup glitching by deterministically disabling all of the outputs

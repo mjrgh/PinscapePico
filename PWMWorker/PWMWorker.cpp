@@ -771,7 +771,7 @@ int main()
                 if (newRegLevel > powerLimit)
                 {
                     // If this newly takes us over the limit, set the timeout.
-                    // If we were alerady over the limit, keep the existing timeout,
+                    // If we were already over the limit, keep the existing timeout,
                     // since we've already burned through some of the allowed
                     // over-limit time.
                     if (port->lastRegLevel <= powerLimit)

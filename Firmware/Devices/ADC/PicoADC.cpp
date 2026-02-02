@@ -30,7 +30,7 @@
 // IRQ handler is for DMA completion rather than ADC completion, so it
 // only fires once ever N/2 samples (where N is the buffer size in
 // samples).  If we make N = 1024, this gives us 512*2us = 1ms between
-// interrupts, which (a) reduces interrupt overhead to neglible levels,
+// interrupts, which (a) reduces interrupt overhead to negligible levels,
 // and (b) gives us an extremely long latency cushion to respond to
 // interrupts, since we only have to response to the Channel A interrupt
 // before Channel B finishes 1ms later, and vice versa.  This gives us
@@ -234,7 +234,7 @@ void PicoADC::StartDMALoop()
     // B completes its transfer.  In that event, A's write pointer will still
     // be at the end of its buffer, where it could plow ahead into memory space
     // it doesn't own.  So we can't link channel B until channel A is re-armed
-    // with its write pointer set correctly for a new trasnfer.
+    // with its write pointer set correctly for a new transfer.
     dma_channel_config dmaConfB = dma_channel_get_default_config(dmaChannelB);
     channel_config_set_read_increment(&dmaConfB, false);
     channel_config_set_write_increment(&dmaConfB, true);

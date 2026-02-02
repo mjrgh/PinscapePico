@@ -95,7 +95,7 @@ public:
 	std::function<void(H)> deleter;
 };
 
-// statics
+// statistics
 uint64_t VendorInterface::qpcTickTime_us64 = VendorInterface::GetQPCTickTime_us64();
 uint64_t VendorInterface::GetQPCTickTime_us64()
 {

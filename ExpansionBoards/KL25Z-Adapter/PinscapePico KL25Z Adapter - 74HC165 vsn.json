@@ -1218,6 +1218,6 @@
         shift: 1,
         latch: 2,
         data: 3,
-        enable: { type: "pca9555", chip: 0, port: "IO0_3" },
+        enable: { type: "pca9555", chip: 0, port: "IO0_3", inverted: true },
     },
 }

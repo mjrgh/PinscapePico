@@ -66,6 +66,7 @@ IR_PROTOCOL_RXTX(IRPSamsung36)
 IR_PROTOCOL_RXTX(IRPLutron)
 IR_PROTOCOL_RXTX(IRPOrtekMCE)
 IR_PROTOCOL_RXTX(IRPJVC16)
+IR_PROTOCOL_RXTX(IRPTCLJVC)
 
 // clear the macros to make way for future definitions
 #undef IR_PROTOCOL_RXTX

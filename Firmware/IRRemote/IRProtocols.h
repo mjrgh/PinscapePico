@@ -3438,6 +3438,77 @@ public:
 
 // -------------------------------------------------------------------------
 //
+// TCL/JVC protocol, known more formally as PDWM (Pulse Distance Width
+// Modulation).  This is a space-length coding that superficially
+// resembles the widely used NEC codes, but with different timing
+// parameters, and without any internal redundancy coding.  The payload
+// is structured into two bit fields: an 8-bit or 16-bit "address" (a
+// device ID, coded to a particular TV model or other device type, with
+// codes assigned arbitrarily by the manufacturer), followed by an 8-bit
+// command code.
+//
+// This protocol is reportedly used in a few TCL models and some older
+// JVC equipment.  Most newer TCL equipment reportedly uses the standard
+// NEC protocols, and newer JVC equipment uses the proprietary JVC
+// formats.  This format (the 24-bit variant) has been spotted in the
+// wild in at least one TCL TV still in pin cab service.
+class IRPTCLJVC: public IRPSpaceLength<uint32_t>
+{
+public:
+    IRPTCLJVC() { }
+
+    // name and ID
+    virtual const char *Name() const { return "TCL/JVC"; }
+    virtual uint8_t Id() const { return IRPRO_TCLJVC16; }
+
+    // TX code match
+    virtual bool IsSenderFor(int id) const { return id == IRPRO_TCLJVC16 || id == IRPRO_TCLJVC24; }
+
+    // carrier is 38kHz
+    virtual int PWMFreq(IRTXState *state) const override { return 38000; }
+
+    // header
+    virtual uint32_t tHeaderMark() const override { return 4000; }
+    virtual uint32_t tHeaderSpace() const override { return 4000; }
+
+    // mark length, in microseconds
+    virtual int tMark() const override { return 500; }
+
+    // 0 and 1 bit space lengths, in microseconds
+    virtual int tZero() const override { return 1000; }
+    virtual int tOne() const override { return 2000; }
+
+    // stop mark
+    virtual uint32_t tStopMark() const override { return 500; }
+
+    // minimum gap on receive
+    virtual uint32_t MinRxGap() const override { return 4000; }
+
+    // transmit gap times
+    virtual uint32_t TxGap(IRTXState *) const override { return 8500; }
+
+    // maximum number of bits - this code comes in 16- and 24-bit variants
+    virtual int NBits() const override { return 24; }
+
+    // convert a code to a bitstream
+    virtual void CodeToBitstream(IRTXState *state) override
+    {
+        // this code comes in 16-bit and 24-bit variants
+        state->nbits = state->protocolId == IRPRO_TCLJVC16 ? 16 : 24;
+        state->bitstream = state->cmdCode;
+    }
+
+    // close received code
+    virtual void RxClose(IRRecvProIfc *receiver, bool ditto)
+    {
+        // set the protocol variant based on the bit count
+        CheckRepeatByTime(receiver, { bit == 16 ? IRPRO_TCLJVC16 : IRPRO_TCLJVC24, code }, 250000);
+    }
+};
+
+
+// -------------------------------------------------------------------------
+//
 // Protocol singletons.  We combine these into a container structure
 // so that we can allocate the whole set of protocol handlers in one
 // 'new'.

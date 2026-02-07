@@ -41,3 +41,5 @@ const uint8_t IRPRO_ORTEKMCE = 27;    // OrtekMCE
 const uint8_t IRPRO_LUTRON = 28;      // Lutron lights, fans, and home automation
 const uint8_t IRPRO_TCLROKU = 29;     // TCL Roku models (NEC 32 with doubled code words)
 const uint8_t IRPRO_JVC16 = 30;       // JVC custom 16-bit protocol
+const uint8_t IRPRO_TCLJVC16 = 31;    // TCL/JVC (PDWM) 16-bit
+const uint8_t IRPRO_TCLJVC24 = 32;    // TCL/JVC (PDWM) 24-bit

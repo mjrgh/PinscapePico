@@ -1071,10 +1071,27 @@ namespace PinscapePico
         //   The level values are in the same order as the ports reported
         //   from SUBCMD_OUTPUT_QUERY_DEVICE_PORTS, so that list can be
         //   used to map the level elements to port descriptors.
+        //
+        // SUBCMD_OUTPUT_QUERY_NIGHT_MODE
+        //   Queries the current Night Mode status.  The status is
+        //   returned in args.argBytes[0]:
+        //      0x00    Night Mode is OFF
+        //      0x01    Night Mode is ON
+        //      Other   Reserved
+        //
+        // SUBCMD_OUTPUT_SET_NIGHT_MODE
+        //   Sets the current Night Mode status.  The new status is
+        //   specified in the second byte of the arguments (the first
+        //   byte following the subcommand byte):
+        //      0x00    Deactivate Night Mode
+        //      0x01    Activate Night Mode
+        //      Other   Reserved
+        //
         static const uint8_t CMD_OUTPUTS = 0x11;
         static const uint8_t SUBCMD_OUTPUT_SET_PORT = 0x01;
         static const uint8_t SUBCMD_OUTPUT_TEST_MODE = 0x02;
         static const uint8_t SUBCMD_OUTPUT_SET_DEVICE_PORT = 0x03;
+        static const uint8_t SUBCMD_OUTPUT_SET_NIGHT_MODE = 0x04;
         static const uint8_t SUBCMD_OUTPUT_PWMWORKER_RESET = 0x70;
         static const uint8_t SUBCMD_OUTPUT_PWMWORKER_BOOTLOADER = 0x71;
         static const uint8_t SUBCMD_OUTPUT_QUERY_LOGICAL_PORTS = 0x81;
@@ -1083,6 +1100,7 @@ namespace PinscapePico
         static const uint8_t SUBCMD_OUTPUT_QUERY_LOGICAL_PORT_LEVELS = 0x84;
         static const uint8_t SUBCMD_OUTPUT_QUERY_DEVICE_PORT_LEVELS = 0x85;
         static const uint8_t SUBCMD_OUTPUT_QUERY_LOGICAL_PORT_NAME = 0x86;
+        static const uint8_t SUBCMD_OUTPUT_QUERY_NIGHT_MODE = 0x87;
 
         // Ping.  This can be used to test that the connection is working
         // and the device is responsive.  This takes no arguments, and

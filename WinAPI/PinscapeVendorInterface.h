@@ -1117,6 +1117,14 @@ namespace PinscapePico
 		// the time limiter won't function during suspensions.
 		int SetOutputTestMode(bool testMode, uint32_t timeout_ms);
 
+		// Query Night Mode.  Sets status to false if Night Mode
+		// is OFF, true if Night Mode is ON.
+		int QueryNightMode(bool &status);
+
+		// Set Night Mode (true -> activate Night Mode, false ->
+		// deactivate Night Mode).
+		int SetNightMode(bool status);
+
 		// Initiate an I2C bus scan
 		int I2CBusScan();
 

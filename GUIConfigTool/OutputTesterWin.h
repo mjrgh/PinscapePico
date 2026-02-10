@@ -68,16 +68,20 @@ namespace PinscapePico
 		// protected constructor - clients use the factory
 		OutputTesterWin(HINSTANCE hInstance, std::shared_ptr<VendorInterface::Shared> &device);
 
+		// window class name
+		const TCHAR *GetWindowClassName() const override { return _T("PinscapePicoOutputTester"); }
+
 		// query device information - called during construction and on device reconnect
 		void QueryDeviceInfo();
 
-		// window class name
-		const TCHAR *GetWindowClassName() const override { return _T("PinscapePicoOutputTester"); }
+		// toggle Night Mode
+		void ToggleNightMode();
 
 		// window message handlers
 		virtual void OnCreateWindow() override;
 		virtual void OnSizeWindow(WPARAM type, WORD width, WORD height) override;
 		virtual bool OnSysCommand(WPARAM id, WORD x, WORD y, LRESULT &lresult) override;
+		virtual bool OnSetCursor(HWND hwndCursor, UINT hitTest, UINT msg) override;
 		virtual bool OnMouseMove(WPARAM keys, int x, int y) override;
 		virtual bool OnLButtonDown(WPARAM keys, int x, int y) override;
 		virtual bool OnLButtonUp(WPARAM keys, int x, int y) override;
@@ -178,6 +182,20 @@ namespace PinscapePico
 			};
 			std::unordered_map<int, DevLevelChange> devLevelChanges;
 
+			// Are Night Mode query/set operations available on the device?
+			// (Older firmware doesn't support the Night Mode USB commands.)
+			bool nightModeAvailable = false;
+
+			// Night Mode setting, as set in the UI.  When the user clicks
+			// the Night Mode control, we set the "pending" flag.  The updater
+			// thread will read the UI night mode status and send a command
+			// to update the device to match.
+			bool uiNightMode = false;
+			bool uiNightModePending = false;
+
+			// current Night Mode setting reported by device
+			bool devNightMode = false;
+
 			// update
 			virtual bool Update(bool &releasedMutex) override;
 		};
@@ -203,11 +221,18 @@ namespace PinscapePico
 
 		// output port panel metrics
 		int cxPanel = 0;
+		int yHeaderLeft = 0;
 		int cyHeaderLeft = 0;
+		int yHeaderRight = 0;
 		int cyHeaderRight = 0;
 		int cxPanelMin = 0;
 		int cyOutput = 0;
 		const int yMarginOutput = 5;
+		int yFooter = 0;
+		int cyFooter = 0;
+
+		// Night Mode button area
+		RECT rcNightModeButton{ 0, 0, 0, 0 };
 
 		// test mode panel metrics
 		int cyWarning = 0;

@@ -1887,7 +1887,7 @@ void ToggleButton::Poll()
             usbIfc.SetWakePending();
     }
 
-    // reecord the new source state for next time
+    // record the new source state for next time
     lastSourceState = sourceState;
 }
 

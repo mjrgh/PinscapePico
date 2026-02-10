@@ -836,6 +836,32 @@ void PinscapeVendorIfc::ProcessRequest()
             if ((resp.xferBytes = OutputManager::QueryDevicePortLevels(xferOut.data, sizeof(xferOut.data))) == 0)
                 resp.status = Response::ERR_FAILED;
             break;
+
+        case Request::SUBCMD_OUTPUT_QUERY_NIGHT_MODE:
+            // query Night Mode: sets the first byte of the reply args to the
+            // current Night Mode status (OFF -> 0x00, ON -> 0x01)
+            resp.argsSize = 1;
+            resp.args.argBytes[0] = nightModeControl.Get() ? 0x01 : 0x00;
+            break;
+
+        case Request::SUBCMD_OUTPUT_SET_NIGHT_MODE:
+            // set Night Mode: the second byte of the command args (the first
+            // byte after the subcommand code) indicates the new status to
+            // set, 0x00 -> OFF, 0x01 -> ON, others -> undefined/reserved)
+            switch (curRequest.args.argBytes[1])
+            {
+            case 0x00:
+                nightModeControl.Set(false);
+                break;
+
+            case 0x01:
+                nightModeControl.Set(true);
+                break;
+
+            default:
+                resp.status = Response::ERR_BAD_PARAMS;
+                break;
+            }
             
         default:
             // invalid subcommand

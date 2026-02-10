@@ -195,6 +195,21 @@ bool OutputTesterWin::TranslateAccelerators(HWND hwndMenu, MSG *msg)
     return ::TranslateAccelerator(hwndMenu, hAccel, msg);
 }
 
+void OutputTesterWin::ToggleNightMode()
+{
+    // acquire the data mutex in the updater thread before making changes
+    if (WaitForSingleObject(updaterThread->dataMutex, 100) == WAIT_OBJECT_0)
+    {
+        // set the pending change for the updater thread to pick up on its next run
+        auto *ut = static_cast<UpdaterThread*>(updaterThread.get());
+        ut->uiNightModePending = true;
+        ut->uiNightMode = !ut->devNightMode;
+
+        // done modifying the shared data
+        ReleaseMutex(updaterThread->dataMutex);
+    }
+}
+
 void OutputTesterWin::SetLogicalPortMode()
 {
     // set normal (logical port) mode
@@ -233,10 +248,10 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
     auto DrawSeparator = [this, &hdc](int x0, int x1, int y)
     {
         HPen SepPen(RGB(0xE0, 0xE0, 0xE0));
-        HPEN savepen = SelectPen(hdc, SepPen);
+        HPEN savePen = SelectPen(hdc, SepPen);
         MoveToEx(hdc, x0, y, NULL);
         LineTo(hdc, x1, y);
-        SelectPen(hdc, savepen);
+        SelectPen(hdc, savePen);
     };
 
     // get the color for a PWM level, 0-255
@@ -247,21 +262,21 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
     auto DrawSlider = [this, &hdc](SliderCtl &slider, int index)
     {
         // refigure the level on an 8-bit scale, for the fill color
-        float levelf = static_cast<float>(slider.level) / (slider.numSteps - 1);
-        uint8_t level8 = static_cast<uint8_t>(roundf(levelf * 255.0f));
+        float levelFloat = static_cast<float>(slider.level) / (slider.numSteps - 1);
+        uint8_t levelU8 = static_cast<uint8_t>(roundf(levelFloat * 255.0f));
 
         // draw the bar
         int yBar = (slider.rc.top + slider.rc.bottom - cySliderBar)/2;
         int x = slider.rc.left;
         RECT src{ x, yBar, x + cxSliderBar, yBar + cySliderBar };
-        FillRect(hdc, &src, HBrush(slider.enabled ? LevelFill(level8) : HRGB(0xC0C0C0)));
+        FillRect(hdc, &src, HBrush(slider.enabled ? LevelFill(levelU8) : HRGB(0xC0C0C0)));
         if (slider.enabled)
             FrameRect(hdc, &src, GetStockBrush(BLACK_BRUSH));
 
         // draw the thumb
         if (slider.enabled)
         {
-            int xThumb = x + static_cast<int>(roundf(levelf * static_cast<float>(cxSliderBar - cxSliderThumb)));
+            int xThumb = x + static_cast<int>(roundf(levelFloat * static_cast<float>(cxSliderBar - cxSliderThumb)));
             int yThumb = (slider.rc.top + slider.rc.bottom - cySliderThumb)/2;
             RECT trc{ xThumb, yThumb, xThumb + cxSliderThumb, yThumb + cySliderThumb };
             HBrush br(HRGB(index == focusSlider ?
@@ -388,10 +403,15 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
 
     // select a gray pen for drawing separator lines
     HPen grayPen(RGB(0xC0, 0xC0, 0xC0));
-    HPEN oldpen = SelectPen(hdc, grayPen);
+    HPEN oldPen = SelectPen(hdc, grayPen);
 
     // set up a DC for copying bitmaps
     CompatibleDC bdc(hdc);
+
+    // get the cursor position, in local client coordinates
+    POINT cursorPos;
+    GetCursorPos(&cursorPos);
+    ScreenToClient(hwnd, &cursorPos);
 
     // get the updater thread object, cast to our subclass
     auto *ut = static_cast<UpdaterThread*>(updaterThread.get());
@@ -402,37 +422,34 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
     static const COLORREF clrTabNorm = HRGB(0x3b4f81);
     static const COLORREF clrTabTxtSel = HRGB(0x01247a);
     static const COLORREF clrTabTxtNorm = HRGB(0xffffff);
-    RECT rctc{ crc.left, crc.top, crc.right, crc.top + cyTabCtl };
-    FillRect(hdc, &rctc, HBrush(RGB(0x5c, 0x6d, 0x99)));
-    RECT rctcGutter{ rctc.left, rctc.bottom - cyTabBottomMargin, rctc.right, rctc.bottom };
-    FillRect(hdc, &rctcGutter, HBrush(clrTabSel));
-    auto DrawTab = [this, &hdc, &rctc](int &x, const char *label, bool selected, RECT &tabrc)
+    RECT rcTabCtl{ crc.left, crc.top, crc.right, crc.top + cyTabCtl };
+    FillRect(hdc, &rcTabCtl, HBrush(RGB(0x5c, 0x6d, 0x99)));
+    RECT rcTabCtlGutter{ rcTabCtl.left, rcTabCtl.bottom - cyTabBottomMargin, rcTabCtl.right, rcTabCtl.bottom };
+    FillRect(hdc, &rcTabCtlGutter, HBrush(clrTabSel));
+    auto DrawTab = [this, &hdc, &rcTabCtl, cursorPos](int &x, const char *label, bool selected, RECT &rcTab)
     {
         // figure the tab size
         int padLeft = 8;
         int padRight = 12;
         SIZE sz = hdc.MeasureText(boldFont, label);
-        tabrc ={ x, rctc.top + cyTabTopMargin, x + padLeft + padRight + sz.cx, rctc.bottom - cyTabBottomMargin };
+        rcTab ={ x, rcTabCtl.top + cyTabTopMargin, x + padLeft + padRight + sz.cx, rcTabCtl.bottom - cyTabBottomMargin };
 
         // draw slightly shorter for non-selected tabs
         if (!selected)
-            tabrc.top += 1;
+            rcTab.top += 1;
 
         // figure if the mouse is over the tab
-        POINT pt;
-        GetCursorPos(&pt);
-        ScreenToClient(hwnd, &pt);
-        bool hot = PtInRect(&tabrc, pt);
+        bool hot = PtInRect(&rcTab, cursorPos);
 
         // draw it
-        FillRect(hdc, &tabrc, HBrush(selected ? clrTabSel : hot ? clrTabHot : clrTabNorm));
-        hdc.DrawText(x + padLeft, tabrc.bottom - cyTabBottomPadding - sz.cy, 1,
+        FillRect(hdc, &rcTab, HBrush(selected ? clrTabSel : hot ? clrTabHot : clrTabNorm));
+        hdc.DrawText(x + padLeft, rcTab.bottom - cyTabBottomPadding - sz.cy, 1,
             selected ? boldFont : mainFont, selected || hot ? clrTabTxtSel : clrTabTxtNorm, label);
 
         // advance the x position past the tab, to set up for the next tab
-        x = tabrc.right;
+        x = rcTab.right;
     };
-    int xTab = rctc.left + cxTabLeftMargin;
+    int xTab = rcTabCtl.left + cxTabLeftMargin;
     if (cyTabCtl != 0)
     {
         DrawTab(xTab, "Logical Port Mode", !ut->uiTestMode, rcTabNormalMode);
@@ -475,13 +492,13 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             }
 
             // draw the logical output port list header title
-            RECT hrc{ crc.left, crc.top + cyTabCtl, crc.left + cxPanel + cxScrollbar, crc.top + cyHeaderLeft + cyTabCtl };
+            RECT hrc{ crc.left, yHeaderLeft, crc.left + cxPanel + cxScrollbar, yHeaderLeft + cyHeaderLeft };
             FillRect(hdc, &hrc, HBrush(RGB(0xF0, 0xF0, 0xF0)));
             int y = hrc.top + 8;
             y += hdc.DrawText(xPortCol, y, 1, boldFont, RGB(0x80, 0, 0x80), "Logical (DOF) Ports").cy;
 
             // separator bar
-            DrawSeparator(crc.left, cxPanel + cxScrollbar, cyHeaderRight + cyTabCtl - 1);
+            DrawSeparator(crc.left, cxPanel + cxScrollbar, yHeaderRight + cyHeaderRight - 1);
 
             // draw the column headers
             y = hrc.bottom - szBoldFont.cy - 4;
@@ -508,18 +525,18 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             };
 
             // draw the output ports
-            IntersectClipRect(hdc, crc.left, hrc.bottom, hrc.right, crc.bottom);
-            RECT portrc{ crc.left, hrc.bottom - yScrollPorts, crc.left + cxPanel, hrc.bottom - yScrollPorts + cyOutput - 1 };
+            IntersectClipRect(hdc, crc.left, hrc.bottom, hrc.right, crc.bottom - cyFooter);
+            RECT rcPort{ crc.left, hrc.bottom - yScrollPorts, crc.left + cxPanel, hrc.bottom - yScrollPorts + cyOutput - 1 };
             const auto *pLevel = ut->portLevels.data();
             const auto *pDesc = portDescs.data();
             for (unsigned int i = 0 ; i < ut->portLevels.size() && i < portDescs.size() ;
-                ++i, ++pLevel, ++pDesc, OffsetRect(&portrc, 0, cyOutput))
+                ++i, ++pLevel, ++pDesc, OffsetRect(&rcPort, 0, cyOutput))
             {
                 // get this row's slider control object
                 auto &slider = logSlider[i];
 
                 // skip drawing if we're out of bounds
-                if (portrc.bottom < crc.top + hrc.bottom || portrc.top > crc.bottom)
+                if (rcPort.bottom < crc.top + hrc.bottom || rcPort.top > crc.bottom - cyFooter)
                 {
                     // clear the slider coordinates, as this slider isn't visible
                     slider.rc ={ 0,0,0,0 };
@@ -529,7 +546,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                 }
 
                 // start at left, with margins
-                int yTxt = (portrc.top + portrc.bottom - szBoldFont.cy)/2;
+                int yTxt = (rcPort.top + rcPort.bottom - szBoldFont.cy)/2;
 
                 // draw the port number label and name
                 hdc.DrawTextF(xPortCol, yTxt, 1, boldFont, RGB(0, 0, 0), "#%d", i+1);
@@ -548,7 +565,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                 hdc.DrawText(xDevCol, yTxt, 1, mainFont, RGB(0, 0, 0), devDesc);
 
                 // draw the attribute icons
-                POINT ptAttrs{ xAttrCol, (portrc.top + portrc.bottom - cyAttrIcons)/2 };
+                POINT ptAttrs{ xAttrCol, (rcPort.top + rcPort.bottom - cyAttrIcons)/2 };
                 bdc.Select(bmpAttrIcons);
                 auto DrawAttrIcon =[this, &hdc, &ptAttrs, pDesc, &bdc, &newIconTips](
                     int iconIndex, unsigned int flagBit, const char *text)
@@ -578,7 +595,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                 DrawAttrIcon(4, pDesc->F_COMPUTED, "Computed-Value Output Port\0Normal Host-Controlled Output");
 
                 // draw the level boxes (Host, Calc, Out)
-                RECT rclvl{ xLevelCol, portrc.top + 2, xLevelCol + 32, portrc.bottom - 2 };
+                RECT rcLevel{ xLevelCol, rcPort.top + 2, xLevelCol + 32, rcPort.bottom - 2 };
                 if ((pLevel->lwState & pLevel->LWSTATE_MODE) != 0)
                 {
                     // LedWiz port mode.  The LedWiz state has two orthogonal components:
@@ -604,7 +621,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                         uint8_t dofEquivLevel = on ? (pLevel->lwProfile == 49 ? 255 : (pLevel->lwProfile*255 + 24)/48) : 0x00;
 
                         // draw the level box, showing the LedWiz profile value as the level number
-                        DrawLevelBox(rclvl, pLevel->lwProfile, dofEquivLevel, "L%d");
+                        DrawLevelBox(rcLevel, pLevel->lwProfile, dofEquivLevel, "L%d");
                     }
                     else if (pLevel->lwProfile >= 129 && pLevel->lwProfile <= 132)
                     {
@@ -618,59 +635,59 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                         int yCell = on ? cyLedWizWaveIcons : 0;
 
                         // fill the cell with the appropriate background color
-                        FillRect(hdc, &rclvl, HBrush(HRGB(on ? 0x00FF00 : 0x000000)));
+                        FillRect(hdc, &rcLevel, HBrush(HRGB(on ? 0x00FF00 : 0x000000)));
 
                         // draw the icon centered in the available space
                         bdc.Select(bmpLedWizWaveIcons);
-                        int w = rclvl.right - rclvl.left;
-                        int h = rclvl.bottom - rclvl.top;
+                        int w = rcLevel.right - rcLevel.left;
+                        int h = rcLevel.bottom - rcLevel.top;
                         int wBlt = min(cxLedWizWaveIcons, w);
                         int hBlt = min(cyLedWizWaveIcons, h);
-                        BitBlt(hdc, rclvl.left + max(0, (w - cxLedWizWaveIcons)/2), rclvl.top + max(0, (h - cyLedWizWaveIcons)/2), wBlt, hBlt,
+                        BitBlt(hdc, rcLevel.left + max(0, (w - cxLedWizWaveIcons)/2), rcLevel.top + max(0, (h - cyLedWizWaveIcons)/2), wBlt, hBlt,
                             bdc, xCell + max(0, (cxLedWizWaveIcons - w)/2), yCell + max(0, (cyLedWizWaveIcons - h)/2), SRCCOPY);
 
                         // draw the frame outline
-                        FrameRect(hdc, &rclvl, HBrush(RGB(0, 0, 0)));
+                        FrameRect(hdc, &rcLevel, HBrush(RGB(0, 0, 0)));
                     }
                 }
                 else
                 {
                     // normal DOF port mode - just draw the 0-255 DOF PWM level number
-                    DrawLevelBox(rclvl, pLevel->dofLevel, pLevel->dofLevel);
+                    DrawLevelBox(rcLevel, pLevel->dofLevel, pLevel->dofLevel);
                 }
 
-                OffsetRect(&rclvl, xLevelCol2 - xLevelCol, 0);
+                OffsetRect(&rcLevel, xLevelCol2 - xLevelCol, 0);
 
-                DrawLevelBox(rclvl, pLevel->calcLevel, pLevel->calcLevel);
-                OffsetRect(&rclvl, xLevelCol3 - xLevelCol2, 0);
+                DrawLevelBox(rcLevel, pLevel->calcLevel, pLevel->calcLevel);
+                OffsetRect(&rcLevel, xLevelCol3 - xLevelCol2, 0);
 
-                DrawLevelBox(rclvl, pLevel->outLevel, pLevel->outLevel);
-                OffsetRect(&rclvl, xLevelCol3 - xLevelCol2, 0);
+                DrawLevelBox(rcLevel, pLevel->outLevel, pLevel->outLevel);
+                OffsetRect(&rcLevel, xLevelCol3 - xLevelCol2, 0);
 
                 // figure the slider control's screen coordinates
-                int xSlider = rclvl.left;
-                slider.rc ={ xSlider, portrc.top + 2, xSlider + cxSliderBar, portrc.bottom - 2 };
+                int xSlider = rcLevel.left;
+                slider.rc ={ xSlider, rcPort.top + 2, xSlider + cxSliderBar, rcPort.bottom - 2 };
 
                 // draw it
                 DrawSlider(slider, i);
 
                 // separator
-                MoveToEx(hdc, portrc.left, portrc.bottom, NULL);
-                LineTo(hdc, portrc.right, portrc.bottom);
+                MoveToEx(hdc, rcPort.left, rcPort.bottom, NULL);
+                LineTo(hdc, rcPort.right, rcPort.bottom);
             }
             SelectClipRgn(hdc, NULL);
 
             // devices panel header
             hrc.left = hrc.right + 1;
             hrc.right = crc.right;
-            hrc.bottom = crc.top + cyHeaderRight + cyTabCtl;
+            hrc.bottom = yHeaderRight + cyHeaderRight;
             FillRect(hdc, &hrc, HBrush(RGB(0xf0, 0xf0, 0xf0)));
             y = hrc.top + 8;
             const int xPhysCol = hrc.left + xMargin;
             y += hdc.DrawText(xPhysCol, y, 1, boldFont, RGB(0x80, 0, 0x80), "Physical Device Ports").cy;
 
             // clip to the devices scrolling area
-            IntersectClipRect(hdc, cxPanel, hrc.bottom, crc.right - cxScrollbar, crc.bottom);
+            IntersectClipRect(hdc, cxPanel, hrc.bottom, crc.right - cxScrollbar, crc.bottom - cyFooter);
 
             // set up coordinates
             int x0 = hrc.left + xMargin;
@@ -792,6 +809,39 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
 
             // remove the clipping area
             SelectClipRgn(hdc, NULL);
+
+            // draw the status footer
+            RECT rcFooter{ crc.left, crc.bottom - cyFooter, crc.right, crc.bottom };
+            DrawSeparator(rcFooter.left, rcFooter.right, rcFooter.top);
+            bool hot = PtInRect(&rcNightModeButton, cursorPos);
+            const COLORREF hotTextColor = HRGB(0xA000A0);
+            if (hot)
+            {
+                FillRect(hdc, &rcNightModeButton, HBrush(HRGB(0xFFFF00)));
+                FrameRect(hdc, &rcNightModeButton, HBrush(hotTextColor));
+            }
+            x = xPortCol;
+            y = rcFooter.top + 8;
+            x += hdc.DrawText(xPortCol, y, 1, boldFont, HRGB(hot ? hotTextColor : 0x000000), "Night Mode:  ").cx;
+            if (!ut->nightModeAvailable)
+            {
+                // indicate that Night Mode functions aren't available, and make the button area inactive
+                x += hdc.DrawText(x, y, 1, boldFont, HRGB(0x808080), "N/A (firmware update required)").cx;
+                rcNightModeButton = { 0, 0, 0, 0 };
+            }
+            else
+            {
+                // show it as ON or OFF
+                if (ut->devNightMode)
+                    hdc.DrawText(x, y, 1, boldFont, HRGB(hot ? hotTextColor : 0x00A000), "ON");
+                else
+                    hdc.DrawText(x, y, 1, boldFont, HRGB(hot ? hotTextColor : 0x404040), "Off");
+
+                // update the button area
+                SIZE szOff = hdc.MeasureText(boldFont, "OFF");
+                rcNightModeButton = { xPortCol - 4, rcFooter.top + 4, x + szOff.cx + 4, rcFooter.top + 8 + szOff.cy + 4 };
+            }
+
         }
         else
         {
@@ -972,7 +1022,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
 	}
 
     // clean up drawing resources
-    SelectPen(hdc, oldpen);
+    SelectPen(hdc, oldPen);
 }
 
 void OutputTesterWin::AdjustLayout()
@@ -982,10 +1032,10 @@ void OutputTesterWin::AdjustLayout()
 	GetClientRect(hwnd, &crc);
 
 	// position the left panel scrollbar
-	MoveWindow(sbPortPanel, cxPanel, crc.top + cyHeaderLeft + cyTabCtl, cxScrollbar, crc.bottom - crc.top - cyHeaderLeft - cyTabCtl, TRUE);
+	MoveWindow(sbPortPanel, cxPanel, yHeaderLeft + cyHeaderLeft, cxScrollbar, crc.bottom - yHeaderLeft - cyHeaderLeft - cyFooter, TRUE);
 
     // position the devices panel scrollbar
-    MoveWindow(sbDevPanel, crc.right - cxScrollbar, crc.top + cyHeaderRight + cyTabCtl, cxScrollbar, crc.bottom - crc.top - cyHeaderRight - cyTabCtl, TRUE);
+    MoveWindow(sbDevPanel, crc.right - cxScrollbar, yHeaderRight + cyHeaderRight, cxScrollbar, crc.bottom - yHeaderRight - cyHeaderRight - cyFooter, TRUE);
 
     // position the test mode scrollbar
     MoveWindow(sbTestMode, crc.right - cxScrollbar, crc.top + cyTabCtl, cxScrollbar, crc.bottom - crc.top - cyTabCtl - cyWarning, TRUE);
@@ -1025,10 +1075,13 @@ void OutputTesterWin::OnCreateWindow()
     HFONT oldFont = SelectFont(hdc, mainFont);
     GetTextExtentPoint32A(hdc, "M", 1, &szMainFont);
     cxPanelMin = szMainFont.cx * 42;
+    cyFooter = szMainFont.cy + 16;
+    yHeaderLeft = 0;
     cyHeaderLeft = szMainFont.cy*2 + 20;
     cyOutput = max(szMainFont.cy + yMarginOutput + 1, cyAttrIcons + 4);
 
     // right panel metrics
+    yHeaderRight = yHeaderLeft;
     cyHeaderRight = szMainFont.cy + 12;
 
     // get the bold font size
@@ -1052,7 +1105,7 @@ void OutputTesterWin::OnCreateWindow()
         // figure the client area height
         RECT crc;
         GetClientRect(hwnd, &crc);
-        int winHt = crc.bottom - crc.top - cyHeaderLeft - cyTabCtl;
+        int winHt = crc.bottom - cyHeaderLeft - yHeaderLeft - cyFooter;
 
         // figure the document height - number of ports x port height
         int docHt = cyOutput * static_cast<int>(portDescs.size());
@@ -1066,7 +1119,8 @@ void OutputTesterWin::OnCreateWindow()
     // get the output scroll region
     auto GetScrollRectPorts = [this](RECT *rc)
     {
-        rc->top += cyHeaderLeft + cyTabCtl;
+        rc->top += yHeaderLeft + cyHeaderLeft;
+        rc->bottom -= cyFooter;
         rc->right = rc->left + cxPanel;
     };
 
@@ -1086,18 +1140,19 @@ void OutputTesterWin::OnCreateWindow()
         // figure the client area height
         RECT crc;
         GetClientRect(hwnd, &crc);
-        int panelHt = crc.bottom - crc.top - cyHeaderRight - cyTabCtl;
+        int panelHt = crc.bottom - yHeaderRight - cyHeaderRight - cyFooter;
 
         // set the range
         si.nMin = 0;
-        si.nMax = max(devPanelDocHeight, 0);
+        si.nMax = max(devPanelDocHeight + cyLineScrollDev, 0);
         si.nPage = max(panelHt - cyLineScrollDev, 20);
     };
 
     // get the devices panel scrolling area
     auto GetScrollRectDevs = [this](RECT *rc)
     {
-        rc->top += cyHeaderRight + cyTabCtl;
+        rc->top += yHeaderRight + cyHeaderRight;
+        rc->bottom -= cyFooter;
         rc->left += cxPanel;
         rc->right -= cxScrollbar;
     };
@@ -1285,13 +1340,38 @@ void OutputTesterWin::ForEachSlider(std::function<bool(SliderCtl&, int)> callbac
     }
 }
 
+bool OutputTesterWin::OnSetCursor(HWND hwndCursor, UINT hitTest, UINT msg)
+{
+    // get the mouse position in client coordinates
+    POINT pt;
+    GetCursorPos(&pt);
+    ScreenToClient(hwnd, &pt);
+
+    // check if we're over the Night Mode button area
+    if (PtInRect(&rcNightModeButton, pt))
+    {
+        SetCursor(LoadCursor(NULL, IDC_HAND));
+        return true;
+    }
+
+    // use the default handling
+    return __super::OnSetCursor(hwndCursor, hitTest, msg);
+}
+
 bool OutputTesterWin::OnLButtonDown(WPARAM keys, int x, int y)
 {
+    // Check for a click in the Night Mode button
+    auto *ut = static_cast<UpdaterThread*>(updaterThread.get());
+    POINT pt{ x, y };
+    if (PtInRect(&rcNightModeButton, pt))
+    {
+        ToggleNightMode();
+        return true;
+    }
+ 
     // Check if we're over a slider control.  If we're in test mode,
     // the device sliders are active; otherwise the logical port
     // sliders are active.
-    auto *ut = static_cast<UpdaterThread*>(updaterThread.get());
-    POINT pt{ x, y };
     bool foundSlider = false;
     ForEachSlider([this, pt, &foundSlider](SliderCtl &slider, int index)
     {
@@ -1722,16 +1802,22 @@ bool OutputTesterWin::UpdaterThread::Update(bool &releasedMutex)
 	std::vector<PinscapePico::OutputDevLevel> devLevels;
 	ok = ok && (device->device->QueryPhysicalOutputDeviceLevels(devLevels) == PinscapeResponse::OK);
 
+    // update Night Mode
+    bool devNightMode;
+    bool nightModeAvailable = (device->device->QueryNightMode(devNightMode) == PinscapeResponse::OK);
+
 	// if the queries succeeded, update our internal records
-	if (ok)
-	{
-		// success - update the data in the context, holding the mutex while updating
-		if (WaitForSingleObject(dataMutex, 100) == WAIT_OBJECT_0)
-		{
+    if (ok)
+    {
+        // success - update the data in the context, holding the mutex while updating
+        if (WaitForSingleObject(dataMutex, 100) == WAIT_OBJECT_0)
+        {
             // update our saved copies of the port and device arrays
             this->devTestMode = testMode;
             this->portLevels = portLevels;
             this->devLevels = devLevels;
+            this->nightModeAvailable = nightModeAvailable;
+            this->devNightMode = devNightMode;
 
             // Check if we need to send a test mode command.  We need to send
             // a command if the test mode has changed, or it's time for the
@@ -1770,13 +1856,17 @@ bool OutputTesterWin::UpdaterThread::Update(bool &releasedMutex)
             // clear pending requests
             devLevelChanges.clear();
 
+            // sending pending Night Mode changes
+            if (uiNightModePending && nightModeAvailable && device->device->SetNightMode(uiNightMode) == PinscapeResponse::OK)
+                uiNightModePending = false;
+
             // done accessing the shared data
             ReleaseMutex(dataMutex);
 
-			// let the main thread know about the update
-			PostMessage(hwnd, DeviceThreadWindow::MSG_NEW_DATA, 0, 0);
-		}
-	}
+            // let the main thread know about the update
+            PostMessage(hwnd, DeviceThreadWindow::MSG_NEW_DATA, 0, 0);
+        }
+    }
 
     // return the result
 	return ok;

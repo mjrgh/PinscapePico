@@ -21,11 +21,18 @@
 
 #include <list>
 
+// forwards/externals
+class ConsoleCommandContext;
+
+// Night Mode controller
 class NightModeControl
 {
 public:
     NightModeControl();
     ~NightModeControl();
+
+    // initialize
+    void Init();
 
     // Turn night mode on or off
     void Set(bool state);
@@ -50,6 +57,9 @@ public:
     void Unsubscribe(NightModeEventSink *eventSink);
     
 protected:
+    // console command handler
+    static void Command(const ConsoleCommandContext *c);
+
     // Current state.  true -> Night Mode is on, false -> day mode
     bool state = false;
 

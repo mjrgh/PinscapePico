@@ -26,6 +26,7 @@
 
 // project headers
 #include "NightMode.h"
+#include "CommandConsole.h"
 
 // Night Mode object singleton
 NightModeControl nightModeControl;
@@ -36,6 +37,19 @@ NightModeControl::NightModeControl()
 
 NightModeControl::~NightModeControl()
 {
+}
+
+void NightModeControl::Init()
+{
+    // set up our command handler
+    CommandConsole::AddCommand(
+        "nightmode", "show/set Night Mode status",
+        "nightmode [options]\n"
+        "options:\n"
+        "  -s, --show     show current status (default if no options specified)\n"
+        "  --on           activat Night Mode\n"
+        "  --off          deactivate Night Mode\n",
+        Command);
 }
 
 void NightModeControl::Set(bool newState)
@@ -79,4 +93,41 @@ NightModeControl::NightModeEventSink::~NightModeEventSink()
 {
     // automatically unsubscribe
     nightModeControl.Unsubscribe(this);
+}
+
+// console command handler
+void NightModeControl::Command(const ConsoleCommandContext *c)
+{
+    static const auto Show = [](const ConsoleCommandContext *c) {
+        c->Printf("Night mode is currently %s\n", nightModeControl.state ? "ON" : "OFF");
+    };
+
+    // default with no options -> show status
+    if (c->argc == 1)
+        return Show(c);
+
+    // parse arguments
+    for (int i = 1 ; i < c->argc ; ++i)
+    {
+        const char *a = c->argv[i];
+        if (strcmp(a, "-s") == 0 || strcmp(a, "--show") == 0)
+        {
+            Show(c);
+        }
+        else if (strcmp(a, "--on") == 0)
+        {
+            nightModeControl.Set(true);
+            c->Printf("Night Mode changed to ON\n");
+        }
+        else if (strcmp(a, "--off") == 0)
+        {
+            nightModeControl.Set(false);
+            c->Printf("Night Mode changed to OFF\n");
+        }
+        else
+        {
+            c->Printf("nightmode: unknown option \"%s\"\n", a);
+            return;
+        }
+    }
 }

@@ -2108,6 +2108,51 @@ int VendorInterface::SetOutputTestMode(bool testMode, uint32_t timeout_ms)
 	return SendRequestWithArgs(PinscapeRequest::CMD_OUTPUTS, args);
 }
 
+int VendorInterface::QueryNightMode(bool &status)
+{
+	// set the status to false, so that we return a predictable result in cases
+	// where the USB request fails
+	status = false;
+
+	// send the request (OUTPUT command, QUERY NIGHT MODE subcommand), capturing the reply
+	uint8_t subcmd = PinscapeRequest::SUBCMD_OUTPUT_QUERY_NIGHT_MODE;
+	PinscapeResponse resp;
+	int result = SendRequestWithArgs(PinscapeRequest::CMD_OUTPUTS, subcmd, resp);
+
+	// If successful, the reply arguments contain the Night Mode status in the first byte.
+	// Note that only the values 0x00 (OFF) and 0x01 (ON) are defined.
+	if (result == PinscapeResponse::OK)
+	{
+		switch (resp.args.argBytes[0])
+		{
+		case 0x00:
+			status = false;
+			break;
+
+		case 0x01:
+			status = true;
+			break;
+
+		default:
+			// the status is unknown; return an error result
+			result = PinscapeResponse::ERR_BAD_REPLY_DATA;
+			break;
+		}
+	}
+
+	// return the USB request result
+	return result;
+}
+
+int VendorInterface::SetNightMode(bool status)
+{
+	uint8_t args[2]{
+		PinscapeRequest::SUBCMD_OUTPUT_SET_NIGHT_MODE,
+		static_cast<uint8_t>(status ? 0x01 : 0x00)
+	};
+	return SendRequestWithArgs(PinscapeRequest::CMD_OUTPUTS, args);
+}
+
 int VendorInterface::I2CBusScan()
 {
 	uint8_t subcmd = PinscapeRequest::SUBCMD_DEBUG_I2C_BUS_SCAN;

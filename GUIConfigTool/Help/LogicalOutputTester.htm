@@ -252,12 +252,20 @@
    see the effect of all of the <tt>source</tt> formula calculations
    and attribute adjustments when applied to any given DOF level.
 </p>
+
+<h3>Keyboard interface</h3>
 <p>
-   Note that you can adjust the slider control with the mouse or with
-   the keyboard.  Click on the slider to give it focus, which lets you
-   control it with the keyboard:
+   You can adjust the slider controls with the mouse or with
+   the keyboard.  To use the keyboard controls, click on a slider
+   to give it focus, or use the Tab or Shift+Tab keys to navigate
+   through the slider list.  When a slider has focus, its "thumb"
+   will blink to let you know that it's active.  You can now adjust
+   the port setting with the keyboard:
 </p>
 <ul>
+   <li>The space bar toggles the port between OFF (level 0) and
+   fully ON (level 255)
+   
    <li>The Up/Down arrows and Right/Left arrows change the level up
    and down one step at a time
 
@@ -267,10 +275,13 @@
    <li>Shift+Up, Shift+Down, Shift+Right, and Shift+Left change the
    level up and down by 25 steps at a time
 
-   <li>Type a number from 0 to 255 to jump directly to a level; press
-   return to end the entry
+   <li>Type a number from 0 to 255 to jump directly to a level; the
+   new level goes into effect when you press Return, or you can just
+   wait a few seconds and it'll apply automatically
 
-   <li>Tab and Shift+Tab navigate through the slider list
+   <li>Tab and Shift+Tab navigate through the port list, with
+   Tab moving focus to the next port, and Shift+Tab moving focus
+   to the previous port
 </ul>
 
 <h2>Physical devices</h2>

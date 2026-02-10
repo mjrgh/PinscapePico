@@ -440,7 +440,16 @@ namespace PinscapePico
 			// adjust the range
 			void AdjustRange();
 
-			// set the new scrolling position
+			// Set the new scrolling position in the scrollbar and the window.
+			// This is for scrolling the window under program control, adjusting
+			// the scroll position in both the scrollbar and the window.  This
+			// forces the new scroll position into range for the scrollbar.
+			void ScrollTo(int newPos);
+
+			// Set the new scrolling position in the underlying window.  This
+			// is for handling events from the scrollbar, to bring the underlying
+			// window into sync with changes to the scrollbar.  This doesn't
+			// range-check the new position.
 			void SetPos(int newPos, int deltaPos);
 
 			// Get the scrolling content window handle.  For SB_VERT and SB_HORZ,

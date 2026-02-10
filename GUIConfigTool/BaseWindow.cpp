@@ -1759,6 +1759,28 @@ void BaseWindow::Scrollbar::AdjustRange()
 		SetPos(si.nPos, oldPos - si.nPos);
 }
 
+void BaseWindow::Scrollbar::ScrollTo(int newPos)
+{
+	// get the current scroll range
+	SCROLLINFO si{ sizeof(SCROLLINFO) };
+	getRange(si);
+
+	// force the new position into range
+	int nMax = si.nMax - max(si.nPage - 1, 0);
+	if (newPos < si.nMin)
+		newPos = si.nMin;
+	else if (newPos > nMax)
+		newPos = nMax;
+
+	// set the new scrollbar position
+	si.fMask = SIF_POS;
+	si.nPos = newPos;
+	SetScrollInfo(hwnd, type, &si, TRUE);
+
+	// scroll the window
+	SetPos(newPos, 0);
+}
+
 void BaseWindow::Scrollbar::SetPos(int newPos, int deltaPos)
 {
 	// call the user callback to update their drawing metrics as needed

@@ -14,19 +14,38 @@
 <p>
    This window lets you test the physical output ports directly,
    bypassing all of the software layers used for the logical ports.
-   This is useful for determining whether a problem with a device
-   is coming from the hardware or somewhere in the software.
-   If a port fails to work correctly in this mode, the problem
-   must lie in either the physical hardware, or in the device-level
-   Pinscape software or configuration setup.
+   Computed outputs (<tt>source</tt> formulas in the JSON configuration)
+   and flipper logic are disabled in this view.  DOF and other PC software
+   programs are also blocked while this window is open.  This lets you test
+   the hardware ports in isolation, without any interference from DOF or
+   any of the Pinscape subsystems that can normally access output ports.
+</p>
+<p>
+   This direct port access view is mostly useful for
+   troubleshooting problems with ports, since it removes all
+   outside influences on the ports, including both PC-side software
+   and the higher-level Pinscape software layers.  This allows
+   you to exercise the hardware ports directly through the
+   GPIO or peripheral chip interfaces.  If a port doesn't work
+   correctly in this window, you can be sure that the problem has
+   nothing to do with your DOF configuration or any of the more
+   complex Pinscape JSON settings for the logical output port
+   layout.  Any port problems that persist in this view
+   must lie in either the device-level JSON configuration, or in
+   the physical hardware (such as a malfunctioning peripheral chip,
+   or a wiring problem).  It's also always possible that the problem
+   is in the Pinscape software itself, but this view helps isolate those
+   sorts of problems, too, since it bypasses the Pinscape "output manager"
+   subsystem and writes directly to the device driver interfaces.
 </p>
 <p>
    The separate <a href="LogicalOutputTester.htm">Logical Output Port Tester</a>
    window lets you view and test the software ports that DOF and other
-   game programs on the PC access.  DOF can't access the hardware ports
-   you see here directly; it goes through the logical ports.  Your JSON
-   configuration determines how the logical ports relate to the physical
-   device outputs.
+   game programs on the PC use.  DOF (and other PC software) can't access
+   the hardware ports you see in the Output Hardware Tester view directly;
+   DOF can only see the "logical" ports shown in the Output Ports window.
+   Your JSON configuration determines how the logical ports relate to
+   the physical device outputs.
 </p>
 <p>
    <b style="color: red;">Warning! Flipper Logic timers are disabled

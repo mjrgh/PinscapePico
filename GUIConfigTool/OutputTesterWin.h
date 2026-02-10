@@ -240,26 +240,38 @@ namespace PinscapePico
 
         // output panel scrollbar
 		int cxScrollbar = 0;
-		HWND sbPortPanel = NULL;
+		Scrollbar *sbPortPanel = nullptr;
 		int yScrollPorts = 0;
+		RECT rcScrollAreaPorts{ 0 };
 
 		// device panel scrollbar
-		HWND sbDevPanel = NULL;
+		Scrollbar *sbDevPanel = nullptr;
 		int yScrollDev = 0;
+		RECT rcScrollAreaDev{ 0 };
 		int devPanelDocHeight = 0;
 		const int cyLineScrollDev = 16;
 
 		// test mode panel scrollbar
-		HWND sbTestMode = NULL;
+		Scrollbar *sbTestMode = nullptr;
 		int yScrollTestMode = 0;
 		int testModeDocHeight = 0;
 		const int cyLineScrollTestMode = 16;
+		RECT rcScrollAreaTest{ 0 };
 
 		// slider control
 		struct SliderCtl
 		{
-			// current window client coordinates
-			RECT rc{ 0, 0, 0, 0 };
+			// Hit-test area, in window client coordinates.  This reflects
+			// the scrolling offset, and is zeroed out for controls that
+			// are scrolled out of view, so it can be used to test mouse
+			// click hits without any further conditions.
+			RECT rcHit{ 0, 0, 0, 0 };
+
+			// Notional window client area, adjusted for scrolling.  This
+			// is always populated even when the control is out of view,
+			// so that we can determine the scrolling offset to bring it
+			// into view.
+			RECT rcNotional{ 0, 0, 0, 0 };
 
 			// number of steps
 			int numSteps = 256;

@@ -217,9 +217,9 @@ void OutputTesterWin::SetLogicalPortMode()
     ut->uiTestMode = false;
 
     // show logical mode controls, hide test mode controls
-    ShowWindow(sbPortPanel, SW_SHOW);
-    ShowWindow(sbDevPanel, SW_SHOW);
-    ShowWindow(sbTestMode, SW_HIDE);
+    ShowWindow(sbPortPanel->hwnd, SW_SHOW);
+    ShowWindow(sbDevPanel->hwnd, SW_SHOW);
+    ShowWindow(sbTestMode->hwnd, SW_HIDE);
     AdjustScrollbarRanges();
 }
 
@@ -230,9 +230,9 @@ void OutputTesterWin::SetDeviceTestMode()
     ut->uiTestMode = true;
 
     // hide/show mode-specific controls
-    ShowWindow(sbPortPanel, SW_HIDE);
-    ShowWindow(sbDevPanel, SW_HIDE);
-    ShowWindow(sbTestMode, SW_SHOW);
+    ShowWindow(sbPortPanel->hwnd, SW_HIDE);
+    ShowWindow(sbDevPanel->hwnd, SW_HIDE);
+    ShowWindow(sbTestMode->hwnd, SW_SHOW);
     AdjustScrollbarRanges();
 }
 
@@ -266,8 +266,8 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
         uint8_t levelU8 = static_cast<uint8_t>(roundf(levelFloat * 255.0f));
 
         // draw the bar
-        int yBar = (slider.rc.top + slider.rc.bottom - cySliderBar)/2;
-        int x = slider.rc.left;
+        int yBar = (slider.rcHit.top + slider.rcHit.bottom - cySliderBar)/2;
+        int x = slider.rcHit.left;
         RECT src{ x, yBar, x + cxSliderBar, yBar + cySliderBar };
         FillRect(hdc, &src, HBrush(slider.enabled ? LevelFill(levelU8) : HRGB(0xC0C0C0)));
         if (slider.enabled)
@@ -277,7 +277,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
         if (slider.enabled)
         {
             int xThumb = x + static_cast<int>(roundf(levelFloat * static_cast<float>(cxSliderBar - cxSliderThumb)));
-            int yThumb = (slider.rc.top + slider.rc.bottom - cySliderThumb)/2;
+            int yThumb = (slider.rcHit.top + slider.rcHit.bottom - cySliderThumb)/2;
             RECT trc{ xThumb, yThumb, xThumb + cxSliderThumb, yThumb + cySliderThumb };
             HBrush br(HRGB(index == focusSlider ?
                 (static_cast<uint32_t>(GetTickCount64()) % 1000) < 500 ? 0x80ffff : 0xff8000 :
@@ -525,6 +525,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             };
 
             // draw the output ports
+            rcScrollAreaPorts = { crc.left, hrc.bottom, hrc.right, crc.bottom - cyFooter };
             IntersectClipRect(hdc, crc.left, hrc.bottom, hrc.right, crc.bottom - cyFooter);
             RECT rcPort{ crc.left, hrc.bottom - yScrollPorts, crc.left + cxPanel, hrc.bottom - yScrollPorts + cyOutput - 1 };
             const auto *pLevel = ut->portLevels.data();
@@ -535,11 +536,14 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                 // get this row's slider control object
                 auto &slider = logSlider[i];
 
+                // set the slider area
+                slider.rcNotional = rcPort;
+
                 // skip drawing if we're out of bounds
                 if (rcPort.bottom < crc.top + hrc.bottom || rcPort.top > crc.bottom - cyFooter)
                 {
                     // clear the slider coordinates, as this slider isn't visible
-                    slider.rc ={ 0,0,0,0 };
+                    slider.rcHit ={ 0,0,0,0 };
 
                     // skip drawing
                     continue;
@@ -666,7 +670,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
 
                 // figure the slider control's screen coordinates
                 int xSlider = rcLevel.left;
-                slider.rc ={ xSlider, rcPort.top + 2, xSlider + cxSliderBar, rcPort.bottom - 2 };
+                slider.rcHit ={ xSlider, rcPort.top + 2, xSlider + cxSliderBar, rcPort.bottom - 2 };
 
                 // draw it
                 DrawSlider(slider, i);
@@ -687,6 +691,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             y += hdc.DrawText(xPhysCol, y, 1, boldFont, RGB(0x80, 0, 0x80), "Physical Device Ports").cy;
 
             // clip to the devices scrolling area
+            rcScrollAreaDev = { cxPanel, hrc.bottom, crc.right - cxScrollbar, crc.bottom - cyFooter };
             IntersectClipRect(hdc, cxPanel, hrc.bottom, crc.right - cxScrollbar, crc.bottom - cyFooter);
 
             // set up coordinates
@@ -874,6 +879,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             int colNum = 0;
             int xCol = xMargin;
             int yColTop = y;
+            rcScrollAreaTest = { xMargin, cyTabCtl, crc.right - xMargin, crc.bottom - cyWarning };
             for (int idx = 0 ; itDesc != deviceDescs.end() && itLevel != ut->devLevels.end() ; ++itDesc)
             {
                 // if we're not on the first item, start a new column or row
@@ -925,19 +931,22 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                         y += szBoldFont.cy + 8;
                     }
 
-                    // skip sliders that aren't in view
-                    auto &slider = testModeSlider[idx];
-                    if (y + cyPort < crc.top + cyTabCtl || y > crc.bottom - cyWarning)
-                    {
-                        slider.rc ={ 0, 0, 0, 0 };
-                        continue;
-                    }
-
                     // figure the slider's new screen coordinates
+                    auto &slider = testModeSlider[idx];
                     int xLabel = xCol + 16;
                     int cxLabel = szBoldFont.cx*2;
                     int xSlider = xLabel + cxLabel + 8;
-                    slider.rc ={ xSlider, y, xSlider + cxSliderBar, y + cySliderThumb };
+                    slider.rcNotional ={ xSlider, y, xSlider + cxSliderBar, y + cySliderThumb };
+
+                    // skip sliders that aren't in view
+                    if (y + cyPort < crc.top + cyTabCtl || y > crc.bottom - cyWarning)
+                    {
+                        slider.rcHit ={ 0, 0, 0, 0 };
+                        continue;
+                    }
+
+                    // it's in view - set the screen area
+                    slider.rcHit = slider.rcNotional;
 
                     // label it with the port number/name
                     int yLabel = y + (cySliderThumb - szBoldFont.cy)/2;
@@ -959,7 +968,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
 
                     // draw the slider
                     DrawSlider(slider, idx);
-                    x = slider.rc.right + 16;
+                    x = slider.rcHit.right + 16;
 
                     // label the current level
                     if (slider.enabled)
@@ -1032,13 +1041,13 @@ void OutputTesterWin::AdjustLayout()
 	GetClientRect(hwnd, &crc);
 
 	// position the left panel scrollbar
-	MoveWindow(sbPortPanel, cxPanel, yHeaderLeft + cyHeaderLeft, cxScrollbar, crc.bottom - yHeaderLeft - cyHeaderLeft - cyFooter, TRUE);
+	MoveWindow(sbPortPanel->hwnd, cxPanel, yHeaderLeft + cyHeaderLeft, cxScrollbar, crc.bottom - yHeaderLeft - cyHeaderLeft - cyFooter, TRUE);
 
     // position the devices panel scrollbar
-    MoveWindow(sbDevPanel, crc.right - cxScrollbar, yHeaderRight + cyHeaderRight, cxScrollbar, crc.bottom - yHeaderRight - cyHeaderRight - cyFooter, TRUE);
+    MoveWindow(sbDevPanel->hwnd, crc.right - cxScrollbar, yHeaderRight + cyHeaderRight, cxScrollbar, crc.bottom - yHeaderRight - cyHeaderRight - cyFooter, TRUE);
 
     // position the test mode scrollbar
-    MoveWindow(sbTestMode, crc.right - cxScrollbar, crc.top + cyTabCtl, cxScrollbar, crc.bottom - crc.top - cyTabCtl - cyWarning, TRUE);
+    MoveWindow(sbTestMode->hwnd, crc.right - cxScrollbar, crc.top + cyTabCtl, cxScrollbar, crc.bottom - crc.top - cyTabCtl - cyWarning, TRUE);
 }
 
 void OutputTesterWin::OnCreateWindow()
@@ -1096,7 +1105,7 @@ void OutputTesterWin::OnCreateWindow()
 
     // create the logical port panel scrollbar
 	cxScrollbar = GetSystemMetrics(SM_CXVSCROLL);
-	sbPortPanel = CreateWindowA(WC_SCROLLBARA, "", WS_VISIBLE | WS_CHILD | SBS_VERT,
+	HWND sb = CreateWindowA(WC_SCROLLBARA, "", WS_VISIBLE | WS_CHILD | SBS_VERT,
 		0, 0, cxScrollbar, 100, hwnd, reinterpret_cast<HMENU>(ID_SB_PORTS), hInstance, 0);
 
     // range calculation for the output scroll panel
@@ -1128,10 +1137,10 @@ void OutputTesterWin::OnCreateWindow()
     auto SetScrollPosPorts = [this](int newPos, int deltaPos) { yScrollPorts = newPos; };
 
     // set up the scrollbar object
-    scrollbars.emplace_back(sbPortPanel, SB_CTL, cyOutput, true, true, GetRangePorts, GetScrollRectPorts, SetScrollPosPorts);
+    sbPortPanel = &scrollbars.emplace_back(sb, SB_CTL, cyOutput, true, true, GetRangePorts, GetScrollRectPorts, SetScrollPosPorts);
 
     // Output devices panel scrollbar
-    sbDevPanel = CreateWindowA(WC_SCROLLBARA, "", WS_VISIBLE | WS_CHILD | SBS_VERT,
+    sb = CreateWindowA(WC_SCROLLBARA, "", WS_VISIBLE | WS_CHILD | SBS_VERT,
         0, 0, cxScrollbar, 100, hwnd, reinterpret_cast<HMENU>(ID_SB_DEVS), hInstance, 0);
 
     // range calculation for the devices panel
@@ -1161,13 +1170,13 @@ void OutputTesterWin::OnCreateWindow()
     auto SetScrollPosDevs = [this](int newPos, int deltaPos) { yScrollDev = newPos; };
 
     // set up the scrollbar object
-    scrollbars.emplace_back(sbDevPanel, SB_CTL, cyLineScrollDev, true, true, GetRangeDevs, GetScrollRectDevs, SetScrollPosDevs);
+    sbDevPanel = &scrollbars.emplace_back(sb, SB_CTL, cyLineScrollDev, true, true, GetRangeDevs, GetScrollRectDevs, SetScrollPosDevs);
 
     // test mode panel metrics
     cyWarning = szMainFont.cy*2 + cyWarningPad*2;
 
     // Test mode panel scrollbar
-    sbTestMode = CreateWindowA(WC_SCROLLBARA, "", WS_VISIBLE | WS_CHILD | SBS_VERT,
+    sb = CreateWindowA(WC_SCROLLBARA, "", WS_VISIBLE | WS_CHILD | SBS_VERT,
         0, 0, cxScrollbar, 100, hwnd, reinterpret_cast<HMENU>(ID_SB_DEVS), hInstance, 0);
 
     // range calculation for the devices panel
@@ -1196,7 +1205,7 @@ void OutputTesterWin::OnCreateWindow()
     auto SetScrollPosTestMode = [this](int newPos, int deltaPos) { yScrollTestMode = newPos; };
 
     // set up the scrollbar object
-    scrollbars.emplace_back(sbTestMode, SB_CTL, cyLineScrollTestMode, true, true, GetRangeTestMode, GetScrollRectTestMode, SetScrollPosTestMode);
+    sbTestMode = &scrollbars.emplace_back(sb, SB_CTL, cyLineScrollTestMode, true, true, GetRangeTestMode, GetScrollRectTestMode, SetScrollPosTestMode);
 
     // adjust the layout
 	AdjustLayout();
@@ -1375,7 +1384,7 @@ bool OutputTesterWin::OnLButtonDown(WPARAM keys, int x, int y)
     bool foundSlider = false;
     ForEachSlider([this, pt, &foundSlider](SliderCtl &slider, int index)
     {
-        if (PtInRect(&slider.rc, pt))
+        if (PtInRect(&slider.rcHit, pt))
         {
             // start tracking slider, capturing the mouse for the duration of the drag
             SetCapture(hwnd);
@@ -1468,10 +1477,10 @@ bool OutputTesterWin::OnKeyDown(WPARAM vkey, LPARAM flags)
 
         // move focus to the next/previous slider
         {
+            // find the next/previous slider, skipping disabled items
             auto ut = static_cast<UpdaterThread*>(updaterThread.get());
             bool testMode = ut->uiTestMode;
             bool shift = ((GetKeyState(VK_SHIFT) & 0x8000) != 0);
-
             int nMax = static_cast<int>(testMode ? testModeSlider.size() : logSlider.size()) - 1;
             for (int i = 0 ; i < nMax ; ++i)
             {
@@ -1482,7 +1491,28 @@ bool OutputTesterWin::OnKeyDown(WPARAM vkey, LPARAM flags)
                     break;
             }
 
+            // cancel any numeric entry in progress
             focusNumberEntry = -1;
+
+            // if the new slider is scrolled out of view, adjust scrolling
+            auto ScrollIntoView = [this](SliderCtl &sc, const RECT &rcScrollArea, Scrollbar *sb, int yScroll)
+            {
+                // check if the control is out of the scroll view area
+                if (sc.rcNotional.top < rcScrollArea.top)
+                {
+                    // out of view above - scroll so that it's at the top of the scroll view
+                    sb->ScrollTo(yScroll - (rcScrollArea.top - sc.rcNotional.top));
+                }
+                else if (sc.rcNotional.bottom > rcScrollArea.bottom)
+                {
+                    // out of view below - scroll so that it's at the bottom of the scroll view
+                    sb->ScrollTo(yScroll + (sc.rcNotional.bottom - rcScrollArea.bottom));
+                }
+            };
+            if (testMode)
+                ScrollIntoView(testModeSlider[focusSlider], rcScrollAreaTest, sbTestMode, yScrollTestMode);
+            else
+                ScrollIntoView(logSlider[focusSlider], rcScrollAreaPorts, sbPortPanel, yScrollPorts);
         }
         return true;
 
@@ -1557,11 +1587,40 @@ bool OutputTesterWin::OnKeyDown(WPARAM vkey, LPARAM flags)
         return true;
 
     case VK_BACK:
+        // delete prior character, if in numeric entry
         if (focusSlider != -1 && focusNumberEntry != -1)
         {
             focusNumberEntry /= 10;
             if (focusNumberEntry == 0)
                 focusNumberEntry = -1;
+        }
+        return true;
+
+    case VK_SPACE:
+        // switch focused output on/off
+        if (focusSlider != -1)
+        {
+            // queue the change to the device
+            auto ut = static_cast<UpdaterThread*>(updaterThread.get());
+            if (WaitForSingleObject(ut->dataMutex, 100) == WAIT_OBJECT_0)
+            {
+                if (!ut->uiTestMode)
+                {
+                    SliderCtl *s = &logSlider[focusSlider];
+                    s->level = (s->level == 0 ? 255 : 0);
+                    ut->portLevelChanges.insert_or_assign(static_cast<uint8_t>(focusSlider), static_cast<uint8_t>(s->level));
+                    InvalidateRect(hwnd, &s->rcHit, FALSE);
+                }
+                else
+                {
+                    DevSliderCtl *ds = static_cast<DevSliderCtl*>(&testModeSlider[focusSlider]);
+                    ds->level = (ds->level == 0 ? ds->numSteps - 1 : 0);
+                    ut->devLevelChanges.insert_or_assign(focusSlider, UpdaterThread::DevLevelChange{
+                        ds->devType, ds->configIndex, ds->port, static_cast<uint16_t>(ds->level) });
+                    InvalidateRect(hwnd, &ds->rcHit, FALSE);
+                }
+                ReleaseMutex(ut->dataMutex);
+            }
         }
         return true;
     }
@@ -1599,8 +1658,8 @@ void OutputTesterWin::TrackSlider(int x, int y)
         auto *ut = static_cast<UpdaterThread*>(updaterThread.get());
         bool testMode = ut->uiTestMode;
         auto &s = *trackingSlider;
-        int x0 = s.rc.left + cxSliderThumb/2;
-        int x1 = s.rc.right - cxSliderThumb/2;
+        int x0 = s.rcHit.left + cxSliderThumb/2;
+        int x1 = s.rcHit.right - cxSliderThumb/2;
         float frac = static_cast<float>(x - x0) / static_cast<float>(x1 - x0);
         uint16_t range = s.numSteps - 1;
         uint16_t newLevel = frac < 0.0f ? 0 : frac > 1.0f ? range : static_cast<uint16_t>(roundf(frac * range));
@@ -1617,7 +1676,7 @@ void OutputTesterWin::TrackSlider(int x, int y)
 void OutputTesterWin::QueueSliderChange(SliderCtl *s)
 {
     // make sure we redraw
-    InvalidateRect(hwnd, &s->rc, FALSE);
+    InvalidateRect(hwnd, &s->rcHit, FALSE);
 
     // queue the change to the device
     auto ut = static_cast<UpdaterThread*>(updaterThread.get());

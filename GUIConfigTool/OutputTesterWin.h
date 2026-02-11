@@ -273,6 +273,9 @@ namespace PinscapePico
 			// into view.
 			RECT rcNotional{ 0, 0, 0, 0 };
 
+			// on/off button rect, adjusted for scrolling
+			RECT rcOnOff{ 0, 0, 0, 0 };
+
 			// number of steps
 			int numSteps = 256;
 
@@ -282,6 +285,11 @@ namespace PinscapePico
 			// is this slider enabled?
 			bool enabled = true;
 		};
+
+		// slider on/off button image
+		HBITMAP bmpOnOff = NULL;
+		static const int cxOnOff = 16;
+		static const int cyOnOff = 16;
 
 		// queue a slider change
 		void QueueSliderChange(SliderCtl *ctl);
@@ -324,6 +332,8 @@ namespace PinscapePico
 		static const int cySliderBar = 8;
 		static const int cxSliderThumb = 12;
 		static const int cySliderThumb = 20;
+		static const int cxOnOffMargin = 6;
+		static const int cxSliderCtl = cxSliderBar + cxOnOff + cxOnOffMargin;
 
 		// PWMWorker Pico "update firmware" buttons
 		struct PWMWorkerUpdateButton

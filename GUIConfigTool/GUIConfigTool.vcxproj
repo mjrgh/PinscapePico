@@ -492,6 +492,7 @@
     <Image Include="resources\Logo.bmp" />
     <Image Include="resources\MenuIconHelp.bmp" />
     <Image Include="resources\NewDeviceIcon.png" />
+    <Image Include="resources\OnIffIcon.png" />
     <Image Include="resources\OpenPinDevButtons.bmp" />
     <Image Include="resources\OutputAttrIcons.bmp" />
     <Image Include="resources\PicoDiagram.bmp" />

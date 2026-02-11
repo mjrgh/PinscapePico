@@ -47,6 +47,8 @@ OutputTesterWin::OutputTesterWin(HINSTANCE hInstance, std::shared_ptr<VendorInte
     cxLedWizWaveIcons = bmp.bmWidth / 4;    // 4 horizontal cells [ 129 Off | 130 Off | 131 Off | 132 Off ]
     cyLedWizWaveIcons = bmp.bmHeight / 2;   // x 2 vertical cells [ 129 On  | 130 On  | 131 On  | 132 On  ]
 
+    bmpOnOff = LoadPNG(hInstance, IDB_ONOFF);
+
     // Query device information
     QueryDeviceInfo();
 }
@@ -258,8 +260,11 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
     static const auto LevelFill = [](uint8_t level) { return RGB(0, level, 0); };
     static const auto LevelText = [](uint8_t level) { return (level < 215 ? RGB(0xff, 0xff, 0xff) : RGB(0, 0, 0)); };
 
+    // set up a DC for copying bitmaps
+    CompatibleDC bdc(hdc);
+
     // draw a slider bar
-    auto DrawSlider = [this, &hdc](SliderCtl &slider, int index)
+    auto DrawSlider = [this, &hdc, &bdc](SliderCtl &slider, int index)
     {
         // refigure the level on an 8-bit scale, for the fill color
         float levelFloat = static_cast<float>(slider.level) / (slider.numSteps - 1);
@@ -273,9 +278,10 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
         if (slider.enabled)
             FrameRect(hdc, &src, GetStockBrush(BLACK_BRUSH));
 
-        // draw the thumb
+        // draw the thumb and on/off icons, if the control is enabled
         if (slider.enabled)
         {
+            // draw the thumb
             int xThumb = x + static_cast<int>(roundf(levelFloat * static_cast<float>(cxSliderBar - cxSliderThumb)));
             int yThumb = (slider.rcHit.top + slider.rcHit.bottom - cySliderThumb)/2;
             RECT trc{ xThumb, yThumb, xThumb + cxSliderThumb, yThumb + cySliderThumb };
@@ -284,6 +290,11 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                 0xffffff));
             FillRect(hdc, &trc, br);
             FrameRect(hdc, &trc, GetStockBrush(BLACK_BRUSH));
+
+            // draw the on/off icon
+            bdc.Select(bmpOnOff);
+            BitBlt(hdc, slider.rcOnOff.left, slider.rcOnOff.top, cxOnOff, cyOnOff,
+                bdc, slider.level != 0 ? cxOnOff : 0, 0, SRCCOPY);
 
             // draw the numeric entry in progress, if any
             if (index == focusSlider && focusNumberEntry >= 0)
@@ -405,9 +416,6 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
     HPen grayPen(RGB(0xC0, 0xC0, 0xC0));
     HPEN oldPen = SelectPen(hdc, grayPen);
 
-    // set up a DC for copying bitmaps
-    CompatibleDC bdc(hdc);
-
     // get the cursor position, in local client coordinates
     POINT cursorPos;
     GetCursorPos(&cursorPos);
@@ -484,7 +492,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             const int xSliderCol = xLevelCol3 + cxLevelBox + levelBoxSpacing;
 
             // if the left panel width is too narrow, refigure it
-            int cxPanelNew = xSliderCol + cxSliderBar + xMargin;
+            int cxPanelNew = xSliderCol + cxSliderCtl + xMargin;
             if (cxPanelNew > cxPanel)
             {
                 cxPanel = cxPanelNew;
@@ -543,7 +551,8 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                 if (rcPort.bottom < crc.top + hrc.bottom || rcPort.top > crc.bottom - cyFooter)
                 {
                     // clear the slider coordinates, as this slider isn't visible
-                    slider.rcHit ={ 0,0,0,0 };
+                    slider.rcHit = { 0,0,0,0 };
+                    slider.rcOnOff = { 0, 0, 0, 0 };
 
                     // skip drawing
                     continue;
@@ -670,7 +679,10 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
 
                 // figure the slider control's screen coordinates
                 int xSlider = rcLevel.left;
-                slider.rcHit ={ xSlider, rcPort.top + 2, xSlider + cxSliderBar, rcPort.bottom - 2 };
+                slider.rcHit = { xSlider, rcPort.top + 2, xSlider + cxSliderBar, rcPort.bottom - 2 };
+                int xOnOff = slider.rcHit.right + cxOnOffMargin;
+                int yOnOff = (slider.rcHit.top + slider.rcHit.bottom - cyOnOff)/2;
+                slider.rcOnOff = { xOnOff, yOnOff, xOnOff + cxOnOff, yOnOff + cyOnOff };
 
                 // draw it
                 DrawSlider(slider, i);
@@ -875,7 +887,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             auto itDesc = deviceDescs.begin();
             auto itPort = devicePortDescs.begin();
             auto itLevel = ut->devLevels.begin();
-            const int cxCol = cxSliderBar + szBoldFont.cx*12 + 16;
+            const int cxCol = cxSliderCtl + szBoldFont.cx*12 + 16;
             int colNum = 0;
             int xCol = xMargin;
             int yColTop = y;
@@ -936,17 +948,21 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                     int xLabel = xCol + 16;
                     int cxLabel = szBoldFont.cx*2;
                     int xSlider = xLabel + cxLabel + 8;
-                    slider.rcNotional ={ xSlider, y, xSlider + cxSliderBar, y + cySliderThumb };
+                    slider.rcNotional = { xSlider, y, xSlider + cxSliderBar, y + cySliderThumb };
 
                     // skip sliders that aren't in view
                     if (y + cyPort < crc.top + cyTabCtl || y > crc.bottom - cyWarning)
                     {
-                        slider.rcHit ={ 0, 0, 0, 0 };
+                        slider.rcHit = { 0, 0, 0, 0 };
+                        slider.rcOnOff = { 0, 0, 0, 0 };
                         continue;
                     }
 
                     // it's in view - set the screen area
                     slider.rcHit = slider.rcNotional;
+                    int xOnOff = slider.rcHit.right + 6;
+                    int yOnOff = (slider.rcHit.top + slider.rcHit.bottom - cyOnOff)/2;
+                    slider.rcOnOff = { xOnOff, yOnOff, xOnOff + cxOnOff, yOnOff + cyOnOff };
 
                     // label it with the port number/name
                     int yLabel = y + (cySliderThumb - szBoldFont.cy)/2;
@@ -968,7 +984,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
 
                     // draw the slider
                     DrawSlider(slider, idx);
-                    x = slider.rcHit.right + 16;
+                    x = slider.rcOnOff.right + 16;
 
                     // label the current level
                     if (slider.enabled)
@@ -1384,6 +1400,7 @@ bool OutputTesterWin::OnLButtonDown(WPARAM keys, int x, int y)
     bool foundSlider = false;
     ForEachSlider([this, pt, &foundSlider](SliderCtl &slider, int index)
     {
+        // check for a hit in the slider thumb area
         if (PtInRect(&slider.rcHit, pt))
         {
             // start tracking slider, capturing the mouse for the duration of the drag
@@ -1395,6 +1412,17 @@ bool OutputTesterWin::OnLButtonDown(WPARAM keys, int x, int y)
 
             // stop here
             foundSlider = true;
+            return false;
+        }
+
+        // check for a hit in the slider On/Off button
+        if (PtInRect(&slider.rcOnOff, pt))
+        {
+            // invert the on/off state
+            slider.level = (slider.level == 0 ? slider.numSteps - 1 : 0);
+            QueueSliderChange(&slider);
+
+            // stop here
             return false;
         }
 

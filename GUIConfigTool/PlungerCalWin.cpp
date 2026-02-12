@@ -652,18 +652,23 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 		y += hdc.DrawText(xBar, y, 1, mainFont, RGB(0x00, 0x00, 0x00), "Live Sensor View").cy;
 
 		// get the native scale; use the full range if the scale is zero (which will be
-		// the case if no sensor is configured), and use '1' if the range is zero
+		// the case if no sensor is configured), and use '1' if the range is zero 
+		// or negative
 		int nativeScale = plungerConfig.nativeScale;
 		if (nativeScale == 0)
 			nativeScale = pd.calMax - pd.calMin;
-		if (nativeScale == 0)
+		if (nativeScale <= 0)
 			nativeScale = 1;
 
 		// Figure the calibration points on screen
 		double rawToScreen = 1.0 / max(nativeScale, 10) * barWidth;
-		int screenMin = static_cast<int>(round(pd.calMin * rawToScreen));
-		int screenZero = static_cast<int>(round(pd.calZero * rawToScreen));
-		int screenMax = static_cast<int>(round(pd.calMax * rawToScreen));
+		auto ConvertRawToScreen = [rawToScreen, barWidth](uint32_t rawPos) {
+			int screenPos = static_cast<int>(round(rawPos * rawToScreen));
+			return screenPos < 0 ? 0 : screenPos > barWidth ? barWidth : screenPos;
+		};
+		int screenMin = ConvertRawToScreen(pd.calMin);
+		int screenZero = ConvertRawToScreen(pd.calZero);
+		int screenMax = ConvertRawToScreen(pd.calMax);
 
 		// Get the base struct information for the sensor data, if any
 		struct __PackedBegin SensorBaseData
@@ -961,8 +966,7 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 		// that we want to show the pre-jitter-filtered value here for sensors
 		// that apply the jitter filter at this stage, so that we can show the
 		// jitter filter window.
-		int screenRaw = static_cast<int>(round((nativeScale - rawPos) * rawToScreen));
-		screenRaw = screenRaw < 0 ? 0 : screenRaw > barWidth ? barWidth : screenRaw;
+		int screenRaw = ConvertRawToScreen(nativeScale - rawPos);
 		RECT rc{ xBar + screenRaw, y, xBar + barWidth, y + barHeight };
 		HBrush rawBrush(RGB(0x00, 0xB0, 0x00));
 		DrawBar(barWidth, -screenRaw, y, rawBrush, -1, 0, "Raw=%u", rawPos);
@@ -971,7 +975,7 @@ void PlungerCalWin::PaintOffScreen(HDC hdc0)
 		if (pd.jfWindow != 0 && !jitterFilterVisualizationDrawn)
 		{
 			DrawJitterFilter(y - barHeight, barHeight*2, 0, RGB(0x00, 0x00, 0xff), RGB(0x00, 0x00, 0xff),
-				[xBar, rawToScreen](int x) { return static_cast<int>(round(x * rawToScreen)) + xBar; });
+				[xBar, ConvertRawToScreen](int x) { return ConvertRawToScreen(x) + xBar; });
 		}
 
 		// advance past the bar

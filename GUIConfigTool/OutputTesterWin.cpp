@@ -1422,7 +1422,12 @@ bool OutputTesterWin::OnLButtonDown(WPARAM keys, int x, int y)
             slider.level = (slider.level == 0 ? slider.numSteps - 1 : 0);
             QueueSliderChange(&slider);
 
+            // make this the focus slider
+            focusSlider = index;
+            focusNumberEntry = -1;
+
             // stop here
+            foundSlider = true;
             return false;
         }
 
@@ -1625,8 +1630,10 @@ bool OutputTesterWin::OnKeyDown(WPARAM vkey, LPARAM flags)
         return true;
 
     case VK_SPACE:
-        // switch focused output on/off
-        if (focusSlider != -1)
+        // Space - toggle the focused slider on/off.  If it's at 0, set
+        // to fully on; if it's non-zero, set to fully off.  Ignore when
+        // numeric entry is in progress.
+        if (focusSlider != -1 && focusNumberEntry == -1)
         {
             // queue the change to the device
             auto ut = static_cast<UpdaterThread*>(updaterThread.get());

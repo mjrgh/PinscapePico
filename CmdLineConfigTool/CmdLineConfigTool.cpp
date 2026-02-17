@@ -46,6 +46,16 @@ static void __declspec(noreturn) ErrorExit(const char *msg)
 	exit(1);
 }
 
+static void __declspec(noreturn) ErrorExitFmt(const char *msg, ...)
+{
+	va_list va;
+	va_start(va, msg);
+	vprintf(msg, va);
+	va_end(va);
+	printf("\n");
+	exit(1);
+}
+
 static void __declspec(noreturn) ErrorExit(const char *msg, HRESULT hr)
 {
 	if (hr == S_OK)
@@ -502,11 +512,11 @@ static void PutConfig(std::unique_ptr<VendorInterface> &device,
 //
 // Retrieve the config file
 //
-static void GetConfig(VendorInterface *device, FILE *fp)
+static void GetConfig(VendorInterface *device, FILE *fp, uint8_t fileID)
 {
 	// retrieve the configuration
 	std::vector<char> buf;
-	int stat = device->GetConfig(buf, PinscapePico::VendorRequest::CONFIG_FILE_MAIN);
+	int stat = device->GetConfig(buf, fileID);
 	if (stat != PinscapeResponse::OK)
 		ErrorStatExit("Error retrieving configuration data", stat);
 
@@ -1606,10 +1616,12 @@ static void UsageExit()
 		"  --get-config                  display device configuration file on console\n"
 		"  --get-config=<file>           write device configuration file to <file>\n"
 		"  --put-config <file>           install configuration file <file> on device\n"
-		"  --erase-config                delete the JSON configuration file from device\n"
+		"  --get-safemode-config         display device's safe-mode configuration file on console\n"
+		"  --get-safemode-config=<file>  write device's safe-mode configuration to <file>\n"
+		"  --put-safemode-config <file>  install <file> as the safe-mode config file\n"
+		"  --erase-config                delete all configuration files from device\n"
 		"  --factory-reset               delete all configuration data from device\n"
 		"  --fix-joycpl                  fix JOY.CPL display (deletes corrupted registry keys)\n"
-		"  --put-safemode-config <file>  install <file> as the safe-mode config file\n"
 		"  --nightmode ON|OFF|SHOW       set Night Mode to ON or OFF, or display the status\n"
 		"  --ir-learn                    wait for an IR command to be received, display it\n"
 		"  --ir-send <code>              send <code> through the IR transmitter\n"
@@ -1746,23 +1758,17 @@ int main(int argc, char **argv)
 
 			UpdateFirmware(device, deviceID, ToTCHAR(argv[argi]).c_str());
 		}
-		else if (strcmp(argv[argi], "--put-config") == 0)
+		else if (bool isPutConfig = (strcmp(argv[argi], "--put-config") == 0); isPutConfig || strcmp(argv[argi], "--put-safemode-config") == 0)
 		{
+			// set the type
+			auto configType = isPutConfig ? PinscapeRequest::CONFIG_FILE_MAIN : PinscapeRequest::CONFIG_FILE_SAFE_MODE;
+
 			// get the config file
 			if (++argi >= argc)
-				ErrorExit("Missing config file name; usage is --put-config <filename>");
+				ErrorExitFmt("Missing config file name; usage is %s <filename>", argv[argi-1]);
 
 			// send it to the device
-			PutConfig(device, deviceID, argv[argi], PinscapeRequest::CONFIG_FILE_MAIN);
-		}
-		else if (strcmp(argv[argi], "--put-safemode-config") == 0)
-		{
-			// get the config file
-			if (++argi >= argc)
-				ErrorExit("Missing config file name; usage is --put-config <filename>");
-
-			// send it to the device
-			PutConfig(device, deviceID, argv[argi], PinscapeRequest::CONFIG_FILE_SAFE_MODE);
+			PutConfig(device, deviceID, argv[argi], configType);
 		}
 		else if (strcmp(argv[argi], "--erase-config") == 0)
 		{
@@ -1772,21 +1778,27 @@ int main(int argc, char **argv)
 			else
 				ErrorStatExit("Error erasing the device's configuration file", stat);
 		}
-		else if (strcmp(argv[argi], "--get-config") == 0)
+		else if (bool isGetConfig = (strcmp(argv[argi], "--get-config") == 0) ; isGetConfig || strcmp(argv[argi], "--get-safemode-config") == 0)
 		{
+			// set the type
+			auto configType = isGetConfig ? PinscapeRequest::CONFIG_FILE_MAIN : PinscapeRequest::CONFIG_FILE_SAFE_MODE;
+
 			// retrieve the config file and write to stdout
-			GetConfig(device.get(), stdout);
+			GetConfig(device.get(), stdout, configType);
 		}
-		else if (strncmp(argv[argi], "--get-config=", 13) == 0)
+		else if (bool IsGetConfig = (strncmp(argv[argi], "--get-config=", 13) == 0) ; isGetConfig || strncmp(argv[argi], "--get-safemode-config=", 22) == 0)
 		{
+			// set the type
+			auto configType = isGetConfig ? PinscapeRequest::CONFIG_FILE_MAIN : PinscapeRequest::CONFIG_FILE_SAFE_MODE;
+
 			// retrieve the config file and save to the named file
 			const char *filename = &argv[argi][13];
 			FILE *fp = nullptr;
 			if (fopen_s(&fp, filename, "w") != 0 || fp == nullptr)
-				ErrorExit("Error opening configuration output file");
+				ErrorExitFmt("Error opening configuration output file \"%s\"", filename);
 
 			// retrieve the data and write to the file
-			GetConfig(device.get(), fp);
+			GetConfig(device.get(), fp, configType);
 
 			// done
 			fclose(fp);

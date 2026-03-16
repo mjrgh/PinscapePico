@@ -282,6 +282,31 @@ namespace PinscapePico
 			// current level setting, 0..numSteps
 			int level = 0;
 
+			// Last saved level from a TOGGLE OFF command (via the toggle
+			// button or by pressing SPACE, when the slider was at a non-zero
+			// level).  This allows easy toggling between OFF and any other
+			// level.
+			int savedLevel = 0;
+
+			// toggle on/off
+			void ToggleOnOff()
+			{
+				if (level != 0)
+				{
+					// currently ON - save the current level as the last
+					// ON level, and set the new level to zero
+					savedLevel = level;
+					level = 0;
+				}
+				else
+				{
+					// Currently OFF - restore the last saved ON level.
+					// If the level has never been saved, use the maximum
+					// level by default.
+					level = savedLevel != 0 ? savedLevel : numSteps - 1;
+				}
+			}
+
 			// is this slider enabled?
 			bool enabled = true;
 		};

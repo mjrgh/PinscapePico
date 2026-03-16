@@ -1418,8 +1418,8 @@ bool OutputTesterWin::OnLButtonDown(WPARAM keys, int x, int y)
         // check for a hit in the slider On/Off button
         if (PtInRect(&slider.rcOnOff, pt))
         {
-            // invert the on/off state
-            slider.level = (slider.level == 0 ? slider.numSteps - 1 : 0);
+            // toggle the slider on/off state
+            slider.ToggleOnOff();
             QueueSliderChange(&slider);
 
             // make this the focus slider
@@ -1642,7 +1642,7 @@ bool OutputTesterWin::OnKeyDown(WPARAM vkey, LPARAM flags)
                 if (!ut->uiTestMode)
                 {
                     SliderCtl *s = &logSlider[focusSlider];
-                    s->level = (s->level == 0 ? 255 : 0);
+                    s->ToggleOnOff();
                     ut->portLevelChanges.insert_or_assign(static_cast<uint8_t>(focusSlider), static_cast<uint8_t>(s->level));
                     InvalidateRect(hwnd, &s->rcHit, FALSE);
                 }

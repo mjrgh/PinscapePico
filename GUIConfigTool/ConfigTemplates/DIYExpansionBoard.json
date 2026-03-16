@@ -408,38 +408,25 @@
     // -------------------------------------------------------------------
     //
     // Button inputs.  The expansion board has 32 button input ports, 
-    // wired through two PCA9555 chips.  The definitions below set up the
-    // hardware sources for those 32 input ports.  The buttons are arranged
-    // in the order of the pins on the button headers on the board.  (Note
-    // that this doesn't exactly follow the order of the port labeling on
-    // the PCA9555 chips.)
+    // wired through four 74HC165N shift register chips.  The definitions
+    // below set up the hardware sources for those 32 input ports.  The
+    // buttons are arrangedin the order of the pins on the button headers
+    // on the board.  (Note that this doesn't exactly follow the order of
+    // the nominal port labeling on the 74HC165N chips, due to the
+    // physical constraints of the trace routing on the circuit board.)
     //
     // For the boilerplate below, we've given each button a keyboard key
-    // assignment, using the basic set of keys that Visual Pinball uses
-    // by default.  You don't have to keep these, though - you can freely
-    // rearrange them and/or change the assignments to actions other than
-    // key presses, such as gamepad or XBox buttons.  I wasn't able to
-    // come up with 32 standard VP buttons, so I assigned the last few
-    // to gamepad buttons.  Gamepad buttons don't have any standard 
-    // meanings in VP, but you can assign them functions in the VP setup
-    // dialogs, or perhaps you could find uses for them in other games.
-    //
-    // The first four buttons are special in that they're wired through
-    // GPIO ports, which makes them ideal for assigning to the flipper
-    // buttons.  The key thing about GPIO-wired switches is that the
-    // Pico can read GPIO ports faster than PCA9555 ports.  The time
-    // difference is tiny, only about a millisecond, but the flipper
-    // buttons are so critical to pinball play that even a small speed
-    // difference might have an effect on the flipper feel.  The
-    // flippers are the only buttons in a pinball simulation where this
-    // small speed difference even remotely matters.  The expansion
-    // board provides four direct GPIO switch inputs to accommodate the
-    // double-stacked leaf switches used on some real pinball games that
-    // have double flippers.  If you're using ordinary single-contact
-    // leaf switches for your flipper buttons, you can use the extra
-    // two GPIO ports for any other button inputs you wish - other than
-    // the ultra-fast scan time, they behave just like the other button
-    // inputs.
+    // assignment, using the keyboard keys that Visual Pinball uses by
+    // default.  These are just for the sake of an example, though; you
+    // can freely change the order of the inputs to suit your physical
+    // wiring, and you can freely change any of the button meanings to
+    // different keyboard keys, gamepad buttons, or XBox buttons.  I
+    // wasn't even able to come up with enough standard VP functions to
+    // use up all 32 button slots, so I assigned the last few slots to
+    // arbitrary gamepad buttons.  Gamepad buttons don't have any fixed
+    // meaning in VP, but VP lets you assign them to whatever functions
+    // you wish; you might also find uses for gamepad assignments in
+    // other software besides VP.
     //
     // Basic action formats:
     //

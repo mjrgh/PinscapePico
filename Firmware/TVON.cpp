@@ -73,7 +73,7 @@ TVON::TVON()
 //   },
 //   relay: {                   // optional relay, hard-wired to the TV's Soft-ON button
 //     port: <number>|<string>, // output port (by number or name) where the TV relay is connected; must be configured as a virtual output port
-//     pulseTime: <number>,     // duration in millseconds of TV ON relay pulse
+//     pulseTime: <number>,     // duration in milliseconds of TV ON relay pulse
 //     mode: "pulse",           // "pulse" -> pulse at system power on
 //                              // "switch" -> stay on continuously after system power on
 //                              // "manual" -> relay is controlled only by host commands

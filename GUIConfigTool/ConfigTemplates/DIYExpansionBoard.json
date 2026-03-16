@@ -673,15 +673,12 @@
     //   two such LEDs in parallel.  These can be used for lower-power
     //   devices as well if they're not needed for flashers.
     //
-    // - 8 Darlington ports, designated as "lamp" ports.  These can handle
+    // - 32 ULN2803A ports, designated as "lamp" ports.  These can handle
     //   500 mA each, which is enough to drive the small incandescent 6.3V
     //   bulbs used in the Suzo-Happ lighted pushbuttons, or the equivalent
-    //   LED bulbs.
-    //
-    // - 16 TLC59116F ports, designated as "small LED" ports.  These can
-    //   drive up to 120 mA each, which is suitable for small to medium
-    //   LEDs, including the type used in lighted pushbuttons (but not
-    //   the equivalent incandescent bulbs, which draw about 250mA).
+    //   LED bulbs. They can also drive small to medium LEDs like those
+    //   used in lighted pushbuttons that may draw up to 120 mA each, as
+    //   well as the equivalent incandescent bulbs which draw about 250 mA.
     //
     // All of the outputs have PWM control for varying the brightness or
     // intensity of the effect on the port.

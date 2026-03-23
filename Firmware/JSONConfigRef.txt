@@ -2017,6 +2017,34 @@ feedbackController.enable bool optional
   Enables or disables the interface.  The interface is enabled by
   default.  The only common reason for disabling it is for <a href="#ledWizProtocol">strict LedWiz emulation</a>.
 
+feedbackController.macCompatibleUsage bool optional
+  Selects the HID usage codes reported by the device for the Feedback Controller
+  interface.  If this property is false (the default), the <b>original</b> codes
+  are used (Usage Page 6, Generic Device, usage 0, undefined/vendor-defined).
+  Setting this to true selects the <b>alternative</b> usage codes
+  (Usage Page 0xFF06, Vendor-Defined, usage 1).
+
+  The alternative HID usage codes are primarily for MacOS, where the newer
+  versions of the operating system block application access to HID devices
+  in any of the pre-defined usage code ranges.  This prevents DOF and other
+  programs from accessing the Feedback Controller interface without privilege
+  elevation (via "sudo"), which creates separate problems of its own.  To
+  work around this, the Feedback Controller must use a Usage Code in the
+  special "Vendor-Defined" range, in Usage Pages 0xFF00 through 0xFFFF.
+  Setting this property to true selects a usage code in this range.
+
+  Note that application software on the client side uses the usage codes
+  to identify the device, so setting this property to true will hide the
+  device from clients that are programmed to look for the original usage
+  codes.  Currently, all of the Windows client programs (including DOF and
+  the Pinscape Config Tool) only recognize the original codes, so you
+  should use the default settings with Windows hosts for now.  Future
+  versions of the clients will recognize both codes, so eventually it should
+  be possible to use either setting with any client, but for the moment
+  you should only set this property to true for MacOS hosts, and you
+  must make sure that you're using an updated versions of DOF and any
+  other software that accesses the Feedback Controller interface.
+
 ledWizProtocol object optional
   TOC: USB > LedWiz Protocol Interface
   TITLE: LedWiz USB Protocol Interface
@@ -2064,9 +2092,9 @@ ledWizProtocol object optional
 
   <b>The LEDWIZ.DLL replacement alternative:</b>
   For most virtual pinball cabinet users, there's a better option that
-  doesn't come with all of these restrictions.  Instead of emulating
-  the LedWiz at the USB protocol level, you can emulate it on the
-  Windows host, by using the replacement LEDWIZ.DLL available at
+  doesn't come with any of the restrictions required for using the protocol emulation.
+  Instead of emulating the LedWiz at the USB protocol level, you can emulate the
+  LedWiz's software API on the Windows side, by using the replacement LEDWIZ.DLL available at
   <a href="http://mjrnet.org/pinscape/dll-updates.html#LedWiz.dll">mjrnet.org/pinscape/dll-updates.html#LedWiz.dll</a>.
   Nearly all legacy LedWiz applications on Windows access the LedWiz
   through LEDWIZ.DLL rather than directly through the USB protocol.
@@ -2074,8 +2102,8 @@ ledWizProtocol object optional
   to Pinscape simply by replacing the DLL with a new version that
   knows how to access Pinscape through the Pinscape USB protocols.
   There's no need for Pinscape to pretend to be an LedWiz at the USB
-  level, because the library intercepts the LedWiz API calls and
-  translates them to the Pinscape USB protocol.  This has
+  level, because the replacement DLL handles the LedWiz API calls and
+  carries out their commands via the Pinscape USB protocol.  This has
   several advantages:
   <ul>
     <li>You can keep using all of the Pinscape HID devices
@@ -2089,10 +2117,11 @@ ledWizProtocol object optional
   whenever possible.  USB emulation should be treated as a last resort,
   only for cases where you can't use the DLL: for example, you're running on a
   non-Windows host; or the host has a brittle configuration that makes it
-  impractical to replace the DLL; or the legacy software you want to use accesses
+  impractical to replace the DLL; or you're using older software that accesses
   the LedWiz directly through its USB interface rather than through the DLL.
-  If the LEDWIZ.DLL approach is unworkable for one of these reasons or some
-  other reason, only then should you consider the USB protocol emulation approach.
+  If the LEDWIZ.DLL approach is unworkable for one of these reasons, or for some
+  other reason, <b>only then</b> should you consider the USB protocol emulation
+  approach.
 
 ledWizProtocol.enable bool optional
   Enables or disables LedWiz USB protocol emulation.  Disabled by default.
@@ -3215,7 +3244,15 @@ irRx object optional
 
   Configures the IR remote control receiver.  Pinscape lets you connect
   a TSOP384xx sensor, which can receive the type of IR signal sent by
-  the IR remote controls for most televisions and other consumer electronics.
+  the remote controls that come with most televisions and other consumer
+  electronics.
+
+  (Some newer devices use Bluetooth instead of IR for remote control.
+  Bluetooth is a completely different technology based on radio signals,
+  and it's not compatible with Pinscape's IR receiver.  If your remote
+  transmits <i>both</i> Bluetooth and IR signals, as some do, it should
+  be compatible with Pinscape, as the mere presence of Bluetooth won't
+  interfere with the IR signal.)
 
   <img src="IRRX-wiring.png" class="circuit-diagram">
   Wiring notes:
@@ -3272,23 +3309,28 @@ irTx object optional
     <li>Any medium-power NPN transistor can be substituted.
     <li>Any suitable IR LED (IRED) with a peak wavelength around 940 nm can be 
     substituted.  The main thing to look for is high luminosity, so that the signal
-    will carry across a reasonably long distance.  If the data sheet lists IR Remote
-    Controls among the suggested applications, it's probably a good option.
+    will carry across a reasonably long distance.  If you're trying to judge whether
+    you can use a particular IR LED you found for sale, take a look at the LED's data
+    sheet, and look for a list of recommended applications, which is usually in the
+    introduction at the top of the data sheet.  If that list includes IR Remote
+    Controls, then the device is probably a good choice.
     <li>The 15 Ohm resistor is the current-limiting resistor for the IR LED,
-    chosen based on TSAL6400 at 250mA.  If using a different IR LED, adjust
+    chosen based on TSAL6400 at 250mA.  If you're using a different IR LED, adjust
     the resistor to match.  You can use any online LED resistor calculator to figure
     the resistor value, by entering the forward voltage (V<sub>F</sub>)shown in your
     chosen IR LED's data sheet, the maximum forward current (I<sub>F</sub>) from
     the data sheet, and 5V for the power supply voltage.
     <li>Note that we used 250mA as the forward current for TSAL6400 based on the
-    maximum <b>pulsed</b> current specified in the data sheet.  IR remote control
-    protocols activate the LED only in short pulses, so it's usually safe to drive
-    an IR LED close to the maximum pulsed current shown in the data sheet, which
-    is typically much higher than the nominal I<sub>F</sub> for continuous
-    (steady-state) use.  Using a higher current results in higher IR luminosity,
-    which increases the distance range of the transmitter; this is usually
-    necessary to achieve enough range for the signal to reach across a room.
-    Leave a margin of safety of at least 20% below the stated maximum pulsed current.
+    maximum <b>pulsed</b> current specified in the data sheet.  Most IR LED data
+    sheets list two maximum current values: one for continuous current, and one
+    for pulsed current, which will often be 5 to 10 times higher.  Since IR
+    protocols only operate the LED in short pulses, you can use the higher
+    pulsed current limit when selecting the current-limiting resistor (although
+    you should still leave a margin of safety of at least 20% below the stated
+    maximum).  Higher current increases the luminosity of the LED, extending
+    its distance range.  That's usually necessary to achieve transmission
+    distances comparable to the original hand-held remotes, since they also
+    tend to drive their LEDs based on the pulsed current limits.
   </ul>
 
 irTx.gpio number required

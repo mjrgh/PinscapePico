@@ -253,7 +253,7 @@ void PWMWorker::Init()
         uint8_t buf[] = { REG_FREQL, static_cast<uint8_t>(pwmFreq & 0xFF), static_cast<uint8_t>((pwmFreq >> 8) & 0xFF) };
         if (i2c_write_timeout_us(i2c, i2cAddr, buf, _countof(buf), false, 1000) != _countof(buf))
         {
-            Log(LOG_ERROR, "WorkerPico[%d]: I2C error setting PWM frequency\n");
+            Log(LOG_ERROR, "WorkerPico[%d]: I2C error setting PWM frequency\n", configIndex);
             ok = false;
         }
     }

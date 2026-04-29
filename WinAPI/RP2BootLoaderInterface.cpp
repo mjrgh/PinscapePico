@@ -111,9 +111,12 @@ bool RP2BootDevice::WriteUF2(
 	// don't build up a big backlog of buffered writes waiting to
 	// be transmitted to the device; that makes our progress bar
 	// estimate more realistic.
-	static const auto CancelAndClose = [](HANDLE hFile) { CancelIo(hFile); CloseHandle(hFile); };
+	static const auto CancelAndClose = [](HANDLE hFile) { 
+		CancelIo(hFile); 
+		CloseHandle(hFile); 
+	};
 	HandleHolder<HANDLE> hOut(
-		CreateFile(outName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
+		CreateFile(outName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
 			FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED | FILE_FLAG_WRITE_THROUGH, NULL),
 		CancelAndClose);
 	if (hOut.handle == INVALID_HANDLE_VALUE)
@@ -151,8 +154,8 @@ bool RP2BootDevice::WriteUF2(
 			}
 		}
 	};
-
-	// write the file 
+	
+	// write the data
 	for (uint32_t blockNo = 0, writeOfs = 0, targetAddr = startingAddress ; blockNo < numBlocks ;
 		++blockNo, targetAddr += 256, writeOfs += 256)
 	{
@@ -161,7 +164,7 @@ bool RP2BootDevice::WriteUF2(
 			return false;
 
 		// set up the block header
-		UF2_Block blk(targetAddr, blockNo, numBlocks);
+		UF2_Block blk(this, targetAddr, blockNo, numBlocks);
 
 		// populate the block payload via the callback
 		fillBlockPayload(blk.data, blockNo);
@@ -201,33 +204,133 @@ bool RP2BootDevice::WriteUF2(
 // anything in flash.
 bool RP2BootDevice::RebootPico()
 {
-	// File contents: one block, loaded into an unused area in the
-	// memory-mapped flash region.  The behavior of the boot loader
-	// when presented with this request can be inferred from the
-	// boot loader source code at:
-	// 
-	// https://github.com/raspberrypi/pico-bootrom/blob/master/bootrom/virtual_disk.c
-	//
-	// The boot loader treats all addresses between 0x10000000 and
-	// 0x20000000 as belonging to writable XIP flash space, but only
-	// certain sub-ranges within that 256MB zone are actually mapped.
-	// The architecture only allows for 16MB of flash maximum, so the
-	// 256MB window allows for 16 views of the 16MB space.  It uses
-	// this by mapping five views, in the 24-bit ranges starting at
-	// 0x10000000, 0x11000000, 0x12000000, 0x13000000, and 0x15000000.
-	// Other ranges are documented as unused.  When the UF2 file sets
-	// the target address to something within the 0x10000000..0x20000000
-	// nominal flash region, but outside of the five mapped windows,
-	// the boot loader will dutifully copy the bytes to the nominal
-	// address - but since an address not in one of those windows
-	// isn't physically mapped to any hardware, the Pico bus will
-	// accept but ignore the writes.  The effect is that we can
-	// write to these ranges without changing anything in the flash,
-	// while still making the boot loader believe that something was
-	// copied and thus requires a reboot.
-	const uint32_t UNUSED_FLASH_SPACE = 0x1F000000;
-	return WriteUF2(UNUSED_FLASH_SPACE, 1,
-		[](uint8_t *buf, uint32_t blockNum) { memset(buf, 0, 256); });
+	// The reboot technique varies by hardware type
+	if (boardID == "RP2350")
+	{
+		// RP2350:  The simple trick we use for RP2040 doesn't
+		// work for RP2350, because the RP2350 boot loader validates
+		// the target address.  It will only accept downloads to
+		// RAM and valid flash addresses.  It actually validates
+		// the address against the bounds of physical storage, too,
+		// so we can't get away with picking an address that's
+		// merely reserved for flash but isn't backed by physical
+		// flash, as we can on the RP2040.
+		// 
+		// Since the bootloader will accept RAM addresses, the way
+		// to download a UF2 to the device without overwriting any
+		// flash data is to download to RAM.  But this is trickier
+		// than it seems, because the bootloader always treats a
+		// UF2 transfer to RAM as a RAM-resident program image to
+		// launch.  If we download random data that isn't a valid
+		// program image, the bootloader will try to launch it
+		// anyway, which will crash the Pico, which will then
+		// reboot it back into bootloader mode.  So we'd just be
+		// back where we started, with the Pico in bootloader mode.
+		// 
+		// To accomplish a reboot into the flash-resident program,
+		// we have to download a working RAM-resident program that
+		// explicitly reboots the Pico into the flash program.
+		// The binary data below represents a minimal working
+		// image that accomplishes that.  The image represented
+		// by the data below simply does the required post-boot
+		// startup work, then programs the Watchdog register to
+		// immediately reboot the Pico with the flash-resident
+		// program as the launch target.  The program must be
+		// linked with a base address of 0x20000000 (the start
+		// of RAM).  Preparing a suitable program image isn't
+		// trivial, since it must meet the requirements of the
+		// RP2350 boot ROM, including metadata block wrappers,
+		// ARM interrupt table header, and basic startup code.
+		// The best way to create an image is to use a "bare
+		// metal" link template with the Pico SDK GCC build
+		// tools, omitting the Pico SDK libraries to minimize
+		// the image size.  The smallest working image I've
+		// been able to produce that way is about 500 bytes.
+		//
+		// Note that the array must be declared with a size that's
+		// a multiple of 256, so that we don't have to bounds-check
+		// the last packet in the transfer loop.  (It's okay to
+		// populate the bytes short of the ending boundary, since
+		// the C++ compiler will fill in the rest with 0x00 bytes.
+		// The important thing is that the *declared* size is a
+		// multiple of 256.)
+		static const uint8_t rp2350Rebooter[512] = {
+			0x00, 0x20, 0x08, 0x20, 0xD9, 0x00, 0x00, 0x20, 0xD1, 0x00, 0x00, 0x20, 0xD5, 0x00, 0x00, 0x20,
+			0xD1, 0x00, 0x00, 0x20, 0xD1, 0x00, 0x00, 0x20, 0xD1, 0x00, 0x00, 0x20, 0xD1, 0x00, 0x00, 0x20,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xD1, 0x00, 0x00, 0x20,
+			0xD1, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0xD1, 0x00, 0x00, 0x20, 0xD1, 0x00, 0x00, 0x20,
+			0xD3, 0xDE, 0xFF, 0xFF, 0x42, 0x01, 0x21, 0x10, 0xFF, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x79, 0x35, 0x12, 0xAB, 0xA3, 0xF5, 0x80, 0x3A, 0x70, 0x47, 0x00, 0xBF, 0x17, 0x4B, 0x00, 0x2B,
+			0x08, 0xBF, 0x13, 0x4B, 0x9D, 0x46, 0xFF, 0xF7, 0xF5, 0xFF, 0x00, 0x21, 0x8B, 0x46, 0x0F, 0x46,
+			0x13, 0x48, 0x14, 0x4A, 0x12, 0x1A, 0x00, 0xF0, 0x71, 0xF8, 0x0E, 0x4B, 0x00, 0x2B, 0x00, 0xD0,
+			0x98, 0x47, 0x0D, 0x4B, 0x00, 0x2B, 0x00, 0xD0, 0x98, 0x47, 0x00, 0x20, 0x00, 0x21, 0x04, 0x00,
+			0x0D, 0x00, 0x0D, 0x48, 0x00, 0x28, 0x02, 0xD0, 0x0C, 0x48, 0xAF, 0xF3, 0x00, 0x80, 0x00, 0xF0,
+			0x65, 0xF8, 0x20, 0x00, 0x29, 0x00, 0x00, 0xF0, 0x39, 0xF8, 0x00, 0xF0, 0x45, 0xF8, 0x00, 0xBF,
+			0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x08, 0x20,
+			0xF4, 0x01, 0x00, 0x20, 0xF8, 0x01, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0xFE, 0xE7, 0x00, 0xBF, 0xFE, 0xE7, 0x00, 0xBF, 0x08, 0xB5, 0x0B, 0x4B, 0x83, 0xF3, 0x09, 0x88,
+			0x0A, 0x4B, 0x83, 0xF3, 0x0A, 0x88, 0x83, 0xF3, 0x0B, 0x88, 0x09, 0x4A, 0x09, 0x4B, 0x93, 0x42,
+			0x08, 0xD2, 0x01, 0x3A, 0xD2, 0x1A, 0x22, 0xF0, 0x03, 0x02, 0x18, 0x46, 0x06, 0x49, 0x04, 0x32,
+			0x00, 0xF0, 0x58, 0xF8, 0xFF, 0xF7, 0xAA, 0xFF, 0x00, 0x20, 0x08, 0x20, 0x00, 0xA0, 0x07, 0x20,
+			0xF4, 0x01, 0x00, 0x20, 0xF4, 0x01, 0x00, 0x20, 0xF4, 0x01, 0x00, 0x20, 0x00, 0x20, 0x01, 0x21,
+			0x4F, 0xF0, 0x00, 0x42, 0x03, 0x4B, 0xD8, 0x61, 0x18, 0x62, 0x58, 0x62, 0x98, 0x62, 0x59, 0x60,
+			0x1A, 0x60, 0x70, 0x47, 0x00, 0x80, 0x0D, 0x40, 0x08, 0xB5, 0x06, 0x4B, 0x04, 0x46, 0x13, 0xB1,
+			0x00, 0x21, 0xAF, 0xF3, 0x00, 0x80, 0x04, 0x4B, 0x1B, 0x68, 0x03, 0xB1, 0x98, 0x47, 0x20, 0x46,
+			0x00, 0xF0, 0x3E, 0xF8, 0x00, 0x00, 0x00, 0x00, 0xF4, 0x01, 0x00, 0x20, 0x02, 0x44, 0x03, 0x46,
+			0x93, 0x42, 0x00, 0xD1, 0x70, 0x47, 0x03, 0xF8, 0x01, 0x1B, 0xF9, 0xE7, 0x70, 0xB5, 0x0D, 0x4B,
+			0x00, 0x26, 0x0D, 0x4D, 0x5B, 0x1B, 0x9C, 0x10, 0xA6, 0x42, 0x09, 0xD1, 0x0B, 0x4D, 0x00, 0xF0,
+			0x29, 0xF8, 0x0B, 0x4B, 0x00, 0x26, 0x5B, 0x1B, 0x9C, 0x10, 0xA6, 0x42, 0x05, 0xD1, 0x70, 0xBD,
+			0x55, 0xF8, 0x04, 0x3B, 0x01, 0x36, 0x98, 0x47, 0xEE, 0xE7, 0x55, 0xF8, 0x04, 0x3B, 0x01, 0x36,
+			0x98, 0x47, 0xF2, 0xE7, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x0A, 0x44, 0x43, 0x1E, 0x91, 0x42, 0x00, 0xD1, 0x70, 0x47, 0x10, 0xB5,
+			0x11, 0xF8, 0x01, 0x4B, 0x91, 0x42, 0x03, 0xF8, 0x01, 0x4F, 0xF9, 0xD1, 0x10, 0xBD, 0x00, 0x00,
+			0xFE, 0xE7, 0x00, 0xBF, 0xF8, 0xB5, 0x00, 0xBF, 0xF8, 0xBC, 0x08, 0xBC, 0x9E, 0x46, 0x70, 0x47,
+			0xF8, 0xB5, 0x00, 0xBF, 0xF8, 0xBC, 0x08, 0xBC, 0x9E, 0x46, 0x70, 0x47, 0x68, 0xFE, 0xFF, 0x7F,
+			0x01, 0x00, 0x00, 0x00,
+		};
+		return WriteUF2(0x20000000, sizeof(rp2350Rebooter)/256, [](uint8_t *buf, uint32_t blockNum)
+		{
+			memcpy(buf, &rp2350Rebooter[blockNum*256], 256);
+		});
+	}
+	else
+	{
+		// RP2040: Download one UF2 block, loaded into an unmapped area
+		// in the flash region.  The contents of the download don't
+		// matter, since the target address doesn't actually contain
+		// any flash memory - the Pico will just discard the data
+		// without updating flash.  But the RP2040 bootloader will
+		// still consider the UF2 transfer to be successfully completed
+		// after writing the block to nowhere, so it'll reboot into
+		// the flash program as usual.
+		// 
+		// This isn't just an observational guess about how the
+		// bootloader works.  The behavior is deterministically written
+		// into the RP2040 ROM bootloader code, which Raspberry Pi
+		// publishes here:
+		// 
+		// https://github.com/raspberrypi/pico-bootrom/blob/master/bootrom/virtual_disk.c
+		//
+		// The boot loader treats all addresses between 0x10000000 and
+		// 0x20000000 as belonging to writable XIP flash space, but only
+		// certain sub-ranges within that 256MB zone are actually mapped.
+		// The architecture only allows for 16MB of flash maximum, so the
+		// 256MB window allows for 16 views of the 16MB space.  It does
+		// this by mapping five views, in the 24-bit ranges starting at
+		// 0x10000000, 0x11000000, 0x12000000, 0x13000000, and 0x15000000.
+		// Other ranges are documented as unused.  When the UF2 file sets
+		// the target address to something within the 0x10000000..0x11FF0000
+		// nominal flash region, but outside of the five mapped windows,
+		// the boot loader will dutifully copy the bytes to the nominal
+		// address - but since an address not in one of those windows
+		// isn't physically mapped to any hardware, the Pico bus will
+		// accept but ignore the writes.  The effect is that we can
+		// write to these ranges without changing anything in the flash,
+		// while still making the boot loader believe that something was
+		// copied and thus requires a reboot.
+		return WriteUF2(0x1F000000, 1,
+			[](uint8_t *buf, uint32_t blockNum) { memset(buf, 0, 256); });
+	}
 }
 
 // Erase configuration data.  This overwrites the small control
@@ -397,7 +500,11 @@ RP2BootDevice::RP2BootDeviceList RP2BootDevice::EnumerateRP2BootDrives()
 								break;
 
 							// make absolutely sure the buffer is null-terminated
-							buf[_countof(buf)-1] = 0;
+                            buf[_countof(buf)-1] = 0;
+
+                            // remove the newline at the end of the line, if present
+                            if (size_t len = strlen(buf) ; len != 0 && buf[len-1] == '\n')
+                                buf[len-1] = 0;
 
 							//
 							// Parse the "Name: Value" tag format that the INFO_UF2.TXT file
@@ -411,7 +518,7 @@ RP2BootDevice::RP2BootDeviceList RP2BootDevice::EnumerateRP2BootDrives()
 							// this is the start of the Name portion; find the end of this part,
 							// which should be contiguous non-space characters up to a ':'
 							char *start = v;
-							for (; *v != 0 && *v != '\n' && *v != ':' && !isspace(*v) ; ++v) ;
+							for (; *v != 0 && *v != ':' && !isspace(*v) ; ++v) ;
 							std::string tagName(start, v - start);
 
 							// skip spaces, and make sure there's a ':' - if there's not, just 
@@ -425,7 +532,7 @@ RP2BootDevice::RP2BootDeviceList RP2BootDevice::EnumerateRP2BootDrives()
 
 							// the value portion is everything up to the end of the line,
 							// with trailing spaces trimmed off
-							for (char *endp = v + strlen(v) ; endp > v && isspace(*(endp-1)) ; *--endp = 0) ;
+                            for (char *endp = v + strlen(v) ; endp > v && isspace(*(endp-1)) ; *--endp = 0) ;
 							std::string tagValue(v);
 
 							// convert the Name to lower-case for case-insensitive keying
@@ -439,28 +546,38 @@ RP2BootDevice::RP2BootDeviceList RP2BootDevice::EnumerateRP2BootDrives()
 						// done with the file
 						fclose(fp);
 
-						// Check to see if this is actually a Pico.  If it is, it will
-						// have a Board-ID tag with a value of "RPI-RP2" or "RP2350"
-						// (for Pico2).  The Microsoft spec calls for a version suffix,
-						// delimited by a '-', but none of the current Pico or Pico 2
-						// boards use this.  Check for it anyway in case a future Pico
+						// Check to see if this is actually a Pico.  If it is, it will have
+                        // a Board-ID tag with a value of "RPI-RP2" (for a Pico RP2040), or
+                        // "RP2350" (for Pico2).  The Microsoft spec calls for a version
+						// suffix, delimited by a '-', but none of the current Pico or Pico
+						// 2 boards use this.  Check for it anyway in case a future Pico
 						// adds it.
 						bool isPico = false;
 						if (auto it = drive.tags.find("board-id") ; it != drive.tags.end())
 						{
-							// check for "RPI-RP2" or "RP2350", with an optional version
-							// suffix with '-'
+							// test this Board-ID against the known Raspberry Pi Pico IDs
 							const char *id = it->second.c_str();
-							if ((_strnicmp(id, "RPI-RP2", 7) == 0 && (id[7] == 0 || id[7] == '-'))
-								|| (_strnicmp(id, "RP2350", 6) == 0 && (id[6] == 0 || id[6] == '-')))
-							{
-								// Yes, it's a Pico or Pico2 in boot loader mode
-								isPico = true;
+                            static const char *testIDs[] = { "RPI-RP2", "RP2350" };
+                            for (const char *testID : testIDs)
+                            {
+                                // test this known ID, either as the whole token or with a '-' suffix
+                                size_t len = strlen(testID);
+                                if (_strnicmp(id, testID, len) == 0 && (id[len] == 0 || id[len] == '-'))
+                                {
+                                    // matched - it's a Pico
+                                    isPico = true;
 
-								// pull out the version suffix from the string, if any
-								if (id[7] == '-')
-									drive.boardVersion.assign(id + 8);
-							}
+									// save the base board ID
+									drive.boardID = testID;
+
+                                    // if there's a version suffix, pull it out
+									if (id[len] == '-')
+										drive.boardVersion.assign(id + len + 1);
+
+                                    // stop searching
+                                    break;
+                                }
+                            }
 						}
 
 						// if it's not a Pico after all, remove it from the list

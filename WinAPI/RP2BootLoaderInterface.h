@@ -44,12 +44,18 @@ namespace PinscapePico
         // forwards
 		class IProgressCallback;
 
+		// construct a default Boot Device with no path or device information
+		RP2BootDevice() { }
+
+		// construct a Boot Device from a path and bootloader version
 		RP2BootDevice(const TCHAR *path, std::string bootloaderVersion) :
 			path(path), bootloaderVersion(bootloaderVersion)
 		{ }
 
+		// construct a Boot Device from an existing Boot Device
 		RP2BootDevice(const RP2BootDevice &dev) :
 			path(dev.path),
+			boardID(dev.boardID),
 			bootloaderVersion(dev.bootloaderVersion),
 			boardVersion(dev.boardVersion),
 			tags(dev.tags)
@@ -109,8 +115,11 @@ namespace PinscapePico
 		// UF2 Bootloader version string, as reported in INFO_UF2.TXT.
 		std::string bootloaderVersion;
 
+		// Board ID, with the version suffix removed.
+		std::string boardID;
+
 		// Board ID version suffix, if any.  This is the third
-		// token in the board ID string above, parsed out into this
+		// token in the board ID string, parsed out into this
 		// separate field for the client program's convenience.  This
 		// is always empty for the current (original) version of the
 		// Pico, but we break this out in anticipation that future
@@ -177,34 +186,53 @@ namespace PinscapePico
 		// a separate file header; it's just an array of these blocks.
 		struct UF2_Block
 		{
-			UF2_Block() { }
-			UF2_Block(uint32_t targetAddr, uint32_t blockNo, uint32_t numBlocks, const char *src = nullptr) :
-				targetAddr(targetAddr), blockNo(blockNo), numBlocks(numBlocks)
+            UF2_Block(RP2BootDevice *device) : fileSizeOrFamilyID(CalcFamilyID(device)) { }
+			UF2_Block(RP2BootDevice *device, uint32_t targetAddr, uint32_t blockNo, uint32_t numBlocks, const char *src = nullptr) :
+				targetAddr(targetAddr), blockNo(blockNo), numBlocks(numBlocks), fileSizeOrFamilyID(CalcFamilyID(device))
 			{
 				if (src != nullptr)
 					memcpy(this->data, src, 256);
+            }
+
+			// calculate the family ID for the device
+			static uint32_t CalcFamilyID(RP2BootDevice *device)
+			{
+				// For RP2350, use ABSOLUTE memory type
+				if (device->boardID == "RP2350")
+					return FAMILYID_RP2XXX_ABSOLUTE;
+
+				// For all else, assume original RP2040 boot loader
+				return FAMILYID_RP2040;
 			}
 
-			uint32_t magicStart0 = 0x0A324655;
-			uint32_t magicStart1 = 0x9E5D5157;
-			uint32_t flags = F_FAMILYID_PRESENT;
-			uint32_t targetAddr = 0;
-			uint32_t payloadSize = 256;
-			uint32_t blockNo = 0;
-			uint32_t numBlocks;
-			uint32_t fileSizeOrFamilyID = FAMILYID_RP2040;
-			uint8_t data[476]{ 0 };
-			uint32_t magicEnd = 0x0AB16F30;
+			// UF2 data
+			uint32_t magicStart0 = 0x0A324655;             // First starting magic number, defined by UF2 spec
+			uint32_t magicStart1 = 0x9E5D5157;             // Second starting magic number, defined by UF2 spec
+			uint32_t flags = F_FAMILYID_PRESENT;           // The fileSize field is a family ID (required by Pico boot loader)
+			uint32_t targetAddr = 0;                       // Target device memory address, to be supplied by constructor
+			uint32_t payloadSize = 256;                    // Payload size, fixed by UF2 spec
+			uint32_t blockNo = 0;                          // Block sequence number, to be supplied by constructor
+			uint32_t numBlocks;                            // Total number of blocks to write under family ID, provided by constructor
+			uint32_t fileSizeOrFamilyID;                   // Target device family ID; varies according to target device
+			uint8_t data[476]{ 0 };                        // Payload
+			uint32_t magicEnd = 0x0AB16F30;                // Ending magic number, defined by UF2 spec
 
-			// flags
+			// flags (defined by UF2 spec)
 			static const uint32_t F_NOT_MAIN_FLASH       = 0x00000001;  // do not copy to flash
 			static const uint32_t F_FILE_CONTAINER       = 0x00001000;  // member of a zip/tar style archive
 			static const uint32_t F_FAMILYID_PRESENT     = 0x00002000;  // fileSize contains familyID, not a size
 			static const uint32_t F_MD5_CHECKSUM_PRESENT = 0x00004000;  // MD5 checksum is present
 			static const uint32_t F_EXT_TAGS_PRESENT     = 0x00008000;  // extension tags present
 
-			// familyID constants
+			// familyID constants (device identifiers, defined by Raspberry Pi).
+			// The Pico boot loader uses these to validate that UF2 blocks are
+			// targeted to the correct device type.  The original RP2040 Pico
+			// defines a single family ID; RP2350 (Pico 2) defines several IDs
+			// to identify the different architecture types (ARM, RiscV) and
+			// to identify destination locations within the RP2350's flash
+			// partitioning scheme.
 			static const uint32_t FAMILYID_RP2040 = 0xe48bff56;
+			static const uint32_t FAMILYID_RP2XXX_ABSOLUTE = 0xe48bff57;
 		};
 
 		// Progress callback interface for InstallFirmware

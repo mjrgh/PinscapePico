@@ -66,6 +66,37 @@ static void UsageExit()
 
 int main(int argc, char **argv)
 {
+    // get a list of boot devices, and search for the specified drive letter
+    auto drives = PinscapePico::RP2BootDevice::EnumerateRP2BootDrives();
+
+    // --list mode
+    if (argc == 2 && strcmp(argv[1], "--list") == 0)
+    {
+        // list drives, if any
+        if (drives.size() == 0)
+        {
+            printf("No Pico boards found in Boot Loader mode\n");
+        }
+        else
+        {
+            printf("Path   Board ID           Boot Loader   Model\n");
+            printf("----   ----------------   -----------   -------------------------\n");
+            for (auto &drive : drives)
+            {
+                auto &boardID = drive.tags.find("board-id");
+                auto &model = drive.tags.find("model");
+                printf("%-4.4s   %-16.16s   %-11.11s   %s\n",
+                    drive.path.c_str(),
+                    boardID != drive.tags.end() ? boardID->second.c_str() : "",
+                    drive.bootloaderVersion.c_str(),
+                    model != drive.tags.end() ? model->second.c_str() : "");
+            }
+        }
+
+        // stop here
+        return 0;
+    }
+
     // check arguments
     if (argc < 2)
         UsageExit();
@@ -106,9 +137,8 @@ int main(int argc, char **argv)
     if (argi < argc)
         UsageExit();
 
-    // get a list of boot devices, and search for the specified drive letter
+    // make sure we found a Pico in boot mode
     PinscapePico::RP2BootDevice *device = nullptr;
-    auto drives = PinscapePico::RP2BootDevice::EnumerateRP2BootDrives();
     if (drives.size() == 0)
     {
         printf("No Picos in Boot Loader mode detected.\n");
@@ -164,7 +194,6 @@ int main(int argc, char **argv)
     static const uint32_t BLOCK_SIZE = 256;
     if (device->WriteUF2(TOP_OF_FLASH - SECTOR_SIZE, 1, [addr](uint8_t *buf, uint32_t blockNum)
     {
-        // Generate our data block
         memset(buf, 0, BLOCK_SIZE);
         sprintf_s(reinterpret_cast<char*>(buf), BLOCK_SIZE, "PinscapePicoPWMWorker I2C Addr [%02X] \032", addr);
     }))

@@ -992,6 +992,8 @@ void WrapperWin::OnInitMenuPopup(HMENU menu, WORD itemPos, bool isSysMenu)
     EnableMenuItem(menu, ID_DEVICE_BOOTLOADERMODE, flags);
     EnableMenuItem(menu, ID_DEVICE_REBOOT, flags);
     EnableMenuItem(menu, ID_DEVICE_SAFEMODE, flags);
+    EnableMenuItem(menu, ID_DEVICE_ENTERFACTORYMODE, flags);
+    EnableMenuItem(menu, ID_DEVICE_I2CBUSSCAN, flags);
     EnableMenuItem(menu, ID_DEVICE_INSTALLFIRMWARE, flags);
     EnableMenuItem(menu, ID_DEVICE_CLEARCONFIGURATION, flags);
     EnableMenuItem(menu, ID_DEVICE_FULLFACTORYRESET, flags);
@@ -1879,7 +1881,8 @@ void WrapperWin::ExportFlash(int cmd)
                             src += UF2_BLOCK_DATA_SIZE, ++uf2BlockNo)
                         {
                             // format a UF2 block and write it to the file
-                            RP2BootDevice::UF2_Block blk(targetAddr, uf2BlockNo, uf2NumBlocks, src);
+                            RP2BootDevice bootDev;
+                            RP2BootDevice::UF2_Block blk(&bootDev, targetAddr, uf2BlockNo, uf2NumBlocks, src);
                             f.write(reinterpret_cast<const char*>(&blk), sizeof(blk));
                         }
                     }

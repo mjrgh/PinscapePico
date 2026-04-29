@@ -1680,9 +1680,9 @@ void FlashStorage::Command_flash(const ConsoleCommandContext *c)
             else if (strcmp(a, "--sector-map") == 0)
             {
                 c->Printf("In-use sector map [C=control, D=data, P=program, '.'=free):\n");
-                for (int i = 0 ; i < 512 ; )
+                const int nSectors = PICO_FLASH_SIZE_BYTES / FLASH_SECTOR_SIZE;
+                for (int i = 0 ; i < nSectors ; )
                 {
-                    const int nSectors = PICO_FLASH_SIZE_BYTES / FLASH_SECTOR_SIZE;
                     const int nCentralDirSectors = flashStorage.centralDirectorySize / FLASH_SECTOR_SIZE;
                     extern char __flash_binary_end;
                     const uintptr_t PROGRAM_IMAGE_END_OFFSET = reinterpret_cast<uintptr_t>(&__flash_binary_end) - XIP_BASE;

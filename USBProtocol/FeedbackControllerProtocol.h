@@ -81,23 +81,60 @@
 // All multi-byte integer fields are encoded in little-endian order.
 //
 //
+// HID USAGES
+//
+// The interface presents one of two Usage IDs, configurable on the
+// device:
+//
+//    Usage Page 0x06 (Generic Device), Usage 0x00 (Undefined)
+//    Usage Page 0xFF06 (Vendor-Defined), Usage 0x01 (Vendor-Defined)
+//
+// The first code (Page 0x06, Usage 0x00) was used unconditionally in
+// the original Pico firwmare implementation.  In later firmware, the
+// codes are user-configurable on the device side.
+//
+// The second code (Page 0xFF06, Usage 0x01) was added to accommodate
+// MacOS hosts.  On newer versions of MacOS, a privileged OS subsystem
+// claims exclusive access to HID devices declaring Usage codes in
+// the basic pre-defined range, preventing enumeration of the devices
+// through the low-level HID APIs.  The MacOS port of DOF uses libusb/
+// hidapi, which is one of the APIs that's blocked by said privileged
+// subsystem.  The issue doesn't affect interfaces with Usage codes in
+// the Vendor-Defined range (Usage Pages 0xFF00 to 0xFFFF), however,
+// thus the alternative usage code above.
+//
+// The original implementation of the Pinscape Pico client software on
+// Windows only knew about the original Generic Device usage code, so
+// changing to the alternate usage code on the device side will prevent
+// existing Windows clients from seeing the device.  That's why it's
+// configurable: so that MacOS users can work around the MacOS bug (yes,
+// I'm declaring it a bug, and I really don't care how much Apple
+// considers it to be intentional), but without breaking any existing
+// user deployments.  Longer-term, I plan to update the Windows clients
+// to recognize both usage codes, so over time, Windows users won't care
+// which code is used.  But for now, Windows users will want to keep
+// using the original code, which is the default in the firwmare if the
+// new codes aren't explicitly selected.
+//
+//
 // INTERFACE DISCOVERY
 //
 // On Windows, HID devices can be enumerated through the Setup API; the
-// Windows API documentation has examples.  However, since we use the
-// generic "undefined" usage to describe the interface as a special-
-// purpose device with a custom report structure, it's possible that a
-// system-wide enumeration would find other, unrelated devices that
-// use the same generic usage to identify their own custom interfaces.
+// Windows API documentation has examples.  However, the HID usage codes
+// we use (either "Generic Device/Undefined" or "Vendor-Defined") are
+// not specifically reserved in the universal HID specification to our
+// device type, so it's possible that some completely unrelated device
+// could identify itself with the same Usage codes at the device level.
 // The normal way to distinguish such cases is to rely on the USB
-// VID/PID identifiers, but this isn't recommended for Pinscape Pico,
-// because the USB IDs can be reconfigured by the user (to resolve
-// conflicts with other devices, for example).  For this reason, we
-// associate a "string label" with our HID input/output reports.  The
-// string label is a HID mechanism specifically provided for identifying
-// vendor-specific usages that don't fit any of the pre-defined usage
-// codes.  Here's the procedure that the Pinscape Pico API on Windows
-// uses to make the positive identification:
+// VID/PID identifiers, but this isn't a good strategy for Pinscape
+// Pico, because the Pinscape Pico firmware allows the USB IDs to
+// manually configured by the user (to resolve conflicts with other
+// devices, for example).  For this reason, we associate a "string
+// label" with our HID input/output reports.  The string label is a HID
+// mechanism specifically provided for identifying vendor-specific
+// usages that don't fit any of the pre-defined usage codes.  Here's the
+// procedure that the Pinscape Pico API on Windows uses to make the
+// positive identification:
 //
 // 1. Enumerate all of the Vendor Interface devices, as described in
 // VendorIfcProtocol.h.  These can be unambiguously identified via a
@@ -110,7 +147,10 @@
 // Interfaces
 //
 // 4. Filter the devices identified thus far to match only those with
-// Usage Page 0x06 (Generic Device), Usage 0x00 (Undefined).
+//    one of the following:
+//
+//     Usage Page 0x06 (Generic Device), Usage 0x00 (Undefined)
+//     Usage Page 0xFF06 (Vendor-Defined), Usage 0x01 (Vendor-Defined)
 //
 // 5. Read the report descriptor, and check for a string label.  On
 // Windows, this can be done by getting the "Button Capabilities" array

@@ -1043,6 +1043,36 @@ public:
         } irCmdBuf[IRCmdBufSize];
         int irCmdRead = 0;
         int irCmdWrite = 0;
+
+        // USB usage page and usage code.  This is configurable via
+        // feedbackController.macCompatibleUsage:
+        //
+        //   false -> Usage Page 6 (Generic Device), Usage 0 (Undefined)
+        //   true  -> Usage Page 0xFF06 (Vendor Defined 6), Usage 1 (Vendor Defined 1)
+        //
+        // The default (false) selects the original usage codes,
+        // Usage Page Generic Device (0x06), Usage Undefined (0x00).
+        //
+        // The original usage codes create a problem on newer versions
+        // of MacOS, where a protected subsystem claims exclusive access
+        // to all HID interfaces with Usage Pages in the standard range.
+        // This makes it impossible for user-space applications to
+        // enumerate the HID interface.  (At least, impossible for
+        // certain APIs, including the one that the MacOS port of DOF
+        // uses.)
+        //
+        // The workaround on MacOS is for the HID interface to use a
+        // Usage code in the Vendor-Defined range, in Usage Page 0xFF00
+        // through 0xFFFF.  Setting 'macCompatibleUsage' to true selects
+        // an alternative usage code in the vendor range.
+        //
+        // We make this a configuration option so that we don't break
+        // existing deployments, where clients are programmed to search
+        // for HID interfaces under the original Usage codes.  In the
+        // longer term, I'm planning to update clients to recognize
+        // BOTH usage codes - Page 6/Usage 0, and Page 0xFF06/Usage 1.
+        uint16_t hidUsagePage = HID_USAGE_PAGE_GENERIC_DEVICE;
+        uint8_t hidUsage = 0;
     };
 
     // LedWiz USB interface emulator.  Implements an OUT interface that

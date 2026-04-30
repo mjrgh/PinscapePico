@@ -3297,40 +3297,47 @@ irTx object optional
   Configures the IR remote control transmitter.  Pinscape lets you
   connect an IR emitter to a Pico GPIO port, to send IR remote control
   commands to your TVs and any other IR-capable devices in your pin cab. 
-  The emitter is simply an LED that emits light in the IR part of the
-  spectrum.
+
+  The emitter in an IR transmitter is pretty much like any other LED,
+  except that the "color" of the light it emits is infrared instead of
+  one of the visible colors.  Most consumer IR remotes use infrared
+  light around 940 nm (that's the wavelength in nanometers).  A simple
+  transistor control circuit is needed to connect the LED to a Pico
+  GPIO; the transistor is needed to boost the current to the level
+  needed by the IR LED, which is typically a few hundred milliamps.
 
   <img src="IRTX-wiring.png" class="circuit-diagram">
   Wiring notes:
   <ul>
-    <li>The 5V power supply should be taken from an ample source, such as
-    a PC power supply 5V rail.  Avoid using the Pico's 3.3V regulator output or
-    USB bus power, because the LED requires relatively high current.
+    <li>The 5V power supply should be taken from a source that can supply
+    at least 500 mA, such as a PC power supply 5V rail.  Avoid using the Pico's
+    3.3V regulator output or its USB bus power connection, since the LED current
+    load is on the high side of what those sources can supply.
     <li>Any medium-power NPN transistor can be substituted.
-    <li>Any suitable IR LED (IRED) with a peak wavelength around 940 nm can be 
-    substituted.  The main thing to look for is high luminosity, so that the signal
-    will carry across a reasonably long distance.  If you're trying to judge whether
-    you can use a particular IR LED you found for sale, take a look at the LED's data
-    sheet, and look for a list of recommended applications, which is usually in the
-    introduction at the top of the data sheet.  If that list includes IR Remote
-    Controls, then the device is probably a good choice.
-    <li>The 15 Ohm resistor is the current-limiting resistor for the IR LED,
-    chosen based on TSAL6400 at 250mA.  If you're using a different IR LED, adjust
-    the resistor to match.  You can use any online LED resistor calculator to figure
-    the resistor value, by entering the forward voltage (V<sub>F</sub>)shown in your
-    chosen IR LED's data sheet, the maximum forward current (I<sub>F</sub>) from
-    the data sheet, and 5V for the power supply voltage.
-    <li>Note that we used 250mA as the forward current for TSAL6400 based on the
+    <li>Any IR LED (IRED) with a peak wavelength around 940 nm and high
+    luminosity can be substituted.  High luminosity is needed for the signal to
+    carry across a reasonably long distance.  If you're trying to judge whether
+    a particular IR LED is suitable, look for a list of recommended applications
+    in the LED's data sheet; the introductory section at the top usually includes
+    such a list.  If the list includes IR Remote Controls, the LED probably
+    a good choice.
+    <li>The 15 Ohm resistor shown in the schematic acts as the current-limiting
+    resistor for the IR LED.  The Ohm size was chosen based on the TSAL6400's
+    specs (from its data sheet), with a target current of 250mA.  If you're using
+    a different IR LED, adjust the resistor according to your device's data
+    sheet figures.  You can use any online LED resistor calculator to figure
+    the resistor value, by entering the forward voltage (V<sub>F</sub>) from the
+    LED's data sheet, the desired LED current (see the next point below),
+    and 5V for the power supply voltage.
+    <li>We chose 250mA as the desired forward current for TSAL6400, based on the
     maximum <b>pulsed</b> current specified in the data sheet.  Most IR LED data
     sheets list two maximum current values: one for continuous current, and one
-    for pulsed current, which will often be 5 to 10 times higher.  Since IR
-    protocols only operate the LED in short pulses, you can use the higher
-    pulsed current limit when selecting the current-limiting resistor (although
-    you should still leave a margin of safety of at least 20% below the stated
-    maximum).  Higher current increases the luminosity of the LED, extending
-    its distance range.  That's usually necessary to achieve transmission
-    distances comparable to the original hand-held remotes, since they also
-    tend to drive their LEDs based on the pulsed current limits.
+    for pulsed current.  The pulsed current limit is usually about 5 to 10 times
+    higher than the continuous current limit.  We can use the higher pulsed
+    current limit when designing the circuit, because IR remote control protocols
+    only fire the LED in short bursts.  (Leave a margin of safety of at least
+    20% below the stated maximum, though.)  Using the higher current increases
+    the brightness of the LED transmission, which increases its distance range.
   </ul>
 
 irTx.gpio number required

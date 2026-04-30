@@ -131,8 +131,18 @@ bool USBIfc::FeedbackController::Configure(JSONParser &json)
     // check for the top-level feedbackController key
     if (auto *val = json.Get("feedbackController") ; !val->IsUndefined())
     {
-        // get the enable status
-        enabled = val->Get("enable")->Bool();
+        // get the enable status; it's enabled by default
+        enabled = val->Get("enable")->Bool(true);
+
+        // set the alternative MacOS-compatible usage codes if desired
+        if (val->Get("macCompatibleUsage")->Bool())
+        {
+            // Alternate usage page selected:
+            // Usage Page Vendor-Defined 6 (0xFF06)
+            // Usage Vendor-Defindd 1 (0x01)
+            hidUsagePage = 0xFF06;
+            hidUsage = 0x01;
+        }
     }
 
     // return the 'enabled' status
@@ -167,10 +177,11 @@ void USBIfc::FeedbackController::Init()
 //
 const uint8_t *USBIfc::FeedbackController::GetReportDescriptor(uint16_t *byteLength)
 {
+    // HID report descriptor
     static const uint8_t desc[] = {
-        HID_USAGE_PAGE (HID_USAGE_PAGE_GENERIC_DEVICE),  // usage page Generic Device (0x06)
-        HID_USAGE      (0),                              // usage undefined (0x00), for our custom type
-        HID_COLLECTION (HID_COLLECTION_APPLICATION),
+        HID_USAGE_PAGE_N (hidUsagePage, 2),      // usage page (Generic Device = page 0x06, or Vendor-Defined 6 = 0xFF06)
+        HID_USAGE        (hidUsage),             // usage (undefined = 0x00, or Vendor 1 = 0x01)
+        HID_COLLECTION   (HID_COLLECTION_APPLICATION),
 
             // Report ID
             HID_REPORT_ID     (ReportIDFeedbackController)
@@ -191,6 +202,7 @@ const uint8_t *USBIfc::FeedbackController::GetReportDescriptor(uint16_t *byteLen
 
         HID_COLLECTION_END 
     };
+    
     *byteLength = sizeof(desc);
     return desc;
 }

@@ -177,9 +177,20 @@ HRESULT FeedbackControllerInterface::Enumerate(std::list<Desc> &units)
 				bool matched = false;
 
 				// Check to see if this has the right shape for the Feedback
-				// Controller HID interface.  The Feedback Controller HID
-				// has Usage Page 0x06 (Generic Device), Usage 0x00 (Undefined),
-				// and it has 64-byte IN and OUT reports.
+				// Controller HID interface.  The Feedback Controller HID has
+				// two Usage signatures:
+				//
+				// Usage Page 0x06 (Generic Device), Usage 0x00 (Undefined)
+				// Usage Page 0xFF06 (Vendor-Defined), Usage 0x01
+				//
+				// In addition, it has 64-byte IN and OUT reports.  Since
+				// the Usage signature is generic - i.e., not reserved in
+				// the HID spec to this one application - it's possible
+				// (although unlikely) that a completely unrelated device
+				// could use the same usage signature.  We can reduce the
+				// chances of a false positive by checking the report size
+				// to make sure it matches our own.
+				//
 				PHIDP_PREPARSED_DATA ppd;
 				if (HidD_GetPreparsedData(hDevice, &ppd))
 				{
@@ -188,7 +199,8 @@ HRESULT FeedbackControllerInterface::Enumerate(std::list<Desc> &units)
 					if (HidP_GetCaps(ppd, &caps) == HIDP_STATUS_SUCCESS)
 					{
 						// check for a match to our interface specs
-						if (caps.UsagePage == 0x06 && caps.Usage == 0x00
+						if (((caps.UsagePage == 0x06 && caps.Usage == 0x00)
+							|| (caps.UsagePage == 0xFF06 && caps.Usage == 0x01))
 							&& caps.InputReportByteLength == 64
 							&& caps.OutputReportByteLength == 64)
 						{

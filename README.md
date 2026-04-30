@@ -126,27 +126,30 @@ own risk.  I don't mean to imply that other boards *won't* work, only
 that I don't know one way or the other, since the only thing I've
 actually tested against is the original Pico.
 
-As of 0.1.13, the release package also includes a build for the
-Raspberry Pi Pico2 RP2350.  I haven't tested the Pico2 build beyond
-the most basic checks that it loads correctly with the basic factory
-configuration, and I'm still doing all of my development and testing
-work on the original RP2040, so I'd only recommend using the Pico2 if
-you're comfortable using something more experimental.  Pinscape
-doesn't take any particular advantage of the hardware upgrades in the
-Pico2, but the Pico2 shouldn't present any disadvantages, either,
-since it seems to have good upward compatibility by design.
+The release package also includes a build for the Raspberry Pi Pico2
+RP2350.  The Pico 2 is a next-generation Pico with a new CPU, more
+memory, and numerous upgrades to the on-board peripherals.  It looks
+just like an original Pico, but it's really a whole new platform, and
+it's not directly compatible - it requires a separate build.  Pinscape
+support on Pico 2 is still experimental: I haven't tested it on the
+Pico 2 beyond the basics, so there are probably some incompatibilities
+yet to be found.  But reports so far have been that most features are
+working as expected.  Note that there's no particular advantage to
+running Pinscape on a Pico 2 over an original Pico, since the software
+doesn't currently use any of the Pico 2's new features.
 
-The "W" variations (Pico W and Pico 2W) are **not supported** at the
-moment.  The W differs from the original Pico in how some of the
-internal peripherals are connected, so it requires some special
-handling in the firmware, which Pinscape doesn't do.  Some people have
-reported that Pinscape *mostly* works on the W; the .uf2 files for the
-base Pico work on the W, and the only problem reported is that the
-on-board LED doesn't work.  So you can use a W if you can live with
-the LED not working, and with any other problems that might still be
-lurking.  But I don't see any reason you'd want to: yes, the W has
-that spiffy wireless module, but Pinscape can't take any advantage of
-it, so it might as well not be there.
+The Pico "W" variations (Pico W and Pico 2W) are **not supported** at
+the moment.  The W's have somewhat different internal wiring to make
+room for their radio modules, and those wiring changes require some
+corresponding software changes, which Pinscape doesn't provide.  Some
+people have reported that Pinscape *mostly* works on the W; the only
+problem reported so far is that the on-board LED doesn't work.  So you
+can use a W if you can live with the LED not working, and with any
+other problems that might still be lurking.  But I don't see any
+reason you'd want to, because Pinscape can't take any advantage of
+the W's wireless features.  You're better off using a regular Pico
+for Pinscape, and saving the Pico W for an application that actually
+uses the WiFi or Bluetooth features.
 
 
 ## Features

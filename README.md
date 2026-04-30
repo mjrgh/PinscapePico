@@ -124,7 +124,15 @@ board.  There are numerous clones of the Pico available from different
 vendors, but I haven't tested on any of those, so use those at your
 own risk.  I don't mean to imply that other boards *won't* work, only
 that I don't know one way or the other, since the only thing I've
-actually tested against is the original Pico.
+actually tested against is the original Pico.  (There is one specific
+problem that several people using unspecified clones have reported,
+which is that saving configuration data to flash doesn't work on those
+devices.  Since I've heard the same thing from a few people, it seems
+to be a systematic problem with certain clones, but I don't know
+specifically which devices are affected, since the clones are mostly
+unbranded.  I don't know the cause of the problem, so if you run into
+something like that with a clone, the only solution I can offer is to
+switch to a genuine Raspberry Pi device.)
 
 The release package also includes a build for the Raspberry Pi Pico2
 RP2350.  The Pico 2 is a next-generation Pico with a new CPU, more

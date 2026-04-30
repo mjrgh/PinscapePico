@@ -147,8 +147,8 @@ running Pinscape on a Pico 2 over an original Pico, since the software
 doesn't currently use any of the Pico 2's new features.
 
 The Pico "W" variations (Pico W and Pico 2W) are **not supported** at
-the moment.  The W's have somewhat different internal wiring to make
-room for their radio modules, and those wiring changes require some
+the moment.  The W's have somewhat different internal wiring to accommodate
+the addition of the radio modules, and those wiring changes require some
 corresponding software changes, which Pinscape doesn't provide.  Some
 people have reported that Pinscape *mostly* works on the W; the only
 problem reported so far is that the on-board LED doesn't work.  So you

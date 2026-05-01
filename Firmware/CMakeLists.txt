@@ -267,7 +267,7 @@ add_custom_command(TARGET PinscapePico POST_BUILD
         ${uf2_package_args}
         PinscapePico.bin
         PinscapePico.uf2
-        --family $<IF:$<STREQUAL:$(pico_board),pico2>,absolute,rp2040>
+        --family $<IF:$<STREQUAL:${PICO_BOARD},pico2>,absolute,rp2040>
     COMMAND_EXPAND_LISTS
     VERBATIM
     BYPRODUCTS "PinscapePico.uf2")

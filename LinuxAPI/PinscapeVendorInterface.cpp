@@ -1,7 +1,7 @@
 // Pinscape Pico Config Tool - Linux Vendor Interface Implementation
 // Copyright 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 
-#include "VendorInterface.h"
+#include "PinscapeVendorInterface.h"
 #include <cstring>
 #include <iostream>
 #include <algorithm>
@@ -14,18 +14,18 @@ using namespace PinscapePico;
 
 namespace PinscapePico::Linux {
 
-VendorInterface::VendorInterface() : requestId_(0) {}
+PinscapeVendorInterface::PinscapeVendorInterface() : requestId_(0) {}
 
-VendorInterface::~VendorInterface() {
+PinscapeVendorInterface::~PinscapeVendorInterface() {
     Close();
 }
 
-VendorInterface::VendorInterface(VendorInterface&& other) noexcept
+PinscapeVendorInterface::PinscapeVendorInterface(PinscapeVendorInterface&& other) noexcept
     : device_(std::move(other.device_)), requestId_(other.requestId_) {
     other.requestId_ = 0;
 }
 
-VendorInterface& VendorInterface::operator=(VendorInterface&& other) noexcept {
+PinscapeVendorInterface& PinscapeVendorInterface::operator=(PinscapeVendorInterface&& other) noexcept {
     if (this != &other) {
         Close();
         device_ = std::move(other.device_);
@@ -35,7 +35,7 @@ VendorInterface& VendorInterface::operator=(VendorInterface&& other) noexcept {
     return *this;
 }
 
-bool VendorInterface::Open(int unitNumber) {
+bool PinscapeVendorInterface::Open(int unitNumber) {
     // Try to open device with specified VID/PID (try both PID variants)
     USBResult result = device_.Open(PINSCAPE_VID, PINSCAPE_PID_1);
     if (result != USBResult::Success) {
@@ -58,7 +58,7 @@ bool VendorInterface::Open(int unitNumber) {
     return true;
 }
 
-bool VendorInterface::OpenBySerial(const std::string& serial) {
+bool PinscapeVendorInterface::OpenBySerial(const std::string& serial) {
     // Try to open device with specified serial number
     USBResult result = device_.Open(PINSCAPE_VID, PINSCAPE_PID_1, serial.c_str());
     if (result != USBResult::Success) {
@@ -82,14 +82,14 @@ bool VendorInterface::OpenBySerial(const std::string& serial) {
     return true;
 }
 
-void VendorInterface::Close() {
+void PinscapeVendorInterface::Close() {
     if (device_.IsOpen()) {
         device_.ReleaseInterface(2);
         device_.Close();
     }
 }
 
-bool VendorInterface::SendRequest(const void* request, size_t requestSize,
+bool PinscapeVendorInterface::SendRequest(const void* request, size_t requestSize,
                                   void* response, size_t responseSize,
                                   const void* sendData, size_t sendDataSize,
                                   void* recvData, size_t recvDataSize,
@@ -207,7 +207,7 @@ bool VendorInterface::SendRequest(const void* request, size_t requestSize,
     return true;
 }
 
-bool VendorInterface::QueryDeviceInfo(DeviceInfo& info) {
+bool PinscapeVendorInterface::QueryDeviceInfo(DeviceInfo& info) {
     VendorRequest req(++requestId_, VendorRequest::CMD_QUERY_IDS, 0);
     VendorResponse resp;
 
@@ -233,7 +233,7 @@ bool VendorInterface::QueryDeviceInfo(DeviceInfo& info) {
     return true;
 }
 
-bool VendorInterface::GetConfig(std::vector<uint8_t>& buffer, uint8_t fileID) {
+bool PinscapeVendorInterface::GetConfig(std::vector<uint8_t>& buffer, uint8_t fileID) {
     buffer.clear();
 
     // Read config page by page (4K pages)
@@ -285,7 +285,7 @@ bool VendorInterface::GetConfig(std::vector<uint8_t>& buffer, uint8_t fileID) {
     return true;
 }
 
-uint32_t VendorInterface::ComputeCRC32(const uint8_t* data, size_t length) {
+uint32_t PinscapeVendorInterface::ComputeCRC32(const uint8_t* data, size_t length) {
     uint32_t crc = 0xFFFFFFFF;
     for (size_t i = 0; i < length; i++) {
         crc ^= data[i];
@@ -296,7 +296,7 @@ uint32_t VendorInterface::ComputeCRC32(const uint8_t* data, size_t length) {
     return ~crc;
 }
 
-bool VendorInterface::PutConfig(const std::vector<uint8_t>& buffer, uint8_t fileID) {
+bool PinscapeVendorInterface::PutConfig(const std::vector<uint8_t>& buffer, uint8_t fileID) {
     // Calculate CRC-32 of entire file
     uint32_t crc32 = ComputeCRC32(buffer.data(), buffer.size());
 
@@ -358,7 +358,7 @@ bool VendorInterface::PutConfig(const std::vector<uint8_t>& buffer, uint8_t file
     return true;
 }
 
-bool VendorInterface::EnterBootLoader() {
+bool PinscapeVendorInterface::EnterBootLoader() {
     VendorRequest req(++requestId_, VendorRequest::CMD_RESET, 0);
     req.args.argBytes[0] = VendorRequest::SUBCMD_RESET_BOOTLOADER;
     req.argsSize = 1;
@@ -373,7 +373,7 @@ bool VendorInterface::EnterBootLoader() {
     return true;
 }
 
-bool VendorInterface::GetStatistics(std::vector<uint8_t>& buffer) {
+bool PinscapeVendorInterface::GetStatistics(std::vector<uint8_t>& buffer) {
     VendorRequest req(++requestId_, VendorRequest::CMD_STATS, 0);
     req.args.argBytes[0] = VendorRequest::SUBCMD_STATS_QUERY_STATS;
     req.argsSize = 1;
@@ -396,7 +396,7 @@ bool VendorInterface::GetStatistics(std::vector<uint8_t>& buffer) {
     return true;
 }
 
-bool VendorInterface::EnumerateDevices(std::vector<DeviceInfo>& devices) {
+bool PinscapeVendorInterface::EnumerateDevices(std::vector<DeviceInfo>& devices) {
     devices.clear();
 
     // Simple implementation: Try to open a device and if successful, add it
@@ -428,7 +428,7 @@ bool VendorInterface::EnumerateDevices(std::vector<DeviceInfo>& devices) {
     return devices.size() > 0;
 }
 
-bool VendorInterface::SendIRCode(uint8_t protocol, uint8_t flags, uint64_t code) {
+bool PinscapeVendorInterface::SendIRCode(uint8_t protocol, uint8_t flags, uint64_t code) {
     VendorRequest req(++requestId_, VendorRequest::CMD_SEND_IR, 0);
     req.args.sendIR.protocol = protocol;
     req.args.sendIR.flags = flags;
@@ -449,7 +449,7 @@ bool VendorInterface::SendIRCode(uint8_t protocol, uint8_t flags, uint64_t code)
     return true;
 }
 
-bool VendorInterface::Reboot() {
+bool PinscapeVendorInterface::Reboot() {
     VendorRequest req(++requestId_, VendorRequest::CMD_RESET, 0);
     req.args.argBytes[0] = VendorRequest::SUBCMD_RESET_NORMAL;
     req.argsSize = 1;
@@ -463,7 +463,7 @@ bool VendorInterface::Reboot() {
     return true;
 }
 
-bool VendorInterface::RebootSafeMode() {
+bool PinscapeVendorInterface::RebootSafeMode() {
     VendorRequest req(++requestId_, VendorRequest::CMD_RESET, 0);
     req.args.argBytes[0] = VendorRequest::SUBCMD_RESET_SAFEMODE;
     req.argsSize = 1;
@@ -477,7 +477,7 @@ bool VendorInterface::RebootSafeMode() {
     return true;
 }
 
-bool VendorInterface::EraseConfig(uint8_t fileID) {
+bool PinscapeVendorInterface::EraseConfig(uint8_t fileID) {
     VendorRequest req(++requestId_, VendorRequest::CMD_CONFIG, 0);
     req.args.config.subcmd = VendorRequest::SUBCMD_CONFIG_ERASE;
     req.args.config.fileID = fileID;
@@ -496,7 +496,7 @@ bool VendorInterface::EraseConfig(uint8_t fileID) {
     return true;
 }
 
-bool VendorInterface::FactoryReset() {
+bool PinscapeVendorInterface::FactoryReset() {
     VendorRequest req(++requestId_, VendorRequest::CMD_CONFIG, 0);
     req.args.config.subcmd = VendorRequest::SUBCMD_CONFIG_RESET;
     req.argsSize = sizeof(req.args.config);
@@ -514,7 +514,7 @@ bool VendorInterface::FactoryReset() {
     return true;
 }
 
-bool VendorInterface::QueryLog(std::vector<uint8_t>& buffer, uint32_t& avail) {
+bool PinscapeVendorInterface::QueryLog(std::vector<uint8_t>& buffer, uint32_t& avail) {
     VendorRequest req(++requestId_, VendorRequest::CMD_QUERY_LOG, 0);
 
     VendorResponse resp;
@@ -542,7 +542,7 @@ bool VendorInterface::QueryLog(std::vector<uint8_t>& buffer, uint32_t& avail) {
     return true;
 }
 
-bool VendorInterface::PulseTVRelay() {
+bool PinscapeVendorInterface::PulseTVRelay() {
     VendorRequest req(++requestId_, VendorRequest::CMD_TVON, 0);
     req.args.argBytes[0] = VendorRequest::SUBCMD_TVON_SET_RELAY;
     req.args.argBytes[1] = VendorRequest::TVON_RELAY_PULSE;
@@ -561,7 +561,7 @@ bool VendorInterface::PulseTVRelay() {
     return true;
 }
 
-bool VendorInterface::SetTVRelay(bool on) {
+bool PinscapeVendorInterface::SetTVRelay(bool on) {
     VendorRequest req(++requestId_, VendorRequest::CMD_TVON, 0);
     req.args.argBytes[0] = VendorRequest::SUBCMD_TVON_SET_RELAY;
     req.args.argBytes[1] = on ? VendorRequest::TVON_RELAY_ON : VendorRequest::TVON_RELAY_OFF;

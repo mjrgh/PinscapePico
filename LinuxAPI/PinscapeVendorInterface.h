@@ -36,18 +36,18 @@ struct DeviceInfo {
 };
 
 // Vendor Interface class
-class VendorInterface {
+class PinscapeVendorInterface {
 public:
-    VendorInterface();
-    ~VendorInterface();
+    PinscapeVendorInterface();
+    ~PinscapeVendorInterface();
 
     // Delete copy constructor and assignment
-    VendorInterface(const VendorInterface&) = delete;
-    VendorInterface& operator=(const VendorInterface&) = delete;
+    PinscapeVendorInterface(const PinscapeVendorInterface&) = delete;
+    PinscapeVendorInterface& operator=(const PinscapeVendorInterface&) = delete;
 
     // Move constructor and assignment
-    VendorInterface(VendorInterface&& other) noexcept;
-    VendorInterface& operator=(VendorInterface&& other) noexcept;
+    PinscapeVendorInterface(PinscapeVendorInterface&& other) noexcept;
+    PinscapeVendorInterface& operator=(PinscapeVendorInterface&& other) noexcept;
 
     // Open device by unit number
     bool Open(int unitNumber = -1);

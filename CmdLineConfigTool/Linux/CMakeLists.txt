@@ -8,30 +8,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 
+# Include the LinuxAPI subdirectory to build the library
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../LinuxAPI
+                 ${CMAKE_CURRENT_BINARY_DIR}/LinuxAPI)
+
 include_directories(
     ${LIBUSB_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../..
     ${CMAKE_CURRENT_SOURCE_DIR}/../../USBProtocol
-)
-
-# Add library for USB abstraction and Vendor Interface
-add_library(pinscape_usb STATIC
-    USBDevice.cpp
-    USBDevice.h
-    VendorInterface.cpp
-    VendorInterface.h
-    FeedbackControllerInterface.cpp
-    FeedbackControllerInterface.h
-)
-
-target_include_directories(pinscape_usb PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
-)
-
-target_link_libraries(pinscape_usb PRIVATE
-    ${LIBUSB_LIBRARIES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../LinuxAPI
 )
 
 # Add the main executable
@@ -41,7 +27,7 @@ add_executable(pinscape-config
 )
 
 target_link_libraries(pinscape-config PRIVATE
-    pinscape_usb
+    pinscape_linux_api
     ${LIBUSB_LIBRARIES}
 )
 

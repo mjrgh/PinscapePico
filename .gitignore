@@ -6,4 +6,3 @@ packages/**
 *.uf2
 *.aps
 *.vcxproj.user
-CmdLineConfigTool/Linux/build/

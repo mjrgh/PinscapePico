@@ -6,7 +6,7 @@ set -e
 
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_DIR="${SCRIPT_DIR}/CmdLineConfigTool/Linux"
+PROJECT_DIR="${SCRIPT_DIR}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -32,6 +32,7 @@ echo "Checking for libusb..."
 if ! pkg-config --exists libusb-1.0; then
     echo -e "${RED}Error: libusb-1.0 is not installed${NC}"
     echo "On Ubuntu/Debian, install with: sudo apt-get install libusb-1.0-0-dev"
+    echo "On Arch Linux, install with: sudo pacman -S libusb"
     echo "On Fedora/RHEL, install with: sudo dnf install libusbx-devel"
     echo "On macOS, install with: brew install libusb"
     exit 1

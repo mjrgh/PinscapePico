@@ -207,7 +207,7 @@ USBResult USBDevice::BulkRead(
     if (r < 0) {
         return LibUSBToResult(r);
     }
-    
+
     return USBResult::Success;
 }
 

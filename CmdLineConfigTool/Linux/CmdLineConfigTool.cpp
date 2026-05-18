@@ -23,7 +23,7 @@
 #include <memory>
 #include <list>
 
-#include "VendorInterface.h"
+#include "PinscapeVendorInterface.h"
 #include "FeedbackControllerInterface.h"
 #include "../../Firmware/JSON.h"
 #include "../../PinscapeVersion.h"
@@ -133,7 +133,7 @@ static void WriteConfigFile(const char *filename, const std::vector<uint8_t>& da
 static void ShowDeviceList() {
     std::vector<DeviceInfo> devices;
 
-    if (!VendorInterface::EnumerateDevices(devices)) {
+    if (!PinscapeVendorInterface::EnumerateDevices(devices)) {
         ErrorExit("Error enumerating device paths");
     }
 
@@ -194,7 +194,7 @@ static std::string FormatNumber(uint64_t n) {
 // ========================================================================
 
 static void GetConfig(const char *filename, uint8_t fileId = 0) {
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -209,7 +209,7 @@ static void GetConfig(const char *filename, uint8_t fileId = 0) {
 }
 
 static void GetConfigToStdout(uint8_t fileId = 0) {
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -226,7 +226,7 @@ static void PutConfig(const char *filename, uint8_t fileId = 0) {
     std::string config_str = ReadConfigFile(filename);
     std::vector<uint8_t> config(config_str.begin(), config_str.end());
 
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -239,7 +239,7 @@ static void PutConfig(const char *filename, uint8_t fileId = 0) {
 }
 
 static void Reboot() {
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -252,7 +252,7 @@ static void Reboot() {
 }
 
 static void RebootSafeMode() {
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -265,7 +265,7 @@ static void RebootSafeMode() {
 }
 
 static void EraseConfig(uint8_t fileId = ConfigFile::ALL) {
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -291,7 +291,7 @@ static void FactoryReset() {
         return;
     }
 
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -302,7 +302,7 @@ static void FactoryReset() {
     printf("Success - all saved settings deleted, factory defaults restored\n");
 }
 
-static void ShowStats(VendorInterface *device) {
+static void ShowStats(PinscapeVendorInterface *device) {
     // retrieve the statistics
     std::vector<uint8_t> statsData;
     if (!device->GetStatistics(statsData)) {
@@ -352,7 +352,7 @@ static void ShowStats(VendorInterface *device) {
 }
 
 static void ShowStatsCmd() {
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -403,7 +403,7 @@ static void SendIR(const char *irCmdStr) {
     std::string code_str = match[3].str();
     uint64_t code = strtoull(code_str.c_str(), nullptr, 16);
 
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -416,7 +416,7 @@ static void SendIR(const char *irCmdStr) {
 }
 
 static void PulseTVRelay() {
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }
@@ -428,7 +428,7 @@ static void PulseTVRelay() {
 }
 
 static void SetTVRelay(bool on) {
-    VendorInterface device;
+    PinscapeVendorInterface device;
     if (!device.Open()) {
         ErrorExit("Error: Failed to connect to device");
     }

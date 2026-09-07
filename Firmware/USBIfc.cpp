@@ -175,7 +175,24 @@ void USBIfc::Init()
     AddStringDescriptorText(STRDESC_VENIFC, "PinscapePicoControl");                 // Vendor interface display name
     AddStringDescriptorText(STRDESC_CDCIFC, "Pinscape Pico Terminal");              // CDC interface display name
     AddStringDescriptorText(STRDESC_FEEDBACK_LBL, "PinscapeFeedbackController/1");  // Feedback controller report usage label
-    AddStringDescriptorText(STRDESC_OPENPINDEV_LBL, OPENPINDEV_STRUCT_STRDESC);     // OpenPinballDeviceReport struct usage label
+    // OpenPinballDeviceReport struct usage label, with the nudge full scale
+    // appended when there is one. See OpenPinballDeviceReport.h for the format.
+    //
+    // This is what tells a host what axNudge and ayNudge mean. A device that
+    // also exposes gamepad axes can say it in the standard way, through the
+    // physical units on those axes, but Open Pinball Device exists partly so a
+    // cabinet can be built without any gamepad interface at all -- and then
+    // this string is the only place left to say it.
+    {
+        std::string label = OPENPINDEV_STRUCT_STRDESC;
+        if (int g = nudgeDevice.GetGRange(); g > 0)
+        {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "/gRange:%d", g);
+            label += buf;
+        }
+        AddStringDescriptorText(STRDESC_OPENPINDEV_LBL, label.c_str());
+    }
 
     // add the XInput strings, if enabled
     if (xInput.enabled)

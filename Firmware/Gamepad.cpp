@@ -242,6 +242,25 @@ const uint8_t *USBIfc::Gamepad::GetReportDescriptor(uint16_t *byteLength)
     emit({ 0x26, 0xFF, 0x7F });                 // LOGICAL_MAXIMUM (32767)
     emit({ 0x75, 0x10 });                       // REPORT_SIZE (16)
 
+    // An axis mapped to nudge.x or nudge.y with no range to report is a
+    // contradiction: GetGRange() returns zero only for the null device, so this
+    // means the configuration assigned an axis to an accelerometer that isn't
+    // there. The axis then goes out with no unit, which is the honest thing to
+    // say -- nothing is measuring it -- but it is worth saying out loud rather
+    // than leaving a silently unitless axis for someone to puzzle over.
+    if (gRange <= 0)
+    {
+        for (int i = 0 ; i < 8 ; ++i)
+        {
+            if (axisIsAccel[i])
+            {
+                Log(LOG_ERROR, "gamepad: an axis is mapped to the nudge device, but no "
+                    "accelerometer is configured, so its units can't be declared\n");
+                break;
+            }
+        }
+    }
+
     for (int i = 0 ; i < 8 ; )
     {
         // Take the longest run of axes that agree about carrying acceleration.

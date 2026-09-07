@@ -918,6 +918,18 @@ public:
         NudgeDevice::View *nudgeDeviceView = nullptr;
 
         // Logical axis sources
+        // Which of the eight axes are fed by the accelerometer, in report order
+        // (X, Y, Z, Rx, Ry, Rz, Slider1, Slider2). Recorded at configuration
+        // time so the report descriptor can declare what those axes' counts
+        // mean; see GetReportDescriptor().
+        bool axisIsAccel[8] = { false, false, false, false, false, false, false, false };
+
+        // Storage for the generated report descriptor. Built once, on the first
+        // request, because the axis assignment and the accelerometer range are
+        // both configuration and neither is known at compile time.
+        uint8_t reportDesc[256] = { 0 };
+        uint16_t reportDescLen = 0;
+
         LogicalAxis *xSource = &nullAxisSource;
         LogicalAxis *ySource = &nullAxisSource;
         LogicalAxis *zSource = &nullAxisSource;

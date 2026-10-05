@@ -75,6 +75,30 @@
 set(PICO_BOARD pico CACHE STRING "Board type")
 
 cmake_minimum_required(VERSION 3.12)
+
+# ------ SDK pioasm build "environment leakage" workaround ----------
+set(pioasm_FOUND TRUE CACHE INTERNAL "Force bypass early check" FORCE)
+set(Pioasm_FOUND TRUE CACHE INTERNAL "Force bypass early check" FORCE)
+
+find_program(PORTABLE_PIOASM_EXE 
+    NAMES pioasm pioasm.exe
+    PATHS 
+        "$ENV{PICO_SDK_PATH}/tools/pioasm"
+    NO_DEFAULT_PATH # Prioritize our adjacent local project targets first
+)
+
+if(PORTABLE_PIOASM_EXE)
+    if(NOT TARGET Pioasm)
+        add_executable(Pioasm IMPORTED GLOBAL)
+        set_property(TARGET Pioasm PROPERTY IMPORTED_LOCATION "${PORTABLE_PIOASM_EXE}")
+        add_executable(pioasm ALIAS Pioasm)
+    endif()
+    message(STATUS "Portable SDK Bypass: Linked local pioasm binary from: ${PORTABLE_PIOASM_EXE}")
+else()
+    message(FATAL_ERROR "Portable pioasm bypass failed: No compiled pioasm binary found in adjacent paths.")
+endif()
+# ------- end SDK workaround ---------
+
 include(pico_sdk_import.cmake)
 
 # project declaration

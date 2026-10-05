@@ -36,7 +36,6 @@
     // set logging options
     logging: {
         filter: "error warning info config",
-        bufSize: 4096,
         timestamps: true,
         typeCodes: true,
         colors: true,

@@ -1786,13 +1786,14 @@ int main(int argc, char **argv)
 			// retrieve the config file and write to stdout
 			GetConfig(device.get(), stdout, configType);
 		}
-		else if (bool IsGetConfig = (strncmp(argv[argi], "--get-config=", 13) == 0) ; isGetConfig || strncmp(argv[argi], "--get-safemode-config=", 22) == 0)
+		else if (bool isGetConfigWithArg = (strncmp(argv[argi], "--get-config=", 13) == 0) ; 
+			isGetConfigWithArg || strncmp(argv[argi], "--get-safemode-config=", 22) == 0)
 		{
 			// set the type
-			auto configType = isGetConfig ? PinscapeRequest::CONFIG_FILE_MAIN : PinscapeRequest::CONFIG_FILE_SAFE_MODE;
+			auto configType = isGetConfigWithArg ? PinscapeRequest::CONFIG_FILE_MAIN : PinscapeRequest::CONFIG_FILE_SAFE_MODE;
 
 			// retrieve the config file and save to the named file
-			const char *filename = &argv[argi][13];
+			const char *filename = &argv[argi][isGetConfigWithArg ? 13 : 22];
 			FILE *fp = nullptr;
 			if (fopen_s(&fp, filename, "w") != 0 || fp == nullptr)
 				ErrorExitFmt("Error opening configuration output file \"%s\"", filename);

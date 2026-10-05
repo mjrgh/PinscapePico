@@ -657,8 +657,17 @@
    (Game Controls), <b>Usage 0x02</b> (Pinball Device).  For each device found,
    enumerate its report descriptors.  Filter for interfaces with a single
    report descriptor, containing a single usage that has an associated String
-   Descriptor, which contains the string <b><tt>"OpenPinballDeviceStruct/1.0"</tt></b>.
-   (Per standard USB conventions, the string is encoded as 16-bit Unicode characters.)
+   Descriptor, which <b>starts with</b> the substring <b><tt>"OpenPinballDeviceStruct/"</tt></b>.
+   Per standard USB conventions, the string is encoded as 16-bit Unicode characters.
+</p>
+<p>
+   Note that the string retrieved from the device will always contain more
+   characters following the "/", so the host must only match the the leading
+   substring, up to and including the "/", to positively identify the
+   Open Pinball Device interface.  The portion following the "/" provides
+   an Open Pinball Device interface protocol version, and possibly additional
+   information.  See <a href="#Versioning">Versioning the report structure</a>
+   for a more detailed description of the recommended string matching algorithm.
 </p>
 <p>
    For an example implementation of automatic device discovery written in C++, using the portable
@@ -668,13 +677,6 @@
    in the Visual Pinball source code (as of 10.8.1).  (That code also depends
    upon a portable utility library that parses HID report descriptors, which
    is also in the VPX source tree, under third-party/include/hid-report-parser/.)
-</p>
-<p>
-   Note: see <a href="#Versioning">Versioning the report structure</a> for a more
-   complete description of the recommended algorithm for matching the string
-   descriptor.  The descriptor obviously includes a suffix that's meant as
-   a version number, so it requires a little more subtle treatment than
-   just literally matching it to reference text.
 </p>
 <p>
    <b>Reading reports:</b> Once you've identified the interface, open an OS file
@@ -854,15 +856,24 @@
    text:
 </p>
 <pre>
-    "OpenPinballDeviceStruct/1.0"
+    OpenPinballDeviceStruct/1.0
 </pre>
 <p>
-   (The enclosing quote marks are not part of the string text.)
    As always for USB string descriptors, the string text must
    be encoded with 16-bit Unicode characters, in little-endian
-   byte order.
+   byte order.  To code this in a C/C++ program as a Unicode
+   string literal, you'd write:
 </p>
-   
+<pre>
+    L"OpenPinballDeviceStruct/1.0"
+</pre>
+<p>
+   The "1.0" suffix is a version number, identifying the version
+   of the report structure layout.  Any changes to the specification
+   that affect the structure layout will always be accompanied by
+   a new, higher version number.  See <a href="#Versioning">Versioning the report structure</a>.
+</p>
+
 
 <a name="StructLayout"></a>
 <h3>Custom struct layout</h3>
@@ -1385,49 +1396,101 @@
 <p>
    If a future version of this spec wants to change anything in the struct,
    it will need to define a new struct, with a new string descriptor
-   that identifies the new struct type.
+   that identifies the new struct type.  To maintain compatibility
+   between host-side applications and device firmware that might be
+   coded to different versions of the specification, we must define some
+   rules about exactly how the structure layout is allowed to change
+   between versions, and how a host application can identify which
+   version it's working with when it recognizes a device.
 </p>
 <p>
-   The string descriptor for the structure includes a suffix, "/1.0",
-   that is obviously meant to suggest a version number.  This provides
-   a well-defined way for future revisions of the interface specification
-   to identify newer versions of the struct.  Any time the struct is
-   changed, the version number must be increased.  Furthermore, as long
-   as the struct is only ever changed according to a specific rule, we can
-   relatively easily maintain forward and backward compatibility between applications
-   and devices across versions.  The rule is: any changes can only <b>extend</b>
-   the previous version of the struct, by adding new fields at the end.
-   All previously existing fields must be left intact in the new version.
+   To identify the exact version of the structure that a device sends
+   in its USB reports, we specifically include a "structure version number"
+   as part of the string descriptor that identifies the Open Pinball Device
+   interface during discovery.  This version number appears after the
+   slash at the end of the fixed text <tt>OpenPinballDeviceStruct/</tt>
+   that's always present.
+</p>
+<h3>Version number format and interpretation</h3>
+<p>
+   The version number in the string descriptor uses the common software
+   convention of two decimal numbers separated by a period ("."), as in
+   "1.0", which is the version number assigned to the original specification's
+   structure layout.  The first number represents the "major" version,
+   and the second represents the "minor" version.  We don't define any
+   hard rule for deciding what constitutes major and minor updates; this
+   is one of those "you know it when you see it" situations, where the
+   major version should be updated when an update seems subjectively
+   "big enough" to justify it.  New versions of the specification
+   should always use monotonically increasing version numbers, by
+   incrementing the major or minor number.  Whenever the major number
+   is increased, the minor number should be set back to zero: so if
+   it is decided that the major version should be increased on the
+   next release after "1.9", the new number should be "2.0", and
+   there must never be a "1.10", "1.11", etc.
 </p>
 <p>
-   As long as the structure is only extended in this manner, applications
+   Note that the version string must <b>not</b> be interpreted as a
+   floating-point value.  It must instead be read as two separate decimal
+   values.  So "1.10" is higher than "1.9".  When constructing version
+   numbers, do not use leading zeroes in either part: "1.9", <b>not</b> "1.09".
+   To compare two versions, first compare the major version numbers: the
+   one with the higher major version number is the newer version.  If the
+   major version numbers are the same, the version with the higher minor
+   version number is newer.  For example, version "1.10" is higher than
+   "1.9", and "2.0" is higher than "1.10".
+</p>
+<h3>Rules for evolving the structure</h3>
+<p>
+   The version number string provides a well-defined way for future revisions
+   of the Open Pinball Device interface specification to evolve the structure layout
+   without breaking compatibility with older clients.  Any time the struct is
+   changed, the version number must be increased.  Furthermore, the struct
+   must only evolve in new versions according to a specific rule that guarantees
+   forward and backward compatibility between applications and devices that
+   are programmed for any given version level.  The rule is: any changes can
+   only <b>extend</b> the previous version of the struct, by adding new fields
+   at the end.  All previously existing fields must be left intact in the
+   new version.
+</p>
+<h3>How the rule ensures forward and backward compatibility</h3>
+<p>
+   As long as the rule above is always observed when evolving the structure, applications
    that are compiled against version X of the struct will be able to read any
    future version Y &gt; X, simply by ignoring the portion of the report
    that's beyond the end of the version of the struct they're compiled
-   against.
+   against (that is, bytes beyond the last byte defined in struct version X).
 </p>
 <p>
    This also allows a newer application, which wishes to use new features
    of the struct only added in later versions, to detect the availability of
-   the new feature.  It can use this information to reject older devices or to
-   maintain backward compatibility
-   with older devicess.  Suppose that an application wishes to use fields
-   from version 2.0 of the struct.  It can take one of two approaches:
+   the new feature.  It can use this information to either reject older
+   devices, or to maintain backward compatibility with older devices.
+   For example, suppose that an application wishes to use fields from
+   a hypothetical future version 2.0 of the struct, and this application
+   encounters a device that declares its struct type as version 1.0.  The
+   application can take one of two approaches:
 </p>
 <ul>
    <li>Require version &ge;2.0 devices:  If the application <b>requires</b>
    the new features in the version 2.0 struct, it can check the version
-   string in the report during device discovery, and ignore devices with
-   version numbers less than 2.0.
+   string in the report during device discovery, and reject devices with
+   version numbers less than 2.0.  ("Rejecting" the device might mean
+   that the application ignores the device in its list of discovered
+   devices, displays an error message to the user letting them know that
+   the device needs to be updated to new firmware before it can be used,
+   or whatever else is appropriate to the specific application.)
 
    <li>Maintain backward compatibility:  If the application wishes to
    make its use of the new version 2.0 struct elements optional, it can
    maintain compatibility with older devices by checking the version
    number, and only using the new fields if the version number is at
    least 2.0.  For older devices, the application knows that the new
-   fields aren't present, so it disables its associated features.  It
-   can still use the device for everything that doesn't depend on the
-   newer features.
+   fields aren't present, based on the older version number declared
+   in the device's string descriptor, so it disables or suitably
+   degrades the application features that depend on the newer fields.
+   The application can still use the device for everything that doesn't
+   depend on the newer fields.
 </ul>
 
 <p>
@@ -1486,10 +1549,10 @@
    <li>There's only one plunger sensor across the whole system.  Nearly
    every pinball machine made since the 1950s that has a plunger at all has
    exactly one; probably the only exceptions from the solid-state era are
-   <i>Funhouse</i> and <i>Red and Ted's Road Show</i>.  I've never heard
-   anyone even raise the idea of equipping a virtual pinball machine with
-   two or more physical plungers, so I don't think this limiting assumption
-   in the OPD HID design will ruin anyone's cabinet design.
+   <i>Funhouse</i> (Williams, 1990) and <i>Red and Ted's Road Show</i> (1994).
+   I've never heard anyone even raise the idea of equipping a virtual pinball
+   machine with two or more physical plungers, so I don't think this limiting
+   assumption in the OPD HID design will ruin anyone's cabinet design.
 
    <li>There's only one instance of each button with a given function
    (one Start button, one left flipper button, one right flipper
@@ -1528,28 +1591,30 @@
 
 <h3>Two plungers, <i>&agrave; la</i> <i>Funhouse</i></h3>
 <p>
-   I was going to title this section <i>Two or more plungers</i>, but with
-   <i>N</i> &gt; 2, it's hard to imagine where you'd put them all, just in
-   terms of available space in the cabinet.  I think the use case here is
-   really just to build a virtual cab replicating the original <i>Funhouse</i>
-   layout, which has two plungers, one in the usual place, and a second
-   at the mirror-image location on the left side of the cabinet.
+   I was going to title this section <i>Two or more plungers</i>, but
+   then I realized how hard it would be to find room for more than two.
+   I think the only conceivable use case is a virtual cab replicating
+   <i>Funhouse</i>'s dual plungers, with one in the usual location on
+   the right side of the front panel, and a second at the mirror-image
+   location on the left side.
 </p>
 <p>
-   I didn't include double-plunger support in the initial report layout
+   I didn't include dual-plunger support in the initial report layout
    simply because I've never heard of anyone raising this idea in
-   the forums, even as an abstract ideal for the "ultimate pin cab", let
-   alone as something to actually implement.  But <i>Funhouse</i> is certainly
-   one of the best-known and best-regarded games of all times, so I can
-   imagine the idea occurring to someone eventually.  If we ever did want to
-   add support for this, then, there's a straightforward way to
-   extend the reporting struct:  simply add a pair of new fields for
-   <b>Second plunger position</b> and <b>Second plunger speed</b>.
-   "Second plunger" would be explicitly defined as a left-side plunger
-   in the style of <i>Funhouse</i>.  This wouldn't generalize to <i>N</i>
-   plungers, but I think that's actually an advantage, as it wouldn't
-   burden simulators and table authors with a new abstraction that
-   would almost certainly never be useful.
+   the forums, even as a silly, over-the-top, "ultimate pin cab" exercise, let
+   alone as something to actually build.  But <i>Funhouse</i> is certainly
+   one of the best-known and best-loved tables of all times, and its
+   dual plungers stand out as special just looking at the cabinet, so I can imagine someone
+   eventually wanting to replicate that in a virtual cab.  If we ever do
+   want to add support for this, a very straightforward way would be to
+   extend the reporting struct to add a pair of new fields, analogous to
+   the existing plunger fields, labeled <b>Second plunger position</b> and
+   <b>Second plunger speed</b>.  "Second plunger" would be explicitly
+   defined as a left-side plunger in the style of <i>Funhouse</i>.  This
+   approach wouldn't generalize to <i>N</i> plungers, but given that
+   <i>N</i> &gt; 2 seems completely impractical at the physical level
+   and completely useless at the simulation level, I don't see any reason
+   to make it more complicated than this.
 </p>
 <p>
    Since this approach explicitly adds two new analog sensor fields in
@@ -1639,25 +1704,33 @@
    I think most people today agree that the WPC machines are the gold
    standard for how a pinball machine should play, including the flipper
    feel.  So Williams essentially did the research work for us to determine
-   the required sampling rate.  And the answer is: 1ms.
+   the required sampling rate.  And the answer is: 1ms.  That's the interval
+   at which the WPC software polls the "dedicated grounded switches",
+   which includes the flipper buttons.  (Note that the WPC software polls
+   the "matrix" switches on a slightly longer cycle of 2ms.  The special
+   case they make for the flipper switches suggests that the faster polling
+   might actually make a difference, or at least that the Williams engineers
+   suspected it could.)
 </p>
 <p>
    There's a second, more "analog" reason for considering 1ms to be a
    sufficiently fast polling rate: switch bounce.  Bounce is a phenomenon
-   exhibited by most switches that causes the voltage on the switch to
-   oscillate rapidly at the moment of contact, due to the mechanical
+   exhibited by almost all mechanical switches that causes the voltage on the
+   switch to oscillate rapidly at the moment of contact, due to the mechanical
    vibration of the switch and other factors.  The voltage oscillations
-   can last for a couple of milliseconds before the signal stabilizes.
+   can last for several milliseconds before the signal stabilizes.
    This sets a physical limit on the polling rate for digital applications,
    since the switch state is indeterminate from a digital perspective
    during the bounce period.  Digital indeterminism didn't affect the
    older hard-wired "analog" flipper systems, of course, but switch
    bounce probably still somewhat slowed the solenoid activation time
-   by reducing the switch's conductivity during the bounce phase.  I
-   suspect that polling rates faster than 1ms would therefore make little
-   or no difference in the solenoid response compared to a hard-wired
-   flipper switch, not just in terms of what's perceptible to a human,
-   but in the actual solenoid physics.
+   by reducing the switch's conductivity during the bounce phase.  The
+   analog systems actually switched the full coil power through the
+   flipper button switches, so reduced conductivity during the bounce
+   phase translates to reduced current (and therefore reduced power)
+   to the solenoid.  This probably makes digital polling rates faster
+   than 1ms pointless, in that even analog flipper button wiring
+   couldn't bring the solenoid to full power any faster than that.
 </p>
 <p>
    In my early work on this interface design, I was operating under an
@@ -1666,15 +1739,18 @@
    around the idea that the I/O controller should sample at 1ms intervals
    or faster, and then group these readings into a HID report on a time scale
    of around 10ms.  In further experimentation, though, I've become satisfied
-   that Windows machines actually are capable of 1ms HID polling.  The Windows
-   HID drivers respect the polling interval setting requested by the USB
-   device via its interface descriptors, and in practice are capable of
-   passing information back to the host program at 1ms intervals.  This
-   lets us perform polling in the simulator on a millisecond time-scale
-   directly through native HID mechanics, without any added complexity
-   in the OPD interface design.  So I ultimately deleted the special
-   provisions for flipper buttons from the design - in the current
-   version, flipper buttons are just ordinary buttons.
+   that Windows machines actually are capable of 1ms HID polling.  HID
+   allows the interface to specify the polling interval it wants the host
+   to use, down to 1ms, and the Windows HID drivers do in fact respect that
+   request, and in practice will reliably pass information back to the host
+   program at 1ms intervals, assuming that the host program itself asks for
+   input at that rate.  This lets the simulator poll on a millisecond time
+   scale directly through ordinary HID mechanics, without any added complexity
+   in the OPD interface design.  Fast polling is much easier for simulators
+   to implement than what I had in mind for sub-poll-interval timing detail.
+   So I ultimately deleted those special provisions for flipper buttons from
+   the design.  In the current version, flipper buttons are just ordinary
+   buttons.
 </p>
 
 

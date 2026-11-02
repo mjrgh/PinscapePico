@@ -1949,17 +1949,25 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         </div>
         <div class="jsonClassDesc">
         <p>
-          This sets up the button to act as a keyboard key on the PC.  When the button
+          This sets up the button to act like a keyboard key on the PC.  When the button
           is activated, Pinscape sends the designated key press, and keeps sending it
-          as long as the button remains activated.
+          as long as the button remains activated.  The specific keyboard key that the
+          button sends is selected via the <tt>key</tt> property.
           </p><p>
-          To use keyboard actions, make sure that the USB keyboard device is enabled
-          via the <a href="#keyboard.enable">keyboard.enable</a> property.
+          When using this action type, make sure that Pinscape's USB keyboard emulation
+          is enabled via the <a href="#keyboard.enable">keyboard.enable</a> property.
           </p><p>
-          A type="key" action is a very literal emulation of a physical USB keyboard
-          key press, which means that it can send any <i>one</i> key, but only the
-          one.  If you want send a combination of key presses involving modifier keys,
-          such as Ctrl+A or Shift+Ctrl+End, you need a <a href="#buttons.action.type=macro">macro</a>.
+          A type="key" action is a literal emulation of a single USB keyboard key,
+          so the basic "key" action can only send a single key.  To send a key sequence
+          that involves a set of modifier keys, such as Ctrl+A or Ctrl+Shift+End, you
+          need a type="macro" action instead.  However, for convenience, the "key" action
+          accepts modifier keys in the <tt>key</tt> property, and automatically
+          converts the action to a macro that executes the combined key presses
+          indicated.  The automatic macro that the "key" action creates for a chord
+          simply presses all of the combined keys at once.  It doesn't let you
+          do more nuanced timing, such as holding down the Ctrl key first and then
+          pressing "A".  If you do need to control the timing and order of the individual
+          component key presses, you should use a type="macro" action instead.
         </p>
         </div>
       <a name="buttons.action.type=key.key"></a>
@@ -1977,12 +1985,14 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         Alternatively, the key can be a "chord", which is a combination of keys with
         modifiers such as Ctrl, Shift, and Alt.  Chords are written using the Microsoft
         convention, as in "Ctrl+Shift+F1" to mean holding down the Ctrl and Shift keys
-        while pressing the F1 key.  When you define a chord in this notation, the
-        software internally converts the "key" action into a <a href="#buttons.action.type=macro">"macro" action</a>,
+        while pressing the F1 key.  When you define a chord in this notation, Pinscape
+        internally converts the "key" action into a <a href="#buttons.action.type=macro">"macro" action</a>,
         and automatically programs the macro with a series of "key" steps matching the
         keys you list in the chord, with all of the steps starting as soon as you press
         the source button, and all of the steps remaining in effect until you release
         the source button.  So the macro steps are set to <tt>{ start: 0, duration: "hold" }</tt>.
+        If you need more control over the timing of the individual key presses making
+        up the chord, you can use a type="macro" action instead.
         </p><p>
         <table>
         <tr><th>Key name</th><th>USB usage</th><th>Description</th></tr>

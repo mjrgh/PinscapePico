@@ -2552,15 +2552,24 @@ nudge object optional
      },
   }
 
-  Configures options for accelerometer-based nudging.  The nudge
-  system performs some processing on the raw accelerometer data to make
-  it more presentable to pinball simulator programs on the PC, including
-  noise filtering, tilt bias correction, and velocity integration.  Most
-  of the processing options are set up via the Config Tool rather than
-  JSON settings, so that you can experiment with different settings
-  and see their effects on real-time readings without having to
-  repeatedly reboot the device (which is necessary for settings made
-  through the JSON file).
+  Enables accelerometer-based nudging, and maps the axis orientation
+  of your accelerometer chip to the abstract coordinate system that
+  the pinball simulators use for nudge input.
+
+  <b>This object must be present to enable nudge input</b>.  If
+  the <tt>nudge</tt> section isn't present, nudging is disabled, 
+  <b>even if</b> an accelerometer chip is configured.  (This might
+  seem like an unnecessary extra step, but in principal, you could
+  use an accelerometer for other purposes besides nudge input, so
+  the software treats the two as independent settings.)
+
+  The nudge system performs some processing on the raw accelerometer
+  data to make it more presentable to pinball simulator programs on the
+  PC, including noise filtering, tilt bias correction, and velocity
+  integration.  Those signal-processing features are configured
+  separately via the Config Tool, rather than in the JSON file,
+  because it's helpful to be able to see the immediate effect of
+  those parameters as you make adjustments.
 
 nudge.source string optional
   Sets the physical accelerometer device that serves as the source of
@@ -4684,7 +4693,8 @@ ds1307 object optional
     Any battery that supplies about 3V can be used; a common lithium
     coin cell such as CR2032 is usually the best choice, as it's compact
     and will power the chip for several years.  A series-connected pair
-    of alkaline AA or AAA cells would also work.
+    of alkaline AA or AAA cells would also work, although those are
+    prone to leakage.
     <li>SQW/OUT can be left unconnected.
   </ul>
 
@@ -4733,7 +4743,8 @@ ds3231m object optional
     Any battery that supplies about 3V can be used; a common lithium
     coin cell such as CR2032 is usually the best choice, as it's compact
     and will power the chip for several years.  A series-connected pair
-    of alkaline AA or AAA cells would also work.
+    of alkaline AA or AAA cells would also work, although those are prone
+    to leakage.
     <li>Decoupling capacitors between 3.3V and GND should be placed near pin 14;
     the data sheet recommends a 0.1uF to 1uF ceramic capacitor.
     <li>Pins not shown with connections (32kHz, INT/SQW, RST) can be
@@ -4772,7 +4783,8 @@ rv3032c7 object optional
     Any battery that supplies about 3V can be used; a common lithium
     coin cell such as CR2032 is usually the best choice, as it's compact
     and will power the chip for several years.  A series-connected pair
-    of alkaline AA or AAA cells would also work.
+    of alkaline AA or AAA cells would also work, although those are
+    prone to leakage.
     <li>INT (pin 3) can be left unconnected.
   </ul>
 

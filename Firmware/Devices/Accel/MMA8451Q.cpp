@@ -339,8 +339,8 @@ void MMA8451Q::SendInitCommands(i2c_inst_t *i2c, bool isPowerOn)
         ok = false;
 
     // log the result
-    char intrDesc[8];
-    sprintf(intrDesc, gpInterrupt == -1 ? "not connected" : "GP%d", gpInterrupt);
+    char intrDesc[20];
+    snprintf(intrDesc, sizeof(intrDesc), gpInterrupt == -1 ? "not connected" : "GP%d", gpInterrupt);
     Log(ok ? LOG_CONFIG : LOG_ERROR, "MMA8451Q device initialization %s; I2C%d address 0x%02X, interrupt %s, dynamic range +/- %dg\n",
         ok ? "OK" : "failed", i2c_hw_index(i2c), i2cAddr, intrDesc, gRange);
 }

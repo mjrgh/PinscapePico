@@ -246,7 +246,7 @@ and the same support for a TV Relay and IR command activation when a power-on tr
 
 * Plunger sensor support for all of the KL25Z Pinscape sensors, with the same plunger logic features
 
-* Nudging, with support for multiple accelerometer chips (MMA8451Q, LIS3DH, LIS3DSH, MXC6655XA, MC3416),
+* Nudging, with support for multiple accelerometer chips (MMA8451Q, LIS3DH, LIS3DSH, MXC6655XA, MC3416, MPU-6050),
 with an extensible design to allow support for more accelerometer chips to be added in the future
 
 * Nudge Velocity input support for the latest Visual Pinball

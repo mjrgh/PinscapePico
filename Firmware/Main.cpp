@@ -69,6 +69,7 @@
 #include "Devices/Accel/LIS3DSH.h"
 #include "Devices/Accel/MC3416.h"
 #include "Devices/Accel/MMA8451Q.h"
+#include "Devices/Accel/MPU6050.h"
 #include "Devices/Accel/MXC6655XA.h"
 #include "Devices/DistanceSensor/VL6180X.h"
 #include "Devices/GPIOExt/PCA9555.h"
@@ -518,6 +519,7 @@ static void Configure(PicoReset::BootMode bootMode)
     LIS3DSH::Configure(json);
     MC3416::Configure(json);
     MMA8451Q::Configure(json);
+    MPU6050::Configure(json);
     MXC6655XA::Configure(json);
 
     // Configure the ADC manager and outboard ADC chips

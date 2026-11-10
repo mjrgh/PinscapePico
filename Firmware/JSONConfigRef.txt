@@ -1640,6 +1640,10 @@ gamepad.x string{table} optional
     <tr><td>"mc3416.x"</td><td>If an MC3416 accelerometer is configured, reports the raw reading from its X axis</td></tr>
     <tr><td>"mc3416.y"</td><td>If an MC3416 accelerometer is configured, reports the raw reading from its Y axis</td></tr>
     <tr><td>"mc3416.z"</td><td>If an MC3416 accelerometer is configured, reports the raw reading from its Z axis</td></tr>
+    <tr><td>"mpu6050.temperature"</td><td>If an MPU-6050 accelerometer is configured, reports the reading from its temperature sensor</td></tr>
+    <tr><td>"mpu6050.x"</td><td>If an MPU-6050 accelerometer is configured, reports the raw reading from its X axis</td></tr>
+    <tr><td>"mpu6050.y"</td><td>If an MPU-6050 accelerometer is configured, reports the raw reading from its Y axis</td></tr>
+    <tr><td>"mpu6050.z"</td><td>If an MPU-6050 accelerometer is configured, reports the raw reading from its Z axis</td></tr>
     <tr><td>"mxc6655xa.temperature"</td><td>If an MXC6655XA accelerometer is configured, reports the reading from temperature sensor</td></tr>
     <tr><td>"mxc6655xa.x"</td><td>If an MXC6655XA accelerometer is configured, reports the raw reading from its X axis</td></tr>
     <tr><td>"mxc6655xa.y"</td><td>If an MXC6655XA accelerometer is configured, reports the raw reading from its X axis</td></tr>
@@ -4618,6 +4622,70 @@ mc3416.gRange number optional
   of effects for milder nudges.
   
 
+mpu6050 object optional
+  TOC: Peripheral Devices > Accelerometers > MPU-6050
+  TITLE: MPU-6050 Accelerometer
+  EXAMPLE:
+  {
+     mpu6050: {
+        i2c: 0,
+        addr: 0x68,
+        interrupt: 20,
+        gRange: 2,
+     },
+  }
+
+  Configures an InvenSense (TDK) MPU-6050 motion sensor.  The MPU-6050
+  combines a 3-axis accelerometer with a 3-axis gyroscope; Pinscape only
+  uses the accelerometer.  The chip is widely sold on inexpensive breakout
+  boards, most commonly labeled "GY-521".
+
+  Wiring a GY-521 board to the Pico:
+  <ul>
+    <li>VCC to Pico 3.3V (3V3 OUT)
+    <li>GND to Pico GND
+    <li>SCL and SDA to the SCL and SDA GPIOs of the I2C bus you select with <tt>i2c</tt>
+    <li>INT to a free GPIO (optional; see <tt>interrupt</tt>)
+    <li>AD0 selects the I2C address; most boards pull it to GND (address 0x68)
+    <li>XDA and XCL are for the chip's auxiliary I2C bus, and should be left unconnected
+  </ul>
+
+  Many boards sold as MPU-6050 actually carry a compatible part such as an
+  MPU-6500 or MPU-9250, or an unbranded clone.  Those generally work, since
+  they share the registers Pinscape uses; the startup log shows a warning
+  with the chip's ID code when the part isn't a genuine MPU-6050.
+
+mpu6050.i2c number required
+  The I2C bus number, 0 for I2C0 or 1 for I2C1, where the chip is connected.
+
+mpu6050.addr number optional
+  The 7-bit I2C address of the chip.  The address is determined by the wiring
+  on the chip's AD0 pin; if the pin is wired to GND, the address is 0x68,
+  if the pin is wired to 3.3V, the address is 0x69.  The default is 0x68,
+  which is the setting on most breakout boards.
+
+mpu6050.interrupt number optional
+  The GPIO port number where the chip's INT (interrupt) pin is wired into the Pico,
+  if any.  This can be omitted if the interrupt line isn't connected to the
+  Pico.  Wiring the interrupt connection is preferred, because it lets the
+  chip notify the Pico immediately when a new sample is available.  Without
+  this connection, the Pico has to poll the chip periodically, which can
+  slightly increase the latency between a new sample becoming ready on the
+  chip and the Pico reading it across the I2C bus.  Pinscape configures the
+  INT pin as active-low open-drain, so the line can be shared with other
+  chips' interrupt outputs.
+
+mpu6050.gRange number optional
+  Sets the dynamic range for the accelerometer readings, in units of
+  standard Earth gravity.  This device allows settings of 2, 4, 8, or 16.
+  The default is 2, which is usually the best setting for a virtual
+  pin cab, since this provides the best sensitivity for mild nudges.
+  Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+  we don't really need wide dynamic range, since nudges past a certain
+  point simply result in a TILT condition, so it's more useful to take
+  advantage of the highest available precision to allow finer gradations
+  of effects for milder nudges.
+  
 mxc6655xa object optional
   TOC: Peripheral Devices > Accelerometers > MXC6655XA
   TITLE: MXC6655XA Accelerometer

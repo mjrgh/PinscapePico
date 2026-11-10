@@ -97,6 +97,9 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         <a href="#mma8451q">MMA8451Q</a>
       </div>
       <div class="jsonTOCEntry">
+        <a href="#mpu6050">MPU-6050</a>
+      </div>
+      <div class="jsonTOCEntry">
         <a href="#mxc6655xa">MXC6655XA</a>
       </div>
     </div>
@@ -495,6 +498,12 @@ For an introduction to the JSON syntax and the overall file layout, refer to
         <span class="propName"><a href="#mma8451q.gRange">gRange</a></span>: <span class="typeNames">number</span>,
         <span class="propName"><a href="#mma8451q.i2c">i2c</a></span>: <span class="typeNames">number</span>,
         <span class="propName"><a href="#mma8451q.interrupt">interrupt</a></span>: <span class="typeNames">number</span>,
+     },
+     <span class="propName"><a href="#mpu6050">mpu6050</a></span>: {
+        <span class="propName"><a href="#mpu6050.addr">addr</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#mpu6050.gRange">gRange</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#mpu6050.i2c">i2c</a></span>: <span class="typeNames">number</span>,
+        <span class="propName"><a href="#mpu6050.interrupt">interrupt</a></span>: <span class="typeNames">number</span>,
      },
      <span class="propName"><a href="#mxc6655xa">mxc6655xa</a></span>: {
         <span class="propName"><a href="#mxc6655xa.gRange">gRange</a></span>: <span class="typeNames">number</span>,
@@ -4147,7 +4156,8 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   Any battery that supplies about 3V can be used; a common lithium
   coin cell such as CR2032 is usually the best choice, as it's compact
   and will power the chip for several years.  A series-connected pair
-  of alkaline AA or AAA cells would also work.
+  of alkaline AA or AAA cells would also work, although those are
+  prone to leakage.
   <li>SQW/OUT can be left unconnected.
   </ul>
 </p>
@@ -4220,7 +4230,8 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   Any battery that supplies about 3V can be used; a common lithium
   coin cell such as CR2032 is usually the best choice, as it's compact
   and will power the chip for several years.  A series-connected pair
-  of alkaline AA or AAA cells would also work.
+  of alkaline AA or AAA cells would also work, although those are prone
+  to leakage.
   <li>Decoupling capacitors between 3.3V and GND should be placed near pin 14;
   the data sheet recommends a 0.1uF to 1uF ceramic capacitor.
   <li>Pins not shown with connections (32kHz, INT/SQW, RST) can be
@@ -4662,7 +4673,7 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     </div>
     <div class="jsonPropDesc">
   <div class="jsonEnumVals">
-     One of: <span class="jsonEnumVal">"lis3dh.temperature"</span>, <span class="jsonEnumVal">"lis3dh.x"</span>, <span class="jsonEnumVal">"lis3dh.y"</span>, <span class="jsonEnumVal">"lis3dh.z"</span>, <span class="jsonEnumVal">"lis3dsh.temperature"</span>, <span class="jsonEnumVal">"lis3dsh.x"</span>, <span class="jsonEnumVal">"lis3dsh.y"</span>, <span class="jsonEnumVal">"lis3dsh.z"</span>, <span class="jsonEnumVal">"mc3416.x"</span>, <span class="jsonEnumVal">"mc3416.y"</span>, <span class="jsonEnumVal">"mc3416.z"</span>, <span class="jsonEnumVal">"mxc6655xa.temperature"</span>, <span class="jsonEnumVal">"mxc6655xa.x"</span>, <span class="jsonEnumVal">"mxc6655xa.y"</span>, <span class="jsonEnumVal">"mxc6655xa.z"</span>, <span class="jsonEnumVal">"nudge.vx"</span>, <span class="jsonEnumVal">"nudge.vy"</span>, <span class="jsonEnumVal">"nudge.vz"</span>, <span class="jsonEnumVal">"nudge.x"</span>, <span class="jsonEnumVal">"nudge.y"</span>, <span class="jsonEnumVal">"nudge.z"</span>, <span class="jsonEnumVal">"null"</span>, <span class="jsonEnumVal">"pico_adc"</span>, <span class="jsonEnumVal">"pico_adc[0]"</span>, <span class="jsonEnumVal">"pico_adc[1]"</span>, <span class="jsonEnumVal">"pico_adc[2]"</span>, <span class="jsonEnumVal">"pico_adc[3]"</span>, <span class="jsonEnumVal">"plunger.sensor"</span>, <span class="jsonEnumVal">"plunger.speed"</span>, <span class="jsonEnumVal">"plunger.z"</span>, <span class="jsonEnumVal">"plunger.z0"</span>
+     One of: <span class="jsonEnumVal">"lis3dh.temperature"</span>, <span class="jsonEnumVal">"lis3dh.x"</span>, <span class="jsonEnumVal">"lis3dh.y"</span>, <span class="jsonEnumVal">"lis3dh.z"</span>, <span class="jsonEnumVal">"lis3dsh.temperature"</span>, <span class="jsonEnumVal">"lis3dsh.x"</span>, <span class="jsonEnumVal">"lis3dsh.y"</span>, <span class="jsonEnumVal">"lis3dsh.z"</span>, <span class="jsonEnumVal">"mc3416.x"</span>, <span class="jsonEnumVal">"mc3416.y"</span>, <span class="jsonEnumVal">"mc3416.z"</span>, <span class="jsonEnumVal">"mpu6050.temperature"</span>, <span class="jsonEnumVal">"mpu6050.x"</span>, <span class="jsonEnumVal">"mpu6050.y"</span>, <span class="jsonEnumVal">"mpu6050.z"</span>, <span class="jsonEnumVal">"mxc6655xa.temperature"</span>, <span class="jsonEnumVal">"mxc6655xa.x"</span>, <span class="jsonEnumVal">"mxc6655xa.y"</span>, <span class="jsonEnumVal">"mxc6655xa.z"</span>, <span class="jsonEnumVal">"nudge.vx"</span>, <span class="jsonEnumVal">"nudge.vy"</span>, <span class="jsonEnumVal">"nudge.vz"</span>, <span class="jsonEnumVal">"nudge.x"</span>, <span class="jsonEnumVal">"nudge.y"</span>, <span class="jsonEnumVal">"nudge.z"</span>, <span class="jsonEnumVal">"null"</span>, <span class="jsonEnumVal">"pico_adc"</span>, <span class="jsonEnumVal">"pico_adc[0]"</span>, <span class="jsonEnumVal">"pico_adc[1]"</span>, <span class="jsonEnumVal">"pico_adc[2]"</span>, <span class="jsonEnumVal">"pico_adc[3]"</span>, <span class="jsonEnumVal">"plunger.sensor"</span>, <span class="jsonEnumVal">"plunger.speed"</span>, <span class="jsonEnumVal">"plunger.z"</span>, <span class="jsonEnumVal">"plunger.z0"</span>
   </div>
   <p>
     Sets the data source for the gamepad's X axis.  This is optional; if you omit
@@ -4687,6 +4698,10 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     <tr><td>"mc3416.x"</td><td>If an MC3416 accelerometer is configured, reports the raw reading from its X axis</td></tr>
     <tr><td>"mc3416.y"</td><td>If an MC3416 accelerometer is configured, reports the raw reading from its Y axis</td></tr>
     <tr><td>"mc3416.z"</td><td>If an MC3416 accelerometer is configured, reports the raw reading from its Z axis</td></tr>
+    <tr><td>"mpu6050.temperature"</td><td>If an MPU-6050 accelerometer is configured, reports the reading from its temperature sensor</td></tr>
+    <tr><td>"mpu6050.x"</td><td>If an MPU-6050 accelerometer is configured, reports the raw reading from its X axis</td></tr>
+    <tr><td>"mpu6050.y"</td><td>If an MPU-6050 accelerometer is configured, reports the raw reading from its Y axis</td></tr>
+    <tr><td>"mpu6050.z"</td><td>If an MPU-6050 accelerometer is configured, reports the raw reading from its Z axis</td></tr>
     <tr><td>"mxc6655xa.temperature"</td><td>If an MXC6655XA accelerometer is configured, reports the reading from temperature sensor</td></tr>
     <tr><td>"mxc6655xa.x"</td><td>If an MXC6655XA accelerometer is configured, reports the raw reading from its X axis</td></tr>
     <tr><td>"mxc6655xa.y"</td><td>If an MXC6655XA accelerometer is configured, reports the raw reading from its X axis</td></tr>
@@ -6155,6 +6170,124 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     </div>
   </div>
 </div>
+<a name="mpu6050"></a>
+<div class="jsonSectTitle">MPU-6050 Accelerometer</div>
+<p>
+  Configures an InvenSense (TDK) MPU-6050 motion sensor.  The MPU-6050
+  combines a 3-axis accelerometer with a 3-axis gyroscope; Pinscape only
+  uses the accelerometer.  The chip is widely sold on inexpensive breakout
+  boards, most commonly labeled "GY-521".
+  </p><p>
+  Wiring a GY-521 board to the Pico:
+  <ul>
+  <li>VCC to Pico 3.3V (3V3 OUT)
+  <li>GND to Pico GND
+  <li>SCL and SDA to the SCL and SDA GPIOs of the I2C bus you select with <tt>i2c</tt>
+  <li>INT to a free GPIO (optional; see <tt>interrupt</tt>)
+  <li>AD0 selects the I2C address; most boards pull it to GND (address 0x68)
+  <li>XDA and XCL are for the chip's auxiliary I2C bus, and should be left unconnected
+  </ul>
+  </p><p>
+  Many boards sold as MPU-6050 actually carry a compatible part such as an
+  MPU-6500 or MPU-9250, or an unbranded clone.  Those generally work, since
+  they share the registers Pinscape uses; the startup log shows a warning
+  with the chip's ID code when the part isn't a genuine MPU-6050.
+</p>
+<div class="jsonSectIndexHdr">Summary</div>
+<div class="jsonSectIndex">{
+   <span class="propName"><a href="#mpu6050">mpu6050</a></span>: {
+      <span class="propName"><a href="#mpu6050.addr">addr</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#mpu6050.gRange">gRange</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#mpu6050.i2c">i2c</a></span>: <span class="typeNames">number</span>,
+      <span class="propName"><a href="#mpu6050.interrupt">interrupt</a></span>: <span class="typeNames">number</span>,
+   },
+}
+</div>
+<div class="jsonExampleHdr">Example</div>
+<div class="jsonExample">  {
+     mpu6050: {
+        i2c: 0,
+        addr: 0x68,
+        interrupt: 20,
+        gRange: 2,
+     },
+  }
+</div>
+<div class="jsonProp">
+  <div class="jsonPropHdr">
+    <span class="jsonPropPath"></span><span class="jsonPropName">mpu6050</span>
+    <span class="jsonPropType">object</span><span class="jsonPropOptional">Optional</span>
+  </div>
+  <div class="jsonPropDesc">
+  </div>
+  <a name="mpu6050.addr"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">mpu6050.</span><span class="jsonPropName">addr</span>
+      <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The 7-bit I2C address of the chip.  The address is determined by the wiring
+    on the chip's AD0 pin; if the pin is wired to GND, the address is 0x68,
+    if the pin is wired to 3.3V, the address is 0x69.  The default is 0x68,
+    which is the setting on most breakout boards.
+  </p>
+    </div>
+  </div>
+  <a name="mpu6050.gRange"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">mpu6050.</span><span class="jsonPropName">gRange</span>
+      <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    Sets the dynamic range for the accelerometer readings, in units of
+    standard Earth gravity.  This device allows settings of 2, 4, 8, or 16.
+    The default is 2, which is usually the best setting for a virtual
+    pin cab, since this provides the best sensitivity for mild nudges.
+    Higher ranges sacrifice precision for dynamic range.  In a pin cab,
+    we don't really need wide dynamic range, since nudges past a certain
+    point simply result in a TILT condition, so it's more useful to take
+    advantage of the highest available precision to allow finer gradations
+    of effects for milder nudges.
+  </p>
+    </div>
+  </div>
+  <a name="mpu6050.i2c"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">mpu6050.</span><span class="jsonPropName">i2c</span>
+      <span class="jsonPropType">number</span><span class="jsonPropRequired">Required</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The I2C bus number, 0 for I2C0 or 1 for I2C1, where the chip is connected.
+  </p>
+    </div>
+  </div>
+  <a name="mpu6050.interrupt"></a>
+  <div class="jsonProp">
+    <div class="jsonPropHdr">
+      <span class="jsonPropPath">mpu6050.</span><span class="jsonPropName">interrupt</span>
+      <span class="jsonPropType">number</span><span class="jsonPropOptional">Optional</span>
+    </div>
+    <div class="jsonPropDesc">
+  <p>
+    The GPIO port number where the chip's INT (interrupt) pin is wired into the Pico,
+    if any.  This can be omitted if the interrupt line isn't connected to the
+    Pico.  Wiring the interrupt connection is preferred, because it lets the
+    chip notify the Pico immediately when a new sample is available.  Without
+    this connection, the Pico has to poll the chip periodically, which can
+    slightly increase the latency between a new sample becoming ready on the
+    chip and the Pico reading it across the I2C bus.  Pinscape configures the
+    INT pin as active-low open-drain, so the line can be shared with other
+    chips' interrupt outputs.
+  </p>
+    </div>
+  </div>
+</div>
 <a name="mxc6655xa"></a>
 <div class="jsonSectTitle">MXC6655XA Accelerometer</div>
 <p>
@@ -6243,15 +6376,24 @@ For an introduction to the JSON syntax and the overall file layout, refer to
 <a name="nudge"></a>
 <div class="jsonSectTitle">Nudging (Accelerometer)</div>
 <p>
-  Configures options for accelerometer-based nudging.  The nudge
-  system performs some processing on the raw accelerometer data to make
-  it more presentable to pinball simulator programs on the PC, including
-  noise filtering, tilt bias correction, and velocity integration.  Most
-  of the processing options are set up via the Config Tool rather than
-  JSON settings, so that you can experiment with different settings
-  and see their effects on real-time readings without having to
-  repeatedly reboot the device (which is necessary for settings made
-  through the JSON file).
+  Enables accelerometer-based nudging, and maps the axis orientation
+  of your accelerometer chip to the abstract coordinate system that
+  the pinball simulators use for nudge input.
+  </p><p>
+  <b>This object must be present to enable nudge input</b>.  If
+  the <tt>nudge</tt> section isn't present, nudging is disabled, 
+  <b>even if</b> an accelerometer chip is configured.  (This might
+  seem like an unnecessary extra step, but in principal, you could
+  use an accelerometer for other purposes besides nudge input, so
+  the software treats the two as independent settings.)
+  </p><p>
+  The nudge system performs some processing on the raw accelerometer
+  data to make it more presentable to pinball simulator programs on the
+  PC, including noise filtering, tilt bias correction, and velocity
+  integration.  Those signal-processing features are configured
+  separately via the Config Tool, rather than in the JSON file,
+  because it's helpful to be able to see the immediate effect of
+  those parameters as you make adjustments.
 </p>
 <div class="jsonSectIndexHdr">Summary</div>
 <div class="jsonSectIndex">{
@@ -9071,7 +9213,8 @@ For an introduction to the JSON syntax and the overall file layout, refer to
   Any battery that supplies about 3V can be used; a common lithium
   coin cell such as CR2032 is usually the best choice, as it's compact
   and will power the chip for several years.  A series-connected pair
-  of alkaline AA or AAA cells would also work.
+  of alkaline AA or AAA cells would also work, although those are
+  prone to leakage.
   <li>INT (pin 3) can be left unconnected.
   </ul>
 </p>

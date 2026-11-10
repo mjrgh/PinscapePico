@@ -506,6 +506,7 @@
     //  Memsic MXC6655XA
     //  STMicroelectronics LIS3DH
     //  NXP Semiconductors MMA8451Q
+    //  InvenSense MPU-6050 (common "GY-521" breakout boards)
     //
     // There are TWO STEPS required for configuring the nudge device:
     //
@@ -560,6 +561,15 @@
     //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
     //     addr: 0x4c,        // I2C address: 0x4C or 0x6C, configured via VPP pin on chip
     //     interrupt: 18,     // GPIO port connected to interrupt pin; omit this line if interrupt line isn't wired
+    //     gRange: 2,         // dynamic range +/- 2g
+    // },
+
+    // MPU-6050 I2C accelerometer, such as a GY-521 board (you ALSO need a "nudge:" section - see below)
+    //
+    // mpu6050: {
+    //     i2c: 0,            // I2C bus - 0 for I2C0, 1 for I2C1
+    //     addr: 0x68,        // I2C address: 0x68 or 0x69, configured via AD0 pin on chip (most boards: 0x68)
+    //     interrupt: 18,     // GPIO port connected to INT pin; omit this line if interrupt line isn't wired
     //     gRange: 2,         // dynamic range +/- 2g
     // },
 

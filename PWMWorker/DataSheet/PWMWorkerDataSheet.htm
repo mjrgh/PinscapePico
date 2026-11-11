@@ -114,19 +114,21 @@ tt {
    TLC59116 and PCA9685.  Like those chips, PWMWorker provides an I2C interface
    that lets a host microcontroller (for example, another Pico, perhaps running the
    <a href="https://github.com/mjrgh/PinscapePico/">Pinscape Pico</a>
-   firmware), control a set of output pins with PWM.
+   firmware) control a set of output pins with PWM.
 </p>
 <p>
-   The mainstream chips in this class are designed primarily to
-   control arrays of LEDs (indeed, the category where you'll find most of them
-   listed on Mouser and DigiKey is "LED driver chips"), but there's really
-   nothing that limits them to LEDs, since the output ports are ultimately
-   just electronic switches.  They can be used to switch almost any sort of
-   device, especially if the output ports are used as inputs to amplifier
-   circuits that increase their current and voltage drive limits.  In virtual
-   pinball machines, they can be used to control feedback devices, including
-   lights, solenoids, and motors.  And even though the chips are nominally
-   PWM controllers, the PWM capability doesn't have to be exercised for
+   The mainstream chips in this class are designed primarily to control arrays
+   of LEDs.  Indeed, the category where you'll find most of them listed on Mouser
+   and DigiKey is "LED driver chips".  But the output ports are fundamentally just
+   general-purpose electronic switches, so they can in principle be used to control
+   just about anything that can be switched on and off.  The main thing that makes
+   them "LED drivers" is that the output ports can only directly switch low-power
+   loads on the order of small LEDs.  But they can <i>indirectly</i> drive
+   just about anything, with the addition of a little external circuitry
+   that boosts their power handling.  In virtual pinball machines, this makes
+   them useful for controlling all of the various feedback devices,
+   including lights, solenoids, and motors.  And even though chips in this class are
+   nominally PWM controllers, the PWM capability doesn't have to be exercised for
    every port; a port can equally well act as a simple on/off switch for
    a device that doesn't need (or can't use) PWM, simply by limiting the
    duty cycle settings on that port to 0% and 100%.
@@ -197,34 +199,45 @@ tt {
    and provides 24 PWM output channels.  TLC59116 and PCA9685
    sell for about $2 each in retail quantities, but only handle 16 channels,
    so you'd need 1&half; of those chips for each Pico, raising the comparison
-   price to about $3.  The Pico, then, is more expensive, but only slightly.
-   On the other hand, when the mainstream chips can be purchased in bulk,
-   their per-unit cost drops significantly, so they'll have a greater cost
-   advantage for commercial manufacturers planning large production runs.
+   price to about $3.  The Pico, then, is about 33% more expensive, port for
+   port.  For a DIY project where you're only using a few chips, the
+   easier soldering and other benefits probably more than make up for
+   this small cost difference.  On the other hand, for a commercial project
+   where you're manufacturing a lot of units at a time, you can probably
+   do a lot better on pricing for the dedicated PWM chips by buying them
+   in bulk, so the dedicated chips will have more of a cost advantage.
 
    <li>Ready availability.  The Pico has been widely available since its
-   introduction, while some of the dedicated PWM chips have been affected
-   by the general semiconductor shortage of recent years.
+   introduction, while some of the dedicated PWM chips have been
+   sporadically unavailable in recent years.  Also, specialty chips like
+   this tend to go out of production after a few years, so designing
+   around the Pico might make your design more durable.
 
-   <li>Push-pull output ports.  The output ports are implemented as Pico
-   GPIO ports in OUTPUT mode, which function as 3.3V push-pull drivers.
-   This configuration is convenient for some applications and less
+   <li>Push-pull output ports.  PWMWorker's output ports are implemented as
+   Pico GPIO ports in OUTPUT mode, which function as 3.3V push-pull drivers.
+   This configuration is quite convenient for some applications, and less
    convenient for others, so this could be a plus or a minus, depending
    on your use case.  Many of the TI PWM chips are available in a
    <i>constant current sink</i> configuration, which is extremely
-   convenient for driving arrays of identical LEDs, or for driving
-   optocouplers.  The push-pull configuration is usable for driving small
-   LEDs, but it's ideally suited for controlling amplifier circuits with
-   high-impedance logic-level inputs, such as MOSFET gate driver chips,
-   and is also good for driving optocouplers and Darlington transistors.
+   convenient for driving arrays of identical LEDs or optocouplers,
+   since LEDs can be connected directly without any
+   external current-limiting resistors.   The push-pull configuration
+   isn't as convenient for driving LEDs, since external resistors are
+   needed, but it's still perfectly usable.  Push-pull is ideally suited
+   for controlling amplifier circuits with high-impedance logic-level
+   inputs, such as MOSFET gate driver chips, and it's also good for driving
+   optocouplers and Darlington transistors.
 
-   <li>Digital switching capability.  When set to 0% or 100% duty cycle,
-   a port is held continuously at LOW or HIGH level (respectively), with
-   no transient edges at PWM cycle boundaries.  In contrast, many of the
-   dedicated PWM chips have unavoidable "blanking" periods between cycles,
-   which prevents them from achieving a true 100% duty cycle.  True 0% and
-   100% duty cycle operation allows ports to be used to control devices that
-   require digital (on/off) switching signals,
+   <li>Digital switching capability.  PWMWorker is specifically designed
+   to provide true 0% and 100% duty cycles on the outputs when the logical
+   ports levels are set to 0% or 100%, respectively.  This means that
+   there are absolutely no transient edges on the output ports at PWM cycle
+   boundaries; a port set to logical 0% stays at a constant LOW output level,
+   and a port set to logical 100% stays at a constant HIGH output level.
+   In contrast, many of the dedicated PWM chips have unavoidable "blanking"
+   periods between cycles, which prevents them from achieving a true 100% duty
+   cycle.  True 0% and 100% duty cycle operation allows ports to be used to
+   control devices that require digital (on/off) switching signals,
    such as devices with edge-sensitive inputs.  Virtual pinball cabinets often
    have a mix of devices, some needing PWM control and some being simple
    on/off devices, so the ability to use PWMWorker ports for either type of
@@ -252,6 +265,13 @@ tt {
    beneficial when gamma correction is enabled, because it allows for
    finer gradations of brightness at the low end of the scale, for smoother
    fades and wider dynamic range.
+
+   <li>Internal clocking.  PWMWorker uses the Pico's internal clocks to
+   time the PWM cycles and step counters, so it doesn't need any high-speed
+   clock signal inputs from the host.  Some of the dedicated PWM chips require
+   the host to provide a high-frequency clock signal to run the PWM step
+   counter (for example, TLC5940), which makes the design a little more
+   complex and is more likely to generate radio noise.
 
    <li>Device-side gamma correction.  PWMWorker can apply gamma correction
    on the device side, configurable on a per-port basis.  This allows the

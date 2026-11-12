@@ -601,7 +601,7 @@ tt {
    <a href="https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf">Rasbperry Pi Pico Data Sheet</a>
    (see <b>Powering Pico</b>).  This provides power to the Pico without the
    need for a USB connection, using an external 5VDC power source, such as
-   a PC power supply 5V rail.  This can be omitted if the Pico will be always
+   a PC power supply 5V rail.  This can be omitted if the Pico will always be
    powered through its USB port.  The Schottky diode as shown makes it safe
    to operate the Pico with or without the USB cable connected.
 
@@ -754,7 +754,7 @@ tt {
    Darlington transistors can control higher currents than small
    NPN transistors, and there are several chips available that
    implement multiple channels (typically 8) of Darlington outputs in a
-   single package, such as ULN2803A.  ULN2803A is particular convenient
+   single package, such as ULN2803A.  ULN2803A is particularly convenient
    for microcontroller applications like this one, because the chip
    includes internal current-limiting resistors for the input ports,
    so that the GPIO ports can be directly connected to the Darlington
@@ -860,22 +860,14 @@ tt {
    the driver chip, or you can heat up the MOSFET, take your pick.  The
    optimal R1 and R2 values have to balance that tension between faster
    MOSFET switching (lower R1/R2 values) and safer driver chip operation
-   (higher R1/R2 values).  The 220 Ohm recommendation that opened this
-   note was chosen as a one-size-fits-all compromise.  It's high enough,
-   experimentally, to protect UCC27524P from damage when using a MOSFET
-   with a high gate charge rating (IRF540N), but it's low enough to
-   handle fast PWM rates (20 kHz) without excessive MOSFET heating due
-   to switching power loss.  Note that higher gate charges are more
-   difficult for this circuit to handle, so you'll make it easier on
-   the circuit if you pick a MOSFET with a lower gate charge.  (You
-   can find the gate charge listed in the data sheet, usually under
-   the parameter named Q<sub>g</sub>.)  But MOSFETs with lower gate
-   charge values tend to be more expensive, so the circuit is designed
-   to accommodate a range of devices, to give you some flexibility
-   to be cost-conscious when selecting parts.
+   (higher R1/R2 values).  220 Ohms seems to be a pretty good one-size-fits-all
+   compromise in practical testing.  It's high enough to protect UCC27524P from
+   damage when using a MOSFET with a high gate charge rating (IRF540N), but it's
+   low enough to handle fast PWM rates (20 kHz) without excessive MOSFET
+   heating due to switching power loss.
 </p>
 <p>
-   See this vpforums thread for some more discussion on the resistor selection:
+   See this vpforums thread for more discussion on the resistor selection:
    <a href="https://www.vpforums.org/index.php?showtopic=54968&p=543950">www.vpforums.org/index.php?showtopic=54968&p=543950</a>.
 </p>
 
@@ -890,7 +882,8 @@ tt {
    During this time, the software isn't able to control the electronic
    state of the output ports (since the software isn't fully running
    yet), so it's up to the hardware design to ensure that devices
-   remain OFF during this time.
+   are deterministically OFF at initial power-up, and remain OFF
+   until the software explicitly takes control.
 </p>
 <p>
    The Raspberry Pi Pico has internal circuitry that
@@ -920,19 +913,25 @@ tt {
    that the controlled device remains deterministically OFF whenever
    the GPIO port is in INPUT state.  For amplifier circuits that
    use HIGH level triggers, such as NPN transistors and N-channel
-   MOSFETs, the Pico's internal weak pull-down resistor might be
-   sufficient by itself, but a stronger external pull-down resistor
-   might still be desirable, especially if the trigger circuit has
-   high capacitance (such as a MOSFET gate).  For high-level trigger
-   circuits (P-channel MOSFETs, PNP drivers), a pull-up is required.
-   Choose a pull resistor that's strong enough to override the Pico's
-   internal 50K pull-down, but weak enough for the Pico's 10mA GPIO
-   driver; a value in the 4K to 10K range should work.
+   MOSFETs, the Pico's internal weak (50K) pull-down resistor might be
+   sufficient by itself.  A stronger external pull-down resistor
+   (that is, a lower resistance value) is helpful if the trigger
+   input has high capacitance (such as a MOSFET gate), to more
+   rapidly discharge the trigger input capacitance at power-down.
+   For amplifier circuits with active-LOW trigger inputs (P-channel
+   MOSFETs, PNP drivers), a pull-UP resistor is required.  Choose a
+   pull-up resistor that's strong enough to override the Pico's internal
+   50K pull-down, but not so strong that it would overload the Pico's
+   10mA GPIO driver.  A value from 4K to 10K should work.
 </p>
 <p>
-   The UCC27524P-based MOSFET circuit diagrammed above satisfies the
-   pull resistor requirement through a pull-down resistor built
-   into the UCC27524P.
+   The UCC27524P-based MOSFET circuit diagrammed above doesn't
+   require any external pull-down resistors, because the UCC27524P
+   has its own built-in pull-downs on the input pins.  But that's
+   not a universal feature of all gate driver chips, so if you
+   substitute a different chip, check its data sheet to determine
+   if it includes internal pull-downs on the input pins.  If not,
+   consider including external pull-downs.
 </p>
 
 
@@ -942,7 +941,7 @@ tt {
    to the USB port) to show the health and status of the device at a glance:
 </p>
 <ul>
-   <li><b>Initializing:</b>  Solid ON.  The device is in this state
+   <li><b>Initializing:</b> Solid ON.  The device is in this state
    briefly immediately after reset, until the software finishes initializing
    and is ready to accept I2C commands.  This is usually for such a brief
    time it won't be visible, so if the LED stays solid ON for any length
@@ -1017,18 +1016,18 @@ tt {
    an indefinite amount of time, holding the flipper coil
    continuously energized all the while.  Mechanical
    pinball machines have long dealt with this by using
-   a two-phase system for the flipper coil, with a
-   high-power "lift" phase that overpowers the flipper
-   as it flips upward, and a low-power "hold" phase that
-   kicks in after a brief time and then remains in effect
-   as long as the player keeps pressing the button.  This
-   allows high mechanical force during the over-powered
+   a two-phase system for the flipper coil: a brief,
+   high-power "lift" phase that surges power to the flipper
+   for a forceful initial batting motion, followed by a
+   low-power "hold" phase that's strong enough to keep the
+   flipper in the upward position, but weak enough that
+   the coil can handle the heat it generates indefinitely.
+   This allows high mechanical force during the over-powered
    initial lift phase, without running the risk of burning
-   up the coil if the player decides to have a long
-   conversation with a friend while holding the ball
-   trapped.  Flipper Logic uses a similar strategy,
-   using PWM duty cycle to reduce the power to a safe
-   level after a limited time at high power.
+   up the coil if the player keeps holding the button for
+   many seconds or minutes.  Flipper Logic uses a similar
+   strategy, using PWM duty cycle to reduce the power to
+   a safe level after a limited time at high power.
 </p>
 
 

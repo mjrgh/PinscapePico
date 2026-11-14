@@ -30,6 +30,27 @@ than the KL25Z system, but also more powerful and flexible.
 <a href="ScreenShots/ConfigToolOutputs.png"><img src="ScreenShots/ConfigToolOutputs-Thumb.png"></a>
 
 
+## Quick setup guide
+
+A pre-built Windows installation is available on the github project page,
+under the **Releases** section in the right panel.
+
+The distribution is a ZIP file.  To install, just unpack the ZIP file
+into a local directory on your hard disk.  Just about any folder
+location will work, except that you should avoid any of the Windows
+system folders and the C:\Program Files tree, since those folders
+are protected.
+
+Once you unpack the files, you can launch the Pinscape Pico GUI Config
+Tool by double-clicking **GUIConfigTool.exe**.  That's designed to be
+your main gateway to the system, and it'll display on-screen
+instructions for setting up a new Pico with the Pinscape software.
+
+[More setup details](#SetupDetails).
+
+[Linux and MacOS versions](#linuxAndMac)
+
+
 ## What can you do with it?
 
 Here are some examples of how you can set up a Pinscape Pico system.
@@ -96,25 +117,6 @@ boards that handle just about everything you'd need in a full-featured pin
 cab, including accelerometer, plunger, buttons, and feedback devices.
 So you can combine the features of a button encoder, nudge device, and
 feedback controller into a single Pico running Pinscape.
-
-
-## Quick setup guide
-
-A pre-built Windows installation is available on the github project page,
-under the **Releases** section in the right panel.
-
-The distribution is a ZIP file.  To install, just unpack the ZIP file
-into a local directory on your hard disk.  Just about any folder
-location will work, except that you should avoid any of the Windows
-system folders and the C:\Program Files tree, since those folders
-are protected.
-
-Once you unpack the files, you can launch the Pinscape Pico GUI Config
-Tool by double-clicking **GUIConfigTool.exe**.  That's designed to be
-your main gateway to the system, and it'll display on-screen
-instructions for setting up a new Pico with the Pinscape software.
-
-More setup details can be found [below](#SetupDetails).
 
 
 ## Supported Pico versions
@@ -436,13 +438,36 @@ Replace `MyConfig.json` with the actual name of your JSON file.  The
 settings don't go into effect until you reboot the device, which is
 why we also added `--reset` at the end.
 
-### Linux Config Tool
+<a name="linuxAndMac"></a>
+### Linux and MacOS
 
-A Linux version of the command-line config tool can be built via `./build_linux.sh`,
-under the folder [CmdLineConfigTool/Linux/](CmdLineConfigTool/Linux/).
-Once that's built, you can install a config file on the Pico with this command:
+A Pico running Pinscape can be plugged into a Linux or MacOS host just
+as well as a Windows host, but that leaves the question of how you
+configure it.  The original GUI Config Tool that's part of this
+repository only runs on Windows, but fortunately, there are a couple
+of options for Linux and MacOS users.
+
+<b>Pinscape Cross:</b>
+The best option is [Pinscape Cross](https://github.com/superhac/pinscape-cross/),
+by superhac.  Pinscape Cross is an independent, full-featured implementation of
+the GUI Config Tool that runs on Windows, Linux, and MacOS.
+
+https://github.com/superhac/pinscape-cross/
+
+<b>Linux command-line tool:</b>
+In addition, there's a Linux version of the original command-line
+Config Tool available.  You can build it via the shell script `./build_linux.sh`,
+under [CmdLineConfigTool/Linux/](CmdLineConfigTool/Linux/).  Once that's built,
+you can install a config file on the Pico with this command:
 
 `./pinscape-config --put-config MyConfig.json --reset`
+
+The command-line tool only has a subset of the functionality of the
+GUI versions, but it can handle most of the core setup operations.
+Its big limitation is that it doesn't have any of the interactive
+visualization and testing tools that the GUI versions have, so it's
+not as helpful for testing and troubleshooting.
+
 
 ### Firmware updates
 

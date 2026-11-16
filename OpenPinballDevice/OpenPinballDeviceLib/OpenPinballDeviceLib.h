@@ -160,6 +160,18 @@ namespace OpenPinballDevice
 		// operators.
 		uint32_t versionNum;
 
+		// Full scale of axNudge/ayNudge, as a whole number of g, from the
+		// "gRange:" field of the usage string. Zero when the device doesn't say,
+		// which is what every device did before the field existed.
+		//
+		// Without it the acceleration axes are numbers with no unit. A device
+		// that also exposes gamepad axes can say the same thing through the
+		// physical units on those axes, which is the standard route and needs
+		// nothing from this library; this covers the case where there are no
+		// such axes, which is a configuration Open Pinball Device exists to
+		// make possible.
+		int nudgeFullScaleG = 0;
+
 		// USB device identification
 		uint16_t vid;
 		uint16_t pid;

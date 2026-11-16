@@ -175,7 +175,24 @@ void USBIfc::Init()
     AddStringDescriptorText(STRDESC_VENIFC, "PinscapePicoControl");                 // Vendor interface display name
     AddStringDescriptorText(STRDESC_CDCIFC, "Pinscape Pico Terminal");              // CDC interface display name
     AddStringDescriptorText(STRDESC_FEEDBACK_LBL, "PinscapeFeedbackController/1");  // Feedback controller report usage label
-    AddStringDescriptorText(STRDESC_OPENPINDEV_LBL, OPENPINDEV_STRUCT_STRDESC);     // OpenPinballDeviceReport struct usage label
+    // OpenPinballDeviceReport struct usage label, with the nudge full scale
+    // appended when there is one. See OpenPinballDeviceReport.h for the format.
+    //
+    // This is what tells a host what axNudge and ayNudge mean. A device that
+    // also exposes gamepad axes can say it in the standard way, through the
+    // physical units on those axes, but Open Pinball Device exists partly so a
+    // cabinet can be built without any gamepad interface at all -- and then
+    // this string is the only place left to say it.
+    {
+        std::string label = OPENPINDEV_STRUCT_STRDESC;
+        if (int g = nudgeDevice.GetGRange(); g > 0)
+        {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "/gRange:%d", g);
+            label += buf;
+        }
+        AddStringDescriptorText(STRDESC_OPENPINDEV_LBL, label.c_str());
+    }
 
     // add the XInput strings, if enabled
     if (xInput.enabled)
@@ -304,7 +321,20 @@ const uint8_t *USBIfc::GetDeviceDescriptor()
 
         vid,                        // idVendor - Vendor ID (assigned by the USB-IF) - dynamic data to be filled in
         pid,                        // idProduct - Product ID (assigned by the manufacturer) - dynamic data to be filled in
-        0x0100,                     // bcdDevice - Device release number in binary-coded decimal
+        // bcdDevice - Device release number in binary-coded decimal.
+        //
+        // This is the standard place for a firmware version, and it costs
+        // nothing to fill in: it sits beside iManufacturer and iProduct in this
+        // same descriptor, so a host reads the version and the name of the thing
+        // being versioned from a single enumeration. hidapi surfaces it as
+        // hid_device_info::release_number and SDL as
+        // SDL_GetJoystickFirmwareVersion().
+        //
+        // Two BCD digits of major and two of minor, so 1.0.3 reads as 0x0103.
+        // The patch level shares the low byte; 16 bits cannot hold three
+        // independent components, so it is there for completeness rather than
+        // to be compared on.
+        static_cast<uint16_t>((VERSION_MAJOR << 8) | (VERSION_MINOR << 4) | VERSION_PATCH),
 
         0x01,                       // iManufacturer - Index of string descriptor describing manufacturer
         0x02,                       // iProduct - Index of string descriptor describing product

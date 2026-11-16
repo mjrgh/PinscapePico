@@ -63,6 +63,38 @@ struct OpenPinballDeviceReport
 #define OPENPINDEV_STRUCT_USB_SIZE  28
 
 // Usage String Descriptor text
+// The base usage string. A device may append "/"-delimited fields after it,
+// which is how information that is a property of the device rather than part of
+// its state gets to a host: it is read once at enumeration, costs no report
+// bytes, and needs no variant report types.
+//
+//   OpenPinballDeviceStruct/1.0[/<device id>][/<name>:<value>]...
+//
+// The first two fields are fixed. An optional third names the device type and
+// its version; a host tells it apart from a tagged field by the absence of a
+// ':'. Tagged "name:value" fields follow in any order, and a reader ignores any
+// it does not know, so the set can grow without a version bump.
+//
+// "/" is reserved and has no escape, so a scanner can simply read to the next
+// one.
+//
+// Defined so far:
+//
+//   gRange:<N>   full scale of axNudge/ayNudge, as a whole number of g
+//
+// Without it the acceleration axes are numbers with no unit, and a simulator
+// has to ask the user what full scale means -- Visual Pinball offers a
+// 1/2/4/8 G dropdown and defaults to 1 G, so a board set to anything else is
+// wrong by that factor until somebody notices.
+//
+// A device that also exposes a gamepad or joystick interface can say the same
+// thing in the standard way, with PHYSICAL_MINIMUM/MAXIMUM and UNIT on the axes
+// carrying the accelerometer; the Linux input layer turns those into
+// input_absinfo::resolution and SDL reads them with no driver written for the
+// board. This field is for the case that route cannot reach: a device exposing
+// Open Pinball Device alone, with no typed axes anywhere -- which is a
+// configuration this interface exists to make possible, since a gamepad whose
+// axes jiggle constantly is a nuisance to every non-pinball game on the machine.
 #define OPENPINDEV_STRUCT_STRDESC   "OpenPinballDeviceStruct/1.0"
 #define OPENPINDEV_STRUCT_LSTRDESC  L"OpenPinballDeviceStruct/1.0"
 

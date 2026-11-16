@@ -30,10 +30,39 @@ using namespace OpenPinballDevice;
 DeviceDesc::DeviceDesc(const char *path, const wchar_t *version, uint16_t vid, uint16_t pid,
 	const wchar_t *friendlyName, const wchar_t *productName, const wchar_t *manufacturer, const wchar_t *serial,
 	uint8_t reportID, size_t reportSize) :
-	path(path), friendlyName(friendlyName), versionStr(version), versionNum(ParseVersionStr(version)),
+	path(path), friendlyName(friendlyName),
 	vid(vid), pid(pid), productName(productName), manufacturer(manufacturer), serial(serial),
 	reportID(reportID), reportSize(reportSize)
 {
+	// The usage string's tail is "<version>[/<field>]...".  Split on '/', which
+	// the format reserves and gives no escape, so a plain scan is enough.
+	//
+	// The version has to be taken apart from the rest before parsing: our own
+	// ParseVersionStr uses regex_match, which requires the whole string to
+	// match, so handing it "1.0/gRange:2" would yield version 0 rather than 1.0.
+	std::wstring tail(version);
+	size_t slash = tail.find(L'/');
+	versionStr = tail.substr(0, slash);
+	versionNum = ParseVersionStr(versionStr.c_str());
+
+	// Walk the remaining fields.  Anything unrecognized is skipped rather than
+	// rejected: that is what lets the set grow without a version bump.
+	while (slash != std::wstring::npos)
+	{
+		size_t start = slash + 1;
+		slash = tail.find(L'/', start);
+		std::wstring field = tail.substr(start, slash == std::wstring::npos ? slash : slash - start);
+
+		// A field with no ':' is the optional device identifier, not a tag.
+		size_t colon = field.find(L':');
+		if (colon == std::wstring::npos)
+			continue;
+
+		const std::wstring name = field.substr(0, colon);
+		const std::wstring value = field.substr(colon + 1);
+		if (name == L"gRange")
+			nudgeFullScaleG = _wtoi(value.c_str());
+	}
 }
 
 

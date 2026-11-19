@@ -127,10 +127,23 @@ namespace PinscapePico
 		std::vector<PinscapePico::OutputDevDesc> deviceDescs;
 		std::vector<PinscapePico::OutputDevPortDesc> devicePortDescs;
 
+		// Map of deviceDescs, keyed by MAKELONG(devType, configIndex)
+		std::unordered_map<uint32_t, const PinscapePico::OutputDevDesc*> deviceDescMap;
+		const PinscapePico::OutputDevDesc *GetDeviceDesc(int devType, int configIndex) const 
+		{
+			// try looking it up
+			if (auto it = deviceDescMap.find(MAKELONG(devType, configIndex)); it != deviceDescMap.end())
+				return it->second;
+
+			// return a default empty entry
+			static const PinscapePico::OutputDevDesc dummy{ 0, 0, 1, 0, 0, 0 };
+			return &dummy;
+		}
+
 		// do any ports have non-empty names?
 		bool havePortNames = false;
 
-		// Number of daisy chains for TLC5940, TLC5947, and 74HC595.
+		// Number of daisy chains (TLC5940, TLC5947, 74HC595, WS2812).
 		// We use the count to determine if we need to bother mentioning
 		// which chain a particular chip belongs to.  Most commonly,
 		// there's only one daisy chain per type, in which case it's
@@ -138,6 +151,7 @@ namespace PinscapePico
 		int numTLC5940 = 0;
 		int numTLC5947 = 0;
 		int num74HC595 = 0;
+		int numWS2812 = 0;
 
 		// Thread context object.  This object is shared between the 
 		// window and the thread.

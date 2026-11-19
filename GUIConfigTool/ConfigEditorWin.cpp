@@ -2889,7 +2889,7 @@ void ConfigEditorWin::CheckBeginAutoComplete()
                 // generate the appropriate popup list
                 const char *stops = nullptr; 
                 std::string list;
-                if (inVal)
+                if (inVal && curLocSchemaProp != nullptr)
                 {
                     // it's in the value - show the current property's enumerated value list, if any
                     if (curLocSchemaProp->enumValues.size() != 0)

@@ -1,5 +1,5 @@
 // Pinscape Pico - Main program entrypoint and main loop
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 
 // standard library headers
@@ -73,6 +73,7 @@
 #include "Devices/Accel/MXC6655XA.h"
 #include "Devices/DistanceSensor/VL6180X.h"
 #include "Devices/GPIOExt/PCA9555.h"
+#include "Devices/LEDStrip/ws2812.h"
 #include "Devices/LinearPhotoSensor/TCD1103.h"
 #include "Devices/LinearPhotoSensor/TSL1410R.h"
 #include "Devices/ProxSensor/VCNL4010.h"
@@ -514,6 +515,9 @@ static void Configure(PicoReset::BootMode bootMode)
     // Configure shift-register input chips
     C74HC165::Configure(json);
 
+    // Configure LED strip controllers
+    WS2812::Configure(json);
+
     // Configure accelerometer devices
     LIS3DH::Configure(json);
     LIS3DSH::Configure(json);
@@ -750,8 +754,9 @@ static void MainLoop()
         // Run I2C tasks (schedules bus access for all of the I2C devices)
         I2C::Task();
 
-        // Run 74HC595 tasks
+        // Run tasks for miscellaneous hardware drivers
         C74HC595::Task();
+        WS2812::Task();
 
         // Update the watchdog counter.  This is our keep-alive signal
         // to the watchdog, letting the watchdog know that the main loop

@@ -1,5 +1,5 @@
 // Pinscape Pico firmware - Output Port Manager
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 
 // standard library headers
@@ -50,6 +50,7 @@
 #include "IRRemote/IRReceiver.h"
 #include "IRRemote/IRTransmitter.h"
 #include "Devices/GPIOExt/PCA9555.h"
+#include "Devices/LEDStrip/WS2812.h"
 #include "Devices/PWM/TLC59116.h"
 #include "Devices/PWM/TLC5940.h"
 #include "Devices/PWM/TLC5947.h"
@@ -194,6 +195,14 @@ void OutputManager::SetLedWizPBA(int portNum, uint8_t profile)
 //                                    // assigned by the PWMWorker software on the other Pico, NOT the physical GPIO port numbers
 //                                    // on the other Pico; each physical GPIO used as a PWM output is assigned an abstract Worker
 //                                    // Pico port number 0-23)
+//
+//   type: "ws2812",                  // output througgh a port on a WS2812 LED strip
+//     strip: <number>,               // LED strip number, as an index (0..) in the ws2812[] configuration array
+//     port: <number>|<string>,       // Port number, as an index in the LED strip; ports are assigned in groups of
+//                                    //   three for an RGB strip, or four for an RGBW strip, in R, G, B, W order, so
+//                                    //   the first RGB LED is ports 0=R, 1=G, 2=R, the second is 3=R, 4=G, 5=B, etc.
+//                                    // ALTERNATIVELY, the port can be given as a string giving the LED number,
+//                                    //   starting at 1, plus the color channel (R, G, B, or W), as in "3R" or "4W".
 //  
 //   type: "zblaunch",                // ZB Launch control virtual port; receives ZB launch mode status; no physical device attached
 //     
@@ -536,7 +545,7 @@ OutputManager::Device *OutputManager::ParseDevice(
 {
     // check for a bare GPIO number, if allowed
     if (allowBareGPIO && devSpec->IsNumber())
-        return CreateGPIODev(jsonLocus, pinoutLabel, devSpec->Int(-1), pwmDefault, -1);
+        return CreateGPIODev(jsonLocus, pinoutLabel, devSpec->Int(-1), pwmDefault, -1, -1);
 
     // no device yet
     Device *device = nullptr;
@@ -725,13 +734,70 @@ OutputManager::Device *OutputManager::ParseDevice(
         if (chain != nullptr && chain->IsValidPort(port))   
             device = new C74HC595Dev(chain, port);
     }
+    else if (*devType == "ws2812")
+    {
+        // WS2812 LED port
+        auto *strip = WS2812::GetStrip(devSpec->Get("strip")->Int(0));
+        if (strip != nullptr)
+        {
+            auto *portVal = devSpec->Get("port");
+            int portNum = -1;
+            if (portVal->IsNumber())
+            {
+                portNum = portVal->Int();
+                int maxPort = strip->GetNumDOFPorts() - 1;
+                if (portNum < 0 || portNum > maxPort)
+                {
+                    Log(LOG_ERROR, "%s: port number out of range, must be 0 to %d\n", jsonLocus, maxPort);
+                    portNum = -1;
+                }
+            }
+            else if (portVal->IsString())
+            {
+                // parse the string: <number><color>, color is R, G, B, or W
+                std::string portStr = portVal->String();
+                int ledNum = atoi(portStr.c_str());
+                const char *p = portStr.c_str();
+                for ( ; isdigit(*p) ; ++p) ;
+                int channelNum = -1;
+                switch (*p)
+                {
+                case 'r': case 'R': channelNum = 0; break;
+                case 'g': case 'G': channelNum = 1; break;
+                case 'b': case 'B': channelNum = 2; break;
+                case 'w': case 'W': channelNum = 3; break;
+                }
+
+                // Validate the result: the LED number must be 1..number of LEDs;
+                // the color channel must be R, G, B, or W for a RGBW strip.  If
+                // it all checks out, calculate the DOF port number, using the
+                // rule that the DOF ports are laid out in groups of three (R,G,B)
+                // or four (R,G,B,W), starting at the first LED.
+                if (ledNum <= 0 || ledNum > strip->GetNumLeds())
+                    Log(LOG_ERROR, "%s: invalid LED port string \"%s\"; LED number must be 1 to %d\n", jsonLocus, portStr.c_str(), strip->GetNumLeds());
+                else if (channelNum < 0)
+                    Log(LOG_ERROR, "%s: invalid LED port string \"%s\"; color must be R, G, B, or W\n", jsonLocus, portStr.c_str());
+                else if (channelNum == 3 && strip->GetNumColorChannels() < 4)
+                    Log(LOG_ERROR, "%s: invalid LED port string \"%s\"; strip is configured as RGB with no 'W' (white) channel\n", jsonLocus, portStr.c_str());
+                else
+                    portNum = ((ledNum - 1) * strip->GetNumColorChannels()) + channelNum;
+            }
+
+            // if everything is valid, configure the device
+            if (strip != nullptr && portNum >= 0)
+                device = new WS2812Dev(strip, portNum);
+        }
+        else
+            Log(LOG_ERROR, "%s: invalid WS2812 strip number\n", jsonLocus);
+    }
     else if (*devType == "gpio")
     {
         // GPIO port
         int gp = devSpec->Get("gp")->Int(-1);
         bool pwm = devSpec->Get("pwm")->Bool(pwmDefault);
         int freq = devSpec->Get("freq")->Int(-1);
-        device = CreateGPIODev(jsonLocus, pinoutLabel, gp, pwm, freq);
+        int drive_mA = devSpec->Get("driveStrength")->Int(-1);
+        device = CreateGPIODev(jsonLocus, pinoutLabel, gp, pwm, freq, drive_mA);
     }
     else if (*devType == "workerPico")
     {
@@ -801,8 +867,10 @@ OutputManager::Device *OutputManager::ParseDevice(
 }
 
 // set up a GPIO output device
-OutputManager::GPIODev *OutputManager::CreateGPIODev(const char *jsonLocus, const char *pinoutLabel, int gp, bool pwm, int freq)
+OutputManager::GPIODev *OutputManager::CreateGPIODev(
+    const char *jsonLocus, const char *pinoutLabel, int gp, bool pwm, int freq, int drive_mA)
 {
+    OutputManager::GPIODev *dev = nullptr;
     if (!IsValidGP(gp))
     {
         Log(LOG_ERROR, "%s: Invalid GPIO port number\n", jsonLocus);
@@ -814,16 +882,29 @@ OutputManager::GPIODev *OutputManager::CreateGPIODev(const char *jsonLocus, cons
     else if (pwm)
     {
         // create a PWM output device
-        return new PWMGPIODev(gp, freq);
+        dev = new PWMGPIODev(gp, freq);
     }
     else
     {
         // not PWM, so create a plain digital GPIO output device
-        return new DigitalGPIODev(gp);
+        dev = new DigitalGPIODev(gp);
     }
 
-    // no device created
-    return nullptr;
+    // if we created a device, apply the drive strength
+    if (dev != nullptr && drive_mA >= 0)
+    {
+        switch (drive_mA)
+        {
+        case 2:  gpio_set_drive_strength(gp, GPIO_DRIVE_STRENGTH_2MA); break;
+        case 4:  gpio_set_drive_strength(gp, GPIO_DRIVE_STRENGTH_4MA); break;
+        case 8:  gpio_set_drive_strength(gp, GPIO_DRIVE_STRENGTH_8MA); break;
+        case 12: gpio_set_drive_strength(gp, GPIO_DRIVE_STRENGTH_12MA); break;
+        default: Log(LOG_WARNING, "%s: Invalid drive strength, expected 2, 4, 8, or 12; using default (4mA)\n", jsonLocus);
+        }
+    }
+
+    // return the new device
+    return dev;
 }
 
 
@@ -997,6 +1078,10 @@ void OutputManager::SetDevicePortLevel(int devType, int configIndex, int port, i
     case PinscapePico::OutputPortDesc::DEV_74HC595:
         C74HC595Dev::SetDevicePortLevel(configIndex, port, pwmLevel);
         break;
+
+    case PinscapePico::OutputPortDesc::DEV_WS2812:
+        WS2812Dev::SetDevicePortLevel(configIndex, port, pwmLevel);
+        break;
     }
 }
 
@@ -1084,7 +1169,8 @@ size_t OutputManager::QueryLogicalPortName(uint8_t *buf, size_t bufSize, int por
     func(PCA9685::method(__VA_ARGS__)) binop \
     func(PCA9555::method(__VA_ARGS__)) binop \
     func(C74HC595::method(__VA_ARGS__)) binop \
-    func(PWMWorker::method(__VA_ARGS__))
+    func(PWMWorker::method(__VA_ARGS__)) binop \
+    func(WS2812::method(__VA_ARGS__))
 
 #define SumOverDeviceTypes(func, method) DoForEachDeviceType(func, method, +)
 #define binOpComma ,
@@ -1988,6 +2074,8 @@ OutputManager::DigitalGPIODev::DigitalGPIODev(int gp) : GPIODev(gp)
 
 void OutputManager::DigitalGPIODev::Set(uint8_t level)
 {
+    // *** THIS ROUTINE MUST BE IRQ-SAFE (safe to call from an interrupt handler) ***
+    
     gpio_put(gp, To1BitPhys(level));
 }
 
@@ -2219,8 +2307,21 @@ const char *OutputManager::C74HC595Dev::FullName(char *buf, size_t buflen) const
     return buf;
 }
 
+bool OutputManager::C74HC595Dev::IsPWM() const
+{
+    return chain->IsPWM();
+}
+
+bool OutputManager::C74HC595Dev::IsSetIRQSafe() const
+{
+    // Set() is IRQ safe when the chain is operating in digital mode
+    return !chain->IsPWM();
+}
+   
 void OutputManager::C74HC595Dev::Set(uint8_t level)
 {
+    // *** THIS ROUTINE MUST BE IRQ-SAFE (safe to call from an interrupt handler) ***
+
     // The chip can operate in digital mode or 8-bit PWM mode.  In either
     // case, we can set the DOF 8-bit level directly; if the chip is in
     // digital mode, it will interpret any non-zero value as ON.
@@ -2245,6 +2346,42 @@ void OutputManager::C74HC595Dev::Populate(PinscapePico::OutputPortDesc *desc) co
 {
     desc->devType = PinscapePico::OutputPortDesc::DEV_74HC595;
     desc->devId = chain->GetConfigIndex();
+    desc->devPort = port;
+}
+
+// --------------------------------------------------------------------------
+//
+// WS2812 device interface
+//
+
+const char *OutputManager::WS2812Dev::FullName(char *buf, size_t buflen) const
+{
+    snprintf(buf, buflen, "WS2812[%d] port %d", strip != nullptr ? strip->GetConfigIndex() : -1, port);
+    return buf;
+}
+
+void OutputManager::WS2812Dev::Set(uint8_t level)
+{
+    strip->SetDOF(port, To8BitPhys(level));
+}
+
+uint8_t OutputManager::WS2812Dev::Get() const
+{
+    return strip->GetDOF(port);
+}
+
+// direct device port access
+void OutputManager::WS2812Dev::SetDevicePortLevel(int configIndex, int port, int pwmLevel)
+{
+    if (auto *strip = WS2812::GetStrip(configIndex) ; strip != nullptr)
+        strip->SetDOF(port, pwmLevel);
+}
+
+// populate a vendor interface port descriptor's device information
+void OutputManager::WS2812Dev::Populate(PinscapePico::OutputPortDesc *desc) const
+{
+    desc->devType = PinscapePico::OutputPortDesc::DEV_WS2812;
+    desc->devId = strip->GetConfigIndex();
     desc->devPort = port;
 }
 
@@ -2311,6 +2448,8 @@ OutputManager::PCA9555Dev::PCA9555Dev(PCA9555 *chip, int port, const char *jsonL
 
 void OutputManager::PCA9555Dev::Set(uint8_t level)
 {
+    // *** THIS ROUTINE MUST BE IRQ-SAFE (safe to call from an interrupt handler) ***
+
     // Set our output port on the chip.  The PCA9555 is a GPIO extender
     // port that only supports digital on/off outputs, not PWM levels.
     // Any non-zero PWM level is ON.  Gamma isn't meaningful.
@@ -2383,6 +2522,20 @@ void OutputManager::ZBLaunchDev::Populate(PinscapePico::OutputPortDesc *desc) co
 
 OutputManager::ShareGroupDev::ShareGroupDev()
 {
+}
+
+bool OutputManager::ShareGroupDev::IsPWM() const
+{
+    // The share group is PWM-capable if all underlying ports are PWM-capable.
+    // Presume they are, and look for an exception.
+    for (auto *cont : containers)
+    {
+        if (!cont->IsAllPWM())
+            return false;
+    }
+
+    // no non-PWM ports found, so the whole group is PWM-capable
+    return true;
 }
 
 void OutputManager::ShareGroupDev::SetPulseMode(uint32_t tOn, uint32_t tOff)
@@ -2578,6 +2731,19 @@ OutputManager::ShareGroupContainer *OutputManager::ShareGroupContainer::FindOrCr
 
     // return the new group
     return &it.first->second;
+}
+
+bool OutputManager::ShareGroupContainer::IsAllPWM() const
+{
+    // check all ports to see if any are NOT PWM-capable
+    for (auto *port : pool)
+    {
+        if (port->device == nullptr || !port->device->IsPWM())
+            return false;
+    }
+
+    // no non-PWM ports found, so they're all PWM-capable
+    return true;
 }
 
 OutputManager::Port *OutputManager::ShareGroupContainer::ClaimPort(ShareGroupDev *dev)

@@ -2850,14 +2850,101 @@ rgbStatusLight object optional
   message log system, but the RGB status light is still a nice little
   bonus feature if you have the GPIO ports to spare for it.
 
-rgbStatusLight.red number required
-  The GPIO port number attached to the red channel of the status LED.
+  The RGB LED can be connected directly to a group of three Pico GPIO
+  ports, one each for the red, green, and blue channels of the LED.
+  These need not be contiguously numbered ports.  It can also be
+  connected to any of the supported external output controllers,
+  such as a PWM controller (TLC5940, PCA9685, Worker Pico etc) or
+  GPIO extender (such as PCA9555).   If the LED is connected directly 
+  to GPIO ports, the ports are configured by default as plain 
+  "digital" outputs, to preserve the Pico's
+  limited PWM resources.  The LED will still be able to display
+  limited gradations of brightness, since the status light manager
+  uses its own timer-based modulation to simulate PWM control.
+  This is sufficient to display a small gamut of primary and
+  secondary colors, which is all that the status light requires.
+  You can explicitly enable true PWM control on the ports if you
+  wish, by using a full output device specification for each
+  channel, like this:
+  <pre>
+  rgbStatusLight: {
+    red: { type: "gpio", gp: 7, pwm: true } },
+    green: { type: "gpio", gp: 8, pwm: true } },
+    blue: { type: "gpio", gp: 9, pwm: true } },
+  },
+  </pre>
 
-rgbStatusLight.green number required
-  The GPIO port number attached to the green channel of the status LED.
+  <b>WS2812 (NeoPixel):</b>
+  Many of the third-party Pico clones feature an on-board 
+  <a href="#ws2812">WS2812 RGB LED</a>, also known as a NeoPixel,
+  either in place of or in addition to the original
+  Pico's monochrome LED.  You can configure the on-board RGB LED to
+  act as the Pinscape RGB status light with two steps: first, add
+  a <a href="#ws2812"><tt>ws2812</tt></a> section to configure
+  the WS2812 hardware; then, tell <tt>rgbStatusLight</tt> to use
+  the WS2812 LED for its red, green, and blue channels:
+  <pre>
+  ws2812: {
+    din: 23,     // most Pico clones use GP23; some use GP16
+    nLeds: 1,    // there's just the one LED
+  },
+  rgbStatusLight: {
+    red: { type: "ws2812", strip: 0, port: "1R", },
+    green: { type: "ws2812", strip: 0, port: "1G", },
+    blue: { type: "ws2812", strip: 0, port: "1B", },
+  },
+  </pre>
 
-rgbStatusLight.blue number required
-  The GPIO port number attached to the blue channel of the status LED.
+  Note that the GPIO port connected to the NeoPixel LED might vary
+  depending on exactly which clone you're using.  Most of the full-size
+  Pico clones (the ones that look basically like the original Pico,
+  with the same header pin layout) use GP23.  The RP2040-Zero (the
+  very small version with two rows of 9 header pins) and its clones
+  usually use GP16.  But there's no standard for this, just custom,
+  so check with the vendor if you can't get this working on either
+  GP16 or 23.
+
+
+rgbStatusLight.red number|object<outputs.device> optional
+  The GPIO port number attached to the red channel of the status LED,
+  <b>or</b> an output port device specification, with the same syntax
+  used to define an <a href="#outputs.device">output device</a> for
+  a regular DOF port.
+
+  If a simple GPIO port number is provided (not a full output device
+  specification object), the GPIO will be set up
+  in "digital" mode, to preserve the Pico's limited PWM channels for
+  other uses.  The output will still display brightness gradations,
+  but with a limited number of brightness steps, allowing a small gamut
+  of primary and secondary colors to be displayed.
+
+rgbStatusLight.green number|object<outputs.device> optional
+  The GPIO port number attached to the green channel of the status LED,
+  <b>or</b> an output port device specification, with the same syntax
+  used to define an <a href="#outputs.device">output device</a> for
+  a regular DOF port.
+
+  If a simple GPIO port number is provided (not a full output device
+  specification object), the GPIO will be set up
+  in "digital" mode, to preserve the Pico's limited PWM channels for
+  other uses.  The output will still display brightness gradations,
+  but with a limited number of brightness steps, allowing a small gamut
+  of primary and secondary colors to be displayed.
+
+
+rgbStatusLight.blue number|object<outputs.device> optional
+  The GPIO port number attached to the blue channel of the status LED,
+  <b>or</b> an output port device specification, with the same syntax
+  used to define an <a href="#outputs.device">output device</a> for
+  a regular DOF port.
+
+  If a simple GPIO port number is provided (not a full output device
+  specification object), the GPIO will be set up
+  in "digital" mode, to preserve the Pico's limited PWM channels for
+  other uses.  The output will still display brightness gradations,
+  but with a limited number of brightness steps, allowing a small gamut
+  of primary and secondary colors to be displayed.
+
 
 rgbStatusLight.colorMix object optional
   This optional property lets you configure the color mix formulas
@@ -2922,19 +3009,39 @@ rgbStatusLight.colorMix.white number|string|object optional
 
 
 rgbStatusLight.active string{"low" "high"} optional
-  Sets the polarity of the LED.  Set this to "low" if the LED's
-  negative terminals (cathodes) are wired to the GPIO ports.  Set it
-  to "high" if the LED's positive terminals (anodes) are wired to the
-  GPIO ports.  Most RGB LEDs use the "common anode" configuration,
-  where all of the color channels are wired to a single positive
-  voltage supply through a single pin, and the cathodes (the
-  negative terminals) are wired individually to the GPIO ports.
-  That's the "active low" configuration, and it's the default if
-  you omit this property, since it's the most common configuration.
-  Note that this is something that's designed into the LED
-  itself, so it's not a choice you have to make when doing the
-  wiring, but rather just a feature of the LED that you have to
-  determine from the LED's data sheet.
+  When the color channels are connected to GPIO ports using
+  the simple port number syntax (for example, <tt>red: 7</tt>),
+  this sets the GPIO output control to active-high or active-low.
+  Set it to <b>"high"</b> if you're using a common-cathode RGB LED,
+  and set it to <b>"low"</b> if you're using a common-anode LED.
+
+  <b>Important:</b> this only applies to the plain GPIO port
+  numbering syntax for the color channels (such as <tt>red: 7</tt>,
+  <tt>green: 8</tt>, <tt>blue: 9</tt>).  <b>This is ignored</b> for
+  any channel that uses the full output port specification syntax
+  (for example, <tt>red: { type: "gpio", gp: 7 }</tt>), because
+  that syntax lets you specify the polarity directly as part of
+  the port description, and independently for each port, using 
+  the <b>inverted</b> property.  Include <tt>inverted: true</tt> as
+  part of the port specification to create an active-low port.
+
+  Most RGB LEDs are the common-anode type, meaning that the positive
+  terminals of all three color channels are wired together, leaving
+  the negative terminals (the cathodes) as the separated leads
+  from the LED that you connect to the Pico's GPIO ports for the
+  three color channels.  This configuration requires the Pico to
+  set the port voltage to LOW (0V) to make the LED turn ON, so this is
+  known as <b>active-low</b> control.  You should set
+  <tt>active: "low"</tt> in this case.  This is the default
+  setting because it's the way the majority of RGB LEDs are built.
+
+  If you have a common-cathode LED, you should set <tt>active: "high"</tt>.
+
+  You should be able to find the LED's wiring configuration
+  (common-cathode or common-anode) listed in the LED's data sheet.
+  Note that this isn't a choice you have to make when doing your
+  wiring; rather, it's a fixed property of the LED's construction
+  that you have to know in order to do the wiring correctly.
 
 plunger object optional
   TOC: Plunger
@@ -3643,6 +3750,7 @@ outputs[].device.type string{table} required
     <tr><td>"pca9685"</td><td>An output port on a PCA9685 PWM output controller chip</td></tr>
     <tr><td>"pca9555"</td><td>An output port on a PCA9555 GPIO extender chip (these are digital on/off ports, with no PWM control)</td></tr>
     <tr><td>"74hc595"</td><td>An output port on a 74HC595 shift register chip (the chip can be configured with digital on/off ports or PWM ports)</td></tr>
+    <tr><td>"ws2812"</td><td>A WS2812 smart LED color channel port (red, green, blue, white)</td></tr>
     <tr><td>"gpio"</td><td>A Pico GPIO port</td></tr>
     <tr><td>"workerPico"</td><td>An output port on an auxiliary Pico running the PWMWorker firmware</td></tr>
     <tr><td>"zblaunch"</td><td>A virtual port that activates ZB Launch Mode when DOF signals that the port is on</td></tr>
@@ -3871,6 +3979,37 @@ buttons[].source.type="pca9555".debounceTime number optional
   disadvantage that they limit the rate at which intentional
   fast taps can be processed.
 
+outputs[].device.type="ws2812"
+  Connects the port to a WS2812 RGB LED.  Each output port connects to
+  a single color channel - red, green, blue, or, in the case or RGBW
+  devices, white.
+
+outputs[].device.type="ws2812".strip number optional
+  The WS2812 strip number.  This is the index in the <tt>ws2812</tt>
+  configuration array, starting at 0.  The default is 0 (the first
+  strip in the array), so you can omit this if your setup only
+  includes a single WS2812 entry.
+
+outputs[].device.type="ws2812".port number|string required
+  The port number or name.  A DOF port maps to a single color channel
+  of a single WS2812 LED - the red, green, or blue channel.  If the
+  LED strip uses 4-channel RGBW devices, there's a fourth channel for
+  white.
+
+  If this is a string, it specifies the LED number in the strip,
+  starting at 1, followed by R, G, B, or W to specify the color
+  channel.  For example, "3G" is the green channel of the third
+  LED on the strip.
+
+  You can also specify this as a number, in which case it's the
+  index of the port on the entire string, numbered from 0.  The
+  ports are arranged in consecutive groups of three ports per LED
+  for RGB devices, or four ports for an RGBW devices, in order:
+  Red, Green, Blue, and if present, White.  So for an RGB strip,
+  ports 0, 1, and 2 correspond to the Red, Green, and Blue channels
+  of the first LED, respectively; ports 3, 4, and 5 are the Red, Green,
+  and Blue channels of the second LED on the strip, and so on.
+
 outputs[].device.type="74hc595"
   Connects the port to a 74HC595 shift register output chip.  These output
   ports are digital on/off ports (without any PWM brightness control).
@@ -3910,7 +4049,7 @@ outputs[].device.type="gpio"
   directly to a Pico GPIO port, and never connect any device with a power
   supply voltage greater than 3.3V.  Connecting high-voltage or high-current
   devices to a GPIO port runs the risk of damaging or destroying the Pico.
-  The Pico can directly control <b>small</b> LEDs, that run on 10mA or less,
+  The Pico can directly control <b>small</b> LEDs, that run on 12mA or less,
   <b>and</b> 3.3V or less, but nothing exceeding those limits.  For anything
   higher voltage or higher current, you <b>must</b> use some kind of
   booster/amplifier circuit.  One solution is to use an expansion
@@ -3968,6 +4107,59 @@ outputs[].device.type="gpio".freq number optional
   If one of the <b>other</b> GPIO ports on the same shared PWM generator
   is also set up as a PWM output, and it has an explicitly assigned
   frequency, that will determine the default frequency on this port.
+
+outputs[].device.type="gpio".driveStrength number{2 4 8 12} optional
+  Sets the GPIO port's "drive strength", in milliamps.  The value must
+  be 2, 4, 8, or 12, which are the specific values that the Pico hardware
+  allows.  The default value if this is omitted is 4 mA.
+
+  In most cases, you shouldn't need to adjust this setting.  The
+  default setting is suitable for driving most types of external
+  logic circuits, including most booster/amplifier boards that are
+  designed to let the Pico control high-power loads like motors,
+  lights, and solenoids.  There are two main situations where a
+  higher drive setting might be needed:
+
+  <ul>
+    <li>Using a GPIO port to <b>directly</b> drive a small LED or
+    other device that requires more than a few milliamps of current.
+    In this case, the highest setting (12 mA) is usually appropriate.
+
+    <li>Connecting a GPIO port to a logic chip input via a
+    length of wire or cable longer than a few inches.  Connecting
+    logic signals via lengthy wires sometimes require higher drive
+    current to get a clean signal across the longer distance.
+    <b>However,</b> higher drive current can in some cases make
+    signal integrity problems worse instead of better, because
+    higher drive current can create more electrical noise.  Don't
+    assume that "higher equals better".  If you suspect noise problems
+    due to long wire runs, try different settings to find the best
+    balance between power and noise for your specific setup.  Note
+    that very long wire runs, of more than a meter or two, are
+    probably unworkable for most external logic chips no matter
+    what drive strength setting you use; longer wires usually
+    require special "line driver" chips rather than direct GPIO
+    connections.
+  </ul>
+
+  The drive strength is a bit tricky to understand.  It <b>doesn't</b>
+  set any sort of minimum or maximum current level for the port, which
+  is what the name might suggest.  It's <b>not</b> a current limiter,
+  so it doesn't protect the port from going over the setting, and it
+  doesn't "force" that much current through the port.   The actual
+  current is always a function of what the physical load connected to
+  the port draws, so if the device draws 20 mA, it'll force 20 mA
+  through the port no matter what this setting says.  What the drive
+  strength actually controls is the number of internal transistor
+  circuits within the Pico that are activated in parallel to switch
+  the port.  The more transistors that are engaged, the more current
+  the Pico can handle through the port while maintaining a steady
+  voltage.  The nominal milliamp ratings represent Raspberry Pi's
+  estimates of how much current a port can handle at the various
+  settings <i>while maintaining good voltage regulation</i>.
+  They're not limits that the Pico imposes; they're guidelines
+  for how much current the connected load can safely use before
+  the voltage starts varying excessively.
 
 outputs[].device.type="zblaunch"
   Sets the output as the ZB Launch Mode activation output.  When the PC
@@ -4119,6 +4311,11 @@ outputs[].source string optional
         if the power is currently off, returns <i>off</i>; if the power was just switched on and the TV ON countdown is running, returns
         <i>countdown</i>; if the TV relay is being pulsed, returns <i>relay</i>; if TV ON IR commands are being sent, returns <i>ir</i>;
         and when power is on after sending all of the TV ON commands, returns <i>on</i>.
+      </td>
+    </tr>
+    <tr><td>statusled</td>
+      <td>The current color of the RGB status LED, as an RGB value.  The individual color channel components can
+          be accessed using the normal syntax (<tt>statusled.red</tt>, <tt>statusled.green</tt>, and <tt>statusled.blue</tt>).
       </td>
     </tr>
     <tr><td>time('<i>range</i>', <i>in</i>, <i>out</i>)</td>
@@ -6321,6 +6518,145 @@ aedr8300.channelB number required
   That's unfortunately not possible with these chips, because it would
   require a shift clock rate in the 300 MHz range, which is far beyond
   the documented limits of these chips even under the best conditions.
+
+ws2812 object|[object] optional
+  TOC: Peripheral Devices > Smart LEDs > WS2812
+  TITLE: WS2812 Smart LEDs
+  EXAMPLE:
+  {
+     ws2812: {
+        din: 7,      // GPIO pin connected to DIN on first LED on strip
+        nLeds: 12,   // number of LEDs on the light strip
+     },
+  }
+
+  Configures one or more WS2812 smart LED strips.  WS2812 devices are
+  are RGB or RGBW (RGB plus a separate White channel) LEDs with built-in
+  data transceivers that allow a long string of LEDs to be controlled
+  through a single GPIO port.  Each LED on the strip can be individually
+  assigned a different RGB/RGBW color, with 24-bit color and brightness
+  resolution (8 bits each of red, green, and blue brightness control,
+  and an additional 8 bits for the white channel for RGBW devices).
+
+  WS2812 light strips are popular toys on virtual pinball cabinets,
+  since they can display elaborate light shows with minimal wiring.
+  DOF has special support for these devices through its "matrix"
+  effects.  Pinscape Pico lets you use them, too, but it has an
+  important limitation: Pinscape treats these as ordinary output
+  devices, addressable through Pinscape's USB HID protocol for DOF
+  access.  This effectively limits the number of individual LEDs that
+  you can attach, because the USB HID protocol is relatively slow,
+  considering the high data rates needed to update a big array of
+  LED "pixels" fast enough for smooth animation.  The Pinscape HID
+  protocol can handle at most about 60,000 port updates per second,
+  which imposes a practical limit of about 100 LEDs, assuming you want
+  fast enough updates for smooth animation.  So Pinscape Pico will
+  work as a WS2812 controller for modest LED arrays - but if you
+  want to install a very large LED array, you'll be better off with
+  one of the single-purpose WS2812 controllers.  Those can handle
+  larger LED arrays because they use custom USB protocols with higher
+  data rates.  There are several open-source WS2812 projects
+  specifically built for pin cab use, and they'll work alongside
+  a Pinscape Pico unit.
+
+  The wiring for a WS2812 LED or LED strip is easy.  You
+  just need to connect the LED or strip to power and ground,
+  and connect its DIN (Data In) pin to any available GPIO pin
+  on the Pico.  In your Pinscape JSON configuration, set the
+  <tt>din</tt> property in the <tt>ws2812</tt> section to
+  the GPIO pin you selected.
+
+  You can connect more than one WS2812 strip to the Pico.
+  Just connect each strip's DIN pin to a different Pico GPIO
+  pin, and then set up the <tt>ws2812</tt> section as an array
+  of configuration objects:
+  <pre>
+  ws2812: [
+    { din: 23, nLeds: 1 },       // built-in NeoPixel on some Pico clones (see below)
+    { din: 7, nLeds: 12 },       // External WS2812 string connected to GPIO 7
+    { din: 13, nLeds: 35 },      // External WS2812 string connected to GPIO 13
+  ],
+  </pre>
+
+  In your output port device configurations, you'd then refer to
+  these by strip number, using <tt>strip: 0</tt> for the first entry,
+  <tt>strip: 1</tt> for the second, and so on.
+
+  <b>Built-in NeoPixel:</b>
+  Many of the third-party Pico clones feature an on-board WS2812
+  LED, which they often refer to as a NeoPixel.  This might replace
+  the original Pico's monochrome LED, or it might be in addition
+  to the usual LED.  In either case, you can configure an on-board
+  WS2812 for use with Pinscape using the <tt>ws2812</tt> object
+  the same way as for external LED strips; you just need to know the
+  GPIO port that's internally wired to the on-board LED's data
+  input (DIN) pin.  That information should ideally be in the
+  documentation your vendor provided, but clones don't usually
+  come with a lot of documentation, so you might have to guess.
+  If so, the most likely ports are GPIO 23 and GPIO 16.   Most of
+  the full-size Pico clones (the ones that look basically like the
+  original Pico, with the same header pin layout) use GPIO 23.  The
+  RP2040-Zero (a very small RP2040 board with two rows of 9 header pins)
+  and its clones usually use GPIO 16.  But those are just the most common
+  setups, so check with your vendor if neither of those work.
+
+  <b>Using a WS2812 as the Pinscape RGB status indicator:</b>
+  If you're using a clone with a built-in WS2812 LED, you can configure the
+  WS2812 as your <a href="#rgbStatusLight">Pinscape RGB status light</a>.
+  Configure the the LED itself with the <tt>ws2812</tt> section,
+  then configure <tt>rgbStatusLight</tt> to use the WS2812 as its
+  physical output device:
+  <pre>
+  rgbStatusLight: {
+    red: { type: "ws2812", strip: 0, port: "1R", },
+    green: { type: "ws2812", strip: 0, port: "1G", },
+    blue: { type: "ws2812", strip: 0, port: "1B", },
+  },
+  </pre>
+
+
+ws2812.din number required
+  The GPIO pin number connected to the WS2812's DIN (Data In) pin.
+
+ws2812.nLeds number required
+  The number of LEDs in the LED strip.
+
+ws2812.format string{"rgb" "rgbw"} optional
+  Sets the format of the WS2812 data.  The default is "rgb", which
+  selects the standard 3-channel RGB LED type.  "rgbw" selects
+  the less common 4-channel RGBW (RGB plus White) type.
+
+ws2812.freq number optional
+  Sets the WS2812 protocol frequency in Hz.  The default is 800000,
+  which is the standard for official WS2812B devices.  This should only
+  be changed if you're using a non-standard LED strip that uses a different
+  bit rate.  The frequency is calculated in terms of bits per second;
+  the standard protocol specifies 1.25us per bit, which works out
+  to 800,000 bits per second, or 800 kHz.
+
+ws2812.refresh number optional
+  Sets the refresh rate in Hz.  This is the number of times per second
+  that Pinscape updates the LED strip.  Valid values are 1 to 1000 Hz;
+  the default is 200 Hz, which should be fast enough for smooth
+  animation and fade effects.  This can be increased if desired, but
+  be aware that higher rates place a higher load on the Pico CPU.
+  The fastest possible rate is a function of how many LEDs are on
+  the strip, and the data transmission rate; each LED on the chain
+  requires transmitting 24 bits (or 32 bits for an RGBW strip) on
+  each cycle, so the highest possible frequency is f/(N*24) or
+  f/(N*32), where f is the bit rate in Hz and N is the number of
+  LEDs.  For example, with 100 LEDs on a standard 800 kHz chain,
+  the fastest possible refresh time is 333 Hz.
+
+  Note that WS2812 devices hold their last settings between refresh
+  cycles, so the refresh rate doesn't affect "flicker" for lights
+  that aren't changing brightness.  Even if you set an extremely
+  low refresh rate, such as 1 Hz, the LEDs won't flicker.  The
+  only visible effect the refresh rate has is how quickly the chain
+  is updated during animation effects.  It's effectively the "frames
+  per second" rate for animations to the LED array.  Lower rates
+  will make animations look jerkier, and higher rates will make
+  animations look smoother.
 
 expansionBoard object optional
   TOC: Expansion Board

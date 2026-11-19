@@ -1,5 +1,5 @@
 // Pinscape Pico - Status RGB LED
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 // Implements an outboard RGB LED for status displays, to supplement the
 // Pico's on-board monochrome green LED.  This provides richer status
@@ -12,12 +12,15 @@
 // timer-based PWM instead of hardware PWM channels, because we need so
 // little color resolution that it would be too wasteful to tie up three PWM
 // channels for this.  The timer runs every 1.25ms, to implement 16 PWM steps
-// (effectively 4 bits of resolution) at a 50Hz refresh rate.  That's fast
-// enough to be relatively flicker-free (especially with the primary colors
-// that display at 100% duty cycle), but slow enough to use practically
-// no CPU time.
+// (which is 4 bits of step resolution) at a 50Hz refresh rate.  That's a
+// fast enough PWM cycle to be relatively flicker-free, while keeping the
+// timer interrupts infrequent enough that they create negligible CPU load.
+// Note also that most of the status light patterns use RGB colors that
+// can be created entirely with 0% and 100% duty cycle mixes, which are
+// flicker-free at any refresh rate; it's only the in-between colors such
+// as orange (100% red, 50% green) that need any sort of PWM at all.
 //
-// Why do we only need 3-bit PWm resolution?  Because the status LED colors
+// Why do we only need 4-bit PWM resolution?  Because the status LED colors
 // have to be visually distinguishable in isolation.  That's not a technical
 // limitation, but rather a UI requirement, to make the colors stand out
 // readily to the eye.  If we used, say, two slightly different shades of
@@ -61,6 +64,7 @@
 #include "PWMManager.h"
 #include "JSON.h"
 #include "TVON.h"
+#include "Outputs.h"
 #include "USBIfc.h"
 #include "Nudge.h"
 #include "Plunger/Plunger.h"
@@ -81,13 +85,19 @@ StatusRGB::StatusRGB()
 // Configure from JSON data
 void StatusRGB::Configure(JSONParser &json)
 {
+    // do the main configuration work
+    ConfigureInternal(json);
+
+    // if any channel devices are missing, set them to null devices
+    if (outR == nullptr) outR.reset(new OutputManager::NullDev());
+    if (outG == nullptr) outG.reset(new OutputManager::NullDev());
+    if (outB == nullptr) outB.reset(new OutputManager::NullDev());
+}
+
+void StatusRGB::ConfigureInternal(JSONParser &json)
+{
     if (auto *val = json.Get("rgbStatusLight") ; !val->IsUndefined())
     {
-        // get the GPIO assignments
-        gpioR = val->Get("red")->Int(-1);
-        gpioG = val->Get("green")->Int(-1);
-        gpioB = val->Get("blue")->Int(-1);
-
         // get the RGB color mix formulas, if provided
         if (auto *colorMix = val->Get("colorMix"); !colorMix->IsUndefined())
         {
@@ -130,56 +140,89 @@ void StatusRGB::Configure(JSONParser &json)
         }
 
         // get the active high/low setting; default is active low
-        activeHigh = false;
-        if (auto activeStr = val->Get("active")->String("low") ; activeStr == "high")
-            activeHigh = true;
-        else if (activeStr != "low")
+        std::string activeStr = val->Get("active")->String("low");
+        if (activeStr != "high" && activeStr != "low" && activeStr != "")
+        {
             Log(LOG_ERROR, "rgbStatusLed.active: invalid value \"%s\", expected \"high\" or \"low\"; "
                 "using active low by default\n", activeStr.c_str());
-
-        // validate the GPIOs
-        if (!IsValidGP(gpioR) || !IsValidGP(gpioG) || !IsValidGP(gpioB))
-        {
-            Log(LOG_ERROR, "RGB Status LED: invalid or missing GPIO assignment(s)\n");
-            return;
         }
 
-        // claim the GPIOs for exclusive use
-        if (!gpioManager.Claim("Status LED (R)", gpioR)
-            || !gpioManager.Claim("Status LED (G)", gpioG)
-            || !gpioManager.Claim("Status LED (B)", gpioB))
-            return;
-
-        // Configure the GPIOs.  Set them up as PWM outputs, and set the
-        // drive strength to the highest setting so that they can directly
-        // drive a small LED.
-        auto InitGP = [](int gp)
+        // get the output color channel assignments
+        auto InitChannel = [&json, val, &activeStr](
+            std::unique_ptr<OutputManager::Device> &dev, const char *jsonLocus, const char *name, const char *chKey)
         {
-            gpio_init(gp);
-            gpio_set_dir(gp, GPIO_OUT);
-            gpio_set_drive_strength(gp, GPIO_DRIVE_STRENGTH_12MA);
-            return true;
+            // Parse the channel's output device descriptor.  Allow plain GPIO
+            // port number assignments, as well as full device descriptors.
+            auto *chVal = val->Get(chKey);
+            dev.reset(OutputManager::ParseDevice(jsonLocus, name, json, chVal, false, true));
+
+            // if no channel was configured, use a null device
+            if (dev == nullptr)
+            {
+                dev.reset(new OutputManager::NullDev());
+                Log(LOG_WARNING, "RGB Status LED: %s channel is unconfigured\n", chKey);
+            }
+
+            // If the device isn't PWM-capable, its Set() must be safe to
+            // call from IRQ context in order to implement our timer-based
+            // pseduo-PWM system.  If not, generate an error and replace
+            // the device with a null device.
+            if (!dev->IsPWM() && !dev->IsSetIRQSafe())
+            {
+                // explain the problem
+                char name[40];
+                Log(LOG_ERROR, "RGB Status LED: %s channel device (%s) is not supported "
+                    "(device is not PWM-capable and does not support IRQ-safe Set())\n",
+                    chKey, dev->FullName(name, sizeof(name)));
+
+                // replace it with a null device
+                dev.reset(new OutputManager::NullDev());
+            }
+
+            // If it's a plain GPIO port number, set max drive strength
+            // and polarity.  For other device types, all port options
+            // are set via the output manager device spec syntax.
+            if (chVal->IsNumber())
+            {
+                // set 12mA drive strength, to drive a small LED
+                gpio_set_drive_strength(chVal->Int(), GPIO_DRIVE_STRENGTH_12MA);
+
+                // set the channel polarity according to the 'active:xxx' setting
+                if (activeStr == "low")
+                    dev->inverted = true;
+            }
         };
-        if (!InitGP(gpioR) || !InitGP(gpioG) || !InitGP(gpioB))
-            return;
+        InitChannel(outR, "rgbStatusLight.red", "RGB Status (Red)", "red");
+        InitChannel(outG, "rgbStatusLight.green", "RGB Status (Green)", "green");
+        InitChannel(outB, "rgbStatueList.blue", "RGB Status (Blue)", "blue");
 
-        // claim an alarm timer
-        alarmNum = hardware_alarm_claim_unused(false);
-        if (alarmNum < 0)
+        // If any of the channels aren't PWM-capable, set up a hardware alarm
+        // timer so that we can do simulated PWM.
+        if (!outR->IsPWM() || !outG->IsPWM() || !outB->IsPWM())
         {
-            Log(LOG_ERROR, "RGB Status LED: no alarm timer available\n");
-            return;
-        }
+            alarmNum = hardware_alarm_claim_unused(false);
+            if (alarmNum < 0)
+            {
+                Log(LOG_ERROR, "RGB Status LED: no alarm timer available for pseudo-PWM\n");
+                return;
+            }
 
-        // set up our timer callback; interrupt every 1.25ms
-        alarmTargetTime = time_us_64() + 1250;
-        hardware_alarm_set_callback(alarmNum, &TimerIRQ);
-        hardware_alarm_set_target(alarmNum, alarmTargetTime);
+            // set up our timer callback; interrupt every 1.25ms
+            alarmTargetTime = time_us_64() + 1250;
+            hardware_alarm_set_callback(alarmNum, &TimerIRQ);
+            hardware_alarm_set_target(alarmNum, alarmTargetTime);
+        }
 
         // configured
         configured = true;
-        Log(LOG_CONFIG, "RGB Status LED configured on R=GP%d, G=GP%d, B=GP%d\n",
-            gpioR, gpioG, gpioB);
+        char rName[40], gName[40], bName[40];
+        char alarmStatus[40];
+        snprintf(alarmStatus, sizeof(alarmStatus), alarmNum < 0 ? "using native PWM" : "timer-based pseudo-PWM using alarm #%d", alarmNum);
+        Log(LOG_CONFIG, "RGB Status LED configured: red=%s, green=%s, blue=%s; %s\n",
+            outR->FullName(rName, sizeof(rName)),
+            outG->FullName(gName, sizeof(gName)),
+            outB->FullName(bName, sizeof(bName)),
+            alarmStatus);
 
         // set up a console command
         CommandConsole::AddCommand(
@@ -192,6 +235,7 @@ void StatusRGB::Configure(JSONParser &json)
             &Command_main);
     }
 }
+
 
 // parse a color string
 bool StatusRGB::ParseColorString(RGB &rgb, const char *p)
@@ -266,19 +310,16 @@ void StatusRGB::Task()
     // save it as the current nominal color
     curColor = rgb;
 
-    // if active-low, invert the levels
-    if (!activeHigh)
-    {
-        rgb.r = 255 - rgb.r;
-        rgb.g = 255 - rgb.g;
-        rgb.b = 255 - rgb.b;
-    }
-    
     // Update the internal GPIO level setting
     curGPIO = rgb;
+
+    // update PWM-capable ports directly
+    if (outR->IsPWM()) outR->Set(rgb.r);
+    if (outG->IsPWM()) outG->Set(rgb.g);
+    if (outB->IsPWM()) outB->Set(rgb.b);
 }
 
-// Timer callbacks
+// Timer callback - runs in IRQ context
 void StatusRGB::OnTimer()
 {
     // Update the counters.  We implement an 16-level color space, so
@@ -291,10 +332,11 @@ void StatusRGB::OnTimer()
         latchedGPIO = curGPIO;
     }
 
-    // update each channel
-    gpio_put(gpioR, latchedGPIO.r > pwmCounter);
-    gpio_put(gpioG, latchedGPIO.g > pwmCounter);
-    gpio_put(gpioB, latchedGPIO.b > pwmCounter);
+    // Update non-PWM chanels to fully ON or OFF, according to our
+    // internal PWM timer counter.
+    if (!outR->IsPWM()) outR->Set(latchedGPIO.r > pwmCounter ? 255 : 0);
+    if (!outG->IsPWM()) outG->Set(latchedGPIO.g > pwmCounter ? 255 : 0);
+    if (!outB->IsPWM()) outB->Set(latchedGPIO.b > pwmCounter ? 255 : 0);
 
     // figure the next target time; if we've fallen behind, catch up
     alarmTargetTime += 1250;
@@ -459,16 +501,30 @@ void StatusRGB::Command_main(const ConsoleCommandContext *c)
         const char *a = c->argv[argi];
         if (strcmp(a, "-s") == 0 || strcmp(a, "--stats") == 0)
         {
+            char rName[80], gName[80], bName[80];
+            char alarmInfo[40];
+            snprintf(alarmInfo, sizeof(alarmInfo), s.alarmNum < 0 ? "Not Configured" : "Configured on alarm #%d", s.alarmNum);
+            static const auto ChannelInfo = [](OutputManager::Device *dev, char *buf, size_t buflen)
+            {
+                char name[40];
+                snprintf(buf, buflen, "%s, active %s, %s",
+                    dev->FullName(name, sizeof(name)),
+                    dev->inverted ? "low" : "high",
+                    dev->IsPWM() ? "Native PWM" : "pseudo-PWM");
+                return buf;
+            };
             c->Printf(
                 "Status LED\n"
-                "  Red:     GP%d\n"
-                "  Green:   GP%d\n"
-                "  Blue:    GP%d\n"
-                "  Outputs: Active %s\n"
-                "  Color:   #%02X%02X%02X\n",
-                s.gpioR, s.gpioG, s.gpioB,
-                s.activeHigh ? "High" : "Low",
-                s.curColor.r, s.curColor.g, s.curColor.b);
+                "  Red:        %s\n"
+                "  Green:      %s\n"
+                "  Blue:       %s\n"
+                "  Color:      #%02X%02X%02X\n"
+                "  Psuedo-PWM: %s\n",
+                ChannelInfo(s.outR.get(), rName, sizeof(rName)),
+                ChannelInfo(s.outG.get(), gName, sizeof(gName)),
+                ChannelInfo(s.outB.get(), bName, sizeof(bName)),
+                s.curColor.r, s.curColor.g, s.curColor.b,
+                alarmInfo);
         }
         else if (strcmp(a, "--set") == 0)
         {

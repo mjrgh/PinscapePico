@@ -1,5 +1,5 @@
 // Pinscape Pico firmware - Output Port Manager
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 // Logical output port interface.  A logical output port represents a
 // port exposed to the host through the feedback controller USB
@@ -65,6 +65,7 @@ class TLC5947;
 class PCA9685;
 class PCA9555;
 class C74HC595;
+class WS2812;
 class Button;
 class ConsoleCommandContext;
 class DateTime;
@@ -116,7 +117,7 @@ public:
     class GPIODev;
     static GPIODev *CreateGPIODev(
         const char *jsonLocus, const char *pinoutLabel,
-        int gpNum, bool pwm, int freq);
+        int gpNum, bool pwm, int freq, int drive_mA);
 
     // Get the number of ports
     static size_t GetNumPorts() { return portList.size(); }
@@ -311,6 +312,34 @@ public:
         // gamma and logic inversion on the device side).
         virtual void Configure(const JSONParser::Value *val);
 
+        // Is this port PWM-capable?  Returns true if the port can
+        // distinguish levels in Set(), false if the port acts as a
+        // purely digital on/off switch, with no ability to distinguish
+        // intensity levels.
+        //
+        // The answer to this question is straightforward for all of the
+        // physical device types, based on their actual native switching
+        // capabilities.  Some devices, such as 74HC595 chips and Pico
+        // GPIO ports, can be configured to operate in either digital or
+        // PWM mode; those devices should report their configured modes.
+        //
+        // Virtual port types (those that can't be used to control
+        // physical devices, but instead serve some software function)
+        // should generally report true.  Virtual ports do distinguish
+        // Set() values **to the extent that it would matter to a
+        // caller.**
+        //
+        // The main intended use of this function is to let a caller
+        // determine if it needs to provide its own timer-based
+        // modulation to control brightness/intensity for a device
+        // connected to thsi port.  A port that provides native PWM
+        // doesn't need any layered time-based modulation to control
+        // brightness, because it will pass the Set() value through to
+        // the underlying native PWM controller.  Likewise, a virtual
+        // port doesn't need any layered time modulation, because that
+        // would make no difference to how it behaves.
+        virtual bool IsPWM() const = 0;
+
         // Propagate port settings to the device, if applicable.  This
         // can propagate additional port-level properties to the device,
         // such as the flipper logic settings.
@@ -339,6 +368,11 @@ public:
         // it represented the brightness of a connected lamp or the
         // power level applied to a connected solenoid or motor.
         virtual void Set(uint8_t level) = 0;
+
+        // Is Set() IRQ-safe?  Returns true if Set() can be safely
+        // called from IRQ context (that is, directly from interrupt
+        // handlers).
+        virtual bool IsSetIRQSafe() const { return false; }
 
         // Get the current PWM level on the physical port
         virtual uint8_t Get() const = 0;
@@ -469,6 +503,7 @@ public:
     {
     public:
         NullDev() { }
+        virtual bool IsPWM() const override { return true; }
         virtual const char *Name() const override { return "None"; }
         virtual const char *FullName(char *buf, size_t buflen) const override { snprintf(buf, buflen, "Null"); return buf; }
         virtual void Set(uint8_t level) override { }
@@ -505,6 +540,7 @@ public:
     {
     public:
         ShareGroupDev();
+        virtual bool IsPWM() const override;
         virtual const char *Name() const override { return "Group"; }
         virtual const char *FullName(char *buf, size_t buflen) const override;
         virtual void Set(uint8_t level) override;
@@ -598,6 +634,9 @@ public:
         const char *GetName() const { return name.c_str(); }
         uint8_t GetID() const { return id; }
 
+        // are all ports in the group PWM-capable?
+        bool IsAllPWM() const;
+
         // Find a group by name, creating a new one of the given name
         // if it doesn't already exist.
         static ShareGroupContainer *FindOrCreate(const char *name);
@@ -651,7 +690,7 @@ public:
     {
     public:
         GPIODev(int gp) : gp(gp) { }
-        
+
         // direct port access, for testing/debugging/troubleshooting clients
         static void SetDevicePortLevel(int port, int pwmLevel);
 
@@ -703,6 +742,7 @@ public:
     {
     public:
         PWMGPIODev(int gp, int freq);
+        bool IsPWM() const override { return true; }
         virtual const char *Name() const { return "GPIO(PWM)"; }
         virtual const char *FullName(char *buf, size_t buflen) const override { snprintf(buf, buflen, "GP%d [PWM]", gp); return buf; }
         virtual void Set(uint8_t level) override;
@@ -714,8 +754,10 @@ public:
     {
     public:
         DigitalGPIODev(int gp);
+        bool IsPWM() const override { return false; }
         virtual const char *Name() const { return "GPIO(Digital)"; }
         virtual const char *FullName(char *buf, size_t buflen) const override { snprintf(buf, buflen, "GP%d [Digital]", gp); return buf; }
+        virtual bool IsSetIRQSafe() const override { return true; }
         virtual void Set(uint8_t level) override;
         virtual uint8_t Get() const override;
     };
@@ -726,6 +768,7 @@ public:
     {
     public:
         PWMWorkerDev(PWMWorker *worker, int port) : worker(worker), port(port) { }
+        bool IsPWM() const override { return true; }
         virtual const char *Name() const { return "WorkerPico"; }
         virtual const char *FullName(char *buf, size_t buflen) const override;
         virtual void Set(uint8_t level) override;
@@ -752,6 +795,7 @@ public:
     {
     public:
         TLC59116Dev(TLC59116 *chip, int port) : chip(chip), port(port) { }
+        bool IsPWM() const override { return true; }
         virtual const char *Name() const { return "TLC59116"; }
         virtual const char *FullName(char *buf, size_t buflen) const override;
         virtual void Set(uint8_t level) override;
@@ -770,6 +814,7 @@ public:
     {
     public:
         TLC5940Dev(TLC5940 *chain, int port) : chain(chain), port(port) { }
+        bool IsPWM() const override { return true; }
         virtual const char *Name() const { return "TLC5940"; }
         virtual const char *FullName(char *buf, size_t buflen) const override;
         virtual void Set(uint8_t level) override;
@@ -788,6 +833,7 @@ public:
     {
     public:
         TLC5947Dev(TLC5947 *chain, int port) : chain(chain), port(port) { }
+        bool IsPWM() const override { return true; }
         virtual const char *Name() const { return "TLC5947"; }
         virtual const char *FullName(char *buf, size_t buflen) const override;
         virtual void Set(uint8_t level) override;
@@ -796,7 +842,7 @@ public:
         virtual void Populate(PinscapePico::OutputPortDesc *desc) const override;
 
         // daisy chain instance and port number
-        TLC5947 *chain;
+         TLC5947 *chain;
         int port;
     };
 
@@ -806,6 +852,7 @@ public:
     {
     public:
         PCA9685Dev(PCA9685 *chip, int port) : chip(chip), port(port) { }
+        bool IsPWM() const override { return true; }
         virtual const char *Name() const { return "PCA9685"; }
         virtual const char *FullName(char *buf, size_t buflen) const override;
         virtual void Set(uint8_t level) override;
@@ -824,9 +871,11 @@ public:
     {
     public:
         PCA9555Dev(PCA9555 *chip, int port, const char *jsonLocus);
+        bool IsPWM() const override { return false; }
         virtual const char *Name() const { return "PCA9555"; }
         virtual const char *FullName(char *buf, size_t buflen) const override;
         virtual void Set(uint8_t level) override;
+        virtual bool IsSetIRQSafe() const override { return true; }
         virtual uint8_t Get() const override;
         static void SetDevicePortLevel(int configIndex, int port, int pwmLevel);
         virtual void Populate(PinscapePico::OutputPortDesc *desc) const override;
@@ -842,15 +891,36 @@ public:
     {
     public:
         C74HC595Dev(C74HC595 *chain, int port) : chain(chain), port(port) { }
+        bool IsPWM() const override;
         virtual const char *Name() const { return "74HC595"; }
         virtual const char *FullName(char *buf, size_t buflen) const override;
         virtual void Set(uint8_t level) override;
+        virtual bool IsSetIRQSafe() const override;
         virtual uint8_t Get() const override;
         static void SetDevicePortLevel(int configIndex, int port, int pwmLevel);
         virtual void Populate(PinscapePico::OutputPortDesc *desc) const override;
 
         // daisy chain instance and port number
         C74HC595 *chain;
+        int port;
+    };
+
+    // WS2812 output port device.  This represents a single color
+    // channel port on a WS2812 chip.
+    class WS2812Dev : public Device
+    {
+    public:
+        WS2812Dev(WS2812 *strip, int port) : strip(strip), port(port) { }
+        bool IsPWM() const override { return true; }
+        virtual const char *Name() const { return "WS2812"; }
+        virtual const char *FullName(char *buf, size_t buflen) const override;
+        virtual void Set(uint8_t level) override;
+        virtual uint8_t Get() const override;
+        static void SetDevicePortLevel(int configIndex, int port, int pwmlevel);
+        virtual void Populate(PinscapePico::OutputPortDesc *desc) const override;
+
+        // LED strip instance and port number
+        WS2812 *strip;
         int port;
     };
 
@@ -861,6 +931,7 @@ public:
     {
     public:
         ZBLaunchDev() { }
+        bool IsPWM() const override { return true; }
         virtual const char *Name() const { return "ZBLaunch"; }
         virtual const char *FullName(char *buf, size_t buflen) const override { snprintf(buf, buflen, "ZBLaunch"); return buf; }
         virtual void Set(uint8_t level) override;

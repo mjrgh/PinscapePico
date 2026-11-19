@@ -186,6 +186,7 @@ add_executable(
     Devices/ADC/PicoADC.cpp
     Devices/DistanceSensor/VL6180X.cpp
     Devices/GPIOExt/PCA9555.cpp
+    Devices/LEDStrip/ws2812.cpp
     Devices/LinearPhotoSensor/TCD1103.cpp
     Devices/LinearPhotoSensor/TSL1410R.cpp
     Devices/ProxSensor/VCNL4010.cpp
@@ -216,6 +217,7 @@ add_executable(
 
 # PIO headers
 pico_generate_pio_header(PinscapePico ${CMAKE_CURRENT_LIST_DIR}/PWM_pio.pio)
+pico_generate_pio_header(PinscapePico ${CMAKE_CURRENT_LIST_DIR}/Devices/LEDStrip/ws2812.pio)
 pico_generate_pio_header(PinscapePico ${CMAKE_CURRENT_LIST_DIR}/Devices/LinearPhotoSensor/TCD1103_FMpos.pio)
 pico_generate_pio_header(PinscapePico ${CMAKE_CURRENT_LIST_DIR}/Devices/LinearPhotoSensor/TCD1103_FMneg.pio)
 pico_generate_pio_header(PinscapePico ${CMAKE_CURRENT_LIST_DIR}/Devices/LinearPhotoSensor/TCD1103_SHpos.pio)

@@ -112,7 +112,13 @@ void OutputTesterWin::QueryDeviceInfo()
         }
     }
 
-    // Count TLC5940, TLC5947, and 74HC595 chains.  If there's only
+    // build the device descriptor map, so that we can look up devices
+    // by type and configuration index
+    deviceDescMap.clear();
+    for (const auto &d : deviceDescs)
+        deviceDescMap.emplace(MAKELONG(d.devType, d.configIndex), &d);
+
+    // Count TLC5940, TLC5947, 74HC595, and WS2812 chains.  If there's only
     // one chain of a given type, as is typical, elide the chain number,
     // since there's no ambiguity.  That looks cleaner and avoids creating
     // confusion for the user for the common case where there's only one
@@ -136,6 +142,10 @@ void OutputTesterWin::QueryDeviceInfo()
 
         case PinscapePico::OutputPortDesc::DEV_74HC595:
             num74HC595 += 1;
+            break;
+
+        case PinscapePico::OutputPortDesc::DEV_WS2812:
+            numWS2812 += 1;
             break;
         }
     }
@@ -319,7 +329,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
     {
         static const char *devName[] ={ 
             "Invalid", "Virtual", "Pico GPIO", "TLC59116", "TLC5940", "PCA9685", "PCA9555", "74HC595",
-            "ZBLaunch", "PWMWorker", "TLC5947", "ShareGroup",
+            "ZBLaunch", "PWMWorker", "TLC5947", "ShareGroup", "WS2812"
         };
         using PortDesc = PinscapePico::OutputPortDesc;
         switch (devType)
@@ -368,6 +378,22 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
             sprintf_s(buf, bufSize, "Worker Pico #%d", devId);
             return devPort;
 
+        case PortDesc::DEV_WS2812:
+            {
+                // we need the number of color channels per LED, which is in
+                // the device descriptor as "ports per chip"
+                int portsPerChip = GetDeviceDesc(PortDesc::DEV_WS2812, devId)->numPortsPerChip;
+
+                // show the strip number if more than one, and LED number on the strip
+                if (numWS2812 > 1)
+                    sprintf_s(buf, bufSize, "WS2812 %d LED %d", devId, devPort/portsPerChip);
+                else
+                    sprintf_s(buf, bufSize, "WS2812 LED %d", devPort/portsPerChip);
+
+                // figure the color channel within the LED (R=0, G=1, B=2, W=3)
+                return devPort & portsPerChip;
+            }
+
         default:
             sprintf_s(buf, bufSize, "Unknown(0x%02x)", devType);
             return devPort;
@@ -400,6 +426,14 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
         case PortDesc::DEV_PCA9555:
             // use the NXP notation for the port names
             sprintf_s(buf, bufSize, "%s IO%d_%d", devName, devPort / 8, devPort % 8);
+            break;
+
+        case PortDesc::DEV_WS2812:
+            // the base device desc is the LED number; add the color channel
+            {
+                static const char *color[] ={ "R", "G", "B", "W" };
+                sprintf_s(buf, bufSize, "%s%s", devName, color[devPort]);
+            }
             break;
 
         default:
@@ -572,7 +606,7 @@ void OutputTesterWin::PaintOffScreen(HDC hdc0)
                         hdc.DrawTextF(xNameCol, yTxt, 1, mainFont, RGB(0, 0, 0), "%s", name);
                 }
 
-                // draw the device information
+                // draw the device port name
                 char devDesc[40];
                 GetDevPortName(devDesc, _countof(devDesc), pDesc->devType, pDesc->devId, pDesc->devPort);
                 hdc.DrawText(xDevCol, yTxt, 1, mainFont, RGB(0, 0, 0), devDesc);

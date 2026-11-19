@@ -17,9 +17,48 @@
 #include "Pinscape.h"
 #include "Utils.h"
 
-// Is a GP port number valid?  This is true if the GP is one of the
-// exposed GP pins on the standard Pico board.
-inline bool IsValidGP(uint8_t gp) { return gp <= 22 || (gp >= 25 && gp <= 28); }
+// Is a GP port number valid?  This is true if the port number is in the
+// range for pins physically exposed as GPIO ports on the RP2040 CPU,
+// which has pins for GP0 through GP29.
+//
+// Note that most Pico **boards** omit some GPIO ports from their
+// external headers.  The original Raspberry Pi reserves GP23, GP24,
+// GP25, and GP29 for internal connections.  Most clones reserve these
+// pins as well, although sometimes for different purposes than on the
+// original Pico.
+//
+//    GP23 - Connects to the Power Save pin on the on-board voltage
+//           regulator, to allow the Pico to control the power mode.
+//
+//           Pico W repurposes GP23 to control power to the wireless
+//           module.
+//
+//           Many Pico clones with on-board WS2812 LEDs repurpose
+//           GP23 for the DIN (Data In) connection to the LED.
+//
+//    GP24 - Connects to the VBUS power input through a voltage
+//           divider resistor network, to serve as an input that
+//           the the program can read to detect if USB bus power
+//           is present.
+//
+//           Pico W repurposes GP24 as the data/interrupt line to
+//           the wireless module.
+//
+//    GP25 - Connects to the Pico's on-board green LED, to allow
+//           the program to turn the LED on and off.
+//
+//           Pico W repurposes GP25 as the wireless module chip
+//           select/VSYS measurement enable toggle.
+//
+//    GP29 - connects to the VSYS power input through a voltage
+//           divider resistor network; this is an ADC-capable
+//           input, so it allows the program to measure the
+//           system power supply voltage
+//
+// We treat the nominally reserved GPIOs as valid, because some board
+// variants do expose them as header pins available for application use.
+//
+inline bool IsValidGP(uint8_t gp) { return gp <= 29; }
 
 // GPIO manager class
 class GPIOManager

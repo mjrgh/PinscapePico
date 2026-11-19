@@ -1,5 +1,5 @@
 // Pinscape Pico - PCA9555 port extender chip device interface
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 // The PCA9555 is a 16-port "GPIO extender" chip with an I2C interface.
 // It's designed to be used in microcontroller systems (such as the
@@ -130,6 +130,8 @@ public:
     // has been configured as an output.  This routine only queues the
     // update; the actual hardware update happens on our next I2C access
     // cycle.
+    //
+    // This routine is safe to call from IRQ context.
     void Write(uint8_t port, uint8_t level);
 
     // I2C callbacks
@@ -258,10 +260,17 @@ protected:
         // it's really a bool, but it's aesthetically nicer to write it
         // as an integer in calls to this routine, because the chip's
         // data sheet speaks in terms of '0' and '1' bits in the port
-        // registers).
+        // registers).  This routine is safe to call from IRQ context.
         void SetPortBit(int portNum, uint8_t bit)
         {
+            // figure the bit vector position representing this port number
             uint16_t portBit = (1U << portNum);
+
+            // disable IRQs for the read-modify-write operation, so that
+            // calls from IRQ context
+            IRQDisabler irqd;
+
+            // update the bit in the bit vector
             if (bit != 0)
                 newVal |= portBit;
             else

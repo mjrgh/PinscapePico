@@ -1,5 +1,5 @@
 // Pinscape Pico - Status RGB LED
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 // The original KL25Z Pinscape used that device's on-board RGB LED to
 // show a variety of status information, as a quick visual check on the
@@ -46,6 +46,7 @@
 #pragma once
 #include <stdint.h>
 #include <stdlib.h>
+#include "Outputs.h"
 
 // forward/external declarations
 class StatusRGB;
@@ -90,16 +91,21 @@ public:
     void Enable(bool enable);
 
 protected:
+    // internal configuration handler
+    void ConfigureInternal(JSONParser &json);
+
     // Is the LED configured?
     bool configured = false;
 
     // Is the LED enabled?
     bool enabled = true;
 
-    // GPIO ports
-    int gpioR = -1;
-    int gpioG = -1;
-    int gpioB = -1;
+    // Output ports (one for each channel).  These are Output Manager
+    // device ports, which allows them to drive any type of physical
+    // output port.
+    std::unique_ptr<OutputManager::Device> outR;
+    std::unique_ptr<OutputManager::Device> outG;
+    std::unique_ptr<OutputManager::Device> outB;
 
     // timer interrupt callback
     static void TimerIRQ(uint alarmNum) { statusRGB.OnTimer(); }
@@ -149,11 +155,6 @@ protected:
 
     // current counter, for the timer-based PWM
     int pwmCounter = 0;
-
-    // Polarity - active high or active low.  Active high means that the
-    // port is driven at VCC when the LED is ON.  Active low means that
-    // the port is at GND when the LED is ON.
-    bool activeHigh = false;
 
     // console command
     static void Command_main(const ConsoleCommandContext *c);

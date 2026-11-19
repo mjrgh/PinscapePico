@@ -30,15 +30,25 @@
 //
 // INTERFACE DISCOVERY ON WINDOWS
 //
-// On Windows, the vendor interface automatically registers itself as a
-// WinUsb device when the device is plugged in, so it's possible to
-// discover the interface programmatically without any user action.
-// (The only exception is XP, where the WinUsb driver must be manually
-// installed first.  WinUsb is a built-in component on all later Windows
-// versions.)
+// On Windows, when a USB device is first connected, the operating
+// system scans the device for certain special Microsoft-defined
+// descriptors that identify WinUsb interfaces.  The Pinscape Pico
+// software provides those special descriptors, so Windows machines
+// will automatically recognize the presence of our vendor interface
+// without any user action beyond physically plugging in the device.
+// The user doesn't have to install any device drivers or perform
+// any manual configuration steps; the registration process is
+// fully automatic and transparent to the user.  (The only exception
+// is Windows XP, where the user must manually install the WinUsb
+// driver before using any WinUsb devices.  The installation only
+// needs to be done once on a given XP machine, and then the device
+// recognition will work automatically from that point forward.  No
+// such extra step is required on any later Windows versions because
+// the WinUsb driver is a built-in component on all Windows versions
+// after XP.)
 //
 // To enumerate available Pinscape Pico devices, a Windows program can
-// use the Windows Configuration Manager API.  In particular, use
+// use the Windows Configuration Manager (CM) API.  In particular, use
 // CM_Get_Device_Interface_List() to list devices under the Pinscape
 // Pico Vendor GUID, {D3057FB3-8F4C-4AF9-9440-B220C3B2BA23}.  This will
 // return a list of device IDs that can be opened via WinUsb to access
@@ -47,9 +57,11 @@
 // Note that the vendor interface discovery process via the CM API is
 // independent of USB device identifiers (VID/PID), so this procedure
 // will enumerate all Pinscape Pico devices, even if the user has
-// reconfigured the USB identifiers.  It's also unambiguous; it won't
-// accidentally enumerate any non-Pinscape devices, since only Pinscape
-// devices will use the private GUID.
+// reconfigured the USB identifiers.  It's also unambiguous; it will
+// never coincidentally or accidentally enumerate devices exposing any
+// other non-Pinscape vendor interfaces, since the private GUID is by
+// design universally unique, with the one and only function of
+// identifying this specific vendor interface.
 //
 //
 // PROTOCOL USAGE
@@ -1364,6 +1376,7 @@ namespace PinscapePico
                 //  PCA9685:    0-4095
                 //  74HC595:    0-1 (digital mode), 0-255 (PWM mode)
                 //  PCA9555:    0-1
+                //  WS2812:     0-255
                 //
                 // Anything above the maximum level for the device will be clipped to
                 // the maximum.
@@ -2414,6 +2427,7 @@ namespace PinscapePico
         static const uint8_t DEV_PWMWORKER = 9;   // external Pico running PWMWorker firmware
         static const uint8_t DEV_TLC5947 = 10;    // TLC5947 serial-interface PWM controller port
         static const uint8_t DEV_SHAREGROUP = 11; // share group port
+        static const uint8_t DEV_WS2812 = 12;     // WS2812 LED strip port (a single color channel of one LED)
 
         // Device port.
         //
@@ -2466,16 +2480,19 @@ namespace PinscapePico
         uint16_t numPorts;
 
         // Number of output ports PER CHIP.  For daisy chains (74HC595, TLC5940,
-        // TLC5947), this is the number of chips on each physical chip in the
-        // chain.  For individually configured chips, this is the same as
-        // numPorts.
+        // TLC5947), this is the number of ports on each chip.  WS2812 strips
+        // are daisy chains of LEDs, with each LED being a separate chip in the
+        // daisy chain, so this reports 3 channels for RGB strips, or 4 channels
+        // for RGBW strips.  For individually addressed chips, such as chips on
+        // an I2C or SPI bus, this is the same as numPorts.
         uint16_t numPortsPerChip;
 
-        // PWM resolution.  This is the number of discrete PWM duty cycle steps that the
-        // device supports.  The range of PWM levels is 0 to pwmRes-1.  A digital on/off
-        // output port (Pico GPIO in digital mode, shift register port, PCA9555 port)
-        // reports 2 here.  An 8-bit PWM chip (TLC59116) reports 256; a 12-bit chip
-        // (TLC5940, TLC5947, PCA9685) reports 4096.
+        // PWM resolution.  This is the number of discrete PWM duty cycle steps
+        // that the device supports.  The range of PWM levels is 0 to pwmRes-1.
+        // A digital on/off output port (Pico GPIO in digital mode, shift
+        // register port, PCA9555 port) reports 2 here.  An 8-bit PWM chip
+        // (TLC59116, WS2812) reports 256; a 12-bit chip (TLC5940, TLC5947,
+        // PCA9685) reports 4096.
         uint16_t pwmRes;
 
         // Device configuration index

@@ -1,5 +1,5 @@
 // Pinscape Pico - 74HC595 device driver - PWM enabled
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 // The 74HC595 is an 8-bit serial-in, parallel-out shift register chip.
 // These chips can be daisy-chained together to form a virtual shift
@@ -128,6 +128,7 @@ public:
     virtual bool IsPWM() const = 0;
 
     // Set an output level, port 0..nPorts-1 (port 0 = QA on first chip on chain).
+    // This routine is safe to call from IRQ context.
     virtual void Set(int port, uint8_t level) = 0;
 
     // Get an output level in DOF units, 0-255

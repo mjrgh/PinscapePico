@@ -1,5 +1,5 @@
 // Pinscape Pico - Utilities
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 
 #pragma once
 #include <stdint.h>
@@ -9,6 +9,7 @@
 #include <hardware/sync.h>
 #include <hardware/dma.h>
 #include <pico/mutex.h>
+#include <pico/critical_section.h>
 
 // ---------------------------------------------------------------------------
 //
@@ -54,6 +55,20 @@ public:
     spin_lock_t *lock;   // lock
     uint32_t state;      // original interrupt state, restored on unlock
 };
+
+// ---------------------------------------------------------------------------
+//
+// Critical section locker
+//
+class CriticalSectionLocker
+{
+public:
+    CriticalSectionLocker(critical_section_t *cs) : cs(cs) { critical_section_enter_blocking(cs); }
+    ~CriticalSectionLocker() { critical_section_exit(cs); }
+
+    critical_section_t *cs; // system critical section object
+};
+
 
 // ---------------------------------------------------------------------------
 //

@@ -46,7 +46,7 @@ Tool by double-clicking **GUIConfigTool.exe**.  That's designed to be
 your main gateway to the system, and it'll display on-screen
 instructions for setting up a new Pico with the Pinscape software.
 
-[More setup details](#SetupDetails).
+[More setup details](#SetupDetails)
 
 [Linux and MacOS versions](#linuxAndMac)
 
@@ -285,18 +285,25 @@ functions are already covered by other open-source projects that run
 on similarly inexpensive hardware, so leaving them out of Pinscape
 shouldn't be an obstacle to including them in a DIY pin cab.
 
-* **No smart light strips:** Pinscape doesn't control smart light
-strips - the kind with individually addressable RGB LEDs, such as
-WS2812B strips.  The resource limit that makes this impractical to
-include in Pinscape is the Pico's relatively small number of GPIO
-ports.  For a typical pin cab light strip setup, you'd need four to
-eight GPIO ports dedicated to the light strips.  Pinscape needs almost
-all of the GPIO ports to itself as it is.
+* **Limited smart LED strip support:**  Pinscape has basic support
+for WS2812 "smart" LED strips, but it's not designed as a replacement
+for a dedicated WS2812 controller.  Pinscape's DOF connection uses
+a USB HID protocol, which has a relatively slow data rate that limits
+the number of LEDs that a Pinscape unit can handle before animation
+rates start slowing down too much.  There's no hard limit, but the
+practical limit is probably around 100 LEDs.  So you can use Pinscape
+Pico as a WS2812 controller for a modest LED array, but if you want
+a really big LED array, you're better off with one of the dedicated
+WS2812 controllers.  There are several open-source WS2812 projects
+specifically designed for use in virtual pin cabs - and those will
+work alongside Pinscape, so you can use Pinscape for the things it's
+good at, and let a more purpose-built controller handle the big
+LED arrays.
 
-* **No Dot-Matrix Displays (DMDs):** Pinscape also doesn't control the
-128x32 dot-matrix display panels found in 1990s pinball machines, and
-still popular in virtual pinball cabinets.  The main reason to
-dedicate a separate controller to the DMD is that it requires a lot of
+* **No Dot-Matrix Displays (DMDs):** Pinscape doesn't have any support
+for the 128x32 dot-matrix display panels found in 1990s pinball machines,
+and still popular in virtual pinball cabinets.  The main reason to
+dedicate a separate controller to a DMD is that it requires a lot of
 USB bandwidth, since the DMD is essentially a small video display.  A
 separate device with its own USB port is the simplest way to ensure
 plenty of bandwidth for everyone.

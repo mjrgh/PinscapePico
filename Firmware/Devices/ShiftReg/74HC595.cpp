@@ -1,5 +1,5 @@
 // Pinscape Pico - 74HC595 device driver
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 //
 // The 74HC595 is a widely used serial-in, parallel-out shift register
 // chip.  The chips can be daisy-chained together to form a virtual
@@ -412,15 +412,25 @@ void Digital74HC595::Set(int port, uint8_t dofLevel)
         //
         int index = nChips - 1 - (port / 8);
         uint8_t bit = 0x80 >> (port % 8);
-        uint8_t old = level[index];
-        if (on)
-            level[index] |= bit;
-        else
-            level[index] &= ~bit;
 
-        // flag that a transmission is needed on the next Task() call
-        if (level[index] != old)
-            dirty = true;
+        // disable IRQs during the read-modify-write, so that this can also
+        // be called safely from IRQ context
+        {
+            IRQDisabler irqd;
+
+            // get the old level
+            uint8_t old = level[index];
+
+            // update the level bit vector
+            if (on)
+                level[index] |= bit;
+            else
+                level[index] &= ~bit;
+            
+            // flag that a transmission is needed on the next Task() call
+            if (level[index] != old)
+                dirty = true;
+        }
     }
 }
 
@@ -823,7 +833,7 @@ PWM74HC595::~PWM74HC595()
     delete[] txBuf[1].buf;
 }
 
-// update a port
+// Update a port.  This routine is safe to call from IRQ context.
 void PWM74HC595::Set(int port, uint8_t val)
 {
     if (port >= 0 && port < nPorts && level[port] != val)

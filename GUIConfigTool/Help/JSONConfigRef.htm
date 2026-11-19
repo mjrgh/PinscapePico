@@ -6,10 +6,10 @@
 
     THIS FILE WAS GENERATED MECHANICALLY - DO NOT EDIT.
 
-    This file was created mechanically by ConfigDocParser from firmware\JSONConfigRef.txt.
+    This file was created mechanically by ConfigDocParser from ..\firmware\JSONConfigRef.txt.
     Hand-editing of this file isn't recommended, since the entire file will be
     overwritten on the next full build.  Corrections should be made to the input
-    file (firmware\JSONConfigRef.txt) instead.
+    file (..\firmware\JSONConfigRef.txt) instead.
 -->
 
 <html>
@@ -11679,12 +11679,14 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     </div>
     <div class="jsonPropDesc">
   <p>
-    Sets the WS2812 protocol frequency in Hz.  The default is 800000,
+    Sets the WS2812 protocol bit rate in Hz.  The default is 800000,
     which is the standard for official WS2812B devices.  This should only
     be changed if you're using a non-standard LED strip that uses a different
-    bit rate.  The frequency is calculated in terms of bits per second;
-    the standard protocol specifies 1.25us per bit, which works out
-    to 800,000 bits per second, or 800 kHz.
+    bit rate.  The timing requirements are hardwired into the LEDs, and
+    tend to be quite rigid, so you have to exactly match the data rate
+    that your LEDs use.  The frequency is given in terms of the bit rate
+    at the protocol level; the standard protocol specifies signal timing
+    of 1.25us per bit, which works out to 800,000 bits per second.
   </p>
     </div>
   </div>
@@ -11719,7 +11721,10 @@ For an introduction to the JSON syntax and the overall file layout, refer to
     each cycle, so the highest possible frequency is f/(N*24) or
     f/(N*32), where f is the bit rate in Hz and N is the number of
     LEDs.  For example, with 100 LEDs on a standard 800 kHz chain,
-    the fastest possible refresh time is 333 Hz.
+    the highest possible refresh rate is 333 Hz.  Pinscape will
+    accept configuration values that are higher than what's physically
+    possible with the specific run-time layout, but the actual rate
+    used in that case will be the maximum allowed by the protocol.
     </p><p>
     Note that WS2812 devices hold their last settings between refresh
     cycles, so the refresh rate doesn't affect "flicker" for lights

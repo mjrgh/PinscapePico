@@ -13,9 +13,8 @@ if %1# == # (
 set rlsVersionTag=%1
 
 rem  Construct the release date stamp
-set SysDateTime=
-for /f "skip=1" %%i in ('wmic os get localdatetime') do if not defined SysDateTime set SysDateTime=%%i
-set ReleaseDate=%SysDateTime:~0,8%
+set ReleaseDate=
+for /f "delims=" %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd"') do if not defined ReleaseDate set ReleaseDate=%%i
 set ReleaseTag=%rlsVersionTag%-%ReleaseDate%
 echo Building release %ReleaseDate%
 

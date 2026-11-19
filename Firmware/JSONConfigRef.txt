@@ -6559,13 +6559,7 @@ ws2812 object|[object] optional
   specifically built for pin cab use, and they'll work alongside
   a Pinscape Pico unit.
 
-  The wiring for a WS2812 LED or LED strip is easy.  You
-  just need to connect the LED or strip to power and ground,
-  and connect its DIN (Data In) pin to any available GPIO pin
-  on the Pico.  In your Pinscape JSON configuration, set the
-  <tt>din</tt> property in the <tt>ws2812</tt> section to
-  the GPIO pin you selected.
-
+  <b>Configuring multiple WS2812 strips:</b>
   You can connect more than one WS2812 strip to the Pico.
   Just connect each strip's DIN pin to a different Pico GPIO
   pin, and then set up the <tt>ws2812</tt> section as an array
@@ -6613,6 +6607,55 @@ ws2812 object|[object] optional
     blue: { type: "ws2812", strip: 0, port: "1B", },
   },
   </pre>
+
+  <b>Wiring:</b>  Connecting a WS2812 LED strip requires a
+  voltage level shifter, to bridge the gap between the Pico's 3.3V
+  logic and the WS2812's 5V logic.  The most common solution, which
+  is fairly easy to build, is to use a 74HCT125 chip, which can
+  accept 3.3V logic input and generate 5V logic output.  These
+  chips are widely available, and they come in a through-hole
+  version, SN74AHCT125N, which is easy to work with on breadboards
+  and for hand-soldering.  That makes it a great solution for DIY
+  builds.  The only extra parts you need are:
+
+  <ul>
+    <li>One SN74AHCT125N chip
+    <li>One 0.1uF ceramic capacitor
+  </ul>
+
+  Both parts can be bought at Amazon, eBay, Mouser, or DigiKey.
+
+  Here's the wiring plan:
+
+  <ul>
+    <li>Connect a Pico GPIO to 74HCT125 input pin "1A" (pin 2)
+    <li>Connect 74HCT125 output pin "1Y" (pin 3) to the WS2812 strip's DIN pin
+    <li>Connect the WS2812 5V and GND pins to a suitable 5V power supply
+    <li>Connect 74HCT125 "VCC" (pin 14) to the 5V LED power supply (+)
+    <li>Connect 74HCT125 "GND" (pin 7) to the 5V LED power supply (-)
+    <li>Connect 74HCT125 "1OE" (pin 1) to the 5V LED power supply (-)
+    <li>Connect one of the Pico's GND pins to the 5V LED power supply (-)
+    <li>Recommended: Connect a 0.1uF ceramic disc capacitor between the
+      74HCT125 chip's VCC and GND pins (pins 14 and 7), as close to the
+      chip as possible
+  </ul>
+
+  An LED strip can consume a lot of power, so you should never
+  power the LED strip from any of the Pico's power pins, nor
+  from the USB bus power.  An LED strip should always be powered
+  directly from a high-current power supply, with enough wattage
+  to satisfy the LED strip's requirements.  To estimate the
+  required power, multiply the number of LEDs on the strip by
+  0.06.  The result is the <b>minimum</b> number of Amps that
+  the 5V power supply must be rated for.  It's a good idea to add
+  a couple of Amps to the result as a margin of safety, because
+  manufacturers can be optimistic in their quoted ratings, plus
+  it's hard on any device to operate it right at its limits.
+  For example, an LED strip with 100 LEDs requires at least 6A,
+  so you should use a power supply rated for at least 8A.  It's
+  fine to use a power supply rated higher than what you need.
+
+  <img src="WS2812-wiring.png" class="circuit-diagram">
 
 
 ws2812.din number required

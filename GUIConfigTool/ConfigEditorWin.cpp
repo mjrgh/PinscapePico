@@ -1,5 +1,5 @@
 // Pinscape Pico - Config Editor Window
-// Copyright 2024, 2025 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
+// Copyright 2024, 2026 Michael J Roberts / BSD-3-Clause license / NO WARRANTY
 
 
 #include <stdlib.h>
@@ -1788,7 +1788,7 @@ LRESULT ConfigEditorWin::WndProc(UINT msg, WPARAM wparam, LPARAM lparam)
     case MSG_FINDREPLACEDLG:
         // Find/Replace dialog messages
         {
-            // get the curent dialog information
+            // get the current dialog information
             findWhat = findReplaceDlg->GetFindWhat();
             replaceWith = findReplaceDlg->GetReplaceWith();
             findReplaceFlags = findReplaceDlg->GetFlags();
@@ -2511,8 +2511,21 @@ bool ConfigEditorWin::OnNotify(WPARAM id, NMHDR *nmhdr, LRESULT &lresult)
             AutoIndent(nm->ch);
 
             // check if they're typing something that could trigger auto-complete
-            if (isalpha(nm->ch) || isdigit(nm->ch) || nm->ch == '_' || nm->ch == '$' || nm->ch == '"')
+            if (isalpha(nm->ch) || isdigit(nm->ch) || nm->ch == '_' || nm->ch == '$')
                 openAutoCompletePending = true;
+
+            // an open quote triggers auto-complete, but not a close quote
+            if (nm->ch == '"')
+            {
+                switch (CallSci(SCI_GETSTYLEAT, CallSci(SCI_GETCURRENTPOS)))
+                {
+                case SCE_JSON_STRING:
+                case SCE_JSON_STRINGEOL:
+                    // we're inside a string, so trigger auto-complete
+                    openAutoCompletePending = true;
+                    break;
+                }
+            }
             break;
 
         case SCN_UPDATEUI:
@@ -2728,24 +2741,30 @@ void ConfigEditorWin::AutoIndent(int chAdded)
         break;
 
     case '{':
-        CallSci(SCI_INSERTTEXT, -1, reinterpret_cast<INT_PTR>("}"));
+        CallSci(SCI_INSERTTEXT, -1, reinterpret_cast<INT_PTR>(" },"));
         break;
 
     case '[':
-        CallSci(SCI_INSERTTEXT, -1, reinterpret_cast<INT_PTR>("],"));
+        CallSci(SCI_INSERTTEXT, -1, reinterpret_cast<INT_PTR>(" ],"));
         break;
 
     case '(':
-        CallSci(SCI_INSERTTEXT, -1, reinterpret_cast<INT_PTR>(")"));
+        CallSci(SCI_INSERTTEXT, -1, reinterpret_cast<INT_PTR>(" )"));
         break;
 
     case '"':
-        // if we're not already in a string, insert a matching close quote
+        // If we're not already in a string, insert a matching close quote.
+        // If we ARE in a string, and there was already a close quote at
+        // this position, treat this as just confirming the close quote.
         switch (CallSci(SCI_GETSTYLEAT, CallSci(SCI_GETCURRENTPOS)))
         {
         case SCE_JSON_STRING:
         case SCE_JSON_STRINGEOL:
-            // already in a string - leave well enough alone
+            // already in a string - if we just inserted a close quote
+            // where there was already a close quote, treat it as
+            // confirmation of the close quote by deleting the extra one
+            if (CallSci(SCI_GETCHARAT, CallSci(SCI_GETCURRENTPOS)) == chAdded)
+                CallSci(SCI_DELETERANGE, CallSci(SCI_GETCURRENTPOS), 1);
             break;
 
         default:
@@ -2758,8 +2777,18 @@ void ConfigEditorWin::AutoIndent(int chAdded)
     case ']':
     case '}':
     case ')':
-        // Close brace, bracket, or paren.  If this is the only character
-        // on the line, match the indent at the open delimiter.
+    case ',':
+        // If we inserted this where the same character was already
+        // present, treat this as just confirming the existing character.
+        // This makes the automatic closing delimiter insertion more
+        // natural to work with, because it lets the user keep typing
+        // as though the close delimiter weren't already there.
+        if (CallSci(SCI_GETCHARAT, CallSci(SCI_GETCURRENTPOS)) == chAdded)
+            CallSci(SCI_DELETERANGE, CallSci(SCI_GETCURRENTPOS), 1);
+
+        // For a closing delimiter, if this is the only character on
+        // the line, match the indent at the open delimiter.
+        if (chAdded == ']' || chAdded == ')' || chAdded == '}')
         {
             INT_PTR curPos = CallSci(SCI_GETCURRENTPOS) - 1;
             INT_PTR ch = CallSci(SCI_GETCHARAT, curPos);
@@ -3685,7 +3714,7 @@ void ConfigEditorWin::CheckSchemaProp(const JSONParser::Value &val,
                 // array is valid
                 matched = true;
 
-                // match the element typse
+                // match the element types
                 int idx = 0;
                 for (auto &eleVal : *val.array)
                 {
